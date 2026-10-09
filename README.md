@@ -15,6 +15,7 @@ Configurable coverage: Filter player chat, chat bubbles, NPC dialogue, and quest
 Three filtering actions: Show a readable warning, cover matching words with black bars, or hide the message and retain its original in Review.
 
 Inline chat reveal: Click a redaction in supported chat lines to reveal its wording in subdued gray. Click again to cover it. No separate reveal window.
+
 Four sensitivity presets: Choose selective phrase filtering or expanded literal-word filtering.
 
 Category controls and exceptions: Choose which wording groups to filter and allow wording you want to keep.
