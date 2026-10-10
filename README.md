@@ -3,7 +3,6 @@ Olympus ChatWarden BETA
 CHUDS WITHOUT BORDERS
 
 
-
 Olympus ChatWarden is a customizable text-filtering addon for World of Warcraft: Forever, built for the Olympus community.
 
 The purpose is simple: give players control over what they see in their own game.
@@ -11,6 +10,10 @@ The purpose is simple: give players control over what they see in their own game
 ChatWarden does not label words, opinions, or players as harmful or offensive. It does not make judgments about what anyone should or shouldn't say. Its filtering categories are simply viewing preferences that each player can choose, customize, or disable.
 
 The offical Olympus addon and guild memorship are required. 
+
+
+<img width="1448" height="1086" alt="36f51cd5-90b0-4405-8e66-8057885234c9" src="https://github.com/user-attachments/assets/63b24d34-2608-47fd-a1b9-1f2503800972" />
+
 
 Features
 Customizable filtering — Choose which words, phrases, and categories appear on your screen.
@@ -23,6 +26,13 @@ Optional rule packs — Add or remove independently configurable filtering categ
 Personal rules — Create your own filters, replacements, and exceptions.
 Message Review — Review filtered messages, receive notifications, and report incorrect filtering.
 Olympus integration — Access ChatWarden directly through the Olympus addon, with guild membership verification.
+
+
+<img width="1536" height="1024" alt="074e27de-87a5-4be9-bf34-ba67603f5908" src="https://github.com/user-attachments/assets/fa983fb3-01c7-4558-bc61-39a791df2627" />
+
+
+<img width="1254" height="1254" alt="Ornate Golden Zeus Notification Badge" src="https://github.com/user-attachments/assets/8ada30d1-f96d-4a0d-aba3-2a0ff4c0f653" />
+
 
 Filtering uses predefined rules and contextual matching to reduce unwanted matches, but it isn't perfect. Players can adjust sensitivity, disable categories, and create exceptions at any time.
 
