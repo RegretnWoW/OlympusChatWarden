@@ -1,29 +1,43 @@
-#Olympus ChatWarden (beta)
+Olympus ChatWarden BETA
 
-Choose what you see in chat, with configurable filtering, wording replacements, and personal phrase rules.
+CHUDS WITHOUT BORDERS
 
-Filtering reflects your viewing preferences. It does not assess a speaker’s intent, label wording as inherently harmful, or represent the views of other players, the guild, or Blizzard.
 
-Olympus ChatWarden is an independent addon that warns about, redacts, or hides matching wording according to your settings. It includes rules for insults directed at Olympus, selected creator-directed teasing, and optional terminology categories.
+
+Olympus ChatWarden is a customizable text-filtering addon for World of Warcraft: Forever, built for the Olympus community.
+
+The purpose is simple: give players control over what they see in their own game.
+
+ChatWarden does not label words, opinions, or players as harmful or offensive. It does not make judgments about what anyone should or shouldn't say. Its filtering categories are simply viewing preferences that each player can choose, customize, or disable.
+
+The offical Olympus addon and guild memorship are required. 
 
 Features
+Customizable filtering — Choose which words, phrases, and categories appear on your screen.
+Four sensitivity levels — Selective, Balanced, Broad, and Gommage.
+Multiple filtering options — Hide messages, redact specific words, display warnings, or replace wording.
+Click to reveal — Ctrl-click redacted text to view the original.
+Expanded text coverage — Optional filtering for chat, NPC dialogue, quests, tooltips, and supported player/NPC names.
+Olympus Protection & King Protection — Built-in categories for filtering selected remarks directed at Olympus and Asmongold.
+Optional rule packs — Add or remove independently configurable filtering categories.
+Personal rules — Create your own filters, replacements, and exceptions.
+Message Review — Review filtered messages, receive notifications, and report incorrect filtering.
+Olympus integration — Access ChatWarden directly through the Olympus addon, with guild membership verification.
 
-Olympus addon Integration: Optionally add a new tab in the Olympus addon to open the review messages panel
+Filtering uses predefined rules and contextual matching to reduce unwanted matches, but it isn't perfect. Players can adjust sensitivity, disable categories, and create exceptions at any time.
 
-Configurable coverage: Filter player chat, chat bubbles, NPC dialogue, and quest text
+Getting Started
 
-Three filtering actions: Show a readable warning, cover matching words with black bars, or hide the message and retain its original in Review.
+Install ChatWarden alongside the Olympus addon and open Settings with /ocw.
 
-Inline chat reveal: Click a redaction in supported chat lines to reveal its wording in subdued gray. Click again to cover it. No separate reveal window.
+Choose your filtering preferences, enable any optional rule packs you want, and you're ready to go.
 
-Four sensitivity presets: Choose selective phrase filtering or expanded literal-word filtering.
+An active Olympus guild membership is required.
 
-Category controls and exceptions: Choose which wording groups to filter and allow wording you want to keep.
+Feedback
 
-Personal phrase rules: Assign specific phrases to Keep visible, Warning, Redact matched words, Hide the message, or Replace with text.
+Found a bug or a filtering mistake? Reports and suggestions are welcome.
 
-Mistake reporting: Save missed messages and incorrect results, then export examples for feedback.
+GitHub Issues
 
-In-game help: A dismissible first-launch welcome and optional guides explain presets, confidence, and corrections.
-
-WoW-style interface: Dark panels, parchment details, and a circular minimap crest.
+ChatWarden only changes your local viewing experience. Its filtering options do not represent an opinion or judgment about the content being filtered, the people who use it, or the people who created it.
