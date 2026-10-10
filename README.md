@@ -12,7 +12,7 @@ ChatWarden does not label words, opinions, or players as harmful or offensive. I
 The offical Olympus addon and guild memorship are required. 
 
 
-<img width="1448" height="1086" alt="36f51cd5-90b0-4405-8e66-8057885234c9" src="https://github.com/user-attachments/assets/63b24d34-2608-47fd-a1b9-1f2503800972" />
+<img width="1536" height="1024" alt="074e27de-87a5-4be9-bf34-ba67603f5908" src="https://github.com/user-attachments/assets/fa983fb3-01c7-4558-bc61-39a791df2627" />
 
 
 Features
@@ -28,7 +28,7 @@ Message Review — Review filtered messages, receive notifications, and report i
 Olympus integration — Access ChatWarden directly through the Olympus addon, with guild membership verification.
 
 
-<img width="1536" height="1024" alt="074e27de-87a5-4be9-bf34-ba67603f5908" src="https://github.com/user-attachments/assets/fa983fb3-01c7-4558-bc61-39a791df2627" />
+<img width="1448" height="1086" alt="36f51cd5-90b0-4405-8e66-8057885234c9" src="https://github.com/user-attachments/assets/63b24d34-2608-47fd-a1b9-1f2503800972" />
 
 
 <img width="1254" height="1254" alt="Ornate Golden Zeus Notification Badge" src="https://github.com/user-attachments/assets/8ada30d1-f96d-4a0d-aba3-2a0ff4c0f653" />
