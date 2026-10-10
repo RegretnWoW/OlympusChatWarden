@@ -16,15 +16,25 @@ The offical Olympus addon and guild memorship are required. 
 
 
 Features
+
 Customizable filtering — Choose which words, phrases, and categories appear on your screen.
+
 Four sensitivity levels — Selective, Balanced, Broad, and Gommage.
+
 Multiple filtering options — Hide messages, redact specific words, display warnings, or replace wording.
+
 Click to reveal — Ctrl-click redacted text to view the original.
+
 Expanded text coverage — Optional filtering for chat, NPC dialogue, quests, tooltips, and supported player/NPC names.
+
 Olympus Protection & King Protection — Built-in categories for filtering selected remarks directed at Olympus and Asmongold.
+
 Optional rule packs — Add or remove independently configurable filtering categories.
+
 Personal rules — Create your own filters, replacements, and exceptions.
+
 Message Review — Review filtered messages, receive notifications, and report incorrect filtering.
+
 Olympus integration — Access ChatWarden directly through the Olympus addon, with guild membership verification.
 
 
