@@ -47,7 +47,6 @@ An optional OlympusMute signal feature records compatible list-sharing activity 
 ## Olympus Integration
  - ChatWarden opens directly through the Olympus addon. The Review window includes separate Messages and Shield tabs, keeping everything in one place.
  - An active Olympus guild membership is required.
- - Optional OlympusMute signal tooltips can identify compatible list-sharing activity observed by your client. This does not prove a player has muted you or even which addon they use.
 
 <img width="488" height="850" alt="ChatWarden-Notification-Badge" src="https://github.com/user-attachments/assets/e1e8659b-0a5d-45e9-89a7-b4bbc81b8756" />
 
