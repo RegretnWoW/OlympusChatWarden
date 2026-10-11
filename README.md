@@ -54,6 +54,19 @@ Record, search and export player chat from a new tab in Review & protection. Rec
 
 <img width="850" height="597" alt="download" src="https://github.com/user-attachments/assets/acd522c0-9883-4bed-9a7b-d15fd86004e7" />
 
+##Language Confidence Filtering
+
+Keep shared-server chat focused on languages you can read. ChatWarden can cover detected text or hide qualifying messages while keeping originals available in Review.
+
+- Optional language filtering, off by default, with English allowed.
+- Choose additional supported languages and writing systems to allow.
+- Default actions: uncertain text stays visible, medium confidence covers detected portions, and high confidence hides qualifying messages.
+- Hidden originals remain available in Messages.
+- Mixed messages preserve readable English where identified.
+- Customize actions, minimum text length and chat coverage.
+- Review shows the detected language or writing system, confidence and an Allow language shortcut.
+- Language explanations are included in saved reports and exports.
+- Works independently of word-filter scores, Shield and chat capture.
 
 ## Olympus Integration
  - ChatWarden opens directly through the Olympus addon. The Review window includes separate Messages and Shield tabs, keeping everything in one place.
