@@ -54,7 +54,7 @@ Record, search and export player chat from a new tab in Review & protection. Rec
 
 <img width="850" height="597" alt="download" src="https://github.com/user-attachments/assets/acd522c0-9883-4bed-9a7b-d15fd86004e7" />
 
-##Language Confidence Filtering
+## Language Confidence Filtering
 
 Keep shared-server chat focused on languages you can read. ChatWarden can cover detected text or hide qualifying messages while keeping originals available in Review.
 
