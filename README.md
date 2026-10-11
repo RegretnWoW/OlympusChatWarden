@@ -4,9 +4,8 @@
 
 A customizable text-filtering and personal protection addon for World of Warcraft: Forever, built for the Olympus community.
 
-**Your chat. Your preferences.**
-
 ChatWarden gives players control over their own viewing experience. It doesn't label words or opinions as harmful, judge other players, or decide what anyone should be allowed to say.
+
 
 ## Features
 
@@ -24,6 +23,11 @@ ChatWarden gives players control over their own viewing experience. It doesn't l
 
 **Gommage** uses a separate display list to cover selected terminology without increasing filtering confidence or automatically hiding entire messages.
 
+<img width="850" height="582" alt="ChatWarden-Message-Review" src="https://github.com/user-attachments/assets/89fa8a3a-dce2-42b2-875a-e8f0b8c5c176" />
+
+<img width="850" height="640" alt="ChatWarden-Personal-Rules" src="https://github.com/user-attachments/assets/8fcec8d2-62bb-4b15-9aba-6d523b623930" />
+
+
 ## ChatWarden Shield
 
 Shield provides optional local protection against repeated contact.
@@ -35,9 +39,18 @@ Shield provides optional local protection against repeated contact.
 - An Allowed list for players you trust.
 - Recent alerts and player management in **Review > Shield**.
 
-Shield is configurable and can be disabled independently.
-
 An optional OlympusMute signal feature records compatible list-sharing activity actually received by your client. It does not determine whether someone is muting you.
+
+<img width="1448" height="1086" alt="Olympus ChatWarden Interface Panel" src="https://github.com/user-attachments/assets/c2b0f4c8-e1ca-4f42-8844-e05e2f55e1a5" />
+
+
+## Olympus Integration
+ - ChatWarden opens directly through the Olympus addon. The Review window includes separate Messages and Shield tabs, keeping everything in one place.
+ - An active Olympus guild membership is required.
+ - Optional OlympusMute signal tooltips can identify compatible list-sharing activity observed by your client. This does not prove a player has muted you or even which addon they use.
+
+<img width="488" height="850" alt="ChatWarden-Notification-Badge" src="https://github.com/user-attachments/assets/e1e8659b-0a5d-45e9-89a7-b4bbc81b8756" />
+
 
 ## Installation
 
@@ -49,6 +62,7 @@ An optional OlympusMute signal feature records compatible list-sharing activity 
 
 An active, verified Olympus guild membership is required.
 
+
 ## Optional Rule Packs
 
 Additional categories are distributed as author-signed rule packs.
@@ -56,6 +70,7 @@ Additional categories are distributed as author-signed rule packs.
 Open `/ocw packs`, paste the complete signed pack text, verify it, then install and enable it.
 
 The current optional packs use **version 6**. Updating the addon does not automatically update imported packs.
+
 
 ## Commands
 
@@ -72,6 +87,7 @@ The current optional packs use **version 6**. Updating the addon does not automa
 | `/ocw export` | Export reports |
 | `/ocw status` | Addon status |
 
+
 ## Feedback
 
 Bug reports, filtering mistakes, and suggestions are welcome.
@@ -81,6 +97,7 @@ Bug reports, filtering mistakes, and suggestions are welcome.
 Include your addon version and an exported report or reproduction steps when possible.
 
 Everything is handled locally. Reports aren't automatically uploaded or shared.
+
 
 ## Disclaimer
 
