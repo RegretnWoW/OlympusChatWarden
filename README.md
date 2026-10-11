@@ -43,6 +43,17 @@ An optional OlympusMute signal feature records compatible list-sharing activity 
 
 <img width="1448" height="1086" alt="Olympus ChatWarden Interface Panel" src="https://github.com/user-attachments/assets/c2b0f4c8-e1ca-4f42-8844-e05e2f55e1a5" />
 
+## Chat capture
+
+Record, search and export player chat from a new tab in Review & protection. Recordings stay saved across reloads until cleared or the storage limit is reached.
+
+ - Incident bookmarks: Save a message with up to 10 surrounding lines on either side, plus an optional title and note.
+ - Right-click capture controls: Start or pause recording, view a player’s captured chat, or bookmark the clicked message.
+ - Export privacy controls: Preview exports, choose entries, hide known player names, omit notes and edit the final text before copying.
+ - Private-chat recording options: Choose whether to include whispers and guild/officer chat.
+
+<img width="850" height="597" alt="download" src="https://github.com/user-attachments/assets/acd522c0-9883-4bed-9a7b-d15fd86004e7" />
+
 
 ## Olympus Integration
  - ChatWarden opens directly through the Olympus addon. The Review window includes separate Messages and Shield tabs, keeping everything in one place.
