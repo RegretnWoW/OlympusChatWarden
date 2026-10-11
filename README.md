@@ -101,5 +101,3 @@ Everything is handled locally. Reports aren't automatically uploaded or shared.
 ## Disclaimer
 
 ChatWarden is a personal viewing and contact-management tool, not a content moderation system. Its categories don't represent judgments about the content or people being filtered.
-
-Not affiliated with Blizzard Entertainment.
