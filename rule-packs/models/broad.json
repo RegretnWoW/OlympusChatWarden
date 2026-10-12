@@ -1,0 +1,722 @@
+{
+  "schema": 2,
+  "id": "broad",
+  "title": "Broad contextual phrases",
+  "author": "Regretn",
+  "version": 6,
+  "description": "Version 6 (ChatWarden rc30+): Broad scoring unchanged; separate curated Gommage display masks contribute no confidence score. Replaces the retired literal list. Scored phrases and body-label replacements are unchanged from v5.",
+  "rules": [
+    {
+      "origin": "proposed test candidate",
+      "phrase": "safe space",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "safe spaces",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "brave space",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "brave spaces",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "inclusive space",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "inclusive spaces",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "inclusive environment",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "inclusive environments",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "inclusive community",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "inclusive communities",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "inclusive culture",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "inclusive cultures",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "inclusive practice",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "inclusive practices",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "inclusive representation",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "diverse representation",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "authentic representation",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "equitable access",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "equitable outcomes",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "equitable outcome",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "equitable treatment",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "equity lens",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "equity lenses",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "social justice",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "racial justice",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender justice",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "environmental justice",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "climate justice",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "restorative justice",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "transformative justice",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "centering voices",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "centring voices",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "center marginalized voices",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "centre marginalised voices",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "center marginalized perspectives",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "centre marginalised perspectives",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "lived experience",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "lived experiences",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "unconscious bias",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "implicit bias",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "structural inequality",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "systemic inequality",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "power imbalance",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "power imbalances",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "power dynamics",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "power structures",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "cultural appropriation",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "performative allyship",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "active allyship",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "intersectional perspective",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "decolonial perspective",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "privilege awareness",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "microaggression training",
+      "score": 45
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "microaggressions training",
+      "score": 45
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "clean energy",
+      "score": 45
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "climate crisis",
+      "score": 45
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "climate science",
+      "score": 45
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "commercial sex worker",
+      "score": 45
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "environmental quality",
+      "score": 45
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "mental health",
+      "score": 45
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "vulnerable populations",
+      "score": 45
+    },
+    {
+      "phrase": "psychological safety",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "psychologically safe space",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "psychologically safe spaces",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "marginalized voices",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "marginalised voices",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "amplify marginalized voices",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "amplify marginalised voices",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "center lived experiences",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "centre lived experiences",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "trauma-informed care",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "trauma informed care",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "trauma-informed approach",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "trauma informed approach",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "social inequity",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "social inequities",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "structural barriers",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "systemic barriers",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "climate anxiety",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "climate emergency",
+      "score": 45,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "origin": "documented spelling/spacing variant of an existing author preference",
+      "phrase": "center marginalised voices",
+      "score": 45
+    },
+    {
+      "origin": "documented spelling/spacing variant of an existing author preference",
+      "phrase": "center marginalised perspectives",
+      "score": 45
+    },
+    {
+      "phrase": "center underrepresented voices",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "centre underrepresented voices",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "amplify underrepresented voices",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "center marginalized communities",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "centre marginalised communities",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "equity-focused spaces",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "equity focused spaces",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclusive gaming community",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclusive gaming communities",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclusive game design",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclusive worldbuilding",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "intersectional representation",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "intersectional storytelling",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "restorative accountability",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclsuive space",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inlcusive space",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclsuive spaces",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inlcusive spaces",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclsuive environment",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inlcusive environment",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclsuive environments",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inlcusive environments",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclsuive community",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inlcusive community",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclsuive communities",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inlcusive communities",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclsuive culture",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inlcusive culture",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclsuive cultures",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inlcusive cultures",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclsuive practice",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inlcusive practice",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclsuive practices",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inlcusive practices",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclsuive representation",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inlcusive representation",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "eqiuty lens",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "eqiuty lenses",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre justice",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder justice",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "center marganilized voices",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "center marganilized perspectives",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "intersectonal perspective",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "microagression training",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "microagressions training",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "marganilized voices",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "amplify marganilized voices",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "center marganilized communities",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "eqiuty-focused spaces",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "eqiuty focused spaces",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclsuive gaming community",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inlcusive gaming community",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclsuive gaming communities",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inlcusive gaming communities",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclsuive game design",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inlcusive game design",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inclsuive worldbuilding",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "inlcusive worldbuilding",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "intersectonal representation",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "intersectonal storytelling",
+      "score": 45,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    }
+  ],
+  "replacements": [],
+  "gommage": []
+}

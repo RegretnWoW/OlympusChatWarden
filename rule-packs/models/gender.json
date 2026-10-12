@@ -1,0 +1,3072 @@
+{
+  "schema": 2,
+  "id": "gender",
+  "title": "Gender and pronoun wording",
+  "author": "Regretn",
+  "version": 6,
+  "description": "Version 6 (ChatWarden rc30+): Broad scoring unchanged; separate curated Gommage display masks contribute no confidence score. Replaces the retired literal list. Scored phrases and body-label replacements are unchanged from v5.",
+  "rules": [
+    {
+      "origin": "proposed test candidate",
+      "phrase": "assigned male at birth",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "assigned female at birth",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "sex assigned at birth",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender assigned at birth",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "assigned sex at birth",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "assigned gender at birth",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "preferred pronouns",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "personal pronouns",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "chosen pronouns",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "pronoun preference",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "pronoun preferences",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "pronoun sharing",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "share your pronouns",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "state your pronouns",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "include your pronouns",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "what are your pronouns",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "use my pronouns",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "respect my pronouns",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "respect their pronouns",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "pronouns in your bio",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "pronouns in your profile",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "pronouns in your signature",
+      "score": 82
+    },
+    {
+      "origin": "Microsoft style guide; variant where noted in SOURCES.md",
+      "phrase": "gender-neutral language",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender neutral language",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-inclusive language",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender inclusive language",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-affirming language",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender affirming language",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-neutral terms",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender neutral terms",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-inclusive terms",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender inclusive terms",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-neutral pronouns",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender neutral pronouns",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-inclusive pronouns",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender inclusive pronouns",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "non-gendered language",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "non gendered language",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gendered language",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "degendered language",
+      "score": 82
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender affirming",
+      "score": 72
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender affirming care",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender affirming policy",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender affirming policies",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender affirming education",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender affirming guidelines",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-affirming",
+      "score": 72
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-affirming care",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-affirming policy",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-affirming policies",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-affirming education",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-affirming guidelines",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender inclusive",
+      "score": 72
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender inclusive care",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender inclusive policy",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender inclusive policies",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender inclusive education",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender inclusive guidelines",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-inclusive",
+      "score": 72
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-inclusive care",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-inclusive policy",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-inclusive policies",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-inclusive education",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-inclusive guidelines",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender neutral",
+      "score": 72
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender neutral care",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender neutral policy",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender neutral policies",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender neutral education",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender neutral guidelines",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-neutral",
+      "score": 72
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-neutral care",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-neutral policy",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-neutral policies",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-neutral education",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender-neutral guidelines",
+      "score": 80
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "normalize pronouns",
+      "score": 85
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "normalise pronouns",
+      "score": 85
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "respect people's pronouns",
+      "score": 85
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "respect everyone's pronouns",
+      "score": 85
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "end the gender binary",
+      "score": 85
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "beyond the gender binary",
+      "score": 85
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "break the gender binary",
+      "score": 85
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender is a spectrum",
+      "score": 85
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender is a social construct",
+      "score": 85
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "gender is socially constructed",
+      "score": 85
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "sex is a spectrum",
+      "score": 85
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "abolish gender roles",
+      "score": 85
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "challenge gender norms",
+      "score": 85
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "challenge gender stereotypes",
+      "score": 85
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "gender pronoun",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "gender pronouns",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "gender-pronoun",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "gender-pronouns",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "preferred gender pronoun",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "preferred gender pronouns",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "gender pronoun preference",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "gender pronoun preferences",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "gender-neutral wording",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "gender neutral wording",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "gender nuetral",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "gender-nuetral",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "gender nuetral language",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "gender-nuetral language",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "pronoun declaration",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "pronoun declarations",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "my pronouns are",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "our pronouns are",
+      "score": 82
+    },
+    {
+      "origin": "user-requested gender/pronoun wording preference; literal test candidate",
+      "phrase": "pronouns:",
+      "score": 82
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "assigned at birth",
+      "score": 72
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "biologically female",
+      "score": 72
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "biologically male",
+      "score": 72
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "affirming care",
+      "score": 72
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "gender nonconforming",
+      "score": 72
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "pronoun nonconforming",
+      "score": 72
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "gender diversity",
+      "score": 72
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "gender identity",
+      "score": 72
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "gender ideology",
+      "score": 72
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "gender based violence",
+      "score": 72
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "gender-based violence",
+      "score": 72
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "women and underrepresented",
+      "score": 65
+    },
+    {
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "phrase": "sexual preferences",
+      "score": 45
+    },
+    {
+      "phrase": "gender expression",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "gender dysphoria",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "gender euphoria",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "gender transition",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "social transition",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "pronoun policy",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "pronoun policies",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "pronoun usage",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "pronoun etiquette",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "gender expansive",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "gender-expansive",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "gender diverse",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "gender-diverse",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "nonbinary identity",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "non-binary identity",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "non binary identity",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "gender nuetral wording",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "gender neutal language",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "preferred prononuns",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "preferred prounouns",
+      "score": 72,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "pronouns in bio",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronouns in profile",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronouns in signature",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my pronouns are she/her",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my pronouns are he/him",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my pronouns are they/them",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronoun badges",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronoun badge",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronoun check-in",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronoun check in",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inclusive character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inclusive character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutral character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender neutral character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre assigned at birth",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder assigned at birth",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "assigned gendre at birth",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "assigned gneder at birth",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "preferred pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "preferred pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "personal pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "personal pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "personal prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "personal prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "chosen pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "chosen pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "chosen prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "chosen prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuon preference",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuon preferences",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuon sharing",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "share your pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "share your pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "share your prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "share your prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "state your pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "state your pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "state your prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "state your prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "include your pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "include your pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "include your prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "include your prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "what are your pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "what are your pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "what are your prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "what are your prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "use my pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "use my pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "use my prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "use my prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect my pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect my pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect my prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect my prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect their pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect their pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect their prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect their prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuons in your bio",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronous in your bio",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "prononuns in your bio",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "prounouns in your bio",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuons in your profile",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronous in your profile",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "prononuns in your profile",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "prounouns in your profile",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuons in your signature",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronous in your signature",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "prononuns in your signature",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "prounouns in your signature",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-neutral language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-neutral language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutal language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre neutral language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder neutral language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-inclusive language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-inclusive language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inclsuive language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inlcusive language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre inclusive language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder inclusive language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inclsuive language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inlcusive language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-affirming language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-affirming language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre affirming language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder affirming language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-neutral terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-neutral terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-nuetral terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutal terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre neutral terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder neutral terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender nuetral terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender neutal terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-inclusive terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-inclusive terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inclsuive terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inlcusive terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre inclusive terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder inclusive terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inclsuive terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inlcusive terms",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutral pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutral pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutral prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutral prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-neutral pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-neutral pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-nuetral pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutal pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender neutral pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender neutral pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender neutral prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender neutral prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre neutral pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder neutral pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender nuetral pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender neutal pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inclusive pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inclusive pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inclusive prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inclusive prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-inclusive pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-inclusive pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inclsuive pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inlcusive pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inclusive pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inclusive pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inclusive prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inclusive prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre inclusive pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder inclusive pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inclsuive pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inlcusive pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre affirming",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder affirming",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre affirming care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder affirming care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre affirming policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder affirming policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre affirming policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder affirming policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre affirming education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder affirming education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre affirming guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder affirming guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-affirming",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-affirming",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-affirming care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-affirming care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-affirming policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-affirming policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-affirming policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-affirming policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-affirming education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-affirming education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-affirming guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-affirming guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre inclusive",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder inclusive",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inclsuive",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inlcusive",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre inclusive care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder inclusive care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inclsuive care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inlcusive care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre inclusive policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder inclusive policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inclsuive policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inlcusive policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre inclusive policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder inclusive policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inclsuive policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inlcusive policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre inclusive education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder inclusive education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inclsuive education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inlcusive education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre inclusive guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder inclusive guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inclsuive guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inlcusive guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-inclusive",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-inclusive",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inclsuive",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inlcusive",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-inclusive care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-inclusive care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inclsuive care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inlcusive care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-inclusive policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-inclusive policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inclsuive policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inlcusive policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-inclusive policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-inclusive policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inclsuive policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inlcusive policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-inclusive education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-inclusive education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inclsuive education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inlcusive education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-inclusive guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-inclusive guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inclsuive guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inlcusive guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre neutral",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder neutral",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender neutal",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre neutral care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder neutral care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender nuetral care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender neutal care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre neutral policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder neutral policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender nuetral policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender neutal policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre neutral policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder neutral policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender nuetral policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender neutal policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre neutral education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder neutral education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender nuetral education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender neutal education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre neutral guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder neutral guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender nuetral guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender neutal guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-neutral",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-neutral",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutal",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-neutral care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-neutral care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-nuetral care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutal care",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-neutral policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-neutral policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-nuetral policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutal policy",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-neutral policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-neutral policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-nuetral policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutal policies",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-neutral education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-neutral education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-nuetral education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutal education",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-neutral guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-neutral guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-nuetral guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutal guidelines",
+      "score": 80,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "normalize pronuons",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "normalize pronous",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "normalize prononuns",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "normalize prounouns",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "normalise pronuons",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "normalise pronous",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "normalise prononuns",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "normalise prounouns",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect people's pronuons",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect people's pronous",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect people's prononuns",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect people's prounouns",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect everyone's pronuons",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect everyone's pronous",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect everyone's prononuns",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "respect everyone's prounouns",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "end the gendre binary",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "end the gneder binary",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "beyond the gendre binary",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "beyond the gneder binary",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "break the gendre binary",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "break the gneder binary",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre is a spectrum",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder is a spectrum",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre is a social construct",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder is a social construct",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre is socially constructed",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder is socially constructed",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "abolish gendre roles",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "abolish gneder roles",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "challenge gendre norms",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "challenge gneder norms",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "challenge gendre stereotypes",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "challenge gneder stereotypes",
+      "score": 85,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender pronuon",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre pronoun",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder pronoun",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-pronuon",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-pronoun",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-pronoun",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "preferred gender pronuon",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "preferred gendre pronoun",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "preferred gneder pronoun",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "preferred gender pronuons",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "preferred gender pronous",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "preferred gender prononuns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "preferred gender prounouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "preferred gendre pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "preferred gneder pronouns",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender pronuon preference",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre pronoun preference",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder pronoun preference",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender pronuon preferences",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre pronoun preferences",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder pronoun preferences",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-neutral wording",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-neutral wording",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-nuetral wording",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutal wording",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre neutral wording",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder neutral wording",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender neutal wording",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre nuetral",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder nuetral",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-nuetral",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-nuetral",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre nuetral language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder nuetral language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-nuetral language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-nuetral language",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuon declaration",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuon declarations",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my pronuons are",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my pronous are",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my prononuns are",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my prounouns are",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "our pronuons are",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "our pronous are",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "our prononuns are",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "our prounouns are",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuons:",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronous:",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "prononuns:",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "prounouns:",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre nonconforming",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder nonconforming",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuon nonconforming",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre diversity",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder diversity",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender diveristy",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender diversitty",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender diversety",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre identity",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder identity",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre ideology",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder ideology",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre based violence",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder based violence",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-based violence",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-based violence",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre expression",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder expression",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre dysphoria",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder dysphoria",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre euphoria",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder euphoria",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre transition",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder transition",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuon policy",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuon policies",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuon usage",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuon etiquette",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre expansive",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder expansive",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-expansive",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-expansive",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre diverse",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder diverse",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-diverse",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-diverse",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "nonbinnary identity",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "nonbinarry identity",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre nuetral wording",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder nuetral wording",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre neutal language",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder neutal language",
+      "score": 72,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuons in bio",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronous in bio",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "prononuns in bio",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "prounouns in bio",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuons in profile",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronous in profile",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "prononuns in profile",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "prounouns in profile",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuons in signature",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronous in signature",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "prononuns in signature",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "prounouns in signature",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my pronuons are she/her",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my pronous are she/her",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my prononuns are she/her",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my prounouns are she/her",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my pronuons are he/him",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my pronous are he/him",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my prononuns are he/him",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my prounouns are he/him",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my pronuons are they/them",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my pronous are they/them",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my prononuns are they/them",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "my prounouns are they/them",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuon badges",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuon badge",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuon check-in",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "pronuon check in",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-inclusive character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-inclusive character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inclsuive character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-inlcusive character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre inclusive character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder inclusive character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inclsuive character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender inlcusive character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre-neutral character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder-neutral character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-nuetral character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender-neutal character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gendre neutral character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gneder neutral character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender nuetral character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "gender neutal character creation",
+      "score": 82,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    }
+  ],
+  "replacements": [],
+  "gommage": [
+    "affirming care",
+    "agender",
+    "alexigender",
+    "aliagender",
+    "androgyne",
+    "anvisgender",
+    "aporagender",
+    "asexual",
+    "assigned at birth",
+    "assigned female at birth",
+    "assigned male at birth",
+    "bigender",
+    "biologically female",
+    "biologically male",
+    "bisexual",
+    "boyflux",
+    "cassgender",
+    "catgender",
+    "cisgender",
+    "cisgendered",
+    "cishet",
+    "demiboy",
+    "demigender",
+    "demigirl",
+    "deminon binary",
+    "deminonbinary",
+    "demisexual",
+    "female",
+    "females",
+    "fingender",
+    "fluidflux",
+    "gender based violence",
+    "gender diveristy",
+    "gender diversety",
+    "gender diversitty",
+    "gender diversity",
+    "gender dysphoria",
+    "gender euphoria",
+    "gender expression",
+    "gender fluidity",
+    "gender identity",
+    "gender ideology",
+    "gender neutal",
+    "gender neutral",
+    "gender nonconforming",
+    "gender nuetral",
+    "gender prononuns",
+    "gender pronoun",
+    "gender pronouns",
+    "gender pronous",
+    "gender pronuon",
+    "gender pronuons",
+    "gender prounouns",
+    "gender questioning",
+    "gender questioning people",
+    "gender-affirming care",
+    "gender-based",
+    "gender-based violence",
+    "gender-neutal",
+    "gender-neutral",
+    "gender-nuetral",
+    "genderfae",
+    "genderfaun",
+    "genderflor",
+    "genderfluid",
+    "genderfluidity",
+    "genderflux",
+    "genderqueer",
+    "gendre affirming care",
+    "gendre based violence",
+    "gendre diversity",
+    "gendre dysphoria",
+    "gendre euphoria",
+    "gendre expression",
+    "gendre fluidity",
+    "gendre identity",
+    "gendre ideology",
+    "gendre neutral",
+    "gendre nonconforming",
+    "gendre pronoun",
+    "gendre pronouns",
+    "gendre questioning",
+    "gendre questioning people",
+    "gendre-affirming care",
+    "gendre-based",
+    "gendre-based violence",
+    "gendre-neutral",
+    "girlflux",
+    "gneder affirming care",
+    "gneder based",
+    "gneder based violence",
+    "gneder diversity",
+    "gneder dysphoria",
+    "gneder euphoria",
+    "gneder expression",
+    "gneder fluidity",
+    "gneder identity",
+    "gneder ideology",
+    "gneder neutral",
+    "gneder nonconforming",
+    "gneder pronoun",
+    "gneder pronouns",
+    "gneder questioning",
+    "gneder questioning people",
+    "gneder-affirming care",
+    "gneder-based",
+    "gneder-based violence",
+    "gneder-neutral",
+    "graygender",
+    "greygender",
+    "hemiboy",
+    "hemigender",
+    "hemigirl",
+    "heminon binary",
+    "heminonbinary",
+    "lgbt",
+    "lgbtq",
+    "lgbtq+",
+    "lgbtq2s",
+    "lgbtq2s+",
+    "lgbtqia",
+    "lgbtqia+",
+    "lgbtqiap",
+    "lgbtqiap+",
+    "librafeminine",
+    "libragender",
+    "libramasculine",
+    "libranon binary",
+    "libranonbinary",
+    "maverique",
+    "men who have sex with men",
+    "mingender",
+    "multigender",
+    "they/them",
+    "trans",
+    "trans man",
+    "trans men",
+    "trans people",
+    "trans person",
+    "trans woman",
+    "trans women",
+    "transfeminine",
+    "transgeder",
+    "transgeder people",
+    "transgeder person",
+    "transgender",
+    "transgender people",
+    "transgender person",
+    "transgneder",
+    "transgneder people",
+    "transgneder person",
+    "transmasculine",
+    "transneutral",
+    "transsexual",
+    "trigender",
+    "two spirit",
+    "two-spirit",
+    "woman",
+    "women",
+    "women and underrepresented",
+    "womens",
+    "womxn",
+    "womyn",
+    "xenogender",
+    "zie",
+    "zieself",
+    "zim",
+    "zir",
+    "zis"
+  ]
+}

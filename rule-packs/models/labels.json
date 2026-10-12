@@ -1,0 +1,417 @@
+{
+  "schema": 2,
+  "id": "labels",
+  "title": "Body-label replacements",
+  "author": "Regretn",
+  "version": 6,
+  "description": "Version 6 (ChatWarden rc30+): Broad scoring unchanged; separate curated Gommage display masks contribute no confidence score. Replaces the retired literal list. Scored phrases and body-label replacements are unchanged from v5.",
+  "rules": [
+    {
+      "origin": "user-requested starter",
+      "phrase": "body type 1",
+      "score": 95
+    },
+    {
+      "origin": "user-requested starter",
+      "phrase": "body type 2",
+      "score": 95
+    },
+    {
+      "origin": "user-requested starter",
+      "phrase": "body types 1",
+      "score": 95
+    },
+    {
+      "origin": "user-requested starter",
+      "phrase": "body types 2",
+      "score": 95
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body type one",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body type two",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body type i",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body type ii",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body type a",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body type b",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body type: 1",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body type #1",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body type: 2",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body type #2",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body types one",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body types two",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body types i",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body types ii",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body types a",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body types b",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body types: 1",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body types #1",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body types: 2",
+      "score": 92
+    },
+    {
+      "origin": "proposed test candidate",
+      "phrase": "body types #2",
+      "score": 92
+    },
+    {
+      "phrase": "bodytype 1",
+      "score": 92,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "bodytype 2",
+      "score": 92,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "body-type 1",
+      "score": 92,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "body-type 2",
+      "score": 92,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "body type no. 1",
+      "score": 92,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "body type no. 2",
+      "score": 92,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "body type number 1",
+      "score": 92,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "body type number 2",
+      "score": 92,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "body-type one",
+      "score": 92,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "body-type two",
+      "score": 92,
+      "origin": "author preference expansion rc22; phrase-specific terminology"
+    },
+    {
+      "phrase": "body tipe 1",
+      "score": 92,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "body tpye 1",
+      "score": 92,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "body tyep 1",
+      "score": 92,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "bodytype number 1",
+      "score": 92,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "body type no 1",
+      "score": 92,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "body tipe 2",
+      "score": 92,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "body tpye 2",
+      "score": 92,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "body tyep 2",
+      "score": 92,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "bodytype number 2",
+      "score": 92,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    },
+    {
+      "phrase": "body type no 2",
+      "score": 92,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+    }
+  ],
+  "replacements": [
+    {
+      "phrase": "body #1",
+      "text": "male"
+    },
+    {
+      "phrase": "body #2",
+      "text": "female"
+    },
+    {
+      "phrase": "body 1",
+      "text": "male"
+    },
+    {
+      "phrase": "body 2",
+      "text": "female"
+    },
+    {
+      "phrase": "body type #1",
+      "text": "male"
+    },
+    {
+      "phrase": "body type #2",
+      "text": "female"
+    },
+    {
+      "phrase": "body type 1",
+      "text": "male"
+    },
+    {
+      "phrase": "body type 2",
+      "text": "female"
+    },
+    {
+      "phrase": "body type i",
+      "text": "male"
+    },
+    {
+      "phrase": "body type ii",
+      "text": "female"
+    },
+    {
+      "phrase": "body type one",
+      "text": "male"
+    },
+    {
+      "phrase": "body type two",
+      "text": "female"
+    },
+    {
+      "phrase": "body type: 1",
+      "text": "male"
+    },
+    {
+      "phrase": "body type: 2",
+      "text": "female"
+    },
+    {
+      "phrase": "body types #1",
+      "text": "males"
+    },
+    {
+      "phrase": "body types #2",
+      "text": "females"
+    },
+    {
+      "phrase": "body types 1",
+      "text": "males"
+    },
+    {
+      "phrase": "body types 2",
+      "text": "females"
+    },
+    {
+      "phrase": "body types i",
+      "text": "males"
+    },
+    {
+      "phrase": "body types ii",
+      "text": "females"
+    },
+    {
+      "phrase": "body types one",
+      "text": "males"
+    },
+    {
+      "phrase": "body types two",
+      "text": "females"
+    },
+    {
+      "phrase": "body types: 1",
+      "text": "males"
+    },
+    {
+      "phrase": "body types: 2",
+      "text": "females"
+    },
+    {
+      "phrase": "body: 1",
+      "text": "male"
+    },
+    {
+      "phrase": "body: 2",
+      "text": "female"
+    },
+    {
+      "phrase": "bodytype 1",
+      "text": "male"
+    },
+    {
+      "phrase": "bodytype 2",
+      "text": "female"
+    },
+    {
+      "phrase": "body-type 1",
+      "text": "male"
+    },
+    {
+      "phrase": "body-type 2",
+      "text": "female"
+    },
+    {
+      "phrase": "body type no. 1",
+      "text": "male"
+    },
+    {
+      "phrase": "body type no. 2",
+      "text": "female"
+    },
+    {
+      "phrase": "body type number 1",
+      "text": "male"
+    },
+    {
+      "phrase": "body type number 2",
+      "text": "female"
+    },
+    {
+      "phrase": "body-type one",
+      "text": "male"
+    },
+    {
+      "phrase": "body-type two",
+      "text": "female"
+    },
+    {
+      "phrase": "body tipe 1",
+      "text": "male"
+    },
+    {
+      "phrase": "body tpye 1",
+      "text": "male"
+    },
+    {
+      "phrase": "body tyep 1",
+      "text": "male"
+    },
+    {
+      "phrase": "bodytype number 1",
+      "text": "male"
+    },
+    {
+      "phrase": "body type no 1",
+      "text": "male"
+    },
+    {
+      "phrase": "body tipe 2",
+      "text": "female"
+    },
+    {
+      "phrase": "body tpye 2",
+      "text": "female"
+    },
+    {
+      "phrase": "body tyep 2",
+      "text": "female"
+    },
+    {
+      "phrase": "bodytype number 2",
+      "text": "female"
+    },
+    {
+      "phrase": "body type no 2",
+      "text": "female"
+    }
+  ],
+  "gommage": []
+}

@@ -69,7 +69,7 @@ function D.Decode(text)
 end
 local fields={schema=true,id=true,title=true,author=true,version=true,description=true,rules=true,literal=true,replacements=true}
 local fields2={schema=true,id=true,title=true,author=true,version=true,description=true,rules=true,gommage=true,replacements=true}
-local optional={gender=true,labels=true,reproductive=true,language=true,institutional=true,slogans=true,broad=true}
+local optional={gender=true,labels=true,reproductive=true,language=true,institutional=true,slogans=true,broad=true,america=true}
 D.Optional=optional
 local function exact(t,keys)
     if type(t)~='table' or getmetatable(t) then return false end

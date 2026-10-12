@@ -31,16 +31,27 @@ function R.Filtered(kind, needle)
     end
     return result
 end
-function R.DetailText(entry, reasons)
+function R.DetailText(entry, reasons, sections)
     if not entry then
-        return "Read a message\n\nSelect a row on the left. Its original appears here, and its unread badge clears.\n\nCheck a result\n\nWhy filtered? explains the rule. Report a problem saves feedback. Dismiss removes the session entry.\n\nReport a miss\n\nUse Report a missed message above, or right-click the player's name in chat."
+        local text="Read a message\n\nSelect a row on the left. Its original appears here, and its unread badge clears.\n\nCheck a result\n\nWhy filtered? explains the rule. Report a problem saves feedback. Dismiss removes the session entry.\n\nReport a miss\n\nUse Report a miss above, or right-click the player's name in chat."
+        return sections and {text} or text
     end
     local name=entry.kind=='playerName' or entry.kind=='targetName' or entry.kind=='npcName'
     local lines = {R.Source(entry), R.TimeLabel(entry), name and "\nOriginal name / label\n" or "\nOriginal message\n", entry.original}
+    if sections then
+        lines[1]=R.Source({kind=entry.kind})
+        local identity=entry.sender or entry.npc or entry.questTitle
+        if identity then table.insert(lines,2,identity) end
+    end
     if entry.truncated then lines[#lines + 1] = "[Long original shortened in session history]" end
     lines[#lines + 1] = "\nResult\n"
     lines[#lines + 1] = ({Hidden='Hidden from chat.',Redacted='Covered text.',Warning='Visible with a warning.',
         Replaced='Shown with replacement wording.',Unchanged='Kept visible.'})[entry.action] or entry.action
+    if entry.spamReason then
+        lines[#lines+1]=entry.spamReason..(entry.spamReason:find('Rapid-message burst:',1,true)
+            and '. Chat paused for 10 seconds. No contact shield was added.'
+            or '. Only this message was hidden.')
+    end
     if entry.language then
         local language=entry.language
         lines[#lines+1]='Language filter: '..language.label..((language.kind or language.evidence=='writing-system') and '' or ' — '..language.confidence..' confidence')
@@ -64,7 +75,10 @@ function R.DetailText(entry, reasons)
         if entry.language then lines[#lines+1]=entry.language.reason end
         local preset = ({maximum = "Gommage", aggressive = "Broad", balanced = "Balanced", strict = "Selective"})[entry.preset] or "Unknown"
         if #entry.matches>0 then lines[#lines + 1] = "Preset when received: " .. preset end
-        lines[#lines + 1] = entry.shieldReason and (entry.shieldReason .. ". Contact protection; content score unchanged.")
+        lines[#lines + 1] = entry.spamReason and (entry.spamReason:find('Rapid-message burst:',1,true)
+            and 'Spam protection: first rapid-message burst. A second full burst within 60 seconds triggers your automatic timeout.'
+            or 'Spam protection: guild recruitment wording. No player timeout or wording score added.')
+            or entry.shieldReason and (entry.shieldReason .. ". Contact protection; content score unchanged.")
             or entry.language and ('Wording score: '..(entry.score or 0)..'. Language confidence is separate.')
             or "Confidence: " .. (entry.confidence or "Unknown") .. " match strength"
         for i, match in ipairs(entry.matches) do
@@ -84,12 +98,12 @@ function R.DetailText(entry, reasons)
         if entry.matchCount > #entry.matches then lines[#lines + 1] = "First " .. #entry.matches .. " of " .. entry.matchCount .. " matches shown." end
         if entry.rendered then lines[#lines+1]='\nDisplay preview\n';lines[#lines+1]=entry.rendered end
     end
-    return table.concat(lines, "\n")
+    return sections and lines or table.concat(lines, "\n")
 end
 local function UpdateDetails(resetScroll)
     local entry = R.Get(selected)
     if details then
-        details:SetText(Plain(R.DetailText(entry, showReasons))); details:SetCursorPosition(0); details:ClearFocus()
+        details:SetSections(R.DetailText(entry,showReasons,true));ns.ReviewDetails=details.boxes[1]
         if resetScroll then detailScroll:SetVerticalScroll(0) end
         detailTitle:SetText(entry and ((entry.kind=='playerName' and 'Original name' or 'Original message').."  |  " .. entry.action) or "Message review")
         reportButton:SetEnabled(entry ~= nil); correctButton:SetEnabled(entry ~= nil); reasonButton:SetEnabled(entry ~= nil)
@@ -120,7 +134,7 @@ function ns.RefreshReview()
     local selectedVisible = not selected
     for _, entry in ipairs(visible) do if entry.id == selected then selectedVisible = true end end
     if not selectedVisible or selected and not R.Get(selected) then Select(nil) end
-    listTitle:SetText("Recent matches  |  " .. #visible .. " shown  |  " .. R.Unread() .. " unread hidden")
+    listTitle:SetText(#visible.." messages  |  "..R.Unread().." unread hidden")
     savedButton:SetText("My reports (" .. #ns.Personal.reports .. ")")
     pageText:SetText("Page " .. page .. " / " .. pages)
     previous:SetEnabled(page > 1); nextPage:SetEnabled(page < pages)
@@ -161,7 +175,7 @@ function ns.OpenReview(tab)
     if not window then
         window = T.Window("OlympusChatWardenInbox", UIParent, 940, 678)
         ns.ReviewWindow = window; T.Title(window, "Olympus ChatWarden"); T.Crest(window)
-        T.Gold(Text(window, "GameFontNormalLarge", 78, -30, 720, "Review & protection"))
+        T.Gold(Text(window, "GameFontNormalLarge", 78, -30, 720, "Review & Protection"))
         T.Muted(Text(window, "GameFontHighlightSmall", 78, -49, 720, "Messages, contact alerts and player management.  v" .. ns.VERSION))
         messageTab=Button(window,"Messages",120,14,-70,function() ns.SetReviewTab('messages') end)
         shieldTab=Button(window,"Shield",120,144,-70,function() ns.SetReviewTab('shield') end)
@@ -169,6 +183,11 @@ function ns.OpenReview(tab)
         T.Tooltip(captureTab,"Chat capture","Start or pause local recording, save incident bookmarks and choose what to export. Capture starts off.")
         T.Tooltip(shieldTab,"ChatWarden Shield","Review contact alerts and manage shielded or allowed players. Protection settings are in ChatWarden Options.")
         local pages=CreateFrame("Frame",nil,window);pages:SetPoint("TOPLEFT",0,-38);pages:SetPoint("BOTTOMRIGHT",0,0)
+        ns.ReviewHelpButton=Button(pages,'Help',86,726,-577,function()
+            ns.OpenTutorial(reviewTab=='capture' and 'capture' or reviewTab=='shield' and 'shield' or 'reports')
+        end)
+        ns.ReviewSettingsButton=Button(pages,'Settings',100,826,-577,function() SlashCmdList.OLYMPUSCHATWARDEN('options') end)
+        T.Tooltip(ns.ReviewSettingsButton,'Settings','Open ChatWarden settings. This button stays here on every review tab.')
         messagePage=CreateFrame("Frame",nil,pages);messagePage:SetAllPoints(pages)
         local toolbar = T.Panel(messagePage, 14, -70, 912, 44)
         Text(toolbar, "GameFontHighlightSmall", 10, -15, 50, "Source")
@@ -184,17 +203,18 @@ function ns.OpenReview(tab)
         end)
         search:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
         T.TextField(search)
-        Button(toolbar, "Report a missed message", 190, 472, -10, function() ns.OpenReport(nil) end)
-        savedButton = Button(toolbar, "Saved reports", 145, 672, -10, function() ns.OpenPersonal("reports") end)
-        local clear = Button(toolbar, "Clear", 73, 827, -10, function()
+        Button(toolbar, "Report a miss", 130, 472, -10, function() ns.OpenReport(nil) end)
+        savedButton = Button(toolbar, "Saved reports", 130, 612, -10, function() ns.OpenPersonal("reports") end)
+        ns.MessagesExportButton=Button(toolbar,'Export reports',146,752,-10,function() ns.OpenReportExport() end)
+        local list = T.Panel(messagePage, 14, -122, 350, 444)
+        local clear = Button(list, "Clear", 73, 264, -7, function()
             if clearArmed then R.Clear(); Select(nil); clearArmed = false; window.ClearHistoryButton:SetText("Clear")
             else clearArmed = true; window.ClearHistoryButton:SetText("Confirm") end
         end)
         window.ClearHistoryButton = clear
         T.Tooltip(clear, "Clear session history", "Removes the messages in this review inbox. Saved reports are kept.")
         window:SetScript("OnHide", function() clearArmed = false; clear:SetText("Clear") end)
-        local list = T.Panel(messagePage, 14, -122, 350, 444)
-        listTitle = Text(list, "GameFontHighlightSmall", 12, -12, 326)
+        listTitle = Text(list, "GameFontHighlightSmall", 12, -12, 245)
         empty = T.Muted(Text(list, "GameFontHighlight", 18, -68, 314))
         rows = {}
         for i = 1, PAGE_SIZE do
@@ -226,24 +246,7 @@ function ns.OpenReview(tab)
         local paper = T.Panel(messagePage, 376, -159, 550, 407, true)
         detailScroll = CreateFrame("ScrollFrame", nil, paper, "UIPanelScrollFrameTemplate")
         detailScroll:SetPoint("TOPLEFT", 16, -16); detailScroll:SetPoint("BOTTOMRIGHT", -32, 16)
-        details = CreateFrame("EditBox", nil, detailScroll); ns.ReviewDetails = details
-        details:SetMultiLine(true); details:SetAutoFocus(false); T.Body(details); T.Ink(details)
-        details:SetSize(498, 500); detailScroll:SetScrollChild(details)
-        local writing = false
-        local measure = details:CreateFontString(nil, "OVERLAY")
-        T.Body(measure); measure:SetWordWrap(true); measure:SetWidth(498); measure:Hide()
-        details:SetScript("OnTextChanged", function(self, userInput)
-            if userInput and not writing then
-                writing = true; self:SetText(Plain(R.DetailText(R.Get(selected), showReasons))); writing = false
-            end
-            local _, lines = (self:GetText() or ""):gsub("\n", "\n"); measure:SetText(self:GetText() or "")
-            self:SetHeight(math.max(375, (lines + 3) * 18, measure.GetStringHeight and measure:GetStringHeight() + 40 or 0))
-        end)
-        details:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
-        T.TextField(details, detailScroll)
-        detailScroll:SetScript("OnSizeChanged", function(_, width)
-            if width and width > 0 then details:SetWidth(width - 4); measure:SetWidth(width - 4); details:SetText(details:GetText() or "") end
-        end)
+        details=T.ReadOnlyDocument(detailScroll);ns.ReviewDocument=details
         correctButton = Button(messagePage, "Dismiss", 145, 376, -577, function()
             if selected then R.Remove(selected); Select(nil); ns.RefreshReview() end
         end)
@@ -251,8 +254,6 @@ function ns.OpenReview(tab)
         reportButton = Button(messagePage, "Report a problem", 185, 531, -577, function()
             local entry = R.Get(selected); if entry then ns.OpenReport(entry, "False positive") end
         end)
-        Button(messagePage, "My rules", 86, 726, -577, function() ns.OpenPersonal("rules") end)
-        Button(messagePage, "Settings", 100, 826, -577, function() SlashCmdList.OLYMPUSCHATWARDEN("options") end)
         footer = T.Muted(Text(messagePage, "GameFontHighlightSmall", 18, -615, 898))
         window:SetScript("OnShow", ns.RefreshReview); Select(nil)
     end

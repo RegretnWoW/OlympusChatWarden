@@ -1,3 +1,34 @@
+# Olympus ChatWarden 0.9.0-rc49
+
+This public beta adds spam protection, quieter notifications and a more consistent Review & Protection window. It includes the improvements tested after rc41.
+
+## Spam protection
+
+- Hide gold-selling and paid-service ads, including common look-alike characters and website formatting.
+- Hide guild recruitment ads, with exceptions for Olympus guild advertisements.
+- Detect repeated or slightly altered messages: 3 similar messages in 30 seconds triggers a local timeout.
+- Rapid chat uses 5 messages in 10 seconds. The first burst pauses that player's chat for 10 seconds; a second new burst within a minute applies the timeout.
+- Automatic timeout starts at 15 minutes and remains adjustable. Choose which incoming chat channels to check.
+- Ads are hidden quietly by default. Hidden originals remain in Messages; nothing is automatically reported to Blizzard.
+
+## Notifications and Shield
+
+- Separate controls for filtered messages, contact protection, repeated/rapid chat, gold/service ads and recruitment ads.
+- Spam and advertising notifications start off. Filtering and review continue when notifications are disabled.
+- Reading a hidden message clears its unread indicators immediately.
+- One set of Shield protections replaces the Streamer profile. Existing shields, allowed players and channel preferences are retained.
+- Player names with spaces are supported throughout spam checks and player management.
+
+## Review and display
+
+- Help and Settings stay in the same bottom-right positions across Messages, Shield and Chat capture. Export stays at the right of each toolbar.
+- Improved panel alignment and removed redundant navigation buttons.
+- Saved reports and export previews use the same newest-first order and report numbers.
+- Separate multilingual originals from explanation text to reduce WoW font fallback affecting the whole report.
+- Improved floating-nameplate Ctrl-click handling. This remains experimental and needs confirmation on the live client.
+- Updated in-game guides and tooltips.
+
+
 # 0.9.0-rc41
 
 - Enabled a temporary current-character guild-name gate. Olympus must be a

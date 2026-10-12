@@ -1,7 +1,7 @@
 local _, ns = ...
 local T, P = ns.Theme, ns.Personal
 local window, mode, selected, page, seed = nil, "reports", nil, 1, nil
-local rows, title, pager, previous, nextPage, detail, detailScroll, measure, phrase, action, enabled, status, save, remove, use, editor
+local rows, title, pager, previous, nextPage, detail, detailScroll, phrase, action, enabled, status, save, remove, use, editor
 local replacement, replacementLabel
 local deleteArmed
 local function Plain(text) return (text or ""):gsub("|", "||") end
@@ -22,14 +22,16 @@ local function Current()
 end
 local function DetailsText()
     local item = Current()
-    if mode == "rules" then return seed and ("Original report:\n\n" .. seed.original) or "" end
-    if not item then return "Select a saved report.\n\nSaving a report alone leaves your rules unchanged.\n\nChoose Make a rule to select exact words and their action.\n\nUse Export reports to share examples for tuning. Nothing is sent automatically." end
-    local result = item.actualAction and ("FILTER CHOSE: " .. T.Label(T.Actions, item.actualAction))
-        or item.predictedAction and ("SETTINGS WHEN REPORTED: " .. T.Label(T.Actions, item.predictedAction))
+    if mode == "rules" then return seed and {"Original report", seed.original} or {} end
+    if not item then return {"Select a saved report.\n\nSaving a report leaves your rules unchanged. Choose Make a rule to change specific wording.\n\nExport reports opens a privacy preview. Nothing is sent automatically."} end
+    local result = item.actualAction and ("Filter chose: " .. T.Label(T.Actions, item.actualAction))
+        or item.predictedAction and ("Settings when reported: " .. T.Label(T.Actions, item.predictedAction))
         or "Original filter result unavailable for this older report."
-    return result .. "\nWANTED: " .. T.Label(T.Actions, item.expectedAction) .. "\n\nORIGINAL MESSAGE\n" .. item.original
-        .. (item.originalTruncated and "\n[Original shortened]" or "")
-        .. (item.note ~= "" and "\n\nYOUR NOTE\n" .. item.note or "")
+    local sections={"Report #"..item.id.."\n"..result.."\nWanted: "..T.Label(T.Actions,item.expectedAction),
+        "\nOriginal message",item.original}
+    if item.originalTruncated then sections[#sections+1]="[Original shortened]" end
+    if item.note and item.note~="" then sections[#sections+1]="\nYour note";sections[#sections+1]=item.note end
+    return sections
 end
 local function Select(id)
     selected, deleteArmed = id, nil
@@ -39,7 +41,7 @@ local function Select(id)
         enabled:SetChecked(not item or item.enabled); replacement:SetText(item and item.replacement or ""); action:Refresh()
     end
     status:SetText(""); ns.RefreshPersonal()
-    detail:SetCursorPosition(0); detail:ClearFocus(); window.DetailScroll:SetVerticalScroll(0)
+    detail:ClearFocus(); window.DetailScroll:SetVerticalScroll(0)
 end
 function ns.RefreshPersonal()
     if not window or not window:IsShown() then return end
@@ -50,7 +52,7 @@ function ns.RefreshPersonal()
         local item = items[#items - (page - 1) * 8 - i + 1]; row.item = item
         if item then
             row.title:SetText(mode == "rules" and ((item.enabled and "ON" or "OFF") .. "  |  " .. T.Label(T.Actions, item.action))
-                or (item.actualAction and (item.actualAction .. " > " .. item.expectedAction) or ("Wanted: " .. item.expectedAction)))
+                or ('#'..item.id..'  |  '..(item.actualAction and (item.actualAction .. " > " .. item.expectedAction) or ("Wanted: " .. item.expectedAction))))
             row.preview:SetText(Plain(mode == "rules" and item.phrase or item.original:gsub("[\r\n]", " ")))
             T.RowState(row, item.id == selected, mode == "rules" and item.action or item.expectedAction)
         end
@@ -67,10 +69,7 @@ function ns.RefreshPersonal()
         detailScroll:ClearAllPoints(); detailScroll:SetPoint("TOPLEFT", window.Paper, "TOPLEFT", 18, -18)
         detailScroll:SetSize(421, 342)
     end
-    local text = Plain(DetailsText())
-    if detail:GetText() ~= text then detail:SetText(text) end
-    measure:SetText(text)
-    detail:SetHeight(math.max(mode == "reports" and 342 or 60, measure:GetStringHeight() + 30))
+    detail:SetSections(DetailsText())
     use:SetShown(mode == "reports"); use:SetEnabled(Current() ~= nil and not Current().originalTruncated)
     save:SetShown(mode == "rules")
     remove:SetEnabled(Current() ~= nil); remove:SetText(deleteArmed and "Confirm delete" or mode == "rules" and "Delete rule" or "Delete report")
@@ -124,13 +123,7 @@ function ns.OpenPersonal(requestedMode)
         ns.RulePhraseBox, ns.RuleReplacementBox, ns.RuleActionDropdown = phrase, replacement, action
         Label(editor, "Whole phrases: 3-120 English characters. Replacement text: 1-120. Coverage and exceptions apply.", 18, -244, 430, true)
         local scroll = CreateFrame("ScrollFrame", nil, window.Paper, "UIPanelScrollFrameTemplate"); window.DetailScroll = scroll
-        detail = CreateFrame("EditBox", nil, scroll); detail:SetMultiLine(true); detail:SetAutoFocus(false)
-        T.Body(detail); T.Ink(detail); detail:SetSize(416, 342); scroll:SetScrollChild(detail)
-        measure = detail:CreateFontString(nil, "OVERLAY"); T.Body(measure)
-        measure:SetWordWrap(true); measure:SetWidth(416); measure:Hide()
-        detail:HookScript("OnTextChanged", function(self, userInput) if userInput then self:SetText(Plain(DetailsText())) end end)
-        detail:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
-        T.TextField(detail, scroll)
+        detail = T.ReadOnlyDocument(scroll);ns.PersonalDocument=detail
         status = Label(window.Paper, "", 18, -370, 430, true)
         previous = Button(window, "Previous", 14, -546, 90, function() page = math.max(1, page - 1); ns.RefreshPersonal() end)
         nextPage = Button(window, "Next", 209, -546, 90, function() page = page + 1; ns.RefreshPersonal() end)

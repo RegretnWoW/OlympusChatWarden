@@ -2,29 +2,61 @@
 local _, ns = ...
 local S={alerts={},capabilities={}};ns.Shield=S
 S.Profiles={
-    streamer={title='Streamer',whispers={2,60,600},repeatedWhispers={4,20,600},trades={3,600,3600},duels={3,120,900},invites={3,600,3600}},
     normal={title='Normal Harassment',whispers={3,120,600},repeatedWhispers={6,30,600},trades={4,600,900},duels={4,120,600},invites={4,600,900}},
 }
 local contacts,counts,seen,seenOrder,pending={},{},{},{},{}
 local MAX=512
 local function Clock() return ns.SafeNumber(ns.SafeCall(GetServerTime)) or ns.SafeNumber(ns.SafeCall(time)) end
+local function RealmKey(value)
+    return ns.CanRead(value) and ns.Engine.Lower((value:gsub('[%s%-]',''))) or nil
+end
+local function HomeRealm() return ns.SafeCall(GetNormalizedRealmName) or ns.SafeCall(GetRealmName) end
+local function Home(value)
+    local key=RealmKey(value)
+    return key and (key==RealmKey(ns.SafeCall(GetNormalizedRealmName)) or key==RealmKey(ns.SafeCall(GetRealmName)))
+end
+function S.SplitNames()
+    -- Forever returns the surname in UnitFullName's usual realm position.
+    local fn=UnitFullName or UnitName;if type(fn)~='function' then return false end
+    local ok,first,second=pcall(fn,'player')
+    return ok and ns.CanRead(first) and not first:find(' ',1,true)
+        and ns.CanRead(second) and second~='' and ns.CanRead(HomeRealm()) and not Home(second) or false
+end
+function S.NormalName(name)
+    if not ns.CanRead(name) or not S.SplitNames() then return name end
+    local first,rest=name:match('^([^%-]+)%-(.+)$')
+    if not first or first:find(' ',1,true) or Home(rest) then return name end
+    local surname,realm=rest:match('^([^%-]+)%-(.+)$')
+    if surname then return first..' '..surname..'-'..realm end
+    return first..' '..rest
+end
 function S.Key(name)
     if not ns.CanRead(name) or #name>128 then return end
     name=name:match('^%s*(.-)%s*$')
+    name=S.NormalName(name)
     local base,realm=name:match('^([^%-]+)%-(.+)$')
     base=base or name
     if base:find('-',1,true) then return end
-    realm=realm or ns.SafeCall(GetNormalizedRealmName) or ns.SafeCall(GetRealmName)
+    realm=realm or HomeRealm()
     if not ns.CanRead(realm) then return end
+    if realm:find('[%z\1-\31\127|:%%]') then return end
     realm=realm:gsub('[%s%-]','')
-    if base=='' or realm=='' or base:find('[%s%z\1-\31\127|:%%]') or realm:find('[%z\1-\31\127|:%%]') then return end
+    -- This client supports first name + surname. Preserve internal spaces in
+    -- the identity; reject control characters, markup and ambiguous spacing.
+    if base=='' or realm=='' or base:find('[%z\1-\31\127|:%%]') or base:find('^ ') or base:find(' $')
+        or base:find('  ',1,true) or realm:find('[%z\1-\31\127|:%%]') then return end
     return ns.Engine.Lower(base)..'-'..ns.Engine.Lower(realm)
 end
 function S.UnitName(unit)
     local fn=UnitFullName or UnitName
     if type(fn)~='function' then return end
     local ok,name,realm=pcall(fn,unit)
-    if ok and ns.CanRead(name) then return name..(ns.CanRead(realm) and realm~='' and '-'..realm or '') end
+    if ok and ns.CanRead(name) then
+        if S.SplitNames() and not name:find(' ',1,true) and ns.CanRead(realm) and realm~='' and not Home(realm) then
+            name,realm=name..' '..realm,HomeRealm()
+        end
+        return S.NormalName(name..(ns.CanRead(realm) and realm~='' and '-'..realm or ''))
+    end
 end
 local function Save()
     local saved={}
@@ -70,6 +102,7 @@ function S.Initialize()
         end
     end
     Save()
+    if ns.Spam then ns.Spam.Initialize() end
 end
 function S.Prune()
     if not ns.DB or not ns.DB.shield then return end
@@ -82,6 +115,7 @@ function S.Prune()
     local t=ns.SessionTime()
     for key,item in pairs(counts) do if t-item.last>600 then counts[key]=nil end end
     if ns.WhisperRepeat then ns.WhisperRepeat.Prune() end
+    if ns.Spam then ns.Spam.Prune() end
     if changed then Save();Changed() end
 end
 function S.List()
@@ -120,12 +154,14 @@ function S.Add(name,duration,reason)
         session=duration=='session',reason=reason or 'Manually shielded'}
     counts[key]=nil;Save();S.Alert(name,'Shield',reason or 'Manually shielded');Changed()
     if ns.WhisperRepeat then ns.WhisperRepeat.Reset(name) end
+    if ns.Spam then ns.Spam.Reset(name) end
     return true
 end
 function S.Remove(name)
     local key=S.Key(name);if not key then return end
     contacts[key]=nil;counts[key]=nil;Save();Changed()
     if ns.WhisperRepeat then ns.WhisperRepeat.Reset(name) end
+    if ns.Spam then ns.Spam.Reset(name) end
 end
 function S.Allow(name)
     local key=S.Key(name);if not key then return false,'Enter a valid player name.' end
@@ -136,18 +172,22 @@ end
 function S.Unallow(name)
     local key=S.Key(name);if key then ns.DB.shield.allowed[key]=nil;counts[key]=nil;Changed() end
     if ns.WhisperRepeat then ns.WhisperRepeat.Reset(name) end
+    if ns.Spam then ns.Spam.Reset(name) end
 end
 function S.Reset(name,kind)
     local key=S.Key(name);if key and counts[key] then counts[key][kind]=nil end
 end
 function S.SetProfile(profile)
     if not S.Profiles[profile] then return end
-    ns.DB.shield.profile=profile;ns.DB.shield.quiet=profile=='streamer';counts={};pending={};Changed()
+    ns.DB.shield.profile=profile;counts={};pending={};Changed()
     if ns.WhisperRepeat then ns.WhisperRepeat.Reset() end
+    if ns.Spam then ns.Spam.Reset() end
 end
 function S.SetOption(key,value)
+    if key=='quiet' and ns.Notifications then return ns.Notifications.Set('chat',not value) end
     ns.DB.shield[key]=value;counts={};pending={};Changed()
     if ns.WhisperRepeat then ns.WhisperRepeat.Reset() end
+    if ns.Spam then ns.Spam.Reset() end
 end
 function S.Observe(kind,name)
     if not S.Active(kind) then return false end
@@ -168,7 +208,7 @@ function S.Observe(kind,name)
     if #recent>=rule[1] then
         local reason=rule[1]..' '..kind..' signals within '..rule[2]..' seconds'
         local ok=S.Add(name,rule[3],reason)
-        if ok and not ns.DB.shield.quiet then ns.Print('ChatWarden Shield: temporary protection added. /ocw shield to review or undo.') end
+        if ok and (ns.Notifications and ns.Notifications.Chat('shield') or not ns.Notifications and not ns.DB.shield.quiet) then ns.Print('ChatWarden Shield: temporary protection added. /ocw shield to review or undo.') end
         return ok
     end
     return false
@@ -190,16 +230,30 @@ function S.FilterChat(event,message,...)
     if not S.Active() or not ns.CanRead(message) or #message>ns.Engine.MAX_TEXT
         or event=='CHAT_MSG_WHISPER_INFORM' or event:find('CHAT_MSG_MONSTER_',1,true) then return false end
     local source,key=ns.ChatReviewSource(event,...)
+    if ns.Spam then ns.Spam.Observe(event,message,source,key) end
     if event=='CHAT_MSG_WHISPER' then S.ObserveWhisper(message,source,key) end
     local enabled
     if event=='CHAT_MSG_WHISPER' then enabled=S.Active('whispers') or S.Active('repeatedWhispers')
     else enabled=S.Active('visibleChat') end
-    if not enabled or not S.IsShielded(source.sender) then return false end
+    if not enabled then return false end
+    if not S.IsShielded(source.sender) then
+        local pause=ns.Spam and ns.Spam.FloodPause(event,source)
+        local recruitment=ns.Spam and ns.Spam.RecruitmentMatch(event,message,source)
+        if not pause and not recruitment then return false end
+        source.hiddenMessage=true;source.spam=true
+        source.spamReason=recruitment and 'Guild recruitment ad' or pause
+        source.notificationCategory=recruitment and 'recruitment' or 'spam'
+        local id=ns.Review.Add(message,{},source,key or ns.ChatFallbackKey(event,message,source),
+            recruitment and '[Guild recruitment ad - original in Review]' or '[Rapid chat paused - original in Review]')
+        source.filterStatus=id and (recruitment and 'hidden-recruitment' or 'hidden-flood-pause') or 'review-unavailable'
+        return id~=nil,source
+    end
     local contact=contacts[S.Key(source.sender)]
     source.hiddenMessage=true;source.shield=true
     source.shieldReason='ChatWarden Shield: '..(contact and contact.reason or 'Locally silenced')
     local id=ns.Review.Add(message,{},source,key or ns.ChatFallbackKey(event,message,source),'[Shielded contact - original in Review]')
-    return id~=nil -- Never lose an original that could not be retained.
+    source.filterStatus=id and 'hidden-shield' or 'review-unavailable'
+    return id~=nil,source -- Never lose an original that could not be retained.
 end
 function S.HideBubble(source)
     return source and source.kind~='npc' and S.Active('bubbles') and S.IsShielded(source.sender)

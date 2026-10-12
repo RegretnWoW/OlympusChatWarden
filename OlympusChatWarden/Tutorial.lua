@@ -6,7 +6,7 @@ local pageID, loginReady, queued, deferFrame = "basics", false, false
 local pages = {
     {id = "basics", title = "Overview", text = [[OLYMPUS CHATWARDEN
 
-Open Review & protection from Olympus or /ocw inbox.
+Open Review & Protection from Olympus or /ocw inbox.
 
 ACCESS
 
@@ -27,7 +27,7 @@ Hidden: removed from chat; its original remains in Messages.
 
 Ctrl + left-click a covered phrase to reveal or cover it. Hold Ctrl to reveal filtered tooltip text. Some protected labels do not support click-to-reveal.
 
-Red badges count unread fully hidden messages. Select each message to clear its badge everywhere.
+Red badges count unread hidden messages from your enabled notification categories. Select each message to clear its badge everywhere. Repeated-message spam, rapid chat, gold/service ads and guild recruitment ads are quiet by default; their originals remain in Messages. Settings > ChatWarden > Notifications controls badges, categories and Shield chat notices. Notification settings do not change filtering.
 
 STORAGE
 
@@ -87,20 +87,35 @@ Each installed category can follow the main sensitivity, use its own sensitivity
 Updates are checked only against the catalog bundled with the addon. Get packs link opens a copyable download location. No automatic download or installation occurs.]]},
     {id = "shield", title = "Shield", text = [[CONTACT PROTECTION
 
-Shield starts on with Normal Harassment. Change the profile or individual protections in Settings > ChatWarden > Shield.
+Shield starts on. Settings > ChatWarden > Shield has switches for each protection.
 
-Normal / Streamer thresholds:
-Strong-wording whispers: 3 in 120s / 2 in 60s; shield 10 minutes.
-Repeated whispers: 6 in 30s / 4 in 20s; shield 10 minutes.
-Trades: 4 / 3 in 10 minutes; shield 15 / 60 minutes.
-Duels: 4 / 3 in 2 minutes; shield 10 / 15 minutes.
-Group invites: 4 / 3 in 10 minutes; shield 15 / 60 minutes.
+Strong-wording whispers: 3 in 2 minutes; shield 10 minutes.
+Repeated whispers: 6 in 30 seconds; shield 10 minutes.
+Trades: 4 in 10 minutes; shield 15 minutes.
+Duels: 4 in 2 minutes; shield 10 minutes.
+Group invites: 4 in 10 minutes; shield 15 minutes.
 
 REPEATED WHISPERS
 
-Counts identical or slightly changed incoming whispers from one player. Case, punctuation and spacing changes are normalized. Short text uses conservative comparisons; long text requires an exact normalized match.
+Counts identical or slightly changed incoming whispers from one player. Case, punctuation and spacing changes are normalized. Replying resets that player's counter. Allowed players are exempt. No word match or chat recording is required.
 
-No word-filter match or chat recording is required. Replying to that player resets the repetition counter. Allowed players are exempt. Profile and protection changes reset counters. Existing shields are not extended by further messages.
+SPAM PROTECTION
+
+Open Shield settings > Spam protection. Each check and chat type has its own switch. Public chat, whispers, groups and guild/officer chat start checked.
+
+Sales ads: website plus gold or paid-service wording. Common lookalike letters are recognized. Links alone do not trigger it. Applies the automatic timeout.
+
+Guild recruitment: recruiting, direct guild invites and named-guild raid/team pitches with a reply or sign-up request. Hides the ad without timing out the player. Olympus guild ads are exempt by name; this does not verify affiliation. Guild mentions and Discord links alone stay visible.
+
+Repeated messages: 3 identical or similar messages in 30 seconds. Applies the automatic timeout.
+
+Rapid chat: 5 messages in 10 seconds, even with different text. First burst pauses that player's chat for 10 seconds. A second new burst within a minute applies the automatic timeout. Slower messages do not extend the pause.
+
+These limits are fixed. Automatic timeout is adjustable and starts at 15 minutes. Counts follow one player across checked chat types; duplicate deliveries to chat windows count once. Pauses affect chat only. Timed shields also use your enabled contact protections. Existing shields are kept on upgrade.
+
+Review > Shield shows alerts and recent examples. Remove shield ends a pause or timeout. Allow player bypasses these checks. Hidden originals stay in Messages. Repeated-message spam, rapid chat and ads have separate notification switches and start quiet. Settings > ChatWarden > Notifications controls badges and chat notices without changing filtering.
+
+Reports keep spam settings, the pause/timeout stage and the recorded filter result. Event-only captures have no confirmed result. Battle.net, NPC and your own messages are excluded. Counters and brief pauses clear on reload; chat recording is not required.
 
 PLAYER MANAGEMENT
 
@@ -176,7 +191,7 @@ Personal/category rules still apply to chat names separately. Covered names appe
 
 REVIEW AND REPORTS
 
-Only hidden messages receive unread badges. Select one to clear its badges everywhere. Why filtered? shows the detection and action rule. Allow language updates the reading list.
+Only hidden messages in enabled notification categories receive unread badges. Select one to clear its badges everywhere. Why filtered? shows the detection and action rule. Allow language updates the reading list.
 
 Report a problem saves feedback. Report a miss from the player's chat-name menu or paste an example. Received examples keep their message-time settings and action rule; pasted examples use current settings. Export previews let you select records, hide known names and omit notes.
 

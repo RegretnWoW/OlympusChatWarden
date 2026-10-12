@@ -86,7 +86,11 @@ function D.Toggle(link,frame)
     if not D.CanReveal(link) then return false end
     local state=labels[link];state.shown=not state.shown
     local changed=0
-    for host in pairs(frames) do changed=changed+Rewrite(host) end
+    for host in pairs(frames) do
+        if ns.ChatFonts then ns.ChatFonts.Prepare(host) end
+        changed=changed+Rewrite(host)
+    end
+    if ns.ChatFonts then ns.ChatFonts.Refresh() end
     if changed==0 then
         state.shown=not state.shown
         ns.Print('This chat display could not update the name. Its original is in Messages.')
@@ -165,6 +169,7 @@ function D.Install()
             frame.AddMessage=function(self,message,...)
                 local updated=Safe(self) and D.Text(message,self) or message
                 if ns.CanRead(message) and ns.CanRead(updated) then Remember(updated,message) end
+                if ns.ChatFonts then ns.ChatFonts.Watch(self,updated) end
                 return add(self,updated,...)
             end
             -- Consume only our Ctrl-left reveal gesture. Ordinary native player

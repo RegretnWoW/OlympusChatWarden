@@ -7,6 +7,8 @@ A customizable text-filtering and personal protection addon for World of Warcraf
 ChatWarden gives players control over their own viewing experience. It doesn't label words or opinions as harmful, judge other players, or decide what anyone should be allowed to say.
 
 
+[Download rc49](https://github.com/RegretnWoW/OlympusChatWarden/releases/tag/v0.9.0-rc49) · [Optional signed packs](rule-packs/README.md)
+
 ## Features
 
 - Four filtering presets: **Selective, Balanced, Broad, and Gommage**.
@@ -19,7 +21,7 @@ ChatWarden gives players control over their own viewing experience. It doesn't l
 - Personal phrase rules and exceptions.
 - Built-in barber and body-type wording replacements.
 - Message Review with reporting and individual unread notifications.
-- Native Olympus integration with guild membership verification.
+- Native Olympus integration with guild access checks.
 
 **Gommage** uses a separate display list to cover selected terminology without increasing filtering confidence or automatically hiding entire messages.
 
@@ -32,7 +34,7 @@ ChatWarden gives players control over their own viewing experience. It doesn't l
 
 Shield provides optional local protection against repeated contact.
 
-- **Normal Harassment** and **Streamer** profiles.
+- One set of normal contact protections; existing Streamer settings move to normal thresholds.
 - Configurable protection for qualifying whispers, trade requests, duel requests, and group invites.
 - Automatic or manual player shields.
 - Timed, session-based, and indefinite manual protection.
@@ -43,9 +45,18 @@ An optional OlympusMute signal feature records compatible list-sharing activity 
 
 <img width="1448" height="1086" alt="Olympus ChatWarden Interface Panel" src="https://github.com/user-attachments/assets/c2b0f4c8-e1ca-4f42-8844-e05e2f55e1a5" />
 
+## Spam protection and notifications
+
+- Hide gold-selling, paid-service and guild recruitment ads, with Olympus recruitment exceptions.
+- Repeated-message detection and rapid-chat protection with a brief first-burst pause before a full timeout.
+- Adjustable automatic timeout and separate chat-channel switches.
+- Separate notification choices for wording/language filtering, contact protection, repeated/rapid chat and each advertising type.
+- Spam and ads stay quiet by default. Hidden originals remain available in Messages.
+- Consistent Help, Settings and Export placement across Review & Protection tabs.
+
 ## Chat capture
 
-Record, search and export player chat from a new tab in Review & protection. Recordings stay saved across reloads until cleared or the storage limit is reached.
+Record, search and export player chat from a new tab in Review & Protection. Recordings stay saved across reloads until cleared or the storage limit is reached.
 
  - Incident bookmarks: Save a message with up to 10 surrounding lines on either side, plus an optional title and note.
  - Right-click capture controls: Start or pause recording, view a player’s captured chat, or bookmark the clicked message.
@@ -60,10 +71,10 @@ Keep shared-server chat focused on languages you can read. ChatWarden can cover 
 
 - Optional language filtering, off by default, with English allowed.
 - Choose additional supported languages and writing systems to allow.
-- Default actions: uncertain text stays visible, medium confidence covers detected portions, and high confidence hides qualifying messages.
+- Default actions: low confidence covers detected portions; high confidence or mostly non-preferred text hides the message. Optional name covering follows the same reading preferences.
 - Hidden originals remain available in Messages.
 - Mixed messages preserve readable English where identified.
-- Customize actions, minimum text length and chat coverage.
+- Choose Low and High actions and incoming chat channels. Confidence uses a fixed four-letter minimum.
 - Review shows the detected language or writing system, confidence and an Allow language shortcut.
 - Language explanations are included in saved reports and exports.
 - Works independently of word-filter scores, Shield and chat capture.
@@ -83,7 +94,7 @@ Keep shared-server chat focused on languages you can read. ChatWarden can cover 
 4. Open Olympus and select ChatWarden, or type `/ocw`.
 5. Configure your filtering and Shield preferences.
 
-An active, verified Olympus guild membership is required.
+An active Olympus guild name is required. Until the official membership API is available, the fallback checks for Olympus as a separate word. This does not verify official affiliation.
 
 
 ## Optional Rule Packs
@@ -92,7 +103,7 @@ Additional categories are distributed as author-signed rule packs.
 
 Open `/ocw packs`, paste the complete signed pack text, verify it, then install and enable it.
 
-The current optional packs use **version 6**. Updating the addon does not automatically update imported packs.
+Eight current packs are available separately: seven at **version 6**, plus **USA Protection v1**. See the [pack list and import instructions](rule-packs/README.md). Updating the addon does not automatically update imported packs.
 
 
 ## Commands
@@ -125,3 +136,4 @@ Everything is handled locally. Reports aren't automatically uploaded or shared.
 ## Disclaimer
 
 ChatWarden is a personal viewing and contact-management tool, not a content moderation system. Its categories don't represent judgments about the content or people being filtered.
+

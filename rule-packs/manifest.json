@@ -1,0 +1,100 @@
+{
+  "format": "OCWPACK1",
+  "publisher": "Regretn",
+  "keyID": "ede248d757db0289",
+  "release": "0.9.0-rc49",
+  "minimumAddonForEvasion": "0.9.0-rc22",
+  "packs": [
+    {
+      "id": "gender",
+      "title": "Gender and pronoun wording",
+      "version": 6,
+      "rules": 578,
+      "replacements": 0,
+      "payloadSha256": "c5275f23ced7f9d7b0f50a10841477faf1c190b92e30f2e742b9dd150d6c8d9c",
+      "copyFile": "packs/gender-v6.ocwpack.txt",
+      "modelFile": "models/gender.json",
+      "gommage": 169
+    },
+    {
+      "id": "labels",
+      "title": "Body-label replacements",
+      "version": 6,
+      "rules": 44,
+      "replacements": 46,
+      "payloadSha256": "11769e7939c97769b97b61eb994bd192c98e5f0007ac45f0d897eb5da4d37438",
+      "copyFile": "packs/labels-v6.ocwpack.txt",
+      "modelFile": "models/labels.json",
+      "gommage": 0
+    },
+    {
+      "id": "reproductive",
+      "title": "Pregnancy and reproductive wording",
+      "version": 6,
+      "rules": 147,
+      "replacements": 0,
+      "payloadSha256": "7943dd526c0e91cd9fa065f1eb39321a7c0b85050a68fad68ea7f65c3ff5d1da",
+      "copyFile": "packs/reproductive-v6.ocwpack.txt",
+      "modelFile": "models/reproductive.json",
+      "gommage": 0
+    },
+    {
+      "id": "language",
+      "title": "Inclusive wording",
+      "version": 6,
+      "rules": 115,
+      "replacements": 0,
+      "payloadSha256": "17816acb6a4369ec6ad034a863d678b0c234c3734ca975e4a9c5f6865fa094d2",
+      "copyFile": "packs/language-v6.ocwpack.txt",
+      "modelFile": "models/language.json",
+      "gommage": 0
+    },
+    {
+      "id": "institutional",
+      "title": "DEI and institutional terminology",
+      "version": 6,
+      "rules": 505,
+      "replacements": 0,
+      "payloadSha256": "031188ad5fe103c6214533585d5ffcde18d9224b2062e2ac99fdc30360d62226",
+      "copyFile": "packs/institutional-v6.ocwpack.txt",
+      "modelFile": "models/institutional.json",
+      "gommage": 20
+    },
+    {
+      "id": "slogans",
+      "title": "Social and political slogans",
+      "version": 6,
+      "rules": 82,
+      "replacements": 0,
+      "payloadSha256": "bb0dcb711e6adf41d7314b4159a73c92a33edb0c80622e895e71b52e60d25373",
+      "copyFile": "packs/slogans-v6.ocwpack.txt",
+      "modelFile": "models/slogans.json",
+      "gommage": 9
+    },
+    {
+      "id": "broad",
+      "title": "Broad contextual phrases",
+      "version": 6,
+      "rules": 142,
+      "replacements": 0,
+      "payloadSha256": "d9a374644ed8fba21b70887a916b8494a27bcc531ac61b3c852feea54735e783",
+      "copyFile": "packs/broad-v6.ocwpack.txt",
+      "modelFile": "models/broad.json",
+      "gommage": 0
+    },
+    {
+      "id": "america",
+      "title": "USA Protection",
+      "version": 1,
+      "rules": 1234,
+      "gommage": 17,
+      "replacements": 0,
+      "payloadSha256": "660974736aa46973e7e9ca78a974babcf61233c566a87c5ad09fa6fc5a853913",
+      "copyFile": "packs/america-v1.ocwpack.txt",
+      "modelFile": "models/america.json",
+      "minimumAddonVersion": "0.9.0-rc46-private"
+    }
+  ],
+  "minimumAddonVersion": "0.9.0-rc30",
+  "modelSchema": 2
+}

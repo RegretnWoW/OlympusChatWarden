@@ -1,0 +1,6200 @@
+{
+  "schema": 2,
+  "id": "america",
+  "title": "USA Protection",
+  "author": "Regretn",
+  "version": 1,
+  "description": "Private v1 for ChatWarden rc46+. Broad optional coverage of insults toward Americans and the USA: direct abuse, hostile slogans, country put-downs and internet slang. Strong matches hide; weaker satire or ambiguous slang may redact or warn. Context can lower scores. Ordinary nationality, USA, Yank and burger mentions alone are not rules. Gommage also masks the separate explicit-slur list. English and selected ASCII/transliterated phrases; not a semantic or multilingual guarantee.",
+  "rules": [
+    {
+      "phrase": "3rd world country in a gucci belt",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "3rd world country with a gucci belt",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "all americans should die",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "amerca sucks",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "amercans are stupid",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "amercians are stupid",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america bad",
+      "score": 55,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america can fuck off",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america can rot",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america deserved 9/11",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america deserved 911",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america deserved september 11",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america deserves it",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america deserves to be destroyed",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america deserves to burn",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america has no culture",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america has no history",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a 3rd world country",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is a backward country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a backwards country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a cancer",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a cesspool",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a disgrace",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a dogshit country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a dump",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a dumpster fire",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is a dystopia",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is a dystopian hellhole",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is a failed country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a failed experiment",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is a failed society",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is a failed state",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a fascist country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a fucking joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a garbage country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a hell hole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a hellhole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a pathetic country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a racist country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a shit hole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a shithole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a shithole country",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is a stupid country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a terrorist country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a terrorist state",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is a third world country",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is a toilet",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is a trash country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is an open air asylum",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is an open air prison",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is cancer",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is disgusting",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is dogshit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is evil",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is fucking a disgrace",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is fucking a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is fucking a shithole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is fucking brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is fucking braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is fucking dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is fucking evil",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is fucking garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is fucking retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is fucking shit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is fucking stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is fucking trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is going to shit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is scum",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is shit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is so dumb",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is so stupid",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is the biggest terrorist",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is the great satan",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is the world bully",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is the world police",
+      "score": 75,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is the worlds bully",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america is the worst",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is the worst country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america is worthless",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america must be destroyed",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america must burn",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america must die",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america needs to die",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america should be destroyed",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america should burn",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america should not exist",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america shouldn't exist",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america shouldnt exist",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america sucks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america sucks ass",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america sucks balls",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "america sucks dick",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america sukcs",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "america sux",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americains de merde",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american clown",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american cretin",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american culture is garbage",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american culture is shit",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american culture is trash",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american cunt",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american degenerate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american dog",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american dream is a lie",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american dream is a scam",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american dream is dead",
+      "score": 75,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american dumbass",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american education is a joke",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american education is trash",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american exceptionalism is a joke",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american exceptionalism is bullshit",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american fatass",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american food is garbage",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american food is shit",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american food is trash",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american go home",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american healthcare is a joke",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american healthcare is garbage",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american healthcare is trash",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american healthcare lol",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american idiot",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american imbecile",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american imperialist pigs",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american imperialists",
+      "score": 75,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american lardass",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american loser",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american moment",
+      "score": 55,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american mongrel",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american monkey",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american moron",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american not welcome",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american people are dumb",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american people are stupid",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american people are trash",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american piece of shit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american pig",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are a cancer",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all a cancer",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all animals",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all clowns",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all degenerate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all disgusting",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all dogs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all fat pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all fat slobs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all idiots",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all ignorant",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all illiterate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all inbred",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all inbreds",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all losers",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all mongrels",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all monkeys",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all morons",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all obnoxious",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all parasites",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all savages",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all scum",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all subhuman",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all the worst",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all uncultured",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all uneducated",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all vermin",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are all worthless",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are animals",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are clowns",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are degenerate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are disgusting",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are dogs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are fat pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are fat slobs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are idiots",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are ignorant",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are illiterate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are inbred",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are inbreds",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are losers",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are mongrels",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are monkeys",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are morons",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are obnoxious",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are parasites",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are savages",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are scum",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are subhuman",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are the worst",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are uncultured",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are uneducated",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are vermin",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players are worthless",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players can't read",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players cannot read",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players cant read",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players have low iq",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players have no brains",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players have no class",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players have no culture",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players have no education",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players have no history",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players have no taste",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players r braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players r dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players r garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players r inbred",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players r pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players r retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players r stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players r trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players ruin every server",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players ruin everything",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players ruined this server",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players ruining this server",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players suck",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players suck ass",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players suck at everything",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american players suck balls",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american retard",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american scum",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american scumbag",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american vermin",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "american war criminals",
+      "score": 75,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "american warmongers",
+      "score": 75,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americanos de mierda",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are a cancer",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all a cancer",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all animals",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all clowns",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all degenerate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all disgusting",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all dogs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all fat pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all fat slobs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all idiots",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all ignorant",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all illiterate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all inbred",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all inbreds",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all losers",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all mongrels",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all monkeys",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all morons",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all obnoxious",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all parasites",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all savages",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all scum",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all subhuman",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all the worst",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all uncultured",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all uneducated",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all vermin",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are all worthless",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are animals",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are bad",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are bad at everything",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are bastards",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are bootlickers",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are brainwashed",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are clowns",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are colonisers",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are colonizers",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are cunts",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are degenerate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are disgusting",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are dogs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are dum",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are fascists",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are fat pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are fat slobs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are fucking braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are fucking clowns",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are fucking dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are fucking garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are fucking idiots",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are fucking morons",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are fucking pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are fucking retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are fucking stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are fucking trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are gun nuts",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are idiots",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are ignorant",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are illiterate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are inbred",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are inbreds",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are losers",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are mongrels",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are monkeys",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are morons",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are nazis",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are obnoxious",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are parasites",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are racists",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are savages",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are school shooters",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are scum",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are so dumb",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are so stupid",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are stoopid",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are subhuman",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are terrorists",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are the worst",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are too dumb",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are too stupid",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are uncultured",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are uneducated",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are vermin",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans are war criminals",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are warmongers",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans are worthless",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans can't read",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans cannot read",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans cant read",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans deserve it",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans deserve to die",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans deserved 9/11",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans deserved 911",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans go home",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans have low iq",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans have negative iq",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans have no brains",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans have no class",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans have no culture",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans have no education",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans have no history",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans have no taste",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans have room temperature iq",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans not welcome",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans only care about guns",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans only eat burgers",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans only know burgers",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans only know guns",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans r braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans r dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans r garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans r inbred",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans r pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans r retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans r stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans r trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans ruin every server",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans ruin everything",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans ruined this server",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans ruining this server",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans shoot children",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans should be killed",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans should die",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans suck",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans suck ass",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans suck at everything",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans suck balls",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "americans suck dick",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americans sux",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "americattle",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "americattles",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "americuck",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "americucks",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "americunt",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "americunts",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "ameridog",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "ameridogs",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerifat",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerifats",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerigoblin",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerigoblins",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerigolem",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerigolems",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerika ist scheisse",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "amerikka",
+      "score": 75,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "amerikka sucks",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "amerikkans",
+      "score": 75,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "amerikkka",
+      "score": 75,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "amerikkka sucks",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "amerikkkan",
+      "score": 75,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "amerikkkans",
+      "score": 75,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "amerikkkunt",
+      "score": 75,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "amerikkkunts",
+      "score": 75,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "amerilard",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerilards",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerimongrel",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerimongrels",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerimonkey",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerimonkeys",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerimuts",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerimutss",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerimutt",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerimuttard",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerimuttards",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerimutts",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "ameripig",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "ameripigs",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerique de merde",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "amerishart",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerisharts",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerishit",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "amerishits",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "ameritard",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "ameritards",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "ameritrash",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "ameriturd",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "ameriturds",
+      "score": 90,
+      "origin": "US slang / variants"
+    },
+    {
+      "phrase": "average american iq",
+      "score": 55,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "average amerifat",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "average amerimutt",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "backward america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "backward usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "backwards america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "backwards usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "braindead american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "braindead american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "braindead americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "braindead yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "braindead yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "braindead yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "burgeristan",
+      "score": 75,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "burgeristani",
+      "score": 75,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "burgeristanis",
+      "score": 75,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "burgerland",
+      "score": 75,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "burgerstan",
+      "score": 75,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "death to america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "death to american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "death to americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "death to the us",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "death to united states",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "death to usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "death to yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "death to yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "degenerate american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "degenerate american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "degenerate americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "degenerate yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "degenerate yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "degenerate yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "destroy america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "destroy the us",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "destroy united states",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "destroy usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "dirty american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "dirty american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "dirty americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "dirty gringos",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "dirty yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "dirty yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "dirty yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "disgusting america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "disgusting american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "disgusting american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "disgusting americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "disgusting usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "disgusting yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "disgusting yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "disgusting yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "dogshit america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "dogshit usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "down with america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "down with the us",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "down with united states",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "down with usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "dumb american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "dumb american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "dumb americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "dumb yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "dumb yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "dumb yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "dumbfuck american",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "dumbfuck americans",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "fat american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fat american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fat americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fat yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fat yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fat yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fck america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fck american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fck americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fck the us",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fck united states",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fck usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fck yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fck yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "filthy american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "filthy american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "filthy americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "filthy yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "filthy yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "filthy yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuck all americans",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "fuck america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuck american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuck americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuck merica",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "fuck murica",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "fuck the united states",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "fuck the us",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuck the usa",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "fuck united states",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuck usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuck yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuck yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fucking america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fucking american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fucking american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fucking americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fucking gringos",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "fucking usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fucking yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fucking yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fucking yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuk america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuk american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuk americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuk the us",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuk united states",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuk usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuk yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "fuk yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "garbage america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "garbage usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "get rid of american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "get rid of americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "get rid of yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "get rid of yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "go back to america",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "go back to burgerland",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "go back to burgerstan",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "go back to your shithole america",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "go home yank",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "go home yankee",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "gringo go home",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "gringos de mierda",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "gringos go home",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "hamburgistan",
+      "score": 75,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "hate america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "hate american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "hate americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "hate the us",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "hate united states",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "hate usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "hate yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "hate yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "i hate america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "i hate american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "i hate americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "i hate the us",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "i hate united states",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "i hate usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "i hate yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "i hate yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "idiotic american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "idiotic american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "idiotic americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "idiotic yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "idiotic yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "idiotic yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "ignorant american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "ignorant american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "ignorant americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "ignorant yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "ignorant yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "ignorant yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "imagine being american",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "imagine living in america",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "inbred american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "inbred american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "inbred americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "inbred yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "inbred yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "inbred yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "keep americans out",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "keep yanks out",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "kill all american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "kill all americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "kill all yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "kill all yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "kill an american",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "kill every american",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "least obese american",
+      "score": 55,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "lol american healthcare",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "lol no healthcare",
+      "score": 55,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "merica bad",
+      "score": 55,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "merica is trash",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "merica sucks",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "moronic american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "moronic american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "moronic americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "moronic yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "moronic yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "moronic yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "most intelligent american",
+      "score": 55,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "murica bad",
+      "score": 55,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "murica is trash",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "murica sucks",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "no americans allowed",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "no more american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "no more americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "no more yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "no more yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "no yanks allowed",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "nuke america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "nuke the us",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "nuke united states",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "nuke usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "obese american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "obese american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "obese americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "obese yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "obese yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "obese yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "only americans are this stupid",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "only an american could be this dumb",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "pathetic america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "pathetic american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "pathetic american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "pathetic americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "pathetic usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "pathetic yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "pathetic yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "pathetic yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "people from america are dumb",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "people from america are stupid",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "putos gringos",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "retarded american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "retarded american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "retarded americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "retarded yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "retarded yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "retarded yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "scheiss amerikaner",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "scheiss amis",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "seppo",
+      "score": 55,
+      "origin": "Ambiguous national slang"
+    },
+    {
+      "phrase": "seppos",
+      "score": 55,
+      "origin": "Ambiguous national slang"
+    },
+    {
+      "phrase": "septic yank",
+      "score": 55,
+      "origin": "Ambiguous national slang"
+    },
+    {
+      "phrase": "septic yanks",
+      "score": 55,
+      "origin": "Ambiguous national slang"
+    },
+    {
+      "phrase": "shit america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "shit american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "shit americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "shit usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "shit yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "shit yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "shithole america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "shithole usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "shitty america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "shitty usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "shut up american",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "shut up americans",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "shut up yank",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "shut up yankee",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "smartest american",
+      "score": 55,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "stfu american",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "stfu americans",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "stfu yank",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "stfu yanks",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "stupid america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "stupid american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "stupid american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "stupid americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "stupid gringos",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "stupid usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "stupid yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "stupid yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "stupid yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "subhuman american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "subhuman american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "subhuman americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "subhuman yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "subhuman yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "subhuman yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us can fuck off",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us deserves to be destroyed",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us deserves to burn",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us has no culture",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us has no history",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a backward country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a backwards country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a cancer",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a cesspool",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a disgrace",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a dogshit country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a dump",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a failed country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a failed state",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a fascist country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a fucking joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a garbage country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a hell hole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a hellhole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a pathetic country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a racist country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a shit hole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a shithole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a stupid country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a terrorist country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a terrorist state",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is a trash country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is disgusting",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is dogshit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is evil",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is fucking a disgrace",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is fucking a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is fucking a shithole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is fucking brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is fucking braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is fucking dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is fucking evil",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is fucking garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is fucking retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is fucking shit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is fucking stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is fucking trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is going to shit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is scum",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is shit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is the great satan",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is the worst",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is the worst country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us is worthless",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us must be destroyed",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us must burn",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us must die",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us needs to die",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us should be destroyed",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us should burn",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us should not exist",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us shouldn't exist",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us shouldnt exist",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us sucks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us sucks ass",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "the us sucks balls",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "third world country in a gucci belt",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "third world country with a gucci belt",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "third world with a gucci belt",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "trash america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "trash usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "typical dumb american",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "uncultured american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "uncultured american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "uncultured americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "uncultured yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "uncultured yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "uncultured yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united shits of america",
+      "score": 85,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "united shitstains of america",
+      "score": 85,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "united snakes",
+      "score": 85,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "united snakes of america",
+      "score": 85,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "united states can fuck off",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states deserves to be destroyed",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states deserves to burn",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states has no culture",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states has no history",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a backward country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a backwards country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a cancer",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a cesspool",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a disgrace",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a dogshit country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a dump",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a failed country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a failed state",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a fascist country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a fucking joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a garbage country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a hell hole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a hellhole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a pathetic country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a racist country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a shit hole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a shithole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a stupid country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a terrorist country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a terrorist state",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is a toilet",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "united states is a trash country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is cancer",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "united states is disgusting",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is dogshit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is evil",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is fucking a disgrace",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is fucking a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is fucking a shithole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is fucking brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is fucking braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is fucking dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is fucking evil",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is fucking garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is fucking retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is fucking shit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is fucking stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is fucking trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is going to shit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is scum",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is shit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is the great satan",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is the worst",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is the worst country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states is worthless",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states must be destroyed",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states must burn",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states must die",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states needs to die",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states of embarrassment",
+      "score": 85,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "united states of garbage",
+      "score": 85,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "united states of ignorance",
+      "score": 85,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "united states of obesity",
+      "score": 85,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "united states of stupidity",
+      "score": 85,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "united states of trash",
+      "score": 85,
+      "origin": "Derogatory US nickname"
+    },
+    {
+      "phrase": "united states should be destroyed",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states should burn",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states should not exist",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states shouldn't exist",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states shouldnt exist",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states sucks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states sucks ass",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "united states sucks balls",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us is a disgrace",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us is a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us is a shithole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us is brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us is braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us is dogshit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us is dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us is evil",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us is garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us is pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us is retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us is shit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us is stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us is trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us is worthless",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us players are a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us players are braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us players are dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us players are garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us players are idiots",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us players are morons",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us players are retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us players are stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us players are the worst",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us players are trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us sucks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us sucks ass",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us sucks balls",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "us sucks dick",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa can fuck off",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa deserves to be destroyed",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa deserves to burn",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa has no culture",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa has no history",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a 3rd world country",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "usa is a backward country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a backwards country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a cancer",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a cesspool",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a disgrace",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a dogshit country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a dump",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a dumpster fire",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "usa is a failed country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a failed state",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a fascist country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a fucking joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a garbage country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a hell hole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a hellhole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a pathetic country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a racist country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a shit hole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a shithole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a stupid country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a terrorist country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a terrorist state",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is a third world country",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "usa is a toilet",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "usa is a trash country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is cancer",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "usa is disgusting",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is dogshit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is evil",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is fucking a disgrace",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is fucking a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is fucking a shithole",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is fucking brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is fucking braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is fucking dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is fucking evil",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is fucking garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is fucking retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is fucking shit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is fucking stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is fucking trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is going to shit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is scum",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is shit",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is the biggest terrorist",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "usa is the great satan",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is the worst",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is the worst country",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa is worthless",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa must be destroyed",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa must burn",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa must die",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa needs to die",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa players are a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa players are braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa players are dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa players are garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa players are idiots",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa players are morons",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa players are retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa players are stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa players are the worst",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa players are trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa should be destroyed",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa should burn",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa should not exist",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa shouldn't exist",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa shouldnt exist",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa sucks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa sucks ass",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa sucks balls",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "usa sucks dick",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "usa sux",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "wipe out america",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "wipe out the us",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "wipe out united states",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "wipe out usa",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "worthless american",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "worthless american players",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "worthless americans",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "worthless yank",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "worthless yankees",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "worthless yanks",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankee go home",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "yankee imperialist pigs",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "yankee imperialists",
+      "score": 75,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "yankees are a cancer",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all a cancer",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all animals",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all clowns",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all degenerate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all disgusting",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all dogs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all fat pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all fat slobs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all idiots",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all ignorant",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all illiterate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all inbred",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all inbreds",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all losers",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all mongrels",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all monkeys",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all morons",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all obnoxious",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all parasites",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all savages",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all scum",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all subhuman",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all the worst",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all uncultured",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all uneducated",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all vermin",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are all worthless",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are animals",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are clowns",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are degenerate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are disgusting",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are dogs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are fat pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are fat slobs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are idiots",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are ignorant",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are illiterate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are inbred",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are inbreds",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are losers",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are mongrels",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are monkeys",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are morons",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are obnoxious",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are parasites",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are savages",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are scum",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are subhuman",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are the worst",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are uncultured",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are uneducated",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are vermin",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees are worthless",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees can't read",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees cannot read",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees cant read",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees de mierda",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "yankees go home",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "yankees have low iq",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees have no brains",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees have no class",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees have no culture",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees have no education",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees have no history",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees have no taste",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees r braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees r dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees r garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees r inbred",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees r pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees r retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees r stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees r trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees ruin every server",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees ruin everything",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees ruined this server",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees ruining this server",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees suck",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees suck ass",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees suck at everything",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yankees suck balls",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are a cancer",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all a cancer",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all a joke",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all animals",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all clowns",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all degenerate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all disgusting",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all dogs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all fat pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all fat slobs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all idiots",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all ignorant",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all illiterate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all inbred",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all inbreds",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all losers",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all mongrels",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all monkeys",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all morons",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all obnoxious",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all parasites",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all savages",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all scum",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all subhuman",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all the worst",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all uncultured",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all uneducated",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all vermin",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are all worthless",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are animals",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are bad",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "yanks are brain dead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are clowns",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are degenerate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are disgusting",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are dogs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are fat pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are fat slobs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are fucking braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are fucking clowns",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are fucking dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are fucking garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are fucking idiots",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are fucking morons",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are fucking pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are fucking retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are fucking stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are fucking trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are idiots",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are ignorant",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are illiterate",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are inbred",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are inbreds",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are losers",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are mongrels",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are monkeys",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are morons",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are obnoxious",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are parasites",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are pigs",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are savages",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are scum",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are subhuman",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are the worst",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are uncultured",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are uneducated",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are vermin",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks are worthless",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks can't read",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks cannot read",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks cant read",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks go home",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "yanks have low iq",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks have no brains",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks have no class",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks have no culture",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks have no education",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks have no history",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks have no taste",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks r braindead",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks r dumb",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks r garbage",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks r inbred",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks r pathetic",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks r retarded",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks r stupid",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks r trash",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks ruin every server",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks ruin everything",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks ruined this server",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks ruining this server",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks suck",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks suck ass",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks suck at everything",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks suck balls",
+      "score": 90,
+      "origin": "USA insult"
+    },
+    {
+      "phrase": "yanks suck dick",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "yanks sux",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "yanqui go home",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "yanquis de mierda",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "yanquis go home",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "you americans are idiots",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "you americans are morons",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "you americans are stupid",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    },
+    {
+      "phrase": "you americans are trash",
+      "score": 90,
+      "origin": "Slogan / taunt / variants"
+    }
+  ],
+  "gommage": [
+    "americattle",
+    "americuck",
+    "americunt",
+    "ameridog",
+    "amerifat",
+    "amerigoblin",
+    "amerigolem",
+    "amerilard",
+    "amerimongrel",
+    "amerimonkey",
+    "amerimutt",
+    "amerimuttard",
+    "ameripig",
+    "amerishart",
+    "amerishit",
+    "ameritard",
+    "ameriturd"
+  ],
+  "replacements": []
+}

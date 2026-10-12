@@ -1,11 +1,11 @@
--- Optional personal guild-language preset. A guild name alone scores zero.
+-- Stock Olympus protection. A guild name alone scores zero.
 local _, ns = ...
-ns.RULE_VERSION = "stock-2-guild-4"
+ns.RULE_VERSION = "stock-2-guild-5"
 ns.PackNames[#ns.PackNames + 1] = "guild"
 for _, name in ipairs({"olympus", "olmypus", "olypmus", "olymups", "olympuss", "olymps"}) do
     ns.StockRules[#ns.StockRules + 1] = name
     ns.RuleMeta[name] = {id = "guild:" .. name, pack = "guild", base = 0,
-        origin = "user-requested Olympus guild preference", version = 4}
+        origin = "user-requested Olympus guild preference", version = 5}
 end
 
 local severe = {"npc", "npcs", "ragebaiter", "rage baiter", "ragebaiters", "clout farmer", "clout farmers", "boot licker", "boot lickers", "dick rider", "dick riders", "meat rider", "meat riders", "brainrotted", "brain rotted", "garbo", "trashcan", "trash cans", "dumbfk", "dipshyt", "dipshyts", "retard", "retards", "retarded", "kys", "kill yourself", "terminally online", "chronically online", "washed up", "washed-up", "has-been", "has been", "bitch", "bitches", "dipshit", "dumbass", "asshat", "buffoon", "bootlicker", "bootlickers", "brownnoser", "parasite", "piece of shit", "pieces of shit", "scumbag", "scumbags", "incel", "incels", "simp", "simps", "shill", "shills", "glazer", "glazers", "fraud", "frauds", "grifter", "griefers", "jackass", "jackasses", "shithead", "shitheads", "braindead", "brain dead", "degenerate", "creep", "weirdo", "sellout", "trash", "garbage", "scum", "idiots", "idiot", "morons", "moron",
@@ -29,7 +29,7 @@ function ns.GuildScore(before, after)
     tail = tail:gsub("^%d+%s+", "", 1) -- Olympus 2, etc.
     tail = tail:gsub("^'s%s+", "", 1)
     local stem = tail
-    for _, noun in ipairs({"guild members", "guild players", "guild", "members", "players", "people"}) do
+    for _, noun in ipairs({"guild members", "guild players", "guilds", "guild", "members", "players", "people"}) do
         if Starts(stem, noun) then stem = Trim(stem:sub(ns.Engine.EvasionPrefix(stem,noun) + 1)); break end
     end
     if Starts(stem, "sucks") or Starts(stem, "suck") then return 90, "direct guild insult: suck/sucks" end

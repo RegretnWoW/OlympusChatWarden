@@ -1,7 +1,7 @@
 -- Researched aliases plus explicitly marked community/spelling candidates.
 -- Matching these preferences does not establish a speaker's intent or a fact.
 local _, ns = ...
-ns.RULE_VERSION = "stock-3-guild-4-creator-4-tuning-4"
+ns.RULE_VERSION = "stock-3-guild-5-creator-4-tuning-4"
 ns.PackNames = {"guild", "creator"}
 ns.CreatorAliases = {}
 local function Add(phrase, base, origin, kind, needsReference)

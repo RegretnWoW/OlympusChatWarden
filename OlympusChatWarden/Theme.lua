@@ -28,6 +28,63 @@ function T.Body(text)
     if text.SetSpacing then text:SetSpacing(3) end
     return text
 end
+-- Keep each original/name separate from explanatory UI text. On some clients
+-- Unicode changes the font fallback for an entire EditBox, including Latin
+-- text. Independent sections keep that fallback local to the original.
+function T.ReadOnlyDocument(scroll)
+    local doc=CreateFrame('Frame',nil,scroll);doc.boxes={};doc.parts={}
+    doc:SetSize(math.max(1,scroll:GetWidth()),math.max(1,scroll:GetHeight()))
+    scroll:SetScrollChild(doc)
+    local fitting=false
+    local function Fit()
+        if fitting then return end;fitting=true
+        local width=math.max(1,scroll:GetWidth()-8);local y=0
+        doc:SetWidth(width)
+        for i,text in ipairs(doc.parts) do
+            local box=doc.boxes[i]
+            box:ClearAllPoints();box:SetPoint('TOPLEFT',0,-y);box:SetWidth(width)
+            local path,size,flags=box:GetFont()
+            if path then box.measure:SetFont(path,size,flags) end
+            box.measure:SetWidth(width);box.measure:SetText(text)
+            local _,newlines=text:gsub('\n','')
+            local height=math.max((newlines+1)*18,(box.measure:GetStringHeight() or 0)+6)
+            box:SetHeight(height);y=y+height+4
+        end
+        doc:SetHeight(math.max(scroll:GetHeight(),y))
+        local offset=scroll:GetVerticalScroll() or 0
+        if offset>math.max(0,doc:GetHeight()-scroll:GetHeight()) then
+            scroll:SetVerticalScroll(math.max(0,doc:GetHeight()-scroll:GetHeight()))
+        end
+        fitting=false
+    end
+    function doc:SetSections(parts)
+        self.parts={}
+        for i,value in ipairs(parts) do
+            local text=(value or ''):gsub('|H.-|h(.-)|h','%1'):gsub('|c%x%x%x%x%x%x%x%x','')
+                :gsub('|r',''):gsub('|T.-|t',''):gsub('|A.-|a',''):gsub('|','||')
+            local box=self.boxes[i]
+            if not box then
+                box=CreateFrame('EditBox',nil,self);self.boxes[i]=box
+                box:SetMultiLine(true);box:SetAutoFocus(false);T.TextField(box);T.Ink(box)
+                box.measure=box:CreateFontString(nil,'OVERLAY');T.Body(box.measure)
+                box.measure:SetWordWrap(true);box.measure:Hide()
+                box:SetScript('OnEscapePressed',function(b) b:ClearFocus() end)
+                box:HookScript('OnTextChanged',function(b,user)
+                    if user then b:SetText(b.original or '');T.Body(b) end
+                end)
+            end
+            self.parts[i]=text;box.original=text
+            if box:GetText()~=text then box:SetText(text);T.Body(box);box:ClearFocus() end
+            box:Show()
+        end
+        for i=#parts+1,#self.boxes do self.boxes[i]:Hide();self.boxes[i]:ClearFocus() end
+        Fit()
+    end
+    function doc:GetText() return table.concat(self.parts,'\n') end
+    function doc:ClearFocus() for _,box in ipairs(self.boxes) do box:ClearFocus() end end
+    scroll:HookScript('OnSizeChanged',Fit);scroll:HookScript('OnShow',Fit)
+    return doc
+end
 -- Cover the whole editor/viewport with its own native click surface. Never
 -- overlay the scrollbar or another field, or replace caret/selection handling.
 function T.TextField(edit, scroll)

@@ -74,7 +74,7 @@ function R.Snapshot(text, source, event, policy, sourceInfo)
     local languageContext=ns.Language and ns.Language.Context(text,event,sourceInfo or {kind=source})
     local language=languageContext and languageContext.result
     local combined=language and ns.Language.Action(active and predicted or 'Unchanged',language) or active and predicted or 'Unchanged'
-    return {addonVersion = ns.VERSION, ruleVersion = ns.RULE_VERSION, preset = settings.preset,
+    return {spamContext=ns.Spam and ns.Spam.Context(event,sourceInfo,text),addonVersion = ns.VERSION, ruleVersion = ns.RULE_VERSION, preset = settings.preset,
         context = settings.context ~= false, bodyTypeWording = settings.barber ~= false, threshold = ns.Confidence.Presets[settings.preset],
         disabledPacks = Packs(settings.disabledPacks), packPresets = R.PackPresets(settings.packPresets),
         signedPacks = ns.RulePacks.Snapshot(),
@@ -104,7 +104,7 @@ function R.Normalize(record)
     for _, key in ipairs({"capturedTimestamp", "capturedSessionTime", "score", "threshold", "exceptionCount", "matchCount"}) do
         out[key] = ns.SafeNumber(record[key])
     end
-    for _, key in ipairs({"context", "enabled", "coverageEnabled", "packsVerifying", "bodyTypeWording", "displayOnly", "nameDisplay"}) do
+    for _, key in ipairs({"context", "enabled", "coverageEnabled", "packsVerifying", "bodyTypeWording", "displayOnly", "nameDisplay", "actionRecorded"}) do
         if type(record[key]) == "boolean" then out[key] = record[key] end
     end
     out.actualAction = actions[record.actualAction] and record.actualAction or nil
@@ -112,6 +112,7 @@ function R.Normalize(record)
     out.wordPredictedAction=actions[record.wordPredictedAction] and record.wordPredictedAction or nil
     out.combinedPredictedAction=actions[record.combinedPredictedAction] and record.combinedPredictedAction or nil
     out.metadataKnown = record.metadataKnown == true or out.actualAction ~= nil and out.preset ~= nil
+    if record.spamContext and ns.Spam then out.spamContext=ns.Spam.Copy(record.spamContext) end
     if record.language and ns.Language then out.language=ns.Language.Copy(record.language) end
     if record.languageContext and ns.Language then out.languageContext=ns.Language.CopyContext(record.languageContext) end
     if type(record.disabledPacks) == "table" then out.disabledPacks = Packs(record.disabledPacks) end

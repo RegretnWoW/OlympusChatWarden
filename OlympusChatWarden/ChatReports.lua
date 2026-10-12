@@ -20,7 +20,9 @@ local function Clip(text, limit)
 end
 local function NameKey(name)
     if not ns.CanRead(name) or name == "" then return nil end
-    return name:match("^%s*(.-)%s*$"):lower()
+    -- Native menus/links can spell Forever's surname with a hyphen. Share the
+    -- Shield identity and never case-map individual bytes of a UTF-8 name.
+    return ns.Shield and ns.Shield.Key(name) or ns.Engine.Lower(name:match("^%s*(.-)%s*$"))
 end
 local function RemoveFirst()
     local old = table.remove(C.entries, 1)
@@ -32,19 +34,21 @@ function C.Prune()
 end
 function C.Capture(event, message, sender, lineID)
     if not ns.DB or not ns.CanRead(message) or not ns.CanRead(sender)
-        or not NameKey(sender) or not ns.CanRead(event) then return end
+        or not NameKey(sender) or not ns.CanRead(event) or not supported[event] then return end
     local id = ns.SafeNumber(lineID)
     if id and (id <= 0 or id % 1 ~= 0) then id = nil end
     C.Prune()
-    if id then
+    local deliveryKey=not id and ns.ChatFallbackKey(event,message,{sender=sender}) or nil
+    if id or deliveryKey then
         for i = #C.entries, 1, -1 do
             local old = C.entries[i]
-            if old.lineID == id and old.event == event and NameKey(old.sender) == NameKey(sender) then return old end
+            if old.event==event and NameKey(old.sender)==NameKey(sender)
+                and (id and old.lineID==id or deliveryKey and old.deliveryKey==deliveryKey) then return old end
         end
     end
     C.nextID = C.nextID + 1
     local entry = {original = Clip(message, C.MAX_TEXT), sender = Clip(sender, 128), event = Clip(event, 128),
-        lineID = id, sessionTime = ns.SessionTime(),
+        lineID = id, deliveryKey=deliveryKey, sessionTime = ns.SessionTime(),
         timestamp = ns.SafeNumber(ns.SafeCall(time)) or ns.SafeNumber(ns.SafeCall(GetServerTime)),
         truncated = #message > C.MAX_TEXT, captureID = session .. ":" .. C.nextID,
         capturePolicy = {preset = ns.DB.preset, context = ns.DB.context == true,
@@ -53,11 +57,27 @@ function C.Capture(event, message, sender, lineID)
             threshold = ns.Confidence.Presets[ns.DB.preset], exceptionCount = #ns.DB.exceptions}}
     for _, pack in ipairs(ns.PackNames) do entry.capturePolicy.disabledPacks[pack] = ns.DB.disabledPacks[pack] == true end
     entry.captureSnapshot = ns.Reports.Snapshot(message, "player", event, entry.capturePolicy,{kind='player',sender=sender})
+    -- Event delivery alone does not prove what a native chat filter displayed.
+    entry.captureSnapshot.actualAction=nil;entry.captureSnapshot.actionRecorded=false
     entry.bytes = #entry.original + #entry.sender + #entry.event + #ns.Reports.JSON(entry.captureSnapshot) + 512
     if entry.bytes > C.MAX_BYTES then return end
     while #C.entries >= C.MAX_ENTRIES or C.bytes + entry.bytes > C.MAX_BYTES do RemoveFirst() end
     C.entries[#C.entries + 1] = entry; C.bytes = C.bytes + entry.bytes
     return entry
+end
+function C.RecordOutcome(entry,action,source,diagnostic)
+    if type(entry)~='table' or type(entry.captureSnapshot)~='table'
+        or not ({Unchanged=true,Warning=true,Redacted=true,Replaced=true,Hidden=true})[action] then return false end
+    local snapshot=entry.captureSnapshot;local before=#ns.Reports.JSON(snapshot)
+    snapshot.actualAction=action;snapshot.actionRecorded=true;snapshot.analysisTiming='chat-filter'
+    snapshot.diagnosticError=diagnostic
+    if source and (source.shield or source.spam) then snapshot.combinedPredictedAction='Hidden' end
+    snapshot.spamContext=ns.Spam and ns.Spam.Context(entry.event,source,entry.original)
+    if source and source.shield then snapshot.shieldReason=source.shieldReason end
+    local delta=#ns.Reports.JSON(snapshot)-before
+    entry.bytes=entry.bytes+delta;C.bytes=C.bytes+delta
+    while C.bytes>C.MAX_BYTES and #C.entries>0 do RemoveFirst() end
+    return true
 end
 function C.Find(sender, lineID)
     C.Prune()

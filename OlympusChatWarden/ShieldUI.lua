@@ -42,9 +42,10 @@ local function Items()
 end
 local function UpdateDetails()
     local name=nameBox:GetText();local key=S.Key(name);local contact=key and Contact(name)
+    local paused=ns.Spam and ns.Spam.PauseRemaining(name)>0
     local allowed=key and ns.DB.shield.allowed[key]
     local valid=key~=nil and key~=S.Key(S.UnitName('player'))
-    remove:SetEnabled(contact~=nil);allow:SetEnabled(valid)
+    remove:SetEnabled(contact~=nil or paused);allow:SetEnabled(valid)
     allow:SetText(allowed and 'Stop allowing' or 'Allow player')
     add:SetEnabled(valid and not allowed)
     heading:SetText(name~='' and Plain(name) or 'Player details')
@@ -55,9 +56,14 @@ local function UpdateDetails()
     else
         text=contact and ('Shielded\n'..Duration(contact)..'\n\n'..(contact.reason or 'You added this shield.'))
             or allowed and 'Allowed\n\nShield will leave this player alone. Your normal word filters still apply.'
+            or paused and 'Chat paused\n\nFirst rapid-message burst: a 10-second chat pause. No contact shield was added. Remove shield ends the pause; Allow player bypasses spam protection.'
             or 'No active shield\n\nYou can shield this player below, or allow them so Shield leaves them alone.'
         if selected and S.Key(selected.name)==key and selected.message then
             text=text..'\n\nLatest selected alert\n'..selected.message..(selected.count>1 and ' ('..selected.count..' times)' or '')
+        end
+        if selected and S.Key(selected.name)==key and selected.evidence then
+            text=text..'\n\nRecent messages (session only)'
+            for _,line in ipairs(selected.evidence) do text=text..'\n- '..line end
         end
         if not S.Active() then text=text..'\n\nShield is currently paused. Your saved players are still here.' end
     end
@@ -73,7 +79,7 @@ function ns.RefreshShield()
     if ns.RefreshShieldOptions then ns.RefreshShieldOptions() end
     if not panel or not ns.DB or not ns.DB.shield then return end
     local db=ns.DB.shield
-    status:SetText((S.Active() and 'Shield on' or 'Shield paused')..'  |  '..S.Profiles[db.profile].title..'  |  '..#S.List()..' shielded')
+    status:SetText((S.Active() and 'Shield on' or 'Shield paused')..'  |  '..#S.List()..' shielded')
     local items=Items();local pages=math.max(1,math.ceil(#items/PAGE_SIZE));page=math.min(page,pages)
     listTitle:SetText((view=='alerts' and 'Recent alerts' or 'Shielded & allowed')..'  |  '..#items..' shown')
     pager:SetText('Page '..page..' / '..pages);previous:SetEnabled(page>1);nextPage:SetEnabled(page<pages)
@@ -119,7 +125,7 @@ function ns.BuildShieldReview(parent)
     search:SetScript('OnEscapePressed',function(self) self:ClearFocus() end)
     T.Tooltip(search,'Find a player','Search this list by player name or the reason shown in an alert.')
     status=T.Muted(Text(toolbar,472,-15,276))
-    Button(toolbar,'Export shields',146,752,-10,function() ns.OpenShieldExport() end,'Preview your current shielded players, choose entries and privacy options, then copy for your own review or a moderator.')
+    ns.ShieldExportButton=Button(toolbar,'Export shields',146,752,-10,function() ns.OpenShieldExport() end,'Preview your current shielded players, choose entries and privacy options, then copy for your own review or a moderator.')
     local list=T.Panel(panel,14,-122,350,444)
     listTitle=Text(list,12,-12,326);empty=T.Muted(Text(list,18,-68,314));rows={}
     for i=1,PAGE_SIZE do
@@ -157,10 +163,8 @@ function ns.BuildShieldReview(parent)
         function() return durationValue end,function(v) durationValue=v end)
     T.Tooltip(duration,'Shield duration','15 minutes expires on its own. Until logout / reload lasts this session. Until I remove it stays saved until you end it.')
     add=Button(paper,'Add shield',258,274,-339,function() Act('add') end,'Give this player a timeout across the Shield features you have turned on.')
-    remove=Button(panel,'Remove shield',145,376,-577,function() Act('remove') end,'End this shield now. Old messages stay in Messages; future contact is allowed.')
+    remove=Button(panel,'Remove shield',145,376,-577,function() Act('remove') end,'End this shield or brief chat pause now. Old messages stay in Messages; future contact is allowed.')
     allow=Button(panel,'Allow player',185,531,-577,function() Act('allow') end,'Allow removes the shield and keeps Shield from blocking this player again. Stop allowing puts them back under normal Shield protection. Word filters still apply.')
-    Button(panel,'Help',86,726,-577,function() ns.OpenTutorial('shield') end,'A quick guide to profiles, shields and allowed players.')
-    Button(panel,'Settings',100,826,-577,ns.OpenShieldOptions,'Change your Shield profile and choose which kinds of contact to block.')
     footer=T.Muted(Text(panel,18,-615,898,'Shields and allowed players are saved. Alerts last until you log out or reload.'))
     ns.ShieldNameBox,ns.ShieldDetails,ns.ShieldSource,ns.ShieldSearch=nameBox,details,source,search
     ns.ShieldAddButton,ns.ShieldRemoveButton,ns.ShieldAllowButton=add,remove,allow

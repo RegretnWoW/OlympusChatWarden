@@ -1,54 +1,43 @@
-# Olympus ChatWarden 0.9.0-rc41
+# Olympus ChatWarden 0.9.0-rc49
 
-Release candidate with a temporary Olympus guild check and final launch cleanup.
+This public beta adds spam protection, quieter notifications and a more consistent Review & Protection window. It includes the improvements tested after rc41.
 
-## Guild access
+## Spam protection
 
-- Requires Olympus as a separate word in the current character's guild name,
-  ignoring case. Olympus and Olympus XI Reborn qualify.
-- Uses the official Olympus membership API automatically when available.
-  A negative or failed official check disables access.
-- Outside a qualifying guild, the entire addon is disabled: filtering, Shield,
-  capture, report caching, exports, pack actions, player menus and feature windows.
-- Open tools close, settings lock and slash commands explain the restriction.
-  Saved data and preferences are preserved.
-- Guild changes refresh access. Previously enabled capture resumes after the
-  character qualifies. Saved imports go through normal signature verification.
-  Pending verification stops if guild access ends.
+- Hide gold-selling and paid-service ads, including common look-alike characters and website formatting.
+- Hide guild recruitment ads, with exceptions for Olympus guild advertisements.
+- Detect repeated or slightly altered messages: 3 similar messages in 30 seconds triggers a local timeout.
+- Rapid chat uses 5 messages in 10 seconds. The first burst pauses that player's chat for 10 seconds; a second new burst within a minute applies the timeout.
+- Automatic timeout starts at 15 minutes and remains adjustable. Choose which incoming chat channels to check.
+- Ads are hidden quietly by default. Hidden originals remain in Messages; nothing is automatically reported to Blizzard.
 
-The temporary name check does not establish official guild affiliation.
+## Notifications and Shield
 
-## Floating-name reveal
+- Separate controls for filtered messages, contact protection, repeated/rapid chat, gold/service ads and recruitment ads.
+- Spam and advertising notifications start off. Filtering and review continue when notifications are disabled.
+- Reading a hidden message clears its unread indicators immediately.
+- One set of Shield protections replaces the Streamer profile. Existing shields, allowed players and channel preferences are retained.
+- Player names with spaces are supported throughout spam checks and player management.
 
-Added a fallback for visible nameplate labels without an engine mouseover unit.
-It uses the covered span's position, rejects overlapping candidates, unrelated
-UI windows, different mouseover units and restricted unit information, and
-preserves native targeting. Protected combat changes still wait.
+## Review and display
 
-Floating-name Ctrl-left-click remains experimental and needs in-game confirmation
-on the affected client. Originals remain available in Messages for guild members.
+- Help and Settings stay in the same bottom-right positions across Messages, Shield and Chat capture. Export stays at the right of each toolbar.
+- Improved panel alignment and removed redundant navigation buttons.
+- Saved reports and export previews use the same newest-first order and report numbers.
+- Separate multilingual originals from explanation text to reduce WoW font fallback affecting the whole report.
+- Improved floating-nameplate Ctrl-click handling. This remains experimental and needs confirmation on the live client.
+- Updated in-game guides and tooltips.
 
-## Release pass
+## Optional signed packs
 
-- Updated in-game access guidance, locked settings and active/disabled status.
-- Retained the simplified language settings, hidden-message notifications,
-  missed reports, Shield profiles, chat capture and privacy export previews.
-- Fresh-install defaults checked: Broad filtering and Normal Shield on; language
-  filtering, capture and experimental name surfaces off.
-- Only Olympus Protection and King Protection vocabulary categories are bundled.
-  Built-in body-label replacements remain available.
-- Signed imports, download links and installed-pack update functionality remain
-  available to qualifying characters. No optional vocabulary or private signing
-  material is included.
+All eight current packs are available separately: Gender and pronoun wording v6, Body-label replacements v6, Pregnancy and reproductive wording v6, Inclusive wording v6, DEI and institutional terminology v6, Social and political slogans v6, Broad contextual phrases v6, and USA Protection v1.
 
-## Validation
+Download the rule-pack bundle or an individual `.ocwpack.txt` file. Open `/ocw packs`, paste the complete signed text, verify it, then install and enable the category. Updating the addon does not update imported packs automatically. Only Olympus Protection and King Protection are included in the addon ZIP.
 
-570 automated assertions passed. All 47 Lua modules parsed under Lua 5.1 and
-loaded together in TOC order. Checks include fresh member/nonmember startup,
-whole-addon guild gating, guild changes, preserved data, actual signed-pack
-import and verification suspension/restoration, filtering, reports, exports,
-notifications, Shield, capture, UI input and the floating-name fallback.
+## Install or update
 
-The archive was checked against an explicit file list, its contents compared
-with the source, and older release archives preserved. Live WoW validation and
-CurseForge approval have not been performed.
+Download **OlympusChatWarden-v0.9.0-rc49.zip** and replace the OlympusChatWarden folder in `Interface/AddOns`, then reload WoW. Keep SavedVariables to retain preferences, reports, captures and imported packs. GitHub's automatic source archives are not the ready-to-install addon ZIP.
+
+An Olympus guild name is required. The current fallback checks for Olympus as a separate word; it does not prove official affiliation. The official membership API takes priority when available.
+
+Validation: 588 automated startup, signed-import, spam, advertising, language, notification and UI checks passed across all 52 Lua modules. All eight signed packs are also checked through the normal verifier and install/restore flow. No live WoW session was available to confirm font rendering or floating-nameplate interaction.

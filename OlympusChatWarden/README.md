@@ -1,9 +1,9 @@
 # Olympus ChatWarden
 
-Version 0.9.0-rc41 — release candidate.
+Version 0.9.0-rc49 — public beta. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 Personal text filtering, contact protection and local chat review for World of
-Warcraft. Open **Review & protection** from Olympus or type `/ocw inbox`.
+Warcraft. Open **Review & Protection** from Olympus or type `/ocw inbox`.
 
 ## Guild access
 
@@ -26,9 +26,12 @@ packs normally.
 ## Features
 
 - **Messages:** review filtered originals, see matched rules, save feedback and
-  manage personal phrase rules. Unread badges count fully hidden messages;
+  manage personal phrase rules. Unread badges count enabled hidden-message categories;
   selecting a message clears its badge everywhere.
-- **ChatWarden Shield:** Normal Harassment and Streamer profiles for repeated
+- **Notifications:** choose badges, Shield chat notices and which hidden messages
+  notify you. Repeated-message spam, rapid chat, gold/service ads and guild recruitment ads start quiet; originals stay
+  in Messages. Opening a message clears its indicators immediately.
+- **ChatWarden Shield:** one set of contact protections for repeated
   whispers, strong-wording whispers, trades, duels and group invites. Manage
   shielded and allowed players from Review or supported player right-click menus.
 - **Language filtering:** optional, separate confidence system for incoming player
@@ -60,10 +63,9 @@ shield even without a word-filter match. Case, punctuation and spacing changes
 are normalized. Short text uses conservative comparisons; long text requires an
 exact normalized match.
 
-| Profile | Threshold | Shield duration |
-| --- | --- | --- |
-| Normal Harassment | 6 similar whispers in 30 seconds | 10 minutes |
-| Streamer | 4 similar whispers in 20 seconds | 10 minutes |
+| Threshold | Shield duration |
+| --- | --- |
+| 6 similar whispers in 30 seconds | 10 minutes |
 
 Replying to the sender resets their repetition counter. Allowed players are
 exempt. Further messages do not extend an existing shield. The feature has its
@@ -110,9 +112,12 @@ are excluded from language message rules.
 Covered names appear in Messages as **Player name** entries. **Ctrl + left-click**
 reveals or covers names in supported chat frames; ordinary clicks and menus keep
 native player identities. Name-only covering does not generate hidden-message
-badges. Hidden originals remain in Messages and receive unread badges; selecting
-one clears its badges immediately. Received reports keep message-time settings,
-detection evidence and the chosen action rule through privacy exports.
+badges. Hidden originals remain in Messages; enabled notification categories
+receive unread badges. Selecting one clears its indicators immediately. Received
+reports keep message-time settings,
+detection evidence and the chosen action rule through privacy exports. Chat-name
+reports also keep the recorded chat-filter outcome and spam diagnostics.
+Event-only captures have no confirmed actual action.
 
 The simpler defaults migrate once while keeping the master state, reading list
 and chat coverage. Name filtering resets off; removed sender/strict overrides no
@@ -121,7 +126,7 @@ longer affect messages. Later dropdown and name choices persist.
 Supported player bubbles follow attributed language decisions. Protected,
 inaccessible and third-party labels may remain visible. Review and chat capture
 retain originals. Wording rules, Shield, signed imports and exports remain
-independent. Addon text panes retain the regular WoW font from rc39.
+independent. Review and saved reports put names and originals in separate text regions so native multilingual font fallback does not restyle English explanations. Original text is retained in saved records and exports.
 
 ## Installation and defaults
 
@@ -134,10 +139,13 @@ barber wording, context, review history, hidden-message badges and OlympusMute
 signal detection start on. NPC chat, quest/dialogue text, vendor labels, talking
 heads, names, nameplates and general tooltip filtering start off.
 
-Shield starts on with Normal Harassment, all individual protections on and quiet
-notices off. Chat capture starts off. Its whisper and guild/officer switches start
-checked and only record after capture is started. Existing choices are retained;
-the new repeated-whisper switch defaults on when first added.
+Shield and all individual protections start on. The Streamer profile has been removed; existing users move to the normal contact thresholds. Existing shields and allowed players are retained.
+
+Spam protection starts on for public chat, whispers, party/raid and guild/officer chat. Rapid chat uses a fixed 5 messages in 10 seconds: a 10-second first pause, then a full timeout after another new burst within a minute. Repetition uses a fixed 3 matches in 30 seconds and applies the timeout immediately. Automatic timeout starts at 15 minutes and remains adjustable. Upgrades apply the fixed limits while preserving existing channel switches and timeout duration.
+
+Hidden word/language badges, contact-protection notifications and chat notices start on. Repeated-message spam, rapid chat, gold/service ads and guild recruitment ads start quiet. Settings > ChatWarden > Notifications has separate category controls; enabling spam notifications also applies to existing unread spam entries. Reading an entry dismisses it everywhere.
+
+Chat capture starts off. Its whisper and guild/officer switches start checked and only record after capture is started. Existing recording choices are retained.
 
 Captured chat is limited to 5,000 lines or 4 MB; the oldest lines roll off when
 full. Bookmarks are stored separately, up to 50 or 1 MB. Each saves up to 10
@@ -166,7 +174,7 @@ capture and bookmarks persist.
 ## Release status
 
 The temporary local guild check is enabled. Floating-name Ctrl-click is
-experimental: a fallback supports visible names without a mouseover unit, but
+experimental: a physical mouse-button fallback supports native plates that consume global mouse events, but
 the previously reported click failure still needs in-game confirmation. Originals
 remain in Messages. Native UI, protected-frame behavior and real game events
 still require in-game testing.

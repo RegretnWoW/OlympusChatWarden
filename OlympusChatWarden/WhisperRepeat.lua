@@ -73,7 +73,7 @@ function R.Observe(message,name)
     senders[key]=nil
     local reason=rule[1]..' repeated or similar whispers within '..rule[2]..' seconds'
     local ok=S.Add(name,rule[3],reason)
-    if ok and not ns.DB.shield.quiet then ns.Print('ChatWarden Shield: repeated whispers silenced. /ocw shield to review or remove.') end
+    if ok and (ns.Notifications and ns.Notifications.Chat('spam') or not ns.Notifications and not ns.DB.shield.quiet) then ns.Print('ChatWarden Shield: repeated whispers silenced. /ocw shield to review or remove.') end
     return ok==true
 end
 function R.Count() local count=0;for _ in pairs(senders) do count=count+1 end;return count end

@@ -1,5 +1,5 @@
 local ADDON_NAME, ns = ...
-ns.NAME, ns.VERSION = "Olympus ChatWarden", "0.9.0-rc41"
+ns.NAME, ns.VERSION = "Olympus ChatWarden", "0.9.0-rc49"
 ns.TAGLINE = "CHUDS WITHOUT BORDERS"
 ns.REPORT_URL = "https://github.com/RegretnWoW/OlympusChatWarden/issues"
 ns.PROJECT_URL = "https://github.com/RegretnWoW/OlympusChatWarden"
@@ -60,6 +60,8 @@ function ns.PolicyChanged()
     ns.PolicyRevision = ns.PolicyRevision + 1
     cache, order, cursor, cacheBytes, cacheRecords = {}, {}, 1, 0, 0
     if ns.Language then ns.Language.Invalidate() end
+    if ns.Spam then ns.Spam.Reset() end
+    if ns.ChatFonts then ns.ChatFonts.Refresh() end
     if ns.Initializing then return end
     if ns.Matcher and ns.RefreshUI then ns.RefreshUI(true) end
     if ns.ScanTooltips then ns.ScanTooltips() end
@@ -167,6 +169,7 @@ function ns.Initialize()
     ns.DB.schema = 11
     if ns.OlympusMuteSignal then ns.OlympusMuteSignal.Initialize() end
     if ns.Shield then ns.Shield.Initialize() end
+    if ns.Notifications then ns.Notifications.Initialize() end
     if ns.Language then ns.Language.Initialize() end
     if ns.Personal then ns.Personal.Initialize() end
     if ns.ChatCapture then ns.ChatCapture.Initialize() end

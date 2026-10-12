@@ -9,6 +9,8 @@ function M.Name(ctx)
     end
     if not ns.CanRead(ctx.name) then return end
     local name=ctx.name
+    if not name:find('[ %-]') and ns.CanRead(ctx.surname) and ctx.surname~='' then name=name..' '..ctx.surname end
+    name=ns.Shield.NormalName(name)
     if not name:find('-',1,true) and ns.CanRead(ctx.server) and ctx.server~='' then name=name..'-'..ctx.server end
     return name
 end

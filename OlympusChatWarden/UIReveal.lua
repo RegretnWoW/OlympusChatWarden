@@ -45,7 +45,7 @@ end
 local function SyncUnitButtons(region,state,active)
     if not active or not ns.RevealModifier() or not state.toggleSpan then HideUnitButtons(state); return false end
     local function Unavailable() HideUnitButtons(state); return false end
-    if not state.unitButtonsReady and type(IsMouseButtonDown)=='function'
+    if not state.nativeNameplate and not state.unitButtonsReady and type(IsMouseButtonDown)=='function'
         and ns.Checked(ns.SafeCall(IsMouseButtonDown,'LeftButton')) then return Unavailable() end
     -- Keep active hit targets alive between geometry refreshes. Hiding them
     -- clears the press before mouse-up, especially on moving nameplates.
@@ -168,7 +168,7 @@ function U.Hide(region, state)
 end
 -- Native floating plates can receive clicks ahead of ordinary UIParent
 -- buttons. Observe the global gesture instead; keep native targeting intact.
-local globalPress
+local globalPress,observedDown
 function U.CancelGlobalMouse() globalPress=nil end
 local function PlateUnderMouse(state)
     if not state.unit or type(UnitIsUnit) ~= 'function' then return false end
@@ -216,6 +216,8 @@ end
 function U.GlobalMouse(event,mouse,targets,canChange)
     if mouse~="LeftButton" then return end
     if event=="GLOBAL_MOUSE_DOWN" then
+        if observedDown then return end
+        observedDown=true
         globalPress=nil
         if not ns.RevealModifier() then return end
         for region,state in pairs(targets) do
@@ -232,6 +234,7 @@ function U.GlobalMouse(event,mouse,targets,canChange)
             end
         end
     else
+        observedDown=false
         local press=globalPress; globalPress=nil
         if not press or not ns.RevealModifier() then return end
         local state=press.state
@@ -241,6 +244,18 @@ function U.GlobalMouse(event,mouse,targets,canChange)
             and Contains(press.button) and PlateUnderMouse(state) then
             state.toggleSpan(press.button,press.span,mouse,true,true)
         end
+    end
+end
+function U.PollMouse(targets,canChange)
+    -- Some native floating plates consume the global mouse events. Observe
+    -- physical button edges as a fallback; never intercept targeting input.
+    if type(IsMouseButtonDown)~='function' then return end
+    local value=ns.SafeCall(IsMouseButtonDown,'LeftButton')
+    if not ns.Readable(value) then return end
+    local down=ns.Checked(value)
+    if observedDown==nil then observedDown=down;return end
+    if down~=observedDown then
+        U.GlobalMouse(down and 'GLOBAL_MOUSE_DOWN' or 'GLOBAL_MOUSE_UP','LeftButton',targets,canChange)
     end
 end
 local function Place(region, state, view)

@@ -1,6 +1,6 @@
 local _,ns=...
 local T,S=ns.Theme,ns.Shield
-local category,profile,status
+local category,status
 local controls={}
 local function Text(parent,x,y,width,value)
     local t=parent:CreateFontString(nil,'OVERLAY','GameFontHighlightSmall')
@@ -9,7 +9,7 @@ end
 function ns.RefreshShieldOptions()
     if not status or not ns.DB or not ns.DB.shield then return end
     local db=ns.DB.shield;local p=S.Profiles[db.profile]
-    status:SetText('Protection: '..(S.Active() and 'ACTIVE' or 'OFF')..'  |  Profile: '..p.title)
+    status:SetText('Protection: '..(S.Active() and 'ACTIVE' or 'OFF'))
     for key,c in pairs(controls) do
         c:SetChecked(db[key])
         if p[key] then
@@ -20,7 +20,6 @@ function ns.RefreshShieldOptions()
                 ..'; shield for '..math.floor(r[3]/60)..' minutes.'..(S.capabilities[key]==false and ' Not supported by this client.' or ''))
         end
     end
-    if profile.lastValue~=db.profile then profile.lastValue=db.profile;profile:Refresh() end
 end
 function ns.BuildShieldOptions(parentCategory)
     if category or not Settings.RegisterCanvasLayoutSubcategory then return end
@@ -35,9 +34,6 @@ function ns.BuildShieldOptions(parentCategory)
         T.Tooltip(c,label,help);controls[key]=c;return c
     end
     Check('enabled','Enable ChatWarden Shield',-105,'Enables contact protection. Requires the main ChatWarden switch. Disabling preserves saved players; existing timers continue.')
-    profile=T.Dropdown(f,348,-107,272,{{'normal','Normal Harassment'},{'streamer','Streamer'}},
-        function() return ns.DB.shield.profile end,function(v) S.SetProfile(v) end)
-    T.Tooltip(profile,'Protection profile','Normal uses higher thresholds. Streamer uses lower thresholds and quiet notices. Changing profile resets counters and preserves existing shields.')
     local options={
         {'whispers','Strong-wording whispers','Counts accepted wording matches scoring 80+. Replacements and display masks are excluded.'},
         {'repeatedWhispers','Repeated whispers','Detects identical or slightly changed incoming whispers without a word match. Replying resets that player\'s counter. Independent of chat capture.'},
@@ -51,16 +47,19 @@ function ns.BuildShieldOptions(parentCategory)
         local c=Check(item[1],item[2],-155-(i-1)*44,item[3])
         c.detail=T.Muted(Text(f,46,-181-(i-1)*44,570,item[3]))
     end
-    Check('quiet','Quiet Shield notices',-483,'Suppresses Shield chat notices. Alerts and hidden-message badges remain available. Enabled by default for Streamer.')
+    local notices=CreateFrame('Button',nil,f,'UIPanelButtonTemplate');notices:SetSize(286,24);notices:SetPoint('TOPLEFT',20,-483)
+    notices:SetText('Notifications');notices:SetScript('OnClick',ns.OpenNotificationOptions)
+    T.Tooltip(notices,'Notifications','Set contact, spam and ad alerts in one place. Categories control both unread badges and chat notices.')
     T.Muted(Text(f,20,-521,600,'Allowed players bypass Shield; ordinary word filters still apply. Battle.net whispers are excluded.'))
-    for i,item in ipairs({{'Open Review > Shield',ns.OpenShield},{'Shield guide',function() ns.OpenTutorial('shield') end}}) do
+    for i,item in ipairs({{'Open Review > Shield',ns.OpenShield},{'Spam protection',ns.OpenSpamOptions}}) do
         local b=CreateFrame('Button',nil,f,'UIPanelButtonTemplate');b:SetSize(286,26);b:SetPoint('TOPLEFT',20+(i-1)*300,-568)
         b:SetText(item[1]);b:SetScript('OnClick',item[2])
-        T.Tooltip(b,item[1],i==1 and 'See contact alerts and manage shielded or allowed players.' or 'Read a short guide to profiles, player controls and signal tooltips.')
+        T.Tooltip(b,item[1],i==1 and 'See contact alerts and manage shielded or allowed players.' or 'Choose ad, repeated-message and rapid-chat checks, channels and timeout duration. Message limits are fixed.')
     end
     f:SetScript('OnShow',ns.RefreshShieldOptions);T.BindSettings(f)
     ns.ShieldOptionControls=controls
     category=Settings.RegisterCanvasLayoutSubcategory(parentCategory,f,'Shield');ns.ShieldOptionsPanel=f;ns.RefreshShieldOptions()
+    if ns.BuildSpamOptions then ns.BuildSpamOptions(category) end
 end
 function ns.OpenShieldOptions()
     ns.BuildOptions()

@@ -84,7 +84,11 @@ local function RewriteFrame(frame)
 end
 local function Refresh()
     local changed = 0
-    for frame in pairs(frames) do changed = changed + RewriteFrame(frame) end
+    for frame in pairs(frames) do
+        if ns.ChatFonts then ns.ChatFonts.Prepare(frame) end
+        changed = changed + RewriteFrame(frame)
+    end
+    if ns.ChatFonts then ns.ChatFonts.Refresh() end
     return changed
 end
 local function Evict(slot)

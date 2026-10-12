@@ -187,8 +187,11 @@ end)
 local inputElapsed = 0
 input:SetScript("OnUpdate", function(_, elapsed)
     if releaseQueued and not (C_Timer and C_Timer.After) then ReleaseCapture() end
+    -- A cheap edge sample covers native plates that swallow global events.
+    -- Geometry and target traversal still run only during the Ctrl gesture.
+    if next(revealTargets) then ns.LabelReveal.PollMouse(revealTargets,CanChange) end
     -- Follow moving plates/scrolling labels only while the reveal gesture is
-    -- active. No text-tree traversal or always-on reveal polling.
+    -- active. No text-tree traversal outside the reveal gesture.
     if not ns.RevealModifier() then inputElapsed = 0; return end
     inputElapsed = inputElapsed + elapsed; if inputElapsed < 0.05 then return end
     inputElapsed = 0
@@ -614,10 +617,18 @@ local npcLookup = {}
 for _, event in ipairs(npcEvents) do npcLookup[event] = true end
 
 function ns.ChatFilter(frame, event, message, ...)
-    if ns.Shield and ns.Shield.FilterChat(event, message, ...) then return true end
-    if not ns.Active(npcLookup[event] and "npc" or "chat") or not ns.CanRead(message) then return false end
-    local matches = ns.Find(message)
     local source, key = ns.ChatReviewSource(event, ...)
+    local capture=ns.ChatReports and ns.ChatReports.Capture(event,message,source.sender,select(10,...))
+    local function Record(action,info,diagnostic)
+        if capture then ns.ChatReports.RecordOutcome(capture,action,info or source,diagnostic) end
+    end
+    local shielded,shieldSource
+    if ns.Shield then shielded,shieldSource=ns.Shield.FilterChat(event,message,...) end
+    if shielded then Record('Hidden',shieldSource);return true end
+    if not ns.Active(npcLookup[event] and "npc" or "chat") or not ns.CanRead(message) then
+        Record('Unchanged',shieldSource);return false
+    end
+    local matches = ns.Find(message)
     local language = ns.Language and ns.Language.Check(message,event,source)
     if source.kind=='player' and ns.Language and ns.Language.NamesActive() and ns.ChatReports then
         -- Resolve the final native name label against this exact original before
@@ -625,7 +636,10 @@ function ns.ChatFilter(frame, event, message, ...)
         -- report cache deduplicates chat-window callbacks and the event receiver.
         ns.ChatReports.Capture(event,message,source.sender,select(10,...))
     end
-    if #matches == 0 and not language then return false end
+    if #matches == 0 and not language then
+        Record('Unchanged',shieldSource,shieldSource and shieldSource.filterStatus=='review-unavailable' and 'Original could not be retained for review.' or nil)
+        return false
+    end
     local wordAction = ns.MatchAction(matches)
     local action = ns.Language and ns.Language.Action(wordAction,language) or wordAction
     local displayMatches = ns.Language and ns.Language.Display(matches,language) or matches
@@ -659,7 +673,11 @@ function ns.ChatFilter(frame, event, message, ...)
     end
     ns.Stats.chatMatches = ns.Stats.chatMatches + #matches
     -- Fail open if an original could not be retained for review.
-    if action == "Hidden" then return retained ~= nil end
+    if action == "Hidden" then
+        Record(retained and 'Hidden' or 'Unchanged',source,not retained and 'Original could not be retained for review.' or nil)
+        return retained ~= nil
+    end
+    Record(action,source)
     return false, rendered, ...
 end
 

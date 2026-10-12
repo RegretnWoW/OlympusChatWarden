@@ -37,6 +37,7 @@ function R.TimeLabel(entry)
 end
 function R.IsUnreadAlert(entry)
     return entry and entry.hiddenMessage == true and entry.action == "Hidden" and not entry.read
+        and (not ns.Notifications or ns.Notifications.Allows(entry))
 end
 function R.Unread()
     local count = 0
@@ -76,15 +77,16 @@ function R.Source(entry)
     return label .. (entry.questTitle and (": " .. entry.questTitle) or entry.sender and (": " .. entry.sender)
         or entry.npc and (": " .. entry.npc) or "")
 end
-local fields = {"kind", "event", "sender", "guid", "class", "channel", "npc", "questTitle", "panel", "zone", "shieldReason"}
+local fields = {"kind", "event", "sender", "guid", "class", "channel", "npc", "questTitle", "panel", "zone", "shieldReason", "spamReason"}
 function R.Add(original, matches, source, key, rendered)
-    if not ns.DB or not ns.CanRead(original) or (#matches == 0 and not (source and (source.shield or source.language))) then return nil end
+    if not ns.DB or not ns.CanRead(original) or (#matches == 0 and not (source and (source.shield or source.language or source.spam))) then return nil end
     local action, confidence = ns.MatchAction(matches)
     if source and source.language and ns.Language then
         action=ns.Language.Action(action,source.language)
         if #matches==0 then confidence='Language: '..source.language.confidence end
     end
     if source and source.shield then action, confidence = "Hidden", "Contact shield" end
+    if source and source.spam then action, confidence = "Hidden", "Spam filter" end
     if source and source.displayOnly and action=='Hidden' then action='Redacted' end
     if ns.DB.history == false and action ~= "Hidden" then return nil end
     source = source or {}
@@ -96,6 +98,7 @@ function R.Add(original, matches, source, key, rendered)
         originalBytes = #original, matches = {}, matchCount = #matches, score = 0,
         preset = ns.DB.preset, context = ns.DB.context, read = false, decision = "Unreviewed"}
     entry.action, entry.confidence = action, confidence
+    entry.notificationCategory=ns.Notifications and ns.Notifications.Category(source) or nil
     entry.hiddenMessage = source.hiddenMessage == true and action == "Hidden"
     entry.addonVersion, entry.ruleVersion = ns.VERSION, ns.RULE_VERSION or "stock-1"
     entry.threshold, entry.exceptionCount = ns.Confidence.Presets[ns.DB.preset], #ns.DB.exceptions
@@ -109,6 +112,8 @@ function R.Add(original, matches, source, key, rendered)
     entry.captureID = "review:" .. tostring(ns.SessionTime()) .. ":" .. entry.id
     entry.captureSnapshot = ns.Reports.Snapshot(original, entry.kind, entry.event,nil,source)
     entry.captureSnapshot.actualAction = action
+    entry.captureSnapshot.actionRecorded = true
+    if ns.Spam then entry.captureSnapshot.spamContext=ns.Spam.Context(entry.event,source,original) end
     if source.shield then entry.captureSnapshot.shieldReason = source.shieldReason end
     if source.language and ns.Language then
         entry.language=ns.Language.Copy(source.language)

@@ -9,7 +9,8 @@ function E.Batch(kind,mode,records)
     local items={}
     if records then for _,record in ipairs(records) do items[#items+1]=Copy(record) end
     elseif kind=='reports' then
-        for _,record in ipairs(ns.Personal.reports) do
+        for i=#ns.Personal.reports,1,-1 do
+            local record=ns.Personal.reports[i]
             if mode~='misses' or record.feedback=='Missed match' then items[#items+1]=ns.Reports.Normalize(record) end
         end
     elseif kind=='shield' then
@@ -95,5 +96,6 @@ function E.Build(batch)
         description=batch.kind=='shield' and 'Personal local shields. This list is not proof of misconduct.' or nil},false,0),#records
 end
 function E.Label(item)
-    return item.title or item.name or ((item.sender or item.feedback or 'Message')..(item.recipient and ' -> '..item.recipient or '')..'  '..(item.original or ''):gsub('[\r\n]',' '))
+    local prefix=item.feedback and item.id and ('Report #'..item.id..'  |  ') or ''
+    return prefix..(item.title or item.name or ((item.sender or item.feedback or 'Message')..(item.recipient and ' -> '..item.recipient or '')..'  '..(item.original or ''):gsub('[\r\n]',' ')))
 end

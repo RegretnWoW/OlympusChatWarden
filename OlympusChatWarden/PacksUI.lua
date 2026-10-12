@@ -110,8 +110,9 @@ function ns.OpenPacks(requestedMode)
         ns.PacksStatus=T.Muted(Text(window,'',522,-86,298))
         window.InstalledPane=CreateFrame('Frame',nil,window); window.InstalledPane:SetPoint('TOPLEFT',14,-120); window.InstalledPane:SetSize(812,462)
         local list=T.Panel(window.InstalledPane,0,0,298,462)
-        for i=1,9 do
-            local row=CreateFrame('Button',nil,list); row:SetSize(280,46); row:SetPoint('TOPLEFT',9,-10-(i-1)*49)
+        local rowHeight=math.min(46,math.floor(442/#P.Order)-3)
+        for i=1,#P.Order do
+            local row=CreateFrame('Button',nil,list); row:SetSize(280,rowHeight); row:SetPoint('TOPLEFT',9,-10-(i-1)*(rowHeight+3))
             row.background=row:CreateTexture(nil,'BACKGROUND'); row.background:SetAllPoints()
             row.title=Text(row,'',10,-7,256); row.title:SetWordWrap(false); row.label=row.title
             row.note=T.Muted(Text(row,'',10,-27,256)); row.note:SetWordWrap(false); T.SkinRow(row)

@@ -85,9 +85,9 @@ function ns.BuildCaptureReview(parent)
     search:SetScript('OnEscapePressed',function(self) self:ClearFocus() end);ns.CaptureSearch=search
     start=Button(toolbar,'Start capture',130,472,-10,function() C.SetOption('enabled',not C.db.enabled);Refresh() end,
         'Record supported player chat locally, including checked private chat types. Pause stops new recording and keeps saved chat. Recording works independently of filtering.')
-    Button(toolbar,'Export shown',130,612,-10,function() ns.OpenExport(view=='bookmarks' and 'bookmarks' or 'capture',nil,Items()) end,
+    ns.CaptureExportButton=Button(toolbar,'Export shown',146,752,-10,function() ns.OpenExport(view=='bookmarks' and 'bookmarks' or 'capture',nil,Items()) end,
         'Preview the entries matching this view and search. Choose which entries, names and notes to share before copying.')
-    local clear=Button(toolbar,'Clear capture',146,752,-10,function(self)
+    local clear=Button(toolbar,'Clear capture',130,612,-10,function(self)
         if not clearArmed then clearArmed=true;self:SetText('Click to confirm');return end
         clearArmed=false;self:SetText('Clear capture');C.Clear();Select(nil);Refresh()
     end,'Click twice to delete the rolling capture. Saved bookmarks stay. Pause first if you want recording to stop too.')
@@ -132,8 +132,6 @@ function ns.BuildCaptureReview(parent)
     remove=Button(panel,'Delete bookmark',185,531,-577,function()
         if selected and view=='bookmarks' then C.RemoveBookmark(selected.id);Select(nil);Refresh() end
     end,'Delete the selected saved bookmark. The rolling chat capture stays.')
-    Button(panel,'Help',86,726,-577,function() ns.OpenTutorial('capture') end)
-    Button(panel,'Messages',100,826,-577,function() ns.SetReviewTab('messages') end)
     footer=T.Muted(Text(panel,18,-615,898,'Saved locally until cleared or the storage limit is reached. Bookmarks survive clearing the capture.'))
     ns.CaptureRows,ns.CaptureStart,ns.CaptureBookmark,ns.CaptureTitle,ns.CaptureNote=rows,start,bookmark,titleBox,noteBox
     ns.CaptureRemove,ns.CaptureDetails=remove,details

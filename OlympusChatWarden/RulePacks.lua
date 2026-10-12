@@ -1,7 +1,7 @@
 local _, ns = ...
 local P = {Revision=0, Busy=false, Restoring=false, Errors={}}; ns.RulePacks=P
-P.Order={'guild','creator','gender','labels','reproductive','language','institutional','slogans','broad'}
-P.StockVersions={guild=4,creator=4}
+P.Order={'guild','creator','gender','labels','reproductive','language','institutional','slogans','broad','america'}
+P.StockVersions={guild=5,creator=4}
 P.StockTitles={guild='Olympus Protection',creator='King Protection'}
 local loaded, pending, token, stockRules, stockMeta = {},nil,0,{},{}
 local jobs, worker, scheduled, current = {},nil,false,nil
@@ -61,7 +61,7 @@ local function Apply(built)
     ns.BodyReplacementText,ns.BodyReplacements=built.replacements,built.replacementMatcher
     ns.DB.rules=nil -- legacy duplicated rule lists must never reactivate removed categories
     P.Revision=P.Revision+1
-    local revisions={'stock-guild-4-creator-4-tuning-4-packs-1-context-6-evasion-2-case-1-boundary-2-categories-1-personal-2-replacement-1-gommage-2'}
+    local revisions={'stock-guild-5-creator-4-tuning-4-packs-1-context-6-evasion-2-case-1-boundary-2-categories-1-personal-2-replacement-1-gommage-2'}
     for _,id in ipairs(P.Order) do if loaded[id] then revisions[#revisions+1]=id..'-'..loaded[id].version end end
     ns.RULE_VERSION=table.concat(revisions,'-')
     if ns.PolicyChanged then ns.PolicyChanged() end

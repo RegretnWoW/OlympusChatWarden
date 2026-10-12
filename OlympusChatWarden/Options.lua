@@ -9,9 +9,9 @@ local descriptions = {aggressive = "Default: includes weaker matches and warning
 local packLabels = {labels = "Body-label replacements", reproductive = "Pregnancy / reproductive wording",
     language = "General inclusive wording", gender = "Gender / pronoun wording", institutional = "DEI / institutional terminology",
     slogans = "Social / political slogans", broad = "Broad contextual phrases", guild = "Olympus Protection",
-    creator = "King Protection"}
+    creator = "King Protection", america = "USA Protection"}
 local shortLabels = {labels = "Body labels", reproductive = "Reproductive", language = "Inclusive wording", gender = "Gender / pronouns",
-    institutional = "DEI / institutional", slogans = "Slogans", broad = "Contextual phrases", guild = "Olympus Protection", creator = "King Protection"}
+    institutional = "DEI / institutional", slogans = "Slogans", broad = "Contextual phrases", guild = "Olympus Protection", creator = "King Protection", america = "USA Protection"}
 local summaries = {}
 local categoryLabels = {}
 local function PackChoice(pack)
@@ -34,8 +34,8 @@ local function Sync()
         local choice = PackChoice(pack)
         text:SetShown(positions[pack] ~= nil)
         if positions[pack] then
-            text:ClearAllPoints(); text:SetPoint("TOPLEFT", 12, -72 - (positions[pack] - 1) * 20)
-            text:SetText(shortLabels[pack] .. ": " .. (labels[choice] or (choice == "off" and "Off" or "Default")))
+            text:ClearAllPoints(); text:SetPoint("TOPLEFT", 12, -72 - (positions[pack] - 1) * 18)
+            text:SetText((shortLabels[pack] or ns.RulePacks.Title(pack)) .. ": " .. (labels[choice] or (choice == "off" and "Off" or "Default")))
         end
     end
     if sensitivity then
@@ -51,6 +51,7 @@ local function Sync()
     end
     if ns.RefreshShieldOptions then ns.RefreshShieldOptions() end
     if ns.RefreshLanguageOptions then ns.RefreshLanguageOptions() end
+    if ns.RefreshNotificationsOptions then ns.RefreshNotificationsOptions() end
     if feedback then feedback:SetText(not ns.Membership.Allowed() and ns.Membership.Status() or ns.DB.enabled
         and (ns.Membership.method == "local-guild-name" and "Filter active - local Olympus guild-name check. Official affiliation is not verified."
             or "Filter active - choose where it runs and which categories it uses.")
@@ -69,7 +70,7 @@ end
 function ns.OpenCategories()
     if not ns.DB then return end
     if not categoryWindow then
-        categoryWindow = T.Window("OlympusChatWardenCategories", UIParent, 650, 580)
+        categoryWindow = T.Window("OlympusChatWardenCategories", UIParent, 650, 620)
         ns.CategoryWindow = categoryWindow; T.Title(categoryWindow, ns.NAME); T.Crest(categoryWindow)
         local function Text(x, y, width, value)
             local text = categoryWindow:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -92,7 +93,7 @@ function ns.OpenCategories()
                 and "Body Type 1/2 replacements are built in. The Barber & body-type wording option controls them and this pack's extra replacement variants. This category controls its other phrases."
                 or "Default uses the main preset. Selective: minimum 85. Balanced: 65. Broad: 40. Gommage also uses this category's Gommage display list; scores stay unchanged. Off disables this category.")
         end
-        T.Muted(Text(20, -510, 610, "Only installed packs appear here. Import optional categories with Rule packs."))
+        T.Muted(Text(20, -550, 610, "Only installed packs appear here. Import optional categories with Rule packs."))
         local manage = CreateFrame("Button", nil, categoryWindow, "UIPanelButtonTemplate")
         manage:SetSize(200, 26); manage:SetPoint("BOTTOMLEFT", 18, 16); manage:SetText("Manage / import packs")
         manage:SetScript("OnClick", function() ns.OpenPacks() end); T.ActionHelp(manage,"Rule packs")
@@ -102,7 +103,7 @@ function ns.OpenCategories()
         categoryWindow:HookScript("OnShow", Sync)
     end
     local width, height = UIParent:GetWidth(), UIParent:GetHeight()
-    categoryWindow:SetScale(math.min(1, math.max(0.5, (width - 30) / 650), math.max(0.5, (height - 30) / 580)))
+    categoryWindow:SetScale(math.min(1, math.max(0.5, (width - 30) / 650), math.max(0.5, (height - 30) / 620)))
     Sync(); T.ShowWindow(categoryWindow)
 end
 function ns.BuildOptions()
@@ -141,7 +142,7 @@ function ns.BuildOptions()
     sensitivity = T.Dropdown(mode, 362, -20, 236, {{"strict", labels.strict}, {"balanced", labels.balanced}, {"aggressive", labels.aggressive}, {"maximum", labels.maximum}},
         function() return ns.DB.preset end, function(value) ns.SetPreset(value); Sync() end)
     T.Tooltip(sensitivity,"Main sensitivity","Broad catches more wording, Balanced skips weaker matches, and Selective catches stronger matches. Gommage also covers listed words from optional packs.")
-    local coverage = T.Panel(panel, 14, -239, 298, 282)
+    local coverage = T.Panel(panel, 14, -239, 298, 264)
     T.Gold(Text(coverage, 12, -12, 274, "Where to filter", "GameFontNormal"))
     local scroll = CreateFrame("ScrollFrame", "OlympusChatWardenCoverageScroll", coverage, "UIPanelScrollFrameTemplate")
     scroll:SetPoint("TOPLEFT", 6, -35); scroll:SetPoint("BOTTOMRIGHT", -30, 12)
@@ -188,7 +189,7 @@ function ns.BuildOptions()
     ns.CoverageNameStatus = T.Muted(Text(content, 6, -488, 236))
     ns.CoverageRecoveryStatus = T.Muted(Text(content, 6, -558, 236))
     T.Muted(Text(content, 6, -626, 236, "Player/NPC names start off. Ctrl + left-click reveals supported labels; floating-name clicks are experimental. Enable nameplates in WoW yourself. Originals are in Messages."))
-    local packs = T.Panel(panel, 324, -239, 302, 282)
+    local packs = T.Panel(panel, 324, -239, 302, 264)
     T.Gold(Text(packs, 12, -12, 278, "Rule packs & sensitivity", "GameFontNormal"))
     local configure = CreateFrame("Button", nil, packs, "UIPanelButtonTemplate")
     configure:SetSize(132, 26); configure:SetPoint("TOPLEFT", 12, -34); configure:SetText("Sensitivity")
@@ -198,23 +199,25 @@ function ns.BuildOptions()
     manage:SetScript("OnClick", function() ns.OpenPacks() end); T.ActionHelp(manage,"Rule packs")
     for i, name in ipairs(ns.RulePacks.Order) do
         local pack = name
-        summaries[pack] = Text(packs, 12, -72 - (i - 1) * 20, 278)
+        summaries[pack] = Text(packs, 12, -72 - (i - 1) * 16, 278)
     end
-    T.Muted(Text(packs, 12, -263, 275, "Two stock packs. Import other categories."))
-    controls.captureAlerts = Check(panel, "captureAlerts", "Show hidden-message alerts on Olympus", 14, -525, 580, function(self)
-        ns.DB.captureAlerts = ns.Checked(self:GetChecked()); ns.OlympusIntegration.UpdateAlerts(); ns.RefreshReview(); Sync()
-    end, "Show a red ! when a hidden chat message is waiting in Messages. Click each message to clear its badge everywhere. Turning badges off keeps your messages and saved reports.")
-    integrationText = T.Muted(Text(panel, 20, -557, 600))
+    T.Muted(Text(packs, 12, -245, 275, "Two stock packs. Import other categories."))
+    local notifications=CreateFrame('Button',nil,panel,'UIPanelButtonTemplate')
+    notifications:SetSize(286,24);notifications:SetPoint('TOPLEFT',20,-512);notifications:SetText('Notifications')
+    notifications:SetScript('OnClick',ns.OpenNotificationOptions)
+    T.Tooltip(notifications,'Notifications','Choose unread badges, chat notices and which categories notify you. Repeated messages, rapid chat and ads start quiet.')
+    T.Muted(Text(panel,326,-517,290,'Choose which hidden messages notify you.'))
+    integrationText = T.Muted(Text(panel, 20, -542, 600))
     for i, spec in ipairs({{"Preview test", ns.MakeDemo}, {"Review messages", ns.OpenReview},
         {"My reports & rules", ns.OpenPersonal}, {"Export reports", function() ns.OpenReportExport() end}}) do
         local button = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
-        button:SetSize(140, 26); button:SetPoint("TOPLEFT", 20 + (i - 1) * 151, -576)
+        button:SetSize(140, 26); button:SetPoint("TOPLEFT", 20 + (i - 1) * 151, -562)
         button:SetText(spec[1]); button:SetScript("OnClick", spec[2]); T.ActionHelp(button,spec[1])
     end
     panel:SetScript("OnShow", Sync)
     T.BindSettings(panel)
     ns.OptionsPanel = panel
-    category = Settings.RegisterCanvasLayoutCategory(panel, ns.NAME); Settings.RegisterAddOnCategory(category); ns.BuildShieldOptions(category); ns.BuildLanguageOptions(category); Sync()
+    category = Settings.RegisterCanvasLayoutCategory(panel, ns.NAME); Settings.RegisterAddOnCategory(category); ns.BuildShieldOptions(category); ns.BuildLanguageOptions(category); ns.BuildNotificationsOptions(category); Sync()
 end
 
 SLASH_OLYMPUSCHATWARDEN1 = "/chatwarden"

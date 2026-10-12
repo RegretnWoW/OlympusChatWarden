@@ -31,9 +31,9 @@ function M.InstallAccessGuards()
         'OnLink','CheckWelcome','SetReviewTab','RefreshReview','RefreshCapture','RefreshPersonal','RefreshReportExport','SyncPacks'}) do Guard(ns,key) end
     local actions = {
         ChatCapture={'SetOption','Record','Bookmark','UpdateBookmark','RemoveBookmark','Clear'},
-        ChatReports={'Capture','OnClick','BuildMenu','OnEvent','Open'},
+        ChatReports={'Capture','RecordOutcome','OnClick','BuildMenu','OnEvent','Open'}, Notifications={'Set'},
         PlayerMenus={'Add'}, Personal={'SaveRule','ChangeRule','SaveReport','RemoveReport'},
-        Shield={'Add','Remove','Allow','Unallow','SetProfile','SetOption','Alert','Prune'},
+        Spam={'Set','Observe'}, Shield={'Add','Remove','Allow','Unallow','SetProfile','SetOption','Alert','Prune'},
         RulePacks={'BeginImport','Commit','Remove','Export','Restore'}, PackUpdates={'Check'},
         Export={'Batch','Build'}, Reports={'Export'}, Review={'Add'}, Language={'Set','Allow'}, LanguageDisplay={'Toggle'},
     }
