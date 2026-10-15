@@ -2,51 +2,63 @@
 
 # Olympus ChatWarden 1.0
 
-Built for Olympus and World of Warcraft: Forever. ChatWarden combines contextual personal chat filtering, contact/spam protection, mention alerts and persistent review in an Olympus-themed workspace.
-
 **[Download 1.0.0](https://github.com/RegretnWoW/OlympusChatWarden/releases/tag/v1.0.0)** · **[Optional signed packs](rule-packs/README.md)** · **[Filtering guide](ChatWarden-1.0-Filtering-Guide.md)** · **[Release notes](OlympusChatWarden-v1.0.0-ReleaseNotes.md)**
 
-## Features
+Built for Olympus, ChatWarden brings chat filtering, contact protection and mention alerts into one Olympus-themed workspace. Review what was filtered, see why an action happened, and choose how much of the conversation you want to see.
 
-- Mild, Balanced and Broad action presets with always-active context handling.
-- Warnings, bronze redaction covers, wording replacements and hidden-message review.
-- Included Olympus Protection and King Protection; optional author-signed packs with their own directions, coverage and sensitivity.
-- Local Shield protection for repeated contact, repeated messages, rapid chat and selected advertising.
-- Mention alerts for your full character name, nicknames and watch phrases across supported channels.
-- Messages, Mentions and Shield feeds with per-character persistent activity and read states.
-- Optional local Chat Capture and bookmarks.
-- Personal rules, exceptions, filtering explanations and manually saved/exported feedback.
-- Olympus launcher integration and Ctrl + left-click reveal for supported covered text.
+Open ChatWarden through the Olympus launcher or type /ocw.
 
-## Filtering and defaults
+# Filtering that looks beyond a keyword
 
-Balanced follows the author's personal display preferences: mild unwanted opinions warn, stronger eligible expressions redact and recognized explicit threats hide. A topic reference alone is not enough for a contextual action. Neutral discussion, questions and quoted/reported wording are interpreted separately from direct assertions. The engine is bounded and deterministic; unfamiliar wording and sarcasm can still produce mistakes.
+A topic being mentioned does not automatically mean it should be filtered. ChatWarden examines nearby wording to distinguish direct criticism, stronger attacks, supportive statements, questions and quoted discussion.
 
-Olympus/King/USA protection permits praise and filters recognized criticism or attacks. Optional terminology packs take the selected author viewpoint: eligible support/promotion can filter while criticism stays visible. Read each pack's description before enabling it. These are personal viewing preferences, not objective judgments about other players.
+# Choose your filtering strength:
 
-Filtering, Shield, Mentions and Spam protection start on. Balanced is the default. **Gommage and Chat Capture start off.** Gommage is a separate literal meme toggle; its curated masks may cover terms even in criticism or questions. Topic preferences, masks and replacements do not automatically shield players.
+Mild: Leaves mild opinions visible, warns on stronger expressions, and hides recognized explicit threats.
+Balanced: Warns on mild unwanted opinions, redacts stronger expressions, and hides recognized explicit threats.
+Broad: Applies wider topic coverage and hides eligible unwanted expressions.
 
-Hidden-message alerts start on; redaction alerts start off. Each has its own switch. Existing explicit settings and saved data are retained when updating, except that the retired context opt-out no longer disables context handling.
+Olympus Protection and King Protection are included. Optional author-signed rule packs add other categories and wording preferences.
 
-## Install
+# ChatWarden Shield
 
-1. Fully exit WoW.
-2. Extract **OlympusChatWarden-v1.0.0.zip** from the release into `Interface/AddOns` so `OlympusChatWarden/OlympusChatWarden.toc` is directly inside the addon folder. Use the addon asset, not GitHub's automatic Source code ZIP.
-3. Keep `WTF/SavedVariables` when updating.
-4. Open through the Olympus launcher or `/ocw`. Overview is the default page.
+Keep unwanted contact from taking over your session.
 
-**Current access requirement:** your character's guild name must contain Olympus as a separate word. This is a local check, not official membership verification. Features pause outside a qualifying guild and saved data is retained.
+Shield can respond to repeated trade requests, duel challenges, group invitations and whispers. It also includes checks for repeated messages, rapid chat, gold/service advertising and guild recruitment.
 
-## Optional packs
+Use timed protection, manage shielded players, or allow trusted players to bypass Shield checks. Topic preferences and Gommage masks do not automatically shield someone.
 
-Download **OlympusChatWarden-RulePacks-v1.0.0.zip**, or an individual `.ocwpack.txt` release asset. Copy the entire signed string and use **Packs > Import signed pack > Verify pack > Install pack**. Optional categories must be enabled after installation. Updates preserve category enablement and presets.
+# Catch your mentions
 
-The addon ZIP does not replace saved imports. **USA Protection v5** contains the latest mild-criticism adjustment. The other current versions are Gender, Parenting, Inclusive Language, Workplace, Political Slogans and Social Terminology v9, and Body-label replacements v7. See the [pack table](rule-packs/README.md).
+Watch your full character name, custom nicknames and selected phrases across supported chat channels.
 
-## Privacy and feedback
+Mention alerts include unread badges, optional sound and optional toast notifications. Close typo matching is available for watch phrases; names and nicknames match exactly.
 
-Filtering runs locally. Reports are not sent automatically; review exported text before sharing. Capture starts off. Save a filtering report with the original wording and expected action when reporting a false positive or a miss.
+# Review everything in one place
 
-This release's automated checks cover filtering contrasts, signed updates, defaults, notifications, masked icon refresh, multilingual names and saved activity. Native rendering and gameplay should still be checked in the client. Future intelligence/Relay features and the Olympus Warden rebrand are not part of 1.0.
+The Olympus-themed workspace keeps each kind of activity easy to find:
+
+Overview: Your combined recent activity.
+Messages: Filtering activity, including warnings, replacements, redactions and hidden messages.
+Mentions: Messages that matched your watched names or phrases.
+Shield: Contact protection and spam incidents.
+Capture: Optional local chat recording and bookmarks.
+Reports: Saved filtering feedback you can review and export.
+
+Filtered originals and read states survive reloads and logins. Why filtered? explains the matching evidence, and supported covered text can be revealed with Ctrl + left-click.
+
+Hidden-message alerts start on. Redaction alerts start off. Both can be adjusted independently.
+
+# Requirements and access
+
+ChatWarden is built for Olympus. The current version requires “Olympus” as a separate word in your character’s guild name. This is a local access check, not official membership verification. Features pause outside a qualifying guild, while saved data is retained.
+
+Optional rule packs must be imported separately through ChatWarden’s signature verification screen.
+
+# Help improve ChatWarden
+
+Found a false positive or something the filter missed? Save a report with the original wording and the action you expected. Review exported text before sharing it.
+
+ChatWarden is the foundation for the broader Olympus Warden direction: an Olympus-centered workspace for clearer activity, explainable decisions and useful protection. Additional intelligence and reporting features are planned; they are not part of this release.
 
 Copyright (c) 2026 Regretn. See [LICENSE.txt](OlympusChatWarden/LICENSE.txt) for usage and distribution terms.
