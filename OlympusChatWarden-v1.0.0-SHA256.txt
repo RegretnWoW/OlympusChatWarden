@@ -1,0 +1,2 @@
+4de170f49e188e09099284801965a599d4f2fd9d5dd39364d6f58335c6e560da  OlympusChatWarden-v1.0.0.zip
+16817a79c413620691832dc630baebf827330e0a6afd8453c1aaa9c0f2971de4  OlympusChatWarden-RulePacks-v1.0.0.zip

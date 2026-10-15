@@ -54,6 +54,8 @@ local function RefreshForm()
     form.help:SetText(form.label == "Missed match" and "Check the missed message below and choose how you want it handled."
         or form.label == "False positive" and "This message should have stayed visible. Add a note if it helps explain why."
         or "Choose the action this message should have received, then save your report.")
+    form.ChatWardenTitle=form.entry and 'Review filter result' or form.label=='Missed match' and 'Report a missed message' or 'New filter report'
+    if ns.Workspace and ns.Workspace.mounted==form then ns.Workspace.ToolTitle(form,form.ChatWardenTitle);ns.Workspace.LayoutMounted() end
 end
 local function ApplyDraft(draft)
     form.draft = draft
@@ -78,9 +80,9 @@ function ns.OpenReport(entry, initialLabel, draft)
         form = Window("OlympusChatWardenReport", 700, "Report a problem")
         ns.ReportWindow = form
         form.help = Label(form, "", 20, -78, 680)
-        T.Gold(Label(form, "What went wrong?", 20, -110, 225))
-        T.Gold(Label(form, "What should happen?", 260, -110, 220))
-        T.Gold(Label(form, "Message source", 500, -110, 200))
+        local choiceLabel=T.Gold(Label(form, "What went wrong?", 20, -110, 225))
+        local actionLabel=T.Gold(Label(form, "What should happen?", 260, -110, 220))
+        local sourceLabel=T.Gold(Label(form, "Message source", 500, -110, 200))
         form.choice = T.Dropdown(form, 20, -132, 225, issues, function() return form.label end, function(value)
             form.label = value; form.expected = value == "Missed match" and "Redacted"
                 or value == "False positive" and "Unchanged" or form.expected
@@ -109,7 +111,7 @@ function ns.OpenReport(entry, initialLabel, draft)
         end)
         local notes = T.Panel(form, 18, -394, 684, 112, true)
         T.Heading(Label(notes, "Why? (optional)", 14, -12, 650, "GameFontNormal"))
-        T.Heading(Label(notes, "Add a short note if you want. What felt wrong about this result?", 14, -34, 650))
+        local noteHint=T.Heading(Label(notes, "Add a short note if you want. What felt wrong about this result?", 14, -34, 650))
         form.note, form.noteScroll = Edit(notes, 14, -60, 640, 36, 1000)
         local rules = T.Panel(form, 18, -516, 684, 92)
         form.saveRule = CreateFrame("CheckButton", nil, rules, "UICheckButtonTemplate")
@@ -120,7 +122,7 @@ function ns.OpenReport(entry, initialLabel, draft)
         form.rulePhrase:SetAutoFocus(false); form.rulePhrase:SetMaxLetters(120)
         form.rulePhrase:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
         T.TextField(form.rulePhrase)
-        T.Muted(Label(rules, "Optional: enter exact words from the message. A report alone leaves your rules unchanged.", 24, -70, 638))
+        local ruleHint=T.Muted(Label(rules, "Optional: enter exact words from the message. A report alone leaves your rules unchanged.", 24, -70, 638))
         T.Tooltip(form.choice,"What went wrong?","Was the message missed, caught by mistake, or given the wrong treatment?")
         T.Tooltip(form.action,"What should happen?","Pick the result you would have preferred for this message.")
         T.Tooltip(form.sourceDropdown,"Where did you see it?","Choose chat, a tooltip, a name, or the other area where the original appeared.")
@@ -146,8 +148,36 @@ function ns.OpenReport(entry, initialLabel, draft)
                 if ns.RefreshReportExport then ns.RefreshReportExport() end
             end
         end)
-        Button(form, "Cancel", 600, -654, 100, function() form:Hide() end)
-        T.Muted(Label(form, "Nothing is sent automatically. Find saved reports and share an export from My reports.", 20, -685, 680))
+        local cancel=Button(form, "Cancel", 600, -654, 100, function() form:Hide() end)
+        local footer=T.Muted(Label(form, "Nothing is sent automatically. Find saved reports and share an export from My reports.", 20, -685, 680))
+        if ns.Workspace then
+            local W,V=ns.Workspace,ns.Art
+            local choices=V.Panel(form,700,-62,420,288,'dark')
+            V.Text(choices,'Report details',18,-18,370,18,V.gold)
+            local phraseLabel=V.Text(rules,'Exact phrase',22,-78,370,14,V.gold)
+            function form:ChatWardenLayout(w,h)
+                local left=(w-52)*.6;local right=w-52-left;local x=34+left
+                W.Place(self.help,22,-20,w-44)
+                W.Place(paper,18,-62,left,h-342);W.Place(self.originalHint,14,-42,left-28)
+                W.Place(self.recent,14,-74,left-28,32)
+                local top=self.recent:IsShown() and 122 or 74
+                W.Place(self.originalScroll,14,-top,left-48,h-358-top)
+                W.Place(notes,18,-(h-264),left,170);W.Place(noteHint,14,-38,left-28)
+                W.Place(self.noteScroll,14,-68,left-48,86)
+                W.Place(choices,x,-62,right,288)
+                for i,pair in ipairs({{choiceLabel,self.choice},{actionLabel,self.action},{sourceLabel,self.sourceDropdown}}) do
+                    W.Place(pair[1],22,-58-(i-1)*76,right-44,nil,choices)
+                    W.Place(pair[2],22,-82-(i-1)*76,right-44,32,choices)
+                end
+                W.Place(rules,x,-366,right,h-460)
+                W.Place(self.saveRule,14,-20);self.saveRule.Text:SetWidth(right-70);self.saveRule.Text:SetWordWrap(true)
+                W.Place(phraseLabel,22,-78,right-44);W.Place(self.rulePhrase,22,-104,right-44,32)
+                W.Place(ruleHint,22,-158,right-44,68)
+                W.Place(self.status,22,-(h-76),w-44)
+                W.Place(self.save,22,-(h-48),180,32);W.Place(cancel,w-142,-(h-48),120,32)
+                footer:Hide()
+            end
+        end
         form:HookScript("OnHide", function()
             form.original:ClearFocus(); form.note:ClearFocus(); form.rulePhrase:ClearFocus()
         end)
@@ -157,6 +187,7 @@ function ns.OpenReport(entry, initialLabel, draft)
     form.source = entry and entry.kind or draft and draft.source or "manual"
     form.saveRule:SetChecked(false); form.rulePhrase:SetText(""); form.rulePhrase:ClearFocus()
     form.Heading:SetText(entry and "Review this filter result" or "Report a missed message")
+    form.ChatWardenTitle=entry and 'Review filter result' or 'Report a missed message'
     ApplyDraft(draft); form.note:SetText(""); form.note:ClearFocus(); form.noteScroll:SetVerticalScroll(0)
     form.status:SetText(entry and ("The filter chose: " .. T.Label(T.Actions, entry.action) .. ". Save records your report.")
         or draft and draft.status or "Your report is saved only when you click Save report.")
@@ -168,9 +199,9 @@ function ns.OpenReportLink()
     if not reportLinkWindow then
         reportLinkWindow = Window("OlympusChatWardenReportLink", 360, "Send feedback on GitHub")
         ns.ReportLinkWindow = reportLinkWindow
-        Label(reportLinkWindow, "1. Select the link below, press Ctrl+C, and open it in your browser.\n2. Start an issue, then return here and copy your report export.\n3. Paste the export into the issue and explain what you expected.", 20, -82, 680)
+        local steps=Label(reportLinkWindow, "1. Select the link below, press Ctrl+C, and open it in your browser.\n2. Start an issue, then return here and copy your report export.\n3. Paste the export into the issue and explain what you expected.", 20, -82, 680)
         local paper = T.Panel(reportLinkWindow, 18, -156, 684, 64, true)
-        local link = CreateFrame("EditBox", nil, paper, "InputBoxTemplate")
+        local link = CreateFrame("EditBox", nil, paper, "InputBoxTemplate");link.ChatWardenNoSpelling=true
         link:SetPoint("TOPLEFT", 22, -18); link:SetSize(632, 26)
         link:SetAutoFocus(false); link:SetMaxLetters(200); link:SetText(ns.REPORT_URL)
         ns.ReportLinkText = link
@@ -179,10 +210,27 @@ function ns.OpenReportLink()
         end)
         link:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
         T.TextField(link)
-        Button(reportLinkWindow, "Select link", 20, -237, 130, function() link:SetFocus(); link:HighlightText() end)
-        Button(reportLinkWindow, "Export reports", 165, -237, 150, function() ns.OpenReportExport() end)
-        Button(reportLinkWindow, "Close", 600, -237, 100, function() reportLinkWindow:Hide() end)
-        T.Muted(Label(reportLinkWindow, "GitHub reports are public. Check messages and notes for identifying details.\nReports do not automatically train the filter. Nothing is sent automatically.", 20, -284, 680))
+        local select=Button(reportLinkWindow, "Select link", 20, -237, 130, function() link:SetFocus(); link:HighlightText() end)
+        local export=Button(reportLinkWindow, "Export reports", 165, -237, 150, function() ns.OpenReportExport() end)
+        local close=Button(reportLinkWindow, "Close", 600, -237, 100, function() reportLinkWindow:Hide() end)
+        local privacy=T.Muted(Label(reportLinkWindow, "GitHub reports are public. Check messages and notes for identifying details.\nReports do not automatically train the filter. Nothing is sent automatically.", 20, -284, 680))
+        if ns.Workspace then
+            local W,V=ns.Workspace,ns.Art
+            V.Text(paper,'Feedback link',18,-18,1000,18,V.gold)
+            local instructions=V.Panel(reportLinkWindow,18,-206,544,426,'dark');V.Text(instructions,'Share your feedback',18,-18,490,18,V.gold)
+            local safety=V.Panel(reportLinkWindow,578,-206,544,426,'dark');V.Text(safety,'Before you share',18,-18,490,18,V.gold)
+            function reportLinkWindow:ChatWardenLayout(w,h)
+                local half=(w-52)/2
+                W.Place(paper,18,-18,w-36,172);W.Place(link,22,-58,w-80,32)
+                W.Place(select,22,-112,170,32,paper)
+                W.Place(instructions,18,-206,half,h-278);W.Place(safety,34+half,-206,half,h-278)
+                W.Place(steps,22,-64,half-44,h-390,instructions)
+                steps:SetText('1. Select the feedback link above and press Ctrl+C. Open it in your browser.\n\n2. Start a GitHub issue describing what you expected.\n\n3. Choose Export reports below, select the relevant entries and review the final text.\n\n4. Copy that export into your issue when you are ready.')
+                W.Place(privacy,22,-64,half-44,h-390,safety)
+                privacy:SetText('GitHub issues are public.\n\nReport exports hide known player names by default and leave out your notes. You can hide additional names before copying. Check the final text for identifying details.\n\nA report saves feedback; it does not automatically change or train your filter. Nothing is sent automatically.')
+                W.Place(export,22,-(h-48),180,32);W.Place(close,w-182,-(h-48),160,32);close:SetText('Back to Reports')
+            end
+        end
         reportLinkWindow:HookScript("OnHide", function() link:ClearFocus() end)
     end
     Fit(reportLinkWindow); T.ShowWindow(reportLinkWindow)

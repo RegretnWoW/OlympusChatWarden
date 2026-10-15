@@ -1,9 +1,10 @@
 local _, ns = ...
 local P = {Revision=0, Busy=false, Restoring=false, Errors={}}; ns.RulePacks=P
 P.Order={'guild','creator','gender','labels','reproductive','language','institutional','slogans','broad','america'}
-P.StockVersions={guild=5,creator=4}
+P.StockVersions={guild=9,creator=8}
 P.StockTitles={guild='Olympus Protection',creator='King Protection'}
 local loaded, pending, token, stockRules, stockMeta = {},nil,0,{},{}
+local stockCaptured=false
 local jobs, worker, scheduled, current = {},nil,false,nil
 local restoreSerial = 0
 local C,D=ns.PackCrypto,ns.PackData
@@ -34,7 +35,8 @@ local function Build(models)
                 if owners[rule.phrase] and owners[rule.phrase]~=id then return nil,'A phrase conflicts with another installed pack.' end
                 owners[rule.phrase]=id; bytes=bytes+#rule.phrase
                 rules[#rules+1]=rule.phrase
-                meta[rule.phrase]={id=id..':'..rule.phrase,pack=id,base=rule.score,origin=rule.origin,version=model.version}
+                meta[rule.phrase]={id=id..':'..rule.phrase,pack=id,base=rule.score,origin=rule.origin,version=model.version,
+                    role=rule.role,purpose=model.purpose,stance=model.stance,policy=model.schema==3 or model.schema==4,contextual=model.schema==4,subjectModel=model.purpose=='subject' and model or nil}
             end
             for _,phrase in ipairs(model.gommage or {}) do
                 if literalOwners[phrase] or stockMeta[phrase] then return nil,'A literal word conflicts with another installed pack.' end
@@ -45,6 +47,7 @@ local function Build(models)
                 if owners[rule.phrase] and owners[rule.phrase]~=id then return nil,'A replacement conflicts with another installed pack.' end
                 owners[rule.phrase]=id; bytes=bytes+#rule.phrase; replacements[rule.phrase]=rule.text
             end
+            for _,rule in ipairs(model.statements or {}) do bytes=bytes+#rule.phrase end
         end
     end
     if bytes>ns.Engine.MAX_RULE_BYTES or #rules+#literal>ns.Engine.MAX_RULES then return nil,'Combined rule-pack budget exceeded.' end
@@ -61,7 +64,7 @@ local function Apply(built)
     ns.BodyReplacementText,ns.BodyReplacements=built.replacements,built.replacementMatcher
     ns.DB.rules=nil -- legacy duplicated rule lists must never reactivate removed categories
     P.Revision=P.Revision+1
-    local revisions={'stock-guild-5-creator-4-tuning-4-packs-1-context-6-evasion-2-case-1-boundary-2-categories-1-personal-2-replacement-1-gommage-2'}
+    local revisions={'stock-guild-9-creator-8-policy-2-packs-4-context-10-evasion-3-case-1-boundary-2-personal-2-replacement-1-gommage-3'}
     for _,id in ipairs(P.Order) do if loaded[id] then revisions[#revisions+1]=id..'-'..loaded[id].version end end
     ns.RULE_VERSION=table.concat(revisions,'-')
     if ns.PolicyChanged then ns.PolicyChanged() end
@@ -175,13 +178,17 @@ end
 local function Summary(model)
     return {id=model.id,title=model.title,author=model.author,version=model.version,description=model.description,
         rules=#model.rules,gommage=#(model.gommage or {}),legacyGommage=model.schema==1,replacements=#model.replacements,digest=model.digest,keyID=model.keyID,
-        enabled=ns.DB.disabledPacks[model.id]~=true,stock=false}
+            enabled=ns.DB.disabledPacks[model.id]~=true,stock=false,purpose=model.purpose,schema=model.schema,statements=#(model.statements or {})}
 end
 function P.List()
     local list={}
     for _,id in ipairs(P.Order) do
         if id=='guild' or id=='creator' then
-            list[#list+1]={id=id,title=P.StockTitles[id],version=P.StockVersions[id],author='Regretn',enabled=not ns.DB.disabledPacks[id],stock=true}
+            local count=0
+            for _,meta in pairs(stockMeta) do if meta.pack==id then count=count+1 end end
+            list[#list+1]={id=id,title=P.StockTitles[id],version=P.StockVersions[id],author='Regretn',enabled=not ns.DB.disabledPacks[id],stock=true,
+                rules=count,gommage=0,replacements=0,
+                description='Subject references and explicit viewing preferences use shared statement patterns. Context handling excludes negated or defended wording, quotations and reported speech.'}
         elseif loaded[id] then list[#list+1]=Summary(loaded[id])
         elseif P.Errors[id] then list[#list+1]={id=id,title=id..' (not loaded)',error=P.Errors[id],stock=false,enabled=false} end
     end
@@ -213,7 +220,8 @@ local function Candidate(model)
     local old,new={},{}
     local function Index(m,map)
         if not m then return end
-        for _,r in ipairs(m.rules) do map['rule:'..r.phrase]=tostring(r.score)..':'..r.origin end
+        for _,r in ipairs(m.rules) do map['rule:'..r.phrase]=tostring(r.score)..':'..r.origin..':'..(r.role or 'legacy') end
+        for _,r in ipairs(m.statements or {}) do map['statement:'..r.position..':'..r.phrase]=tostring(r.score)..':'..r.origin end
         for _,r in ipairs(m.literal or {}) do map['retired-literal:'..r]='1' end
         for _,r in ipairs(m.gommage or {}) do map['gommage:'..r]='1' end
         for _,r in ipairs(m.replacements) do map['replace:'..r.phrase]=r.text end
@@ -285,7 +293,13 @@ end
 function P.Export(id) return loaded[id] and loaded[id].envelope end
 function P.Initialize()
     loaded,pending,P.Errors={},{},{}; pending=nil
-    for _,phrase in ipairs(ns.StockRules) do stockRules[#stockRules+1]=phrase; stockMeta[phrase]=ns.RuleMeta[phrase] end
+    -- Apply exposes the combined runtime rules through ns.StockRules. Capture
+    -- the original bundled base once; later initialization must not promote
+    -- verified optional rules into that base or duplicate the stock list.
+    if not stockCaptured then
+        for _,phrase in ipairs(ns.StockRules) do stockRules[#stockRules+1]=phrase;stockMeta[phrase]=ns.RuleMeta[phrase] end
+        stockCaptured=true
+    end
     if type(ns.DB.packImports)~='table' then ns.DB.packImports={} end
     Apply(assert(Build(loaded)))
 end

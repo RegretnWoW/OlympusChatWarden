@@ -1,423 +1,9 @@
 {
-  "schema": 2,
   "id": "slogans",
-  "title": "Social and political slogans",
+  "title": "Political slogans",
   "author": "Regretn",
-  "version": 6,
-  "description": "Version 6 (ChatWarden rc30+): Broad scoring unchanged; separate curated Gommage display masks contribute no confidence score. Replaces the retired literal list. Scored phrases and body-label replacements are unchanged from v5.",
-  "rules": [
-    {
-      "origin": "proposed test candidate",
-      "phrase": "love is love",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "trans rights are human rights",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "women's rights are human rights",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "no human is illegal",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "no person is illegal",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "silence is violence",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "silence is complicity",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "representation matters",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity is our strength",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity is a strength",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "our strength is our diversity",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity over equality",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity not equality",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equality is not equity",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "there is no planet b",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "the future is female",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "believe all women",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "believe survivors",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "protect trans kids",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "protect trans youth",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "protect queer youth",
-      "score": 85
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "abolish the patriarchy",
-      "score": 85
-    },
-    {
-      "phrase": "diversity equity inclusion matters",
-      "score": 85,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "diversity makes us stronger",
-      "score": 85,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "inclusion is for everyone",
-      "score": 85,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "belonging for everyone",
-      "score": 85,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "equity for all",
-      "score": 85,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "trans rights",
-      "score": 85,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "queer rights are human rights",
-      "score": 85,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "diversity is strength",
-      "score": 85,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "inclusion is strength",
-      "score": 85,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "end systemic racism",
-      "score": 85,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dismantle systemic oppression",
-      "score": 85,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "decolonize education",
-      "score": 85,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "decolonise education",
-      "score": 85,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "trans lives matter",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "queer lives matter",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "black lives matter",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "protect trans lives",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "protect queer lives",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "protect trans people",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "protect queer people",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "protect trans women",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "trans women are women",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "trans men are men",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "decolonize everything",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "decolonise everything",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "intersectionality matters",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "no borders no nations",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gender equality for all",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy is our strength",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty is our strength",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety is our strength",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy is a strength",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty is a strength",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety is a strength",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "our strength is our diveristy",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "our strength is our diversitty",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "our strength is our diversety",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty over equality",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty not equality",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equality is not eqiuty",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy equity inclusion matters",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty equity inclusion matters",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety equity inclusion matters",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inclsuion matters",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inlcusion matters",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity eqiuty inclusion matters",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy makes us stronger",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty makes us stronger",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety makes us stronger",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion is for everyone",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion is for everyone",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty for all",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy is strength",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty is strength",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety is strength",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion is strength",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion is strength",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "intersectonality matters",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gendre equality for all",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gneder equality for all",
-      "score": 85,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    }
-  ],
-  "replacements": [],
+  "schema": 4,
+  "version": 9,
   "gommage": [
     "pride flag",
     "pride flags",
@@ -428,5 +14,528 @@
     "reproductive freedom for all",
     "trans flag",
     "trans liberation"
-  ]
+  ],
+  "replacements": [],
+  "statements": [],
+  "stance": "avoid-support",
+  "purpose": "topic",
+  "rules": [
+    {
+      "phrase": "abolish the patriarchy",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "believe all women",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "believe survivors",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "belonging for everyone",
+      "score": 90,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "black lives matter",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "communism",
+      "score": 0,
+      "origin": "Author-requested optional political viewpoint preference; explicit support required",
+      "role": "viewpoint"
+    },
+    {
+      "phrase": "communist ideology",
+      "score": 0,
+      "origin": "Author-requested optional political viewpoint preference; explicit support required",
+      "role": "viewpoint"
+    },
+    {
+      "phrase": "decolonise education",
+      "score": 90,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "decolonise everything",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "decolonize education",
+      "score": 90,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "decolonize everything",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "democratic party",
+      "score": 0,
+      "origin": "Author-requested optional political viewpoint preference; explicit support required",
+      "role": "viewpoint"
+    },
+    {
+      "phrase": "democrats",
+      "score": 0,
+      "origin": "Author-requested optional political viewpoint preference; explicit support required",
+      "role": "viewpoint"
+    },
+    {
+      "phrase": "dismantle systemic oppression",
+      "score": 90,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diveristy equity inclusion matters",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diveristy is a strength",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diveristy is our strength",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diveristy is strength",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diveristy makes us stronger",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversety equity inclusion matters",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversety is a strength",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversety is our strength",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversety is strength",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversety makes us stronger",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversitty equity inclusion matters",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversitty is a strength",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversitty is our strength",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversitty is strength",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversitty makes us stronger",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversity eqiuty inclusion matters",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversity equity inclsuion matters",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversity equity inclusion matters",
+      "score": 90,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversity equity inlcusion matters",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversity is a strength",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversity is our strength",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversity is strength",
+      "score": 90,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diversity makes us stronger",
+      "score": 90,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "end systemic racism",
+      "score": 90,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "eqiuty for all",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "eqiuty not equality",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "eqiuty over equality",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "equality is not eqiuty",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "equality is not equity",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "equity for all",
+      "score": 90,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "equity not equality",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "equity over equality",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "gender equality for all",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "gendre equality for all",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "gneder equality for all",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "inclsuion is for everyone",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "inclsuion is strength",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "inclusion is for everyone",
+      "score": 90,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "inclusion is strength",
+      "score": 90,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "inlcusion is for everyone",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "inlcusion is strength",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "intersectionality matters",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "intersectonality matters",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "love is love",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "no borders no nations",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "no human is illegal",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "no person is illegal",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "our strength is our diveristy",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "our strength is our diversety",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "our strength is our diversitty",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "our strength is our diversity",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "protect queer lives",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "protect queer people",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "protect queer youth",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "protect trans kids",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "protect trans lives",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "protect trans people",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "protect trans women",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "protect trans youth",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "queer lives matter",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "queer rights are human rights",
+      "score": 90,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "representation matters",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "silence is complicity",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "silence is violence",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "the future is female",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "there is no planet b",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "trans lives matter",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "trans men are men",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "trans rights",
+      "score": 90,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "trans rights are human rights",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "trans women are women",
+      "score": 90,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "women's rights are human rights",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    }
+  ],
+  "description": "Contextual personal topic preference. A reference alone has no action. With Context on, neutral discussion, questions, quotations and criticism stay visible. Mild support warns in Balanced; stronger promotion redacts. Broad hides eligible unwanted expressions. Wider references require Broad. Original Gommage meme masks remain separate. Requires alpha12 or later."
 }

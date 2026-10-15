@@ -1,0 +1,349 @@
+{
+  "guildVersion": 9,
+  "creatorVersion": 8,
+  "actionPolicyVersion": 2,
+  "rules": [
+    {
+      "phrase": "asmnogold",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "author-requested spelling/channel variant; not an identity assertion",
+      "version": 8
+    },
+    {
+      "phrase": "asmogold",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "author-requested spelling/channel variant; not an identity assertion",
+      "version": 8
+    },
+    {
+      "phrase": "asmon",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "reported character/channel alias; Dot Esports name-reservation coverage",
+      "version": 8
+    },
+    {
+      "phrase": "asmonbald",
+      "category": "creator",
+      "baseScore": 82,
+      "kind": "nickname",
+      "role": "preference",
+      "origin": "documented nickname; Know Your Meme",
+      "version": 8
+    },
+    {
+      "phrase": "asmonbozo",
+      "category": "creator",
+      "baseScore": 82,
+      "kind": "nickname",
+      "role": "preference",
+      "origin": "author preference for creator-directed compound insult spelling",
+      "version": 8
+    },
+    {
+      "phrase": "asmonclown",
+      "category": "creator",
+      "baseScore": 82,
+      "kind": "nickname",
+      "role": "preference",
+      "origin": "author preference for creator-directed compound insult spelling",
+      "version": 8
+    },
+    {
+      "phrase": "asmoncringe",
+      "category": "creator",
+      "baseScore": 82,
+      "kind": "nickname",
+      "role": "preference",
+      "origin": "author preference for creator-directed compound insult spelling",
+      "version": 8
+    },
+    {
+      "phrase": "asmondgold",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "retained spelling preference; Zakrawr explicitly requested by tester",
+      "version": 8
+    },
+    {
+      "phrase": "asmonfraud",
+      "category": "creator",
+      "baseScore": 82,
+      "kind": "nickname",
+      "role": "preference",
+      "origin": "author preference for creator-directed compound insult spelling",
+      "version": 8
+    },
+    {
+      "phrase": "asmonfresh",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "reported character/channel alias; Dot Esports name-reservation coverage",
+      "version": 8
+    },
+    {
+      "phrase": "asmongarbage",
+      "category": "creator",
+      "baseScore": 82,
+      "kind": "nickname",
+      "role": "preference",
+      "origin": "author preference for creator-directed compound insult spelling",
+      "version": 8
+    },
+    {
+      "phrase": "asmongler",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "reported character/channel alias; Dot Esports name-reservation coverage",
+      "version": 8
+    },
+    {
+      "phrase": "asmonglod",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "author-requested spelling/channel variant; not an identity assertion",
+      "version": 8
+    },
+    {
+      "phrase": "asmonglodtv",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "author-requested spelling/channel variant; not an identity assertion",
+      "version": 8
+    },
+    {
+      "phrase": "asmongold",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "reported character/channel alias; Dot Esports name-reservation coverage",
+      "version": 8
+    },
+    {
+      "phrase": "asmongold tv",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "Asmongold TV YouTube channel",
+      "version": 8
+    },
+    {
+      "phrase": "asmongoldd",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "author-requested spelling/channel variant; not an identity assertion",
+      "version": 8
+    },
+    {
+      "phrase": "asmongoldtv",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "author-requested spelling/channel variant; not an identity assertion",
+      "version": 8
+    },
+    {
+      "phrase": "asmonincel",
+      "category": "creator",
+      "baseScore": 82,
+      "kind": "nickname",
+      "role": "preference",
+      "origin": "author preference for creator-directed compound insult spelling",
+      "version": 8
+    },
+    {
+      "phrase": "asmonloser",
+      "category": "creator",
+      "baseScore": 82,
+      "kind": "nickname",
+      "role": "preference",
+      "origin": "author preference for creator-directed compound insult spelling",
+      "version": 8
+    },
+    {
+      "phrase": "asmonmald",
+      "category": "creator",
+      "baseScore": 82,
+      "kind": "nickname",
+      "role": "preference",
+      "origin": "observed community nickname; r/Asmongold",
+      "version": 8
+    },
+    {
+      "phrase": "asmonmold",
+      "category": "creator",
+      "baseScore": 82,
+      "kind": "nickname",
+      "role": "preference",
+      "origin": "observed community nickname; r/videos",
+      "version": 8
+    },
+    {
+      "phrase": "asmonroach",
+      "category": "creator",
+      "baseScore": 82,
+      "kind": "nickname",
+      "role": "preference",
+      "origin": "observed community nickname; Steam discussion",
+      "version": 8
+    },
+    {
+      "phrase": "asmonshill",
+      "category": "creator",
+      "baseScore": 82,
+      "kind": "nickname",
+      "role": "preference",
+      "origin": "author preference for creator-directed compound insult spelling",
+      "version": 8
+    },
+    {
+      "phrase": "asmonsimp",
+      "category": "creator",
+      "baseScore": 82,
+      "kind": "nickname",
+      "role": "preference",
+      "origin": "author preference for creator-directed compound insult spelling",
+      "version": 8
+    },
+    {
+      "phrase": "asmontrash",
+      "category": "creator",
+      "baseScore": 82,
+      "kind": "nickname",
+      "role": "preference",
+      "origin": "author preference for creator-directed compound insult spelling",
+      "version": 8
+    },
+    {
+      "phrase": "asmontv",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "Asmongold TV YouTube channel",
+      "version": 8
+    },
+    {
+      "phrase": "baldmongold",
+      "category": "creator",
+      "baseScore": 82,
+      "kind": "nickname",
+      "role": "preference",
+      "origin": "observed community nickname; r/Asmongold",
+      "version": 8
+    },
+    {
+      "phrase": "zackrawr",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "retained spelling preference; Zakrawr explicitly requested by tester",
+      "version": 8
+    },
+    {
+      "phrase": "zackrawrr",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "reported character/channel alias; Dot Esports name-reservation coverage",
+      "version": 8
+    },
+    {
+      "phrase": "zakrawr",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "retained spelling preference; Zakrawr explicitly requested by tester",
+      "version": 8
+    },
+    {
+      "phrase": "zakrawrr",
+      "category": "creator",
+      "baseScore": 0,
+      "kind": "alias",
+      "role": "reference",
+      "origin": "retained spelling preference; Zakrawr explicitly requested by tester",
+      "version": 8
+    },
+    {
+      "phrase": "olmypus",
+      "category": "guild",
+      "baseScore": 0,
+      "kind": "subject",
+      "role": "reference",
+      "origin": "user-requested Olympus guild preference",
+      "version": 9
+    },
+    {
+      "phrase": "olymps",
+      "category": "guild",
+      "baseScore": 0,
+      "kind": "subject",
+      "role": "reference",
+      "origin": "user-requested Olympus guild preference",
+      "version": 9
+    },
+    {
+      "phrase": "olympus",
+      "category": "guild",
+      "baseScore": 0,
+      "kind": "subject",
+      "role": "reference",
+      "origin": "user-requested Olympus guild preference",
+      "version": 9
+    },
+    {
+      "phrase": "olympuss",
+      "category": "guild",
+      "baseScore": 0,
+      "kind": "subject",
+      "role": "reference",
+      "origin": "user-requested Olympus guild preference",
+      "version": 9
+    },
+    {
+      "phrase": "olymups",
+      "category": "guild",
+      "baseScore": 0,
+      "kind": "subject",
+      "role": "reference",
+      "origin": "user-requested Olympus guild preference",
+      "version": 9
+    },
+    {
+      "phrase": "olypmus",
+      "category": "guild",
+      "baseScore": 0,
+      "kind": "subject",
+      "role": "reference",
+      "origin": "user-requested Olympus guild preference",
+      "version": 9
+    }
+  ]
+}

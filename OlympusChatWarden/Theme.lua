@@ -15,15 +15,24 @@ function T.CaptureBadge(host)
     return badge
 end
 T.Icon = "Interface\\AddOns\\OlympusChatWarden\\Media\\IconScroll.tga"
+function T.DocumentFont(text,size)
+    text.ChatWardenFontSize=size or 14
+    local family=_G['ChatWardenFont'..tostring(size or 14)]
+    text.ChatWardenFontFamily=family
+    if family then text:SetFontObject(family);return true end
+    return false
+end
 -- Addon documents and inputs use Blizzard's regular UI font, not the user's
 -- independently styled chat font. Native chat and world labels keep their fonts.
 function T.Body(text)
+    if not T.DocumentFont(text,14) then
     text:SetFontObject(GameFontHighlight or 'GameFontHighlight')
     -- EditBoxes can retain an inherited outline/font override after SetFontObject.
     -- Copy the regular label's actual font and explicitly clear all outline flags.
     local font=GameFontHighlightSmall or GameFontHighlight
     local path=font and font.GetFont and font:GetFont()
     if text.SetFont then text:SetFont(path or 'Fonts\\FRIZQT__.TTF',14,'') end
+    end
     if text.SetShadowOffset then text:SetShadowOffset(0,0) end
     if text.SetSpacing then text:SetSpacing(3) end
     return text
@@ -31,56 +40,96 @@ end
 -- Keep each original/name separate from explanatory UI text. On some clients
 -- Unicode changes the font fallback for an entire EditBox, including Latin
 -- text. Independent sections keep that fallback local to the original.
+local readerColors={
+    paper={body={.20,.14,.09},quote={.15,.11,.07},title={.31,.15,.055},heading={.37,.20,.08},meta={.39,.32,.25},accent={.10,.29,.40},warning={.48,.25,.025},danger={.58,.12,.09},success={.17,.34,.13}},
+    dark={body={.91,.88,.80},quote={.96,.93,.85},title={.91,.77,.58},heading={.91,.77,.58},meta={.68,.68,.68},accent={.4,.75,1},warning={1,.72,.28},danger={1,.4,.34},success={.42,.82,.39}},
+}
+local function DocumentPlain(value)
+    return (value or ''):gsub('|H.-|h(.-)|h','%1'):gsub('|c%x%x%x%x%x%x%x%x',''):gsub('|r',''):gsub('|T.-|t',''):gsub('|A.-|a',''):gsub('|','||')
+end
+function T.ParagraphBlocks(text)
+    local blocks={};local paragraph={}
+    local function Flush()
+        if #paragraph>0 then blocks[#blocks+1]={text=table.concat(paragraph,'\n'),kind='body'};paragraph={} end
+    end
+    for line in ((text or '')..'\n'):gmatch('(.-)\n') do
+        if line:match('^%s*$') then Flush()
+        elseif line:match('^[A-Z][A-Z /&:0-9%-]+$') then
+            Flush();local heading=line:lower():gsub('^%l',string.upper)
+            if line=='OLYMPUS CHATWARDEN' then heading='Welcome to ChatWarden' end
+            blocks[#blocks+1]={text=heading,kind='heading'}
+        elseif line:match('^%d+%. ') then Flush();blocks[#blocks+1]={text=line,kind='body'}
+        elseif line:match('^(Messages):') or line:match('^(Shield):') or line:match('^(Mentions):') or line:match('^(Chat capture):') then
+            Flush();local label,body=line:match('^([^:]+):%s*(.*)$')
+            blocks[#blocks+1]={text=label,kind='accent'};blocks[#blocks+1]={text=body,kind='body',gap=12}
+        else paragraph[#paragraph+1]=line end
+    end
+    Flush();return blocks
+end
 function T.ReadOnlyDocument(scroll)
-    local doc=CreateFrame('Frame',nil,scroll);doc.boxes={};doc.parts={}
-    doc:SetSize(math.max(1,scroll:GetWidth()),math.max(1,scroll:GetHeight()))
-    scroll:SetScrollChild(doc)
+    local doc=CreateFrame('Frame',nil,scroll);doc.boxes={};doc.parts={};doc.blocks={};doc.style='dark'
+    doc:SetSize(math.max(1,scroll:GetWidth()),math.max(1,scroll:GetHeight()));scroll:SetScrollChild(doc)
     local fitting=false
+    local function Apply(box)
+        T.Body(box);local path=box:GetFont()
+        local kind=box.blockKind or 'body';local size=kind=='title' and 22 or kind=='heading' and 18 or kind=='quote' and 15 or kind=='meta' and 12 or 14
+        if not T.DocumentFont(box,size) then box:SetFont(path,size,'') end;if box.SetSpacing then box:SetSpacing(3) end
+        box:SetTextColor(unpack((readerColors[doc.style] or readerColors.dark)[box.blockTone or kind] or readerColors.dark.body))
+    end
     local function Fit()
         if fitting then return end;fitting=true
-        local width=math.max(1,scroll:GetWidth()-8);local y=0
-        doc:SetWidth(width)
-        for i,text in ipairs(doc.parts) do
-            local box=doc.boxes[i]
+        local width=math.max(1,scroll:GetWidth()-8);local y=0;doc:SetWidth(width)
+        for i,block in ipairs(doc.blocks) do
+            local box=doc.boxes[i];local text=box.original or ''
             box:ClearAllPoints();box:SetPoint('TOPLEFT',0,-y);box:SetWidth(width)
-            local path,size,flags=box:GetFont()
-            if path then box.measure:SetFont(path,size,flags) end
+            local path,size,flags=box:GetFont();if not T.DocumentFont(box.measure,size) and path then box.measure:SetFont(path,size,flags) end
+            if box.measure.SetSpacing then box.measure:SetSpacing(3) end
             box.measure:SetWidth(width);box.measure:SetText(text)
             local _,newlines=text:gsub('\n','')
-            local height=math.max((newlines+1)*18,(box.measure:GetStringHeight() or 0)+6)
-            box:SetHeight(height);y=y+height+4
+            local height=math.max((newlines+1)*(size+3),(box.measure:GetStringHeight() or 0)+6)
+            box:SetHeight(height);y=y+height+(block.gap or (block.kind=='heading' and 9 or 14))
         end
         doc:SetHeight(math.max(scroll:GetHeight(),y))
         local offset=scroll:GetVerticalScroll() or 0
-        if offset>math.max(0,doc:GetHeight()-scroll:GetHeight()) then
-            scroll:SetVerticalScroll(math.max(0,doc:GetHeight()-scroll:GetHeight()))
-        end
+        if offset>math.max(0,doc:GetHeight()-scroll:GetHeight()) then scroll:SetVerticalScroll(math.max(0,doc:GetHeight()-scroll:GetHeight())) end
         fitting=false
     end
-    function doc:SetSections(parts)
-        self.parts={}
-        for i,value in ipairs(parts) do
-            local text=(value or ''):gsub('|H.-|h(.-)|h','%1'):gsub('|c%x%x%x%x%x%x%x%x','')
-                :gsub('|r',''):gsub('|T.-|t',''):gsub('|A.-|a',''):gsub('|','||')
+    function doc:SetStyle(style)
+        self.style=readerColors[style] and style or 'dark'
+        for _,box in ipairs(self.boxes) do Apply(box) end;Fit()
+    end
+    function doc:SetBlocks(blocks,sourceText)
+        self.blocks={};self.parts={};self.sourceText=sourceText and DocumentPlain(sourceText)
+        for i,block in ipairs(blocks) do
+            if type(block)=='string' then block={text=block} end
+            local text=DocumentPlain(block.text);self.blocks[i]={text=text,kind=block.kind or 'body',gap=block.gap}
             local box=self.boxes[i]
             if not box then
-                box=CreateFrame('EditBox',nil,self);self.boxes[i]=box
-                box:SetMultiLine(true);box:SetAutoFocus(false);T.TextField(box);T.Ink(box)
-                box.measure=box:CreateFontString(nil,'OVERLAY');T.Body(box.measure)
-                box.measure:SetWordWrap(true);box.measure:Hide()
+                box=CreateFrame('EditBox',nil,self);self.boxes[i]=box;box.ChatWardenNoSpelling=true;box.ChatWardenArtStyled=true
+                box:SetMultiLine(true);box:SetAutoFocus(false);T.TextField(box)
+                box.measure=box:CreateFontString(nil,'OVERLAY');box.measure:SetWordWrap(true);box.measure:Hide()
                 box:SetScript('OnEscapePressed',function(b) b:ClearFocus() end)
-                box:HookScript('OnTextChanged',function(b,user)
-                    if user then b:SetText(b.original or '');T.Body(b) end
-                end)
+                box:HookScript('OnTextChanged',function(b,user) if user then b:SetText(b.original or '');Apply(b) end end)
             end
-            self.parts[i]=text;box.original=text
-            if box:GetText()~=text then box:SetText(text);T.Body(box);box:ClearFocus() end
-            box:Show()
+            self.parts[i]=text;box.original=text;box.blockKind=block.kind or 'body';box.blockTone=block.tone
+            if box:GetText()~=text then box:SetText(text);box:ClearFocus() end
+            Apply(box);box:Show()
         end
-        for i=#parts+1,#self.boxes do self.boxes[i]:Hide();self.boxes[i]:ClearFocus() end
+        for i=#blocks+1,#self.boxes do self.boxes[i]:Hide();self.boxes[i]:ClearFocus() end
         Fit()
     end
-    function doc:GetText() return table.concat(self.parts,'\n') end
+    function doc:SetSections(parts)
+        local blocks={};for _,text in ipairs(parts) do
+            local trimmed=text:match('^%s*(.-)%s*$')
+            local kind=text:match('^\n.+\n$') and 'heading' or 'body'
+            blocks[#blocks+1]={text=kind=='heading' and trimmed or text,kind=kind}
+        end
+        self:SetBlocks(blocks,table.concat(parts,'\n'))
+    end
+    function doc:SetMarkup(index,markup)
+        local box=self.boxes[index];if box then box.original=markup;box:SetText(markup);Apply(box);Fit() end
+    end
+    function doc:GetText() return self.sourceText or table.concat(self.parts,'\n') end
     function doc:ClearFocus() for _,box in ipairs(self.boxes) do box:ClearFocus() end end
     scroll:HookScript('OnSizeChanged',Fit);scroll:HookScript('OnShow',Fit)
     return doc
@@ -133,27 +182,21 @@ end
 local windows, registered, focusHooks = {}, {}, setmetatable({}, {__mode = "k"})
 local restacking, focusRevision = false, 0
 local pendingFocus, deferred = {}, {}
-local currentWindow, switching = nil, false
-local returnWindows = {}
-local function RemoveReturn(frame)
-    for i = #returnWindows, 1, -1 do
-        if returnWindows[i] == frame then table.remove(returnWindows, i) end
+local focused, switching = nil, false
+local popups = setmetatable({}, {__mode = 'k'})
+local function Owner(frame)
+    for _=1,32 do
+        if not frame then return end
+        if registered[frame] then return frame end
+        frame=frame.GetParent and frame:GetParent()
+        if frame==UIParent then return end
     end
 end
-local function Activate(frame)
-    if switching then return end
-    RemoveReturn(frame)
-    if currentWindow and currentWindow ~= frame and currentWindow:IsShown() then
-        returnWindows[#returnWindows + 1] = currentWindow
-        switching = true; currentWindow:Hide(); switching = false
+function T.RegisterPopup(control,close) popups[control]=close end
+local function ClosePopups(except)
+    for control,close in pairs(popups) do
+        if not except or Owner(control)~=except then close() end
     end
-    currentWindow = frame
-end
-local function Closed(frame)
-    if switching or currentWindow ~= frame then return end
-    currentWindow = nil
-    local previous = table.remove(returnWindows)
-    if previous then previous:Show() end
 end
 local deferFrame
 local function AfterClick(callback)
@@ -216,9 +259,10 @@ end
 -- Keep complete window trees in separate, bounded level ranges. Raising only
 -- the root lets an older window's nested controls draw through the new window.
 function T.FocusWindow(root)
-    if restacking or not registered[root] then return end
+    if restacking or switching or not registered[root] or not root:IsShown() then return end
     focusRevision = focusRevision + 1
     restacking = true
+    if focused~=root then ClosePopups(root);focused=root end
     for i, frame in ipairs(windows) do
         if frame == root then table.remove(windows, i); break end
     end
@@ -226,63 +270,73 @@ function T.FocusWindow(root)
     local ok, errorMessage = pcall(function()
         local level = 20
         for _, window in ipairs(windows) do
+          if window:IsShown() then
             local frames, highest = WindowFrames(window)
             -- A complete focused window belongs to a higher strata than every
             -- background window, including native decoration and nested text.
             -- This prevents lower controls from piercing its opaque backing.
             local strata = window == root and "DIALOG" or "HIGH"
             for _, item in ipairs(frames) do
-                -- Lock native decorative children as well as the window root.
-                -- UIParent/template inheritance must not promote an old border
-                -- after our complete-tree ordering has been assigned.
-                if item.frame.SetFixedFrameStrata then item.frame:SetFixedFrameStrata(true) end
-                if item.frame.SetFixedFrameLevel then item.frame:SetFixedFrameLevel(true) end
+                -- Fixed layers reject reassignment on native frames. Unlock
+                -- BEFORE moving them, then lock the completed ordering. Locking
+                -- first left old parchment/controls above the new window while
+                -- its title and border appeared to have moved correctly.
+                if item.frame.SetFixedFrameStrata then item.frame:SetFixedFrameStrata(false) end
+                if item.frame.SetFixedFrameLevel then item.frame:SetFixedFrameLevel(false) end
                 if item.frame:GetFrameStrata() ~= strata then item.frame:SetFrameStrata(strata) end
                 if item.frame:GetFrameLevel() ~= level + item.offset then item.frame:SetFrameLevel(level + item.offset) end
+                if item.frame.SetFixedFrameStrata then item.frame:SetFixedFrameStrata(true) end
+                if item.frame.SetFixedFrameLevel then item.frame:SetFixedFrameLevel(true) end
             end
             level = level + highest + 4
+          end
         end
     end)
     restacking = false
     if not ok and geterrorhandler then geterrorhandler()(errorMessage) end
 end
-function T.RegisterWindow(frame)
+function T.RegisterWindow(frame,external)
     if registered[frame] then return end
-    frame:Hide(); frame:SetFrameStrata("DIALOG")
+    if frame.IsProtected and frame:IsProtected() or frame.IsForbidden and frame:IsForbidden() then return end
+    if not external then frame:Hide();frame:SetFrameStrata("DIALOG") end
     -- Explicit focus management keeps the full tree together. Native automatic
     -- raising on mouse-down would bypass the safe, deferred click lifecycle.
     if frame.SetToplevel then frame:SetToplevel(false) end
-    registered[frame] = true; windows[#windows + 1] = frame
+    registered[frame] = external and 'external' or true; windows[#windows + 1] = frame
     -- Method hooks survive later SetScript calls in individual windows.
     -- OnShow/OnHide hooks do not: Review and Personal install their scripts
     -- after this constructor, wiping the former navigation handlers.
     hooksecurefunc(frame, "Show", function()
         if switching then return end
-        Activate(frame); T.FocusWindow(frame)
+        T.FocusWindow(frame)
     end)
     hooksecurefunc(frame, "Hide", function()
         if switching then return end
-        Closed(frame)
-        if windows[#windows] ~= frame then return end
+        for control,close in pairs(popups) do if Owner(control)==frame then close() end end
+        if focused~=frame then return end
+        focused=nil
         for i = #windows - 1, 1, -1 do
             if windows[i]:IsShown() then T.FocusWindow(windows[i]); break end
         end
     end)
 end
 function T.ShowWindow(frame)
-    -- Hide the previous root before Show runs any window-specific scripts.
-    Activate(frame)
+    if not frame.ChatWardenPlaced then
+        local count=0;for _,other in ipairs(windows) do if other~=frame and other:IsShown() then count=count+1 end end
+        if count>0 then frame:ClearAllPoints();frame:SetPoint('CENTER',UIParent,'CENTER',math.min(count,4)*24,-math.min(count,4)*24) end
+        frame.ChatWardenPlaced=true
+    end
     if frame:IsShown() then T.FocusWindow(frame) else frame:Show() end
 end
 function T.HideAll()
     switching = true
-    returnWindows = {}; currentWindow = nil
+    focused = nil;ClosePopups()
     focusRevision = focusRevision + 1
-    for _, frame in ipairs(windows) do frame:Hide() end
+    for _, frame in ipairs(windows) do if registered[frame]~='external' then frame:Hide() end end
     switching = false
 end
 -- Settings uses Blizzard's own root rather than our portrait-frame stack.
--- Suspend it while a ChatWarden tool is open, then return on Close.
+-- Keep accessible Settings windows in the same stack without closing them.
 function T.BindSettings(panel)
     if ns.Membership and ns.Membership.RegisterSettings then ns.Membership.RegisterSettings(panel) end
     panel:HookScript("OnShow", function()
@@ -290,10 +344,9 @@ function T.BindSettings(panel)
         if not root or not root.HookScript then return end
         if not root.ChatWardenNavigation then
             root.ChatWardenNavigation = true
-            hooksecurefunc(root, "Show", function() Activate(root) end)
-            hooksecurefunc(root, "Hide", function() Closed(root) end)
+            T.RegisterWindow(root,true)
         end
-        Activate(root)
+        T.FocusWindow(root)
     end)
 end
 T.Sources = {{"all", "All sources"}, {"player", "Player chat"}, {"npc", "NPC chat"},
@@ -445,7 +498,6 @@ local actionHelp = {
     ['Report a miss']='Choose a recent message or paste the one the filter missed.',
     ['Report a problem']='Tell us what should have happened to this message. Saving a report alone does not change your filter.',
     ['New rule']='Choose an exact phrase and what you want ChatWarden to do when it appears.',
-    ['Make a rule']='Use this report as a starting point for your own phrase rule. Nothing changes until you save the rule.',
     ['Save personal rule']='Save this phrase and action. The rule will apply to future matching text.',
     ['Delete report']='Delete the selected saved item. Any phrase rule made from a report stays separate. Click again to confirm.',
     ['Save report']='Keep this example on your account. Nothing is sent. A phrase rule is added only if you checked that option.',
@@ -463,7 +515,6 @@ local actionHelp = {
     ['Try preview']='Try a few sample messages using your current filter settings.',
     ['Preview test']='Try a few sample messages using your current filter settings.',
     ['Review messages']='Open Messages to read captured originals. Use its Shield tab to manage players.',
-    ['My reports & rules']='Open your saved feedback and personal phrase rules.',
 }
 function T.ActionHelp(owner,label)
     if actionHelp[label] then T.Tooltip(owner,label,actionHelp[label]) end
@@ -531,6 +582,10 @@ function T.Dropdown(parent, x, y, width, choices, getValue, setValue)
             popup:Show()
         end)
     end
+    T.RegisterPopup(dropdown,function()
+        if popup then popup:Hide() end
+        if dropdown.CloseMenu then ns.SafeCall(dropdown.CloseMenu,dropdown) end
+    end)
     dropdown:Refresh(); return dropdown
 end
 function T.SkinRow(row)

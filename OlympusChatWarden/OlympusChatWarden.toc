@@ -2,17 +2,23 @@
 ## Title: Olympus ChatWarden
 ## Notes: Personal text filtering and wording replacements with inline reveal, review and user reports.
 ## Author: Regretn
-## Version: 0.9.0-rc49
+## Version: 1.0.0
 ## SavedVariables: OlympusChatWardenDB
 ## OptionalDeps: Olympus
-## IconTexture: Interface\AddOns\OlympusChatWarden\Media\IconScroll.tga
+## IconTexture: Interface\AddOns\OlympusChatWarden\Media\V5\Logo.tga
 ## Category: Miscellaneous
 
+Fonts.xml
 Engine.lua
+SpellingMatch.lua
+TypoFilter.lua
 BodyLabels.lua
 Stock.lua
+SubjectPatterns.lua
 GuildRules.lua
 CreatorRules.lua
+DirectedContext.lua
+ContextDecision.lua
 PackCrypto.lua
 TrustedPackKeys.lua
 PackData.lua
@@ -28,8 +34,12 @@ ChatReveal.lua
 ChatFonts.lua
 LanguageDisplay.lua
 Theme.lua
+Art.lua
+ScrollingList.lua
 Notifications.lua
 Review.lua
+Activity.lua
+Mentions.lua
 Shield.lua
 WhisperRepeat.lua
 Spam.lua
@@ -38,6 +48,10 @@ Personal.lua
 PersonalUI.lua
 ReportUI.lua
 ChatCapture.lua
+History.lua
+SpellingDictionary.lua
+Spelling.lua
+SpellingUI.lua
 Export.lua
 ExportUI.lua
 PlayerMenus.lua
@@ -51,6 +65,7 @@ Tooltips.lua
 NameplateRecovery.lua
 Bubbles.lua
 Tutorial.lua
+UpdateUI.lua
 OlympusIntegration.lua
 PacksUI.lua
 ShieldUI.lua
@@ -59,4 +74,6 @@ ShieldOptions.lua
 SpamOptions.lua
 LanguageOptions.lua
 NotificationOptions.lua
+SpellingOptions.lua
 Options.lua
+Workspace.lua

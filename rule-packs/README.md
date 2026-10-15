@@ -1,28 +1,29 @@
-# Optional signed rule packs for Olympus ChatWarden rc49
+# Optional signed packs — 1.0.0
 
-Install Olympus ChatWarden rc49 first. These are optional categories and are not included in the addon ZIP.
+Install Olympus ChatWarden 1.0.0 for these release packages. USA Protection is updated to v5 so mild dumb criticism warns in Balanced. The other seven pack versions are unchanged from alpha12. Only Olympus Protection v9 and King Protection v8 are included with the addon.
 
-1. Open a file from `packs` in a text editor and copy its entire contents.
-2. In WoW, open `/ocw packs`, paste the signed text and verify it.
-3. Review the publisher, category and version, then install and enable it.
+## Import or update
 
-Import each pack separately. Readable JSON models are for reviewing the contents; do not paste the models into the addon. New categories start disabled until enabled. Updates preserve the category's enable state and sensitivity. Updating the addon alone does not update imported packs.
+1. Open the current .ocwpack.txt listed in manifest.json.
+2. Copy the entire raw string. Open Packs > Import signed pack, paste, and Verify pack.
+3. Review publisher/version and install. Enable new categories only if wanted.
+4. Repeat for optional packs you use. Addon installation alone does not update imports. Updates retain category enablement and presets.
 
-| Pack | Version | Scored phrases | Gommage terms | Replacements |
-| --- | --- | --- | --- | --- |
-| Gender and pronoun wording | 6 | 578 | 169 | 0 |
-| Body-label replacements | 6 | 44 | 0 | 46 |
-| Pregnancy and reproductive wording | 6 | 147 | 0 | 0 |
-| Inclusive wording | 6 | 115 | 0 | 0 |
-| DEI and institutional terminology | 6 | 505 | 20 | 0 |
-| Social and political slogans | 6 | 82 | 9 | 0 |
-| Broad contextual phrases | 6 | 142 | 0 | 0 |
-| USA Protection | 1 | 1234 | 17 | 0 |
+Context handling is always active. Topic references have no standalone action; mild support warns in Balanced and stronger advocacy redacts. Criticism, neutral discussion, genuine questions and merely reported wording stay visible. USA Protection has the opposite direction: praise stays visible and recognized directed criticism/attacks may filter. Broad recognizes wider topics and hides eligible expressions without bypassing context.
 
-Gommage masks are separate display preferences and add no wording score. Broad scored rules can independently cover or hide messages. Body-type replacements are also available through the addon's built-in option without a pack.
+Gommage starts off and is the separate literal meme option. All 215 curated masks and 46 replacements are preserved. Topic preferences/masks/replacements cannot automatically Shield senders.
 
-The seven v6 files require model-schema-2 support (rc30 or later). USA Protection requires rc46 or later. rc49 supports all eight. These existing signed files are unchanged; no signature bypasses or client-side vocabulary substitutions are used.
+| Pack | Version | Phrase/topic entries | Statements | Gommage masks | Replacements |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Gender & pronouns | 9 | 417 | 0 | 169 | 0 |
+| Body-label replacements | 7 | 0 | 0 | 0 | 46 |
+| Pregnancy & parenting terminology | 9 | 131 | 0 | 0 | 0 |
+| Inclusive language terminology | 9 | 91 | 0 | 0 | 0 |
+| Workplace & institutional terminology | 9 | 492 | 0 | 20 | 0 |
+| Political slogans | 9 | 86 | 0 | 9 | 0 |
+| Social terminology | 9 | 138 | 0 | 0 | 0 |
+| USA Protection | 5 | 82 | 177 | 17 | 0 |
 
-Publisher: Regretn. Author key ID: `ede248d757db0289`. Signing kits and private keys are not distributed.
+The existing author key ede248d757db0289, RSA-PSS/SHA-256 signature protocol and verify-before-use flow are unchanged. Models are readable for review; import the signed .ocwpack.txt files. No executable payload, private key or signing kit is included.
 
-Copyright (c) 2026 Regretn. All rights reserved. Personal gameplay use is allowed. The author may distribute official files from the OlympusChatWarden repository. Redistribution or modification for redistribution requires permission.
+Copyright (c) 2026 Regretn. All rights reserved. Personal gameplay use is allowed. Official files may be distributed by the author. Redistribution or modification for redistribution requires permission.

@@ -1,0 +1,6 @@
+.work/
+*AuthorSigningKit*
+PRIVATE*/
+*private*.pem
+*PRIVATE*.pem
+__pycache__/

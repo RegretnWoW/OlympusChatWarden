@@ -1,43 +1,37 @@
-# Olympus ChatWarden 0.9.0-rc49
+# Olympus ChatWarden 1.0.0
 
-This public beta adds spam protection, quieter notifications and a more consistent Review & Protection window. It includes the improvements tested after rc41.
+The first 1.0 release combines contextual personal filtering, local contact/spam protection, mention alerts and persistent review. Open from Olympus or `/ocw`; Overview is the default page.
 
-## Spam protection
+## Changes since alpha12
 
-- Hide gold-selling and paid-service ads, including common look-alike characters and website formatting.
-- Hide guild recruitment ads, with exceptions for Olympus guild advertisements.
-- Detect repeated or slightly altered messages: 3 similar messages in 30 seconds triggers a local timeout.
-- Rapid chat uses 5 messages in 10 seconds. The first burst pauses that player's chat for 10 seconds; a second new burst within a minute applies the timeout.
-- Automatic timeout starts at 15 minutes and remains adjustable. Choose which incoming chat channels to check.
-- Ads are hidden quietly by default. Hidden originals remain in Messages; nothing is automatically reported to Blizzard.
+- Match the supplied launch defaults, including Gommage and Capture off.
+- Separate Hidden and Redacted unread notifications. Hidden starts on; Redacted starts off.
+- Make context handling part of the engine. Remove the checkbox and retire `/ocw logic off`; old saved opt-outs cannot bypass questions, quotations or reporting safeguards.
+- Treat “America is dumb” as mild criticism: visible in Mild, warning in Balanced, hidden in Broad. Signed USA Protection v5 updates its authored statement scores. Stock Olympus/King protection uses the same severity distinction.
+- Fix the reported false positive “If USA is so bad why does half the world want to live there?” by recognizing its conditional-question structure. A question mark alone is not an exemption, and separate direct assertions still receive their own decision.
+- Cover redacted text/names with opaque bronze bars. Ctrl + left-click reveal behavior and original text are retained.
+- Preserve the prior masked Olympus-icon, multilingual-name, badge/read-state and saved-history fixes. The eight main artwork atlases are unchanged from alpha12.
 
-## Notifications and Shield
+## Launch defaults
 
-- Separate controls for filtered messages, contact protection, repeated/rapid chat, gold/service ads and recruitment ads.
-- Spam and advertising notifications start off. Filtering and review continue when notifications are disabled.
-- Reading a hidden message clears its unread indicators immediately.
-- One set of Shield protections replaces the Streamer profile. Existing shields, allowed players and channel preferences are retained.
-- Player names with spaces are supported throughout spam checks and player management.
+Filtering, Shield, Mentions and Spam protection start on. Balanced is the main filtering preset and contact profile. Gommage and Chat Capture start off.
 
-## Review and display
+Player chat, chat bubbles, barber/body-type wording, review history, OlympusMute signal tooltips and Balanced incoming typo matching start on. NPC chat, dialogue, vendor labels, talking-head captions, name/nameplate/unit-frame filtering, tooltips, language filtering and typing assistance start off.
 
-- Help and Settings stay in the same bottom-right positions across Messages, Shield and Chat capture. Export stays at the right of each toolbar.
-- Improved panel alignment and removed redundant navigation buttons.
-- Saved reports and export previews use the same newest-first order and report numbers.
-- Separate multilingual originals from explanation text to reduce WoW font fallback affecting the whole report.
-- Improved floating-nameplate Ctrl-click handling. This remains experimental and needs confirmation on the live client.
-- Updated in-game guides and tooltips.
+Mention detection watches the full character name and all supported channels, with close typo matching for custom watch phrases on. Names/nicknames remain exact. Sound and toast start off with a 10-second cooldown. Capture includes whispers and guild/officer chat when recording is enabled.
 
-## Optional signed packs
+Hidden-message alerts start on; redaction alerts start off. Word filtering and contact protection notifications start on. Language-only, spam and advertising notifications start quiet. These switches change alerts, not filtering or saved originals.
 
-All eight current packs are available separately: Gender and pronoun wording v6, Body-label replacements v6, Pregnancy and reproductive wording v6, Inclusive wording v6, DEI and institutional terminology v6, Social and political slogans v6, Broad contextual phrases v6, and USA Protection v1.
+Existing explicit feature choices, captures, watch phrases, dictionaries, imports and history are preserved. The retired context opt-out is the exception: context handling is always active.
 
-Download the rule-pack bundle or an individual `.ocwpack.txt` file. Open `/ocw packs`, paste the complete signed text, verify it, then install and enable the category. Updating the addon does not update imported packs automatically. Only Olympus Protection and King Protection are included in the addon ZIP.
+## Install and update packs
 
-## Install or update
+Fully exit WoW. Extract OlympusChatWarden-v1.0.0.zip into Interface/AddOns so OlympusChatWarden/OlympusChatWarden.toc is directly inside the addon folder. Keep WTF/SavedVariables. Reopen the game.
 
-Download **OlympusChatWarden-v0.9.0-rc49.zip** and replace the OlympusChatWarden folder in `Interface/AddOns`, then reload WoW. Keep SavedVariables to retain preferences, reports, captures and imported packs. GitHub's automatic source archives are not the ready-to-install addon ZIP.
+Optional packs are separate signed imports. If you use USA Protection, open america-v5.ocwpack.txt from the rule-pack archive and use Packs > Import signed pack > Verify pack > Install pack. Updates retain enablement and per-pack presets. The other seven optional pack versions are unchanged from alpha12 and need no reimport if current. Only Olympus Protection and King Protection ship in the addon.
 
-An Olympus guild name is required. The current fallback checks for Olympus as a separate word; it does not prove official affiliation. The official membership API takes priority when available.
+All 215 curated Gommage masks and 46 replacement pairs remain intact. Gommage is a separate literal meme option. Topic preferences, masks and replacements do not automatically shield players.
 
-Validation: 588 automated startup, signed-import, spam, advertising, language, notification and UI checks passed across all 52 Lua modules. All eight signed packs are also checked through the normal verifier and install/restore flow. No live WoW session was available to confirm font rendering or floating-nameplate interaction.
+## Validation
+
+Production Lua checks cover the reported example, all preset contrasts, fresh defaults, existing preference migration, independent alerts, signed import/update verification, topic coverage, masked texture refresh, multilingual names, message feed and persistence. ZIP files are checked against source with CRC and signature validation. Signing keys/kits are excluded. Native login, fonts, texture rendering and live gameplay still need the final in-game check. Packaging does not install the addon or publish it online.

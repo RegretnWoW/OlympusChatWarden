@@ -1,5 +1,8 @@
 -- Inline bars and readable subdued text share the exact same match ranges.
 local _, ns = ...
+-- Same opaque bronze for inline bars and native cover overlays.
+-- Media/Bar.tga stores these RGB bytes so inline textures need no tint API.
+ns.RedactionColor={166/255,108/255,59/255,1}
 local measure, wrapMeasure
 -- Labels refresh often; cache only ephemeral display strings, never decisions.
 local barCache,barOrder,barBytes={}, {},0
@@ -17,11 +20,12 @@ local function Font(owner)
     local fontOwner = owner and owner.GetFont and owner or ChatFontNormal
     local path, size, flags
     if fontOwner and fontOwner.GetFont then path, size, flags = fontOwner:GetFont() end
-    size = ns.SafeNumber(size) or 14
+    size = owner and ns.SafeNumber(owner.ChatWardenFontSize) or ns.SafeNumber(size) or 14
     return path,size,flags
 end
 local function Configure(label,path,size,flags,owner)
-    if ns.CanRead(path) then label:SetFont(path,size,ns.CanRead(flags) and flags or '')
+    if owner and owner.ChatWardenFontFamily then label:SetFontObject(owner.ChatWardenFontFamily)
+    elseif ns.CanRead(path) then label:SetFont(path,size,ns.CanRead(flags) and flags or '')
     elseif ChatFontNormal then label:SetFontObject(ChatFontNormal) end
     if label.SetTextScale and owner and owner.GetTextScale then
         label:SetTextScale(ns.SafeNumber(ns.SafeCall(owner.GetTextScale,owner)) or 1)
@@ -38,7 +42,7 @@ function ns.BarText(original, owner, prefix)
     local spacing=owner and owner.GetSpacing and ns.SafeNumber(ns.SafeCall(owner.GetSpacing,owner)) or 0
     local indent=owner and owner.GetIndentedWordWrap and ns.Checked(ns.SafeCall(owner.GetIndentedWordWrap,owner)) or false
     local key=table.concat({tostring(path),tostring(size),tostring(flags),tostring(available),tostring(wraps),
-        tostring(scale),tostring(nonSpace),tostring(spacing),tostring(indent),tostring(#context),context,original},'\001')
+        tostring(scale),tostring(nonSpace),tostring(spacing),tostring(indent),tostring(owner and owner.ChatWardenFontFamily),tostring(#context),context,original},'\001')
     if barCache[key] then return barCache[key] end
     local height=math.max(6,math.floor(size*0.8+0.5))
     if not measure and UIParent and UIParent.CreateFontString then

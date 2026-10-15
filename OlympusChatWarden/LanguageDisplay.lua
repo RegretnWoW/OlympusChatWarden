@@ -5,6 +5,24 @@ local frames=setmetatable({},{__mode='k'})
 local originals,order,bytes={}, {},0
 local labels,labelOrder,labelBytes={}, {},0
 local Rewrite
+function D.CoveredMarkup(text)
+    return type(text)=='string' and text:lower():find('|tinterface\\addons\\olympuschatwarden\\media\\bar:',1,true)~=nil
+end
+function D.Identity(text)
+    if not ns.CanRead(text) then return end
+    text=text:match('|Hplayer:([^:|]+)') or text
+    if D.CoveredMarkup(text) or text:find('|T',1,true) or text:find('|A',1,true) then return end
+    text=text:gsub('|c%x%x%x%x%x%x%x%x',''):gsub('|r',''):gsub('^%[([^%[%]]+)%]$','%1'):match('^%s*(.-)%s*$')
+    if text=='' or text=='[]' or text=='[ ]' or text=='[redacted]' or text:find('|',1,true) then return end
+    return text
+end
+function D.OriginalLabel(link,label,cached)
+    if D.Identity(cached) then return cached end
+    if not D.CoveredMarkup(label) and D.Identity(label) then return label end
+    local name=D.Identity(link and ('|H'..link..'|h|h'))
+    if not name then return end
+    return label and label:match('^%[') and ('['..name..']') or name
+end
 local function Safe(frame)
     return frame and ns.Readable(frame) and frame~=UIParent
         and not (frame.IsForbidden and frame:IsForbidden()) and not (frame.IsProtected and frame:IsProtected())
@@ -47,7 +65,8 @@ local function NameLabel(link,label,owner)
     if #link>512 or #label>512 then return label end
     local state=labels[link]
     local ours=label:find('|TInterface\\AddOns\\OlympusChatWarden\\Media\\Bar:',1,true)
-    local raw=state and (label==state.display or label==state.raw or ours) and state.raw or label
+    local raw=D.OriginalLabel(link,label,state and (label==state.display or label==state.raw or ours) and state.raw)
+    if not raw then return label end
     local matches=ns.Active('chat') and ns.Find(raw) or {}
     matches=NameMatches(link,raw,matches)
     local masks={};for _,hit in ipairs(matches) do if ns.IsRedacted(hit) then masks[#masks+1]=hit end end
@@ -72,7 +91,7 @@ local function NameLabel(link,label,owner)
     end)
     if not state.recorded and ns.Review then
         -- A covered name is a display result, never a hidden-message alert.
-        ns.Review.Add(raw,masks,{kind='playerName',panel='Chat name',displayOnly=true,nameDisplay=true,sender=link:match('^player:([^:]+)')},
+        ns.Review.Add(raw,masks,{kind='playerName',panel='Chat name',displayOnly=true,nameDisplay=true,nameOriginal=raw,sender=link:match('^player:([^:]+)')},
             'chat-name:'..Hash(link)..':'..Hash(raw),state.display)
         state.recorded=true
     end

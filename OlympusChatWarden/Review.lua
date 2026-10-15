@@ -1,4 +1,4 @@
--- Session-only blocked-message inbox. No chat/player metadata in SavedVariables.
+-- Bounded blocked-message inbox. History.lua saves review evidence per character.
 local _, ns = ...
 local R = {entries = {}, byKey = {}, bytes = 0, nextID = 0,
     MAX_ENTRIES = 200, MAX_BYTES = 1048576, MAX_TEXT = 8192, MAX_MATCHES = 32}
@@ -22,6 +22,21 @@ function ns.SafeCall(fn, ...)
     local ok, value = pcall(fn, ...)
     if ok and ns.Readable(value) then return value end
 end
+function R.IsNameRecord(entry)
+    return entry and (entry.nameDisplay==true or entry.kind=='playerName' or entry.captureSnapshot and entry.captureSnapshot.nameDisplay==true)
+end
+function R.NameOriginal(entry)
+    if not R.IsNameRecord(entry) then return end
+    local D=ns.LanguageDisplay
+    for _,key in ipairs({'nameOriginal','original','sender'}) do
+        local text=entry[key]
+        if D.Identity(text) then return text end
+    end
+end
+function R.DisplayOriginal(entry)
+    if R.IsNameRecord(entry) then return R.NameOriginal(entry) or 'Original name unavailable in this saved record.' end
+    return entry and entry.original
+end
 function ns.SessionTime()
     return ns.SafeNumber(ns.SafeCall(GetTime)) or 0
 end
@@ -35,8 +50,23 @@ function R.TimeLabel(entry)
     end
     return string.format("Session +%.1fs", entry.sessionTime or 0)
 end
+function R.InMessages(entry)
+    if not entry then return false end
+    if entry.action~='Redacted' and entry.action~='Hidden'
+        and entry.action~='Warning' and entry.action~='Replaced' then return false end
+    local category=ns.Notifications and ns.Notifications.Category(entry)
+    return category~='shield' and category~='spam' and category~='advertising' and category~='recruitment'
+end
+function R.ActivityCategory(entry)
+    if R.InMessages(entry) then return 'messages' end
+    local category=ns.Notifications and ns.Notifications.Category(entry)
+    if category=='shield' or category=='spam' or category=='advertising' or category=='recruitment' then return 'shield' end
+    return 'activity'
+end
 function R.IsUnreadAlert(entry)
-    return entry and entry.hiddenMessage == true and entry.action == "Hidden" and not entry.read
+    -- Warnings/replacements are reviewable here, but retain their quiet
+    -- display behavior. Only redactions and hides contribute to this badge.
+    return R.InMessages(entry) and (entry.action=='Redacted' or entry.action=='Hidden') and not entry.read
         and (not ns.Notifications or ns.Notifications.Allows(entry))
 end
 function R.Unread()
@@ -45,6 +75,7 @@ function R.Unread()
     return count
 end
 function R.Notify()
+    if ns.Activity then ns.Activity.SyncReview() end
     if ns.QueueReviewRefresh then ns.QueueReviewRefresh() end
     if ns.OlympusIntegration then ns.OlympusIntegration.UpdateAlerts() end
 end
@@ -78,9 +109,40 @@ function R.Source(entry)
         or entry.npc and (": " .. entry.npc) or "")
 end
 local fields = {"kind", "event", "sender", "guid", "class", "channel", "npc", "questTitle", "panel", "zone", "shieldReason", "spamReason"}
+function R.CanReportPlayer(entry)
+    return entry and entry.kind == "player" and ns.CanRead(entry.sender) and entry.sender ~= ""
+end
+local function ReportLink(entry)
+    local sender = entry.sender:gsub("|", "")
+    local lineID = entry.lineID or 0
+    local link = "|Hplayer:" .. sender .. ":" .. tostring(lineID) .. "|h[" .. sender .. "]|h"
+    ns.Print("Blizzard could not open a report for this saved line. Right-click " .. link .. " and choose Report Player.")
+    return false, "A player link was added to chat. Right-click it and choose Report Player."
+end
+function R.ReportPlayer(entry)
+    if not R.CanReportPlayer(entry) then return false, "Select a player-chat message first." end
+    if not entry.lineID or not (PlayerLocation and PlayerLocation.CreateFromChatLineID
+            and ReportFrame and ReportFrame.InitiateReport and ReportInfo and ReportInfo.CreateReportInfoFromType
+            and Enum and Enum.ReportType and Enum.ReportType.Chat) then
+        return ReportLink(entry)
+    end
+    local ok, opened = pcall(function()
+        local location = PlayerLocation:CreateFromChatLineID(entry.lineID)
+        if not location then return false end
+        if C_ReportSystem and C_ReportSystem.CanReportPlayer
+            and C_ReportSystem.CanReportPlayer(location) == false then return false end
+        local info = ReportInfo:CreateReportInfoFromType(Enum.ReportType.Chat)
+        if not info then return false end
+        ReportFrame:InitiateReport(info, entry.sender, location)
+        return true
+    end)
+    if ok and opened then return true, "Blizzard report window opened." end
+    return ReportLink(entry)
+end
 function R.Add(original, matches, source, key, rendered)
     if not ns.DB or not ns.CanRead(original) or (#matches == 0 and not (source and (source.shield or source.language or source.spam))) then return nil end
     local action, confidence = ns.MatchAction(matches)
+    local wordAction=action
     if source and source.language and ns.Language then
         action=ns.Language.Action(action,source.language)
         if #matches==0 then confidence='Language: '..source.language.confidence end
@@ -96,10 +158,13 @@ function R.Add(original, matches, source, key, rendered)
     local entry = {id = R.nextID, key = key, timestamp = Timestamp(), sessionTime = ns.SessionTime(),
         original = ns.Reports.Clip(original, R.MAX_TEXT), truncated = #original > R.MAX_TEXT,
         originalBytes = #original, matches = {}, matchCount = #matches, score = 0,
-        preset = ns.DB.preset, context = ns.DB.context, read = false, decision = "Unreviewed"}
+        preset = ns.DB.preset, context = true, read = false, decision = "Unreviewed"}
     entry.action, entry.confidence = action, confidence
-    entry.notificationCategory=ns.Notifications and ns.Notifications.Category(source) or nil
+    entry.wordAction=wordAction
+    entry.notificationCategory=ns.Notifications and ns.Notifications.Category(source,wordAction) or nil
     entry.hiddenMessage = source.hiddenMessage == true and action == "Hidden"
+    entry.displayOnly=source.displayOnly==true;entry.nameDisplay=source.nameDisplay==true
+    entry.nameOriginal=entry.nameDisplay and ns.SafeString(source.nameOriginal or original,512) or nil
     entry.addonVersion, entry.ruleVersion = ns.VERSION, ns.RULE_VERSION or "stock-1"
     entry.threshold, entry.exceptionCount = ns.Confidence.Presets[ns.DB.preset], #ns.DB.exceptions
     entry.disabledPacks = {}
@@ -109,7 +174,8 @@ function R.Add(original, matches, source, key, rendered)
     entry.renderedTruncated = ns.CanRead(rendered) and #rendered > R.MAX_TEXT or false
     for _, name in ipairs(fields) do entry[name] = ns.SafeString(source[name], name == "questTitle" and 256 or 128) end
     entry.questID = ns.SafeNumber(source.questID)
-    entry.captureID = "review:" .. tostring(ns.SessionTime()) .. ":" .. entry.id
+    entry.lineID = ns.SafeNumber(source.lineID)
+    entry.captureID = ns.History and ns.History.CaptureID(entry.id) or "review:" .. tostring(ns.SessionTime()) .. ":" .. entry.id
     entry.captureSnapshot = ns.Reports.Snapshot(original, entry.kind, entry.event,nil,source)
     entry.captureSnapshot.actualAction = action
     entry.captureSnapshot.actionRecorded = true
@@ -123,8 +189,9 @@ function R.Add(original, matches, source, key, rendered)
         entry.score = math.max(entry.score, match.score or 0)
         if i <= R.MAX_MATCHES then
             local copy = {score = match.score, threshold = match.threshold, accepted = match.accepted, gommage = match.gommage == true,
-                first=match.first,last=match.last}
-            for _, name in ipairs({"phrase", "pack", "id", "origin", "reason", "replacement", "action"}) do copy[name] = ns.SafeString(match[name], 512) end
+                first=match.first,last=match.last,typo=match.typo==true,typoEdits=match.typoEdits,confidenceScore=match.confidenceScore,policy=match.policy==true,shieldEligible=match.shieldEligible==true}
+            ns.ContextDecision.CopyEvidence(match,copy)
+            for _, name in ipairs({"phrase", "pack", "id", "origin", "reason", "replacement", "action","ruleKind"}) do copy[name] = ns.SafeString(match[name], 512) end
             entry.matches[#entry.matches + 1] = copy
         end
     end
@@ -137,12 +204,12 @@ function R.Add(original, matches, source, key, rendered)
         entry.captureSnapshot.matchCount=#matches
     end
     -- Include strings/metadata in the eviction budget, not only the message body.
-    local bytes = #entry.original + #(entry.rendered or "") + #(entry.key or "")
+    local bytes = #entry.original + #(entry.rendered or "") + #(entry.key or "") + #(entry.nameOriginal or '')
         + #entry.addonVersion + #entry.ruleVersion + #ns.Reports.JSON(entry.captureSnapshot)
         + (entry.language and #ns.Reports.JSON(entry.language) or 0)
     for _, name in ipairs(fields) do bytes = bytes + #(entry[name] or "") end
     for _, match in ipairs(entry.matches) do
-        for _, name in ipairs({"phrase", "pack", "id", "origin", "reason", "replacement", "action"}) do bytes = bytes + #(match[name] or "") end
+        for _, name in ipairs({"phrase", "pack", "id", "origin", "reason", "replacement", "action","stance","strength","certainty","contextCue","detectorType","stanceSource","target"}) do bytes = bytes + #(match[name] or "") end
     end
     entry.bytes = bytes
     while #R.entries >= R.MAX_ENTRIES or R.bytes + bytes > R.MAX_BYTES do
@@ -168,6 +235,7 @@ function ns.ChatReviewSource(event, ...)
         source.class = ns.SafeString(ns.SafeCall(GetPlayerInfoByGUID, source.guid), 128)
     end
     local id = ns.SafeNumber(lineID)
+    source.lineID = id
     -- Chat argument 11 (message included) identifies a line across chat windows.
     local key = id and id > 0 and ("chat:" .. event .. ":" .. tostring(id)) or nil
     return source, key

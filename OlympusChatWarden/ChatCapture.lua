@@ -123,6 +123,18 @@ function C.RemoveBookmark(id)
     end end
 end
 function C.Clear() C.db.entries={};C.bytes=0;C.live={};C.liveReverse={};C.Changed() end
+function C.RemoveRecords(records)
+    local ids={};for _,entry in ipairs(records or {}) do if type(entry)=='table' and ns.SafeNumber(entry.id) then ids[entry.id]=true end end
+    local removed=0
+    for i=#C.db.entries,1,-1 do
+        local entry=C.db.entries[i]
+        if ids[entry.id] then
+            local key=C.liveReverse[entry];if key then C.live[key]=nil;C.liveReverse[entry]=nil end
+            C.bytes=C.bytes-Size(entry);table.remove(C.db.entries,i);removed=removed+1
+        end
+    end
+    if removed>0 then C.Changed() end;return removed
+end
 function C.Records(bookmarks)
     local result={}
     for _,item in ipairs(bookmarks and C.db.bookmarks or C.db.entries) do result[#result+1]=item end

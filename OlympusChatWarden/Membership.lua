@@ -30,12 +30,15 @@ function M.InstallAccessGuards()
     for _, key in ipairs({'MakeDemo','SetPreset','SetPackPreset','SetExceptions','SetRules','SetLauncher',
         'OnLink','CheckWelcome','SetReviewTab','RefreshReview','RefreshCapture','RefreshPersonal','RefreshReportExport','SyncPacks'}) do Guard(ns,key) end
     local actions = {
-        ChatCapture={'SetOption','Record','Bookmark','UpdateBookmark','RemoveBookmark','Clear'},
+        ChatCapture={'SetOption','Record','Bookmark','UpdateBookmark','RemoveBookmark','RemoveRecords','Clear'},
         ChatReports={'Capture','RecordOutcome','OnClick','BuildMenu','OnEvent','Open'}, Notifications={'Set'},
         PlayerMenus={'Add'}, Personal={'SaveRule','ChangeRule','SaveReport','RemoveReport'},
-        Spam={'Set','Observe'}, Shield={'Add','Remove','Allow','Unallow','SetProfile','SetOption','Alert','Prune'},
+        Spam={'Set','Observe'}, Shield={'Add','Remove','Allow','Unallow','SetProfile','SetTuning','SetOption','Alert','Prune'},
+        Spelling={'SetEnabled','SetOption','AddWord','RemoveWord','Ignore','Correct','OpenSuggestions'}, TypoFilter={'Set','SetMode'},
+        Mentions={'Set','SetChannel','Save','Change'},
+        Workspace={'Open','Copy','RuleEditor','ExceptionEditor','ShieldEditor','PackSensitivity','CaptureSettings','MentionSettings','WatchPhrases','BookmarkEditor','SettingsSub'},
         RulePacks={'BeginImport','Commit','Remove','Export','Restore'}, PackUpdates={'Check'},
-        Export={'Batch','Build'}, Reports={'Export'}, Review={'Add'}, Language={'Set','Allow'}, LanguageDisplay={'Toggle'},
+        Export={'Batch','Build','TextPreview'}, Reports={'Export'}, Review={'Add'}, Language={'Set','Allow'}, LanguageDisplay={'Toggle'},
     }
     for name, keys in pairs(actions) do for _, key in ipairs(keys) do Guard(ns[name],key) end end
     Guard(ns.Theme,'ShowWindow',true)

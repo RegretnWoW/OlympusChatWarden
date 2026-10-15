@@ -1,8 +1,8 @@
 -- Notification preferences never change filtering or remove review originals.
 local _,ns=...
 local N={};ns.Notifications=N
-local defaults={badges=true,filtered=true,shield=true,spam=false,advertising=false,recruitment=false,chat=true}
-local categories={filtered=true,shield=true,spam=true,advertising=true,recruitment=true}
+local defaults={badges=true,hidden=true,redacted=false,filtered=true,language=false,shield=true,spam=false,advertising=false,recruitment=false,chat=true}
+local categories={filtered=true,language=true,shield=true,spam=true,advertising=true,recruitment=true}
 function N.Initialize()
     local db=ns.DB.notifications
     if type(db)~='table' then
@@ -19,7 +19,7 @@ function N.Get(key)
     if key=='chat' then return ns.DB and ns.DB.shield and not ns.DB.shield.quiet end
     return defaults[key]==true
 end
-function N.Category(source)
+function N.Category(source,wordAction)
     -- Derive spam before cached categories so rc48 review rows and saved
     -- spam shields also become quiet under the new independent preference.
     local reason=source and source.shieldReason
@@ -30,6 +30,12 @@ function N.Category(source)
     if ns.CanRead(spamReason) then
         return spamReason:find('Rapid-message burst:',1,true) and 'spam' or 'recruitment'
     end
+    -- Older language entries were cached as 'filtered'. Reclassify them too,
+    -- while independent high-confidence wording matches still use word alerts.
+    if source and source.language and (source.language.action=='Hidden' or source.language.action=='Redacted') and not source.shield and not ns.CanRead(reason) then
+        wordAction=wordAction or source.wordAction or source.matches and ns.MatchAction(source.matches)
+        if wordAction~='Hidden' and wordAction~='Redacted' then return 'language' end
+    end
     if source and categories[source.notificationCategory] then
         return source.notificationCategory
     end
@@ -37,7 +43,15 @@ function N.Category(source)
     return 'filtered'
 end
 function N.Allows(entry)
-    return N.Get('badges') and N.Get(N.Category(entry))
+    local category=N.Category(entry)
+    if not N.Get('badges') or not N.Get(category) then return false end
+    if category=='filtered' or category=='language' then
+        local action=entry and entry.action
+        if action=='Hidden' then return N.Get('hidden') end
+        if action=='Redacted' then return N.Get('redacted') end
+        return false -- Warnings and replacements stay quiet in the feed.
+    end
+    return true
 end
 function N.Chat(category)
     return N.Get('chat') and N.Get(category or 'shield')
@@ -48,6 +62,7 @@ function N.Set(key,value)
     ns.DB.notifications[key]=value
     ns.DB.captureAlerts=N.Get('badges');ns.DB.shield.quiet=not N.Get('chat')
     if ns.Review then ns.Review.Notify() end
+    if ns.Activity and ns.DB.shield then ns.Activity.SyncShield() end
     if ns.RefreshReview then ns.RefreshReview() end
     if ns.RefreshNotificationsOptions then ns.RefreshNotificationsOptions() end
     return true

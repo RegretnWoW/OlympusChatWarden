@@ -1,4 +1,4 @@
--- Spam protection: local behavioral spam protection, independent of rule packs.
+-- Private prototype: local behavioral spam protection, independent of rule packs.
 local _,ns=...
 local P={MAX_SENDERS=256,MAX_SEEN=1024,FLOOD_PAUSE=10,FLOOD_ESCALATION=60};ns.Spam=P
 local senders,seen,order={},{},{}
@@ -104,7 +104,7 @@ Domain=function(text)
     end
     return false
 end
-local function AdEvidence(message)
+local function AdEvidence(message,incomingTypos)
     if not ns.CanRead(message) then return {status='unreadable'} end
     if #message>ns.Engine.MAX_TEXT then return {status='oversized'} end
     local text,links=Plain(message)
@@ -112,11 +112,12 @@ local function AdEvidence(message)
         or Domain(text)
     if not link then return {status='no-link',link=false,hyperlinks=links.total,webLinks=links.web,referenceLinks=links.reference} end
     text=text:gsub('https?://%S+',' '):gsub('www%.%S+',' '):gsub('[a-z0-9%-]+%.[a-z]+%S*',' ')
-    local service=Word(text,'gold') or Word(text,'leveling') or Word(text,'levelling')
-        or Word(text,'powerleveling') or Word(text,'boost') or Word(text,'boosting')
-    local sale=Word(text,'buy') or Word(text,'sell') or Word(text,'selling') or Word(text,'wts')
-        or Word(text,'seller') or Word(text,'cheap') or Word(text,'paid') or Word(text,'delivery')
-        or Word(text,'delivered') or Word(text,'refund') or Word(text,'discount')
+    local function Has(word) return Word(text,word) or incomingTypos and ns.TypoFilter.Contains(text,word) end
+    local service=Has('gold') or Has('leveling') or Has('levelling')
+        or Has('powerleveling') or Has('boost') or Has('boosting')
+    local sale=Has('buy') or Has('sell') or Has('selling') or Has('wts')
+        or Has('seller') or Has('cheap') or Has('paid') or Has('delivery')
+        or Has('delivered') or Has('refund') or Has('discount')
         or text:find('%$%s*%d') or text:find('€%s*%d') or text:find('£%s*%d')
         or text:find('%d%s*usd') and Word(text,'usd')
     -- Some sellers describe a managed service without saying "buy" or quoting a price.
@@ -126,10 +127,28 @@ local function AdEvidence(message)
         hyperlinks=links.total,webLinks=links.web,referenceLinks=links.reference,
         status=not service and 'no-service' or not (sale or offer) and 'no-sale-or-offer' or 'match'}
 end
-function P.Advertisement(message)
-    return AdEvidence(message).status=='match'
+function P.Advertisement(message,incomingTypos)
+    return AdEvidence(message,incomingTypos).status=='match'
 end
-function P.Recruitment(message)
+local function RecruitmentVerb(word)
+    local target='recruiting'
+    if word==target then return word end
+    if word:sub(1,3)~='rec' or math.abs(#word-#target)>1 then return word end
+    local i,j,edits=1,1,0
+    while i<=#word and j<=#target do
+        if word:sub(i,i)==target:sub(j,j) then i=i+1;j=j+1
+        else
+            edits=edits+1;if edits>1 then return word end
+            if #word<#target then j=j+1
+            elseif #word>#target then i=i+1
+            elseif word:sub(i,i)==target:sub(j+1,j+1) and word:sub(i+1,i+1)==target:sub(j,j) then i=i+2;j=j+2
+            else i=i+1;j=j+1 end
+        end
+    end
+    if edits+(#word-i+1)+(#target-j+1)<=1 then return target end
+    return word
+end
+function P.Recruitment(message,incomingTypos)
     if not ns.CanRead(message) or #message>ns.Engine.MAX_TEXT then return false end
     local text=Plain(message)
     local tag=text:match('<([^<>\r\n]+)>')
@@ -146,6 +165,12 @@ function P.Recruitment(message)
     -- A guild named "Raid Friends" is not itself evidence of a raid pitch.
     -- Judge the invitation/activity in the body, keeping the tag for identity.
     if named then text=text:gsub('<[^<>\r\n]+>',' ',1) end
+    -- One edit in the recruitment verb (for example "recuiting") is enough
+    -- only after the guild context gate. Normalize before checking negations.
+    text=text:gsub('%a+',function(word)
+        if incomingTypos and word:sub(1,3)=='rec' and ns.TypoFilter.Pair(word,'recruiting') then return 'recruiting' end
+        return RecruitmentVerb(word)
+    end)
     -- Ordinary guild mentions and explicit "not recruiting" statements stay visible.
     if text:find("%f[a-z]not recruiting%f[^a-z]") or text:find("%f[a-z]not currently recruiting%f[^a-z]")
         or text:find("%f[a-z]no longer recruiting%f[^a-z]")
@@ -183,7 +208,7 @@ function P.RecruitmentMatch(event,message,source)
     if not P.Active(event) or not db.recruitment then return false end
     local S=ns.Shield;local key=S.Key(source and source.sender)
     return key~=nil and key~=S.Key(S.UnitName('player')) and not ns.DB.shield.allowed[key]
-        and P.Recruitment(message) or false
+        and P.Recruitment(message,ns.TypoFilter.Allowed(event,source)) or false
 end
 function P.Prune()
     local now=ns.SessionTime()
@@ -213,11 +238,12 @@ function P.Context(event,source,message)
     copy.senderAllowed=key~=nil and ns.DB.shield.allowed[key]~=nil
     copy.visibleChat=ns.DB.shield.visibleChat~=false
     if message then
-        local ad=AdEvidence(message)
+        local incomingTypos=ns.TypoFilter.Allowed(event,source)
+        local ad=AdEvidence(message,incomingTypos)
         copy.adCandidate=ad.status=='match';copy.adStatus=ad.status;copy.adProbeVersion=3
         copy.adLink=ad.link;copy.adService=ad.service;copy.adSale=ad.sale;copy.adOffer=ad.offer
         copy.adHyperlinks=ad.hyperlinks;copy.adWebLinks=ad.webLinks;copy.adReferenceLinks=ad.referenceLinks
-        copy.recruitmentCandidate=P.Recruitment(message)
+        copy.recruitmentCandidate=P.Recruitment(message,incomingTypos)
     end
     copy.status=source and source.filterStatus or not copy.active and 'paused'
         or not key and 'sender-unavailable' or copy.ownSender and 'own-sender'
@@ -293,7 +319,7 @@ function P.Observe(event,message,source,id)
     flood[#flood+1]=now;while #flood>12 do table.remove(flood,1) end
     item.flood=flood
     local reason
-    if db.advertising and P.Advertisement(message) then reason='Sales ad: link plus gold or paid-service wording'
+    if db.advertising and P.Advertisement(message,ns.TypoFilter.Allowed(event,source)) then reason='Sales ad: link plus gold or paid-service wording'
     elseif db.repetition and normalized and similar+1>=db.repeatCount then reason='Repeated messages: '..(similar+1)..' in '..db.repeatWindow..' seconds'
     elseif db.flooding and #flood>=db.count then
         if item.lastBurst and now-item.lastBurst<=P.FLOOD_ESCALATION then

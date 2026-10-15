@@ -5,7 +5,7 @@ local preview,deleteArmed,editing=nil,nil,false
 local lastPaste,wasRestoring
 local importDraft,exportText='',''
 local detailMeasure,previewMeasure
-local choices={{'default','Default (main preset)'},{'off','Off'},{'strict','Selective'},{'balanced','Balanced'},{'aggressive','Broad'},{'maximum','Gommage'}}
+local choices={{'default','Default (main preset)'},{'off','Off'},{'strict','Mild'},{'balanced','Balanced'},{'aggressive','Broad'}}
 local function Text(parent,value,x,y,width,paper)
     local f=parent:CreateFontString(nil,'OVERLAY','GameFontHighlightSmall')
     f:SetPoint('TOPLEFT',x,y); f:SetWidth(width); f:SetJustifyH('LEFT'); f:SetText(value or '')
@@ -36,7 +36,7 @@ end
 local function PreviewText(m)
     return 'SIGNATURE VERIFIED\n\n'..m.title..'\nPublisher: '..m.author..'\nVersion: '..m.version
         ..(m.update and (' (updates '..m.previousVersion..')') or ' (new pack)')
-        ..'\n\n'..m.description..'\n\n'..m.rules..' scored phrases, '..m.gommage..' Gommage terms, '..m.replacements..' replacements.'
+        ..'\n\n'..m.description..'\n\n'..m.rules..' selected phrase/topic entries, '..m.gommage..' Gommage terms, '..m.replacements..' replacements.'
         ..'\nChanges: '..m.added..' added, '..m.removed..' removed, '..m.changed..' changed.'
         ..'\n\nInstalling keeps your personal rules and reports. Choose whether to enable this pack below; a new pack starts off.'
 end
@@ -80,8 +80,8 @@ function ns.SyncPacks()
     stockNote:SetShown(item~=nil and item.stock)
     if item then
         detail:SetText(item.error and ('This saved pack was not loaded.\n\n'..item.error..'\n\nRemove it, then paste a fresh author-issued copy. Personal rules and reports are kept.')
-            or item.stock and (item.title..'\n\nIncluded with ChatWarden. You can turn it off or choose its sensitivity.\n\nOrdinary mentions are kept visible; nearby directed insults or nickname teasing determine the score.\n\nGommage uses the same contextual rules for this stock pack.')
-            or (item.title..'\nVersion '..item.version..' by '..item.author..'\n\n'..item.description..(item.legacyGommage and '\n\nLegacy list retired. Update this pack for Gommage masks; scored rules remain active.' or '')..'\n\n'..item.rules..' scored phrases\n'..item.gommage..' Gommage terms\n'..item.replacements..' replacements\n\nVerified author key: '..item.keyID..'\nPayload SHA-256:\n'..item.digest))
+            or item.stock and (item.title..'\nVersion '..item.version..' | Included with ChatWarden\n\n'..item.rules..' selected phrase/topic entries\n'..item.gommage..' Gommage terms\n'..item.replacements..' replacements\n\nYou can turn this pack off or choose its sensitivity. Ordinary mentions stay visible; context determines the score.\n\nGommage is a separate meme toggle. These stock packs have no literal Gommage lists or replacement entries. Built-in barber/body-label replacements are separate.')
+            or (item.title..'\nVersion '..item.version..' by '..item.author..'\n\n'..item.description..(item.legacyGommage and '\n\nLegacy list retired. Update this pack for Gommage masks; scored rules remain active.' or '')..'\n\n'..item.rules..' selected phrase/topic entries\n'..item.gommage..' Gommage terms\n'..item.replacements..' replacements\n\nVerified author key: '..item.keyID..'\nPayload SHA-256:\n'..item.digest))
         local update=ns.PackUpdates.For(item.id)
         if update then detail:SetText(detail:GetText()..'\n\nUpdate available: v'..update.version..' (catalog bundled with '..ns.PackCatalog.release..').\nUse Get packs link, then paste and verify the updated pack. Your sensitivity and enabled state are kept.') end
     else detail:SetText('Select a pack to change its sensitivity, export its signed text, or remove it.\n\nOlympus and Asmongold are the two stock packs. Import other categories only if you want them.\n\nOff pauses a pack without removing it. Default follows your main preset. Personal phrase rules remain separate.') end
@@ -103,10 +103,7 @@ function ns.OpenPacks(requestedMode)
         T.Muted(Text(window,'Author-signed preferences. Import data, review it, then choose what to enable.',78,-50,732))
         Button(window,'Installed packs',18,-80,156,function() Mode('installed') end)
         Button(window,'Paste import',184,-80,156,function() Mode('import') end)
-        Button(window,'Get packs link',350,-80,156,function()
-            preview=nil; P.CancelPreview(); exportText=ns.PROJECT_URL..'/tree/main/rule-packs'; Mode('export'); Edit(exportText)
-            status:SetText('Copy this GitHub folder link into your browser. Copy the raw contents of one pack file.')
-        end)
+        Button(window,'Get packs link',350,-80,156,function() ns.OpenPacks('download') end)
         ns.PacksStatus=T.Muted(Text(window,'',522,-86,298))
         window.InstalledPane=CreateFrame('Frame',nil,window); window.InstalledPane:SetPoint('TOPLEFT',14,-120); window.InstalledPane:SetSize(812,462)
         local list=T.Panel(window.InstalledPane,0,0,298,462)
@@ -122,7 +119,7 @@ function ns.OpenPacks(requestedMode)
         local paper=T.Panel(window.InstalledPane,310,0,502,462,true)
         local detailScroll=CreateFrame('ScrollFrame',nil,paper,'UIPanelScrollFrameTemplate')
         detailScroll:SetPoint('TOPLEFT',18,-18); detailScroll:SetSize(450,304)
-        detail=CreateFrame('EditBox',nil,detailScroll); detail:SetMultiLine(true); detail:SetAutoFocus(false)
+        detail=CreateFrame('EditBox',nil,detailScroll); detail.ChatWardenNoSpelling=true;detail:SetMultiLine(true); detail:SetAutoFocus(false)
         T.Body(detail); T.Ink(detail); detail:SetSize(418,304); detailScroll:SetScrollChild(detail)
         detailMeasure=detail:CreateFontString(nil,'OVERLAY'); T.Body(detailMeasure); detailMeasure:SetWidth(418); detailMeasure:SetWordWrap(true); detailMeasure:Hide()
         detail:SetScript('OnTextChanged',function(self,userInput)
@@ -148,7 +145,7 @@ function ns.OpenPacks(requestedMode)
         window.PastePane=T.Panel(window,14,-120,812,462,true)
         window.ImportHelp=Text(window.PastePane,'',16,-14,768,true)
         scroll=CreateFrame('ScrollFrame',nil,window.PastePane,'UIPanelScrollFrameTemplate')
-        paste=CreateFrame('EditBox',nil,scroll); paste:SetMultiLine(true); paste:SetAutoFocus(false); paste:SetMaxLetters(140000)
+        paste=CreateFrame('EditBox',nil,scroll);paste.ChatWardenNoSpelling=true; paste:SetMultiLine(true); paste:SetAutoFocus(false); paste:SetMaxLetters(140000)
         T.Body(paste); T.Ink(paste); scroll:SetScrollChild(paste)
         -- Empty/short drafts fill the viewport. Padding around the editor also
         -- focuses it, without covering its caret or the native scrollbar.
@@ -165,7 +162,7 @@ function ns.OpenPacks(requestedMode)
         end)
         window.PreviewScroll=CreateFrame('ScrollFrame',nil,window.PastePane,'UIPanelScrollFrameTemplate')
         window.PreviewScroll:SetPoint('TOPLEFT',16,-188); window.PreviewScroll:SetSize(758,214)
-        window.Preview=CreateFrame('EditBox',nil,window.PreviewScroll); window.Preview:SetMultiLine(true); window.Preview:SetAutoFocus(false)
+        window.Preview=CreateFrame('EditBox',nil,window.PreviewScroll);window.Preview.ChatWardenNoSpelling=true; window.Preview:SetMultiLine(true); window.Preview:SetAutoFocus(false)
         T.Body(window.Preview); T.Ink(window.Preview); window.Preview:SetSize(726,214); window.PreviewScroll:SetScrollChild(window.Preview)
         previewMeasure=window.Preview:CreateFontString(nil,'OVERLAY'); T.Body(previewMeasure); previewMeasure:SetWidth(726); previewMeasure:SetWordWrap(true); previewMeasure:Hide()
         window.Preview:SetScript('OnTextChanged',function(self,userInput)
@@ -194,15 +191,23 @@ function ns.OpenPacks(requestedMode)
             status:SetText(ok and 'Pack installed. Its sensitivity is available on the right.' or err); ns.SyncPacks()
         end)
         status=T.Muted(Text(window,'',18,-597,668))
-        Button(window,'Close',718,-626,106,function() window:Hide() end)
-        T.Muted(Text(window,'Selective: 85 | Balanced: 65 | Broad: 40. Gommage = Broad scoring + display masks; masks never change scores.',18,-637,686))
+        local back=Button(window,ns.Workspace and 'Back to Packs' or 'Close',ns.Workspace and 632 or 718,-626,ns.Workspace and 192 or 106,function()
+            if ns.Workspace then paste:ClearFocus();ns.Workspace.Open('packs') else window:Hide() end
+        end)
+        ns.PackBackButton=back
+        T.Muted(Text(window,'Mild, Balanced and Broad choose actions. Gommage is a separate toggle for curated masks from enabled packs.',18,-637,686))
         window:HookScript('OnShow',ns.SyncPacks); window:HookScript('OnHide',function() paste:ClearFocus() end)
         T.Tooltip(paste,'Pack text','Paste the entire contents of one pack file here. Verify pack checks it before anything is installed.')
         T.Tooltip(sensitivity,'Pack sensitivity','Default follows your main sensitivity. Off pauses this category without removing it.')
         ns.PackPasteBox,ns.PackVerifyButton,ns.PackInstallButton,ns.PackEnableCheckbox=paste,verify,install,enable
-        ns.PackRemoveButton,ns.PackSensitivityDropdown,ns.PackRows=remove,sensitivity,rows
+        ns.PackRemoveButton,ns.PackSensitivityDropdown,ns.PackRows,ns.PackDetailText=remove,sensitivity,rows,detail
     end
     if requestedMode=='import' or requestedMode=='installed' then Mode(requestedMode) end
+    if requestedMode=='download' then
+        preview=nil;P.CancelPreview();exportText=ns.PROJECT_URL..'/tree/main/rule-packs'
+        Mode('export');Edit(exportText);paste:SetFocus();paste:HighlightText()
+        status:SetText('Copy this link into your browser. Open the pack you want and copy its complete raw text into Paste import.')
+    end
     local width,height=UIParent:GetWidth(),UIParent:GetHeight()
     window:SetScale(math.min(1,math.max(0.5,(width-30)/840),math.max(0.5,(height-30)/680)))
     ns.SyncPacks(); T.ShowWindow(window)

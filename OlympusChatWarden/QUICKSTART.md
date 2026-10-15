@@ -1,102 +1,59 @@
-# Quickstart
+# Olympus ChatWarden 1.0 alpha4 quickstart
 
-## Guild access
+Replace the addon folder and retain SavedVariables. Open `/ocw` or use the Olympus launcher; both start on Overview. Explicit feature shortcuts still open their requested pages. This private alpha has one main window: use the sidebar for pages and the horizontal tabs for views. Drag the header to move it; it scales to fit the viewport by default. Use **Settings > Window size** for a saved 50–150% size. Drag the slider, or type a percentage and press Enter/Apply. **Fit to screen** restores automatic sizing.
 
-Filtering requires **Olympus** as a separate word in your current character's
-guild name. This temporary local check is not proof of official affiliation.
-The official Olympus check takes priority when available. Guild changes refresh
-access automatically. Outside a qualifying guild, all ChatWarden features are
-disabled, including recording, reports, exports and pack actions. Open tools
-close and settings lock. `/ocw` explains the restriction. Saved data is kept;
-access and previously enabled recording resume after the character qualifies.
+Lists use the mouse wheel or bronze scrollbar. Scrolling back preserves your place as new entries arrive; search/filter changes return to the top.
 
-## Review filtered chat
+Click the Overview feature icons to enable or pause Filtering, Shield, Capture and Mentions. Header Filtering and Shield icons toggle too; Olympus opens or focuses its launcher. Dim icons with a minus badge indicate an inactive feature. WoW’s AddOns settings has one master switch and a button to open workspace settings.
 
-Open `/ocw inbox`. Select a message to read its original and clear its unread
-badge. Spam and ad notifications start off. Hidden originals still appear here.
-**Settings > ChatWarden > Notifications** controls badges and Shield chat notices.
-**Why filtered?** shows the matched rules. **Report a problem** saves
-feedback; a personal phrase rule changes filtering.
+Open **Updates** for the 1.0 launch tour and feature locations. Blue buttons perform primary actions or select a view; gray buttons navigate or offer utilities; red buttons remove data or protection. Details and Actions are separate framed boxes, and inactive list/document scrollbars stay visible.
 
-## Set contact protection
+Detailed **Settings** use six tabs: Filtering, Languages, Shield, Spam, Notifications and Spelling. Filtering has direct dropdowns for installed pack sensitivity. Mention preferences live at **Mentions > Mention settings**. Spelling has a scrolling personal dictionary. **Updates > User guide** has a topic list and a wide reader.
 
-Open `/ocw shieldoptions`. Shield starts on with one set of contact protections.
-Each protection can be switched off separately.
-Repeated-whisper protection works
-without a word-filter match or chat recording. Replying resets that sender's
-repetition counter.
+## Messages, rules and reports
 
-Use `/ocw shield` to review alerts, add or remove shields and allow players.
-Supported player right-click menus provide the same shortcuts. Allowed players
-bypass Shield; ordinary word filters still apply.
+**Messages** is the filtering feed across all channels, including whispers: warnings, replacements, redactions and hidden messages. Ordinary chat stays out. Warnings/replacements appear quietly; the badge counts unread redactions and hides under your notification preferences. Selecting an entry reads it and updates its badge everywhere. The saved original appears automatically in **Messages**; **Why filtered?** explains the match. **Overview** combines activity and keeps safe previews until **Show original** is chosen. **Shield** holds contact/spam/advertising activity; **Mentions** holds mention activity.
 
-## Record and bookmark chat
+**Rules** contains personal phrase actions, exceptions and replacements. Changes apply to new matching chat; earlier chat lines are not rewritten. **Reports** contains saved filter feedback and its privacy preview. Reports do not change rules. **Report player** opens the native reporting flow for supported player-chat entries; you choose the reason and submit it yourself.
 
-1. Open `/ocw capture` and check the whisper and guild/officer recording switches.
-2. Select **Start capture**. Recording continues across reloads until paused.
-3. Select a captured line, enter a title or note, then **Save bookmark**.
-4. Use **Show > Bookmarks** to review saved incidents.
+The report form puts the original and note beside the issue/action/source controls. Export headings identify the data you are sharing, including **Shield exports**, **Chat Capture exports** and **Bookmark exports**. Entry and privacy choices rebuild the final text; make manual edits last.
 
-Bookmarks include up to 10 already captured lines on each side. Future lines are
-not added. Clearing the rolling capture keeps bookmarks. Limits: 5,000 captured
-lines or 4 MB; 50 bookmarks or 1 MB. Battle.net, NPC and addon traffic are excluded.
+## Mention alerts
 
-Chat-name right-click menus can start or pause capture, open a player's captured
-chat or bookmark the clicked message when that line is in the current capture.
+Open **Mentions > Mention settings**. Your full character name, including the Forever surname, is watched automatically. Add nicknames and literal watch phrases, enable or disable them, and choose their channels. Global channel switches apply to all phrases.
 
-## Export selected records
+Mention badges start on. Sound and toast start off; both are optional and share an adjustable cooldown. Hidden chat, shielded contacts, your own messages and duplicate deliveries do not create mention alerts. Redacted message previews stay redacted. Multiple matching phrases in one message create one entry.
 
-Use **Export shown**, **Export shields** or `/ocw export`. Select entries, choose
-name and note settings, then review the final text. Make manual text edits last:
-changing a selection or privacy option rebuilds the preview. Copy with Ctrl+C.
-Nothing is sent automatically.
+Reading a mention clears its unread state. **Mark all read** clears the current category. Overview and the Olympus launcher share the same counts. Messages, Mentions, contact alerts and read states survive reloads and logins per character, restoring silently. The shared activity stream holds at most 300 entries or 1 MB in memory. **Settings > Activity history** lets you turn remembering off or use confirmed **Clear all history for this character**; rules, reports, captures, bookmarks and protection lists are kept.
 
-## Set language preferences
+## Capture and conversations
 
-Open `/ocw languages`, turn on the master switch and check the languages you read.
+Recording remains opt-in. Open **Capture > Capture settings**, choose whisper and guild/officer coverage, then enable recording. Recent, Bookmarks and Conversations use existing locally captured records. Conversations group incoming and outgoing whispers; they cannot recover chat from before recording began.
 
-- Low defaults to Redact detected text.
-- High defaults to Hide message.
-- Filter player names too starts off.
-- Confidence always runs with a fixed four-letter minimum.
+Select a line or conversation to bookmark, copy or export it. Bookmarks preserve up to 10 already captured lines on each side; future lines are not added. Delete from capture asks for a second click and preserves saved bookmarks. Limits remain 5,000 captured lines or 4 MB and 50 bookmarks or 1 MB. Battle.net, NPC and addon traffic are excluded.
 
-Both dropdowns also offer Label only and Leave visible. Hide removes the whole
-qualifying line, including mixed messages. At least 85% non-preferred readable
-letters uses the High action, even when only the writing system is known.
+## Protection, spelling and packs
 
-Enable name filtering to cover matching names alongside redacted text. English
-and preferred-language replies stay visible with matching names covered. A name
-alone never hides a reply. Label-only and Leave visible results keep names
-readable. Choose Public, Whispers, Group and Guild coverage separately.
+**Settings** contains filtering, language, Shield, spam, notification and spelling controls. **Settings > Shield** offers Balanced protection, Previous defaults or Custom limits for each contact check; Apply saves count/window/timeout together, and Reset defaults restores Balanced without restarting active timers. **Shield** manages contact alerts, timed shields and allowed players. Allowed players bypass Shield; normal word filters still apply. Spam, ads and hidden-language notifications have separate switches and stay quiet by default.
 
-Covered names appear in Messages. Ctrl + left-click reveals or covers them;
-right-click keeps native player actions. Only hidden messages in enabled
-notification categories get unread badges.
-Review and reports explain the detected language/script and selected action rule.
-Exports provide a privacy preview. Protected labels may remain visible.
+Spelling highlights and typing auto-correction remain optional. Right-click a highlighted word to choose a suggestion, add a personal word or ignore it for the session. No correction sends your text.
 
-## Install signed imports
+**Typo-aware incoming filtering** is enabled in Balanced mode once for this private build. Use **Settings > Spelling** to select Balanced/Aggressive or turn it off; later choices survive reload. Balanced protects known words/names and skips ambiguous different guesses. Originals and the selected mode remain in Why filtered? and reports. Typing assistance stays separate.
 
-Open `/ocw packs`, use **Paste import**, then **Verify pack**. Review the result
-and enabled state before **Install pack**. **Get packs link** provides the
-download location. Updates apply to installed packs only and use the catalog
-included with this addon build.
+**Mentions > Mention settings > Match close typos in watch phrases** is an optional extra and starts off. It requires the global typo engine and uses a unique one-edit match. Character names and nicknames stay literal.
 
-`/ocw help` opens the complete in-game guide. Floating-name Ctrl-click is
-experimental and still needs in-game confirmation. Read originals in Messages
-if a covered floating label does not respond.
+**Packs** shows stock and installed signed categories, their phrase/mask/replacement counts, enabled state and sensitivity. Optional packs still require **Paste import > Verify pack > Install pack**. Existing rc60 signed packs remain valid. The packs link is available from Packs; nothing downloads or installs automatically.
 
-## Spam protection
+Shield actions follow the selected player: **Remove shield** ends a stored shield, **End chat pause** ends a brief pause, and **Stop allowing** removes an allowed player. A removed contact can still have historical alerts in Recent alerts; its status reflects the current protection. Adding an already shielded player leaves the existing shield unchanged and explains why.
 
-Open **Shield > Spam protection** in settings. Choose the checks and chat types to use.
+## Copying and sharing
 
-- Rapid chat: 5 messages in 10 seconds. First burst pauses chat for 10 seconds; another new burst within a minute applies the timeout.
-- Repeated messages: 3 similar messages in 30 seconds. Applies the timeout immediately.
-- Gold/service ads: hides the ad and applies the timeout.
-- Guild recruitment: hides the ad; Olympus guild names are exempt.
+Export previews let you choose entries, hide known names, omit notes and add other names to hide. Review and edit the final text, select it, then Ctrl+C. Changing selection or privacy choices rebuilds the text, so make manual edits last. Plain message copies also open a privacy preview. Signed pack copies preserve the author-signed bytes.
 
-Counts and windows are fixed. Automatic timeout starts at 15 minutes and can be changed. All chat types start checked; existing channel choices are retained on upgrade. Use **Remove shield** to end a pause or timeout, or **Allow player** to bypass these checks.
+## Guild access and testing
 
-Spam and ads stay quiet by default. **Notifications** has separate controls for repeated/rapid spam, contact protection, sales ads and recruitment ads. Filtering still runs when notifications are off.
+The current guild must contain Olympus as a separate word, until the official membership API is available. The official check takes priority. Outside qualifying access, all addon features stop and open tools close; saved data is kept.
 
-In Review & Protection, **Help** and **Settings** stay in the same bottom-right positions across all tabs. Export is at the right of each toolbar. Saved reports and their export preview use newest-first order and matching report numbers.
+This build has automated checks and static previews. Test native font wrapping, scrollbars, input focus, viewport scaling and player right-click actions in WoW before treating it as a release candidate. The old experimental body-cover/camera system remains removed; ordinary name redaction is retained.
+
+**Alpha7 controls:** Capture has Start/Pause Capture; Shield and Mentions have Enable/Pause buttons. Their page icons perform the same action. Shield settings show each Balanced default count/window/timeout while Custom limits are edited. Covered names in lists and selected headers can be clicked to reveal or cover them without revealing message content. Pack installation has Back to Packs; the prior search/selection/scroll position and unfinished import draft are kept.

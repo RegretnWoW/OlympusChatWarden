@@ -1,7 +1,7 @@
 local _, ns = ...
 local R, T = ns.Review, ns.Theme
 local window, listTitle, details, detailScroll, rows, previous, nextPage, pageText, sourceDropdown, allowLanguage
-local reportButton, correctButton, reasonButton, detailTitle, footer, savedButton, empty
+local reportButton, reportPlayerButton, correctButton, reasonButton, detailTitle, footer, savedButton, empty
 local selected, page, filter, query, showReasons = nil, 1, "all", "", false
 local queued, clearArmed = false, false
 local messagePage, shieldPage, capturePage, reviewTab, messageTab, shieldTab, captureTab
@@ -33,7 +33,7 @@ function R.Filtered(kind, needle)
 end
 function R.DetailText(entry, reasons, sections)
     if not entry then
-        local text="Read a message\n\nSelect a row on the left. Its original appears here, and its unread badge clears.\n\nCheck a result\n\nWhy filtered? explains the rule. Report a problem saves feedback. Dismiss removes the session entry.\n\nReport a miss\n\nUse Report a miss above, or right-click the player's name in chat."
+        local text="Read a message\n\nSelect a row on the left. Its original appears here, and its unread badge clears.\n\nCheck a result\n\nWhy filtered? explains the rule. Report problem saves ChatWarden feedback. Report player opens Blizzard's flow for player chat. Dismiss removes the saved history entry.\n\nReport a miss\n\nUse Report a miss above, or right-click the player's name in chat."
         return sections and {text} or text
     end
     local name=entry.kind=='playerName' or entry.kind=='targetName' or entry.kind=='npcName'
@@ -43,7 +43,7 @@ function R.DetailText(entry, reasons, sections)
         local identity=entry.sender or entry.npc or entry.questTitle
         if identity then table.insert(lines,2,identity) end
     end
-    if entry.truncated then lines[#lines + 1] = "[Long original shortened in session history]" end
+    if entry.truncated then lines[#lines + 1] = "[Long original shortened in review history]" end
     lines[#lines + 1] = "\nResult\n"
     lines[#lines + 1] = ({Hidden='Hidden from chat.',Redacted='Covered text.',Warning='Visible with a warning.',
         Replaced='Shown with replacement wording.',Unchanged='Kept visible.'})[entry.action] or entry.action
@@ -73,13 +73,15 @@ function R.DetailText(entry, reasons, sections)
     if reasons then
         lines[#lines + 1] = "\nWhy this matched\n"
         if entry.language then lines[#lines+1]=entry.language.reason end
-        local preset = ({maximum = "Gommage", aggressive = "Broad", balanced = "Balanced", strict = "Selective"})[entry.preset] or "Unknown"
+        local preset = ({maximum = "Gommage (legacy)", aggressive = "Broad", balanced = "Balanced", strict = "Mild"})[entry.preset] or "Unknown"
+        local contextual=false;for _,match in ipairs(entry.matches) do if match.contextPolicyVersion==2 then contextual=true;break end end
         if #entry.matches>0 then lines[#lines + 1] = "Preset when received: " .. preset end
         lines[#lines + 1] = entry.spamReason and (entry.spamReason:find('Rapid-message burst:',1,true)
             and 'Spam protection: first rapid-message burst. A second full burst within 60 seconds triggers your automatic timeout.'
             or 'Spam protection: guild recruitment wording. No player timeout or wording score added.')
             or entry.shieldReason and (entry.shieldReason .. ". Contact protection; content score unchanged.")
             or entry.language and ('Wording score: '..(entry.score or 0)..'. Language confidence is separate.')
+            or contextual and ('Display result: '..entry.action..'. Interpretation evidence is listed separately for each match.')
             or "Confidence: " .. (entry.confidence or "Unknown") .. " match strength"
         for i, match in ipairs(entry.matches) do
             local explanation = match.pack == 'language-script' and 'Name matched a non-preferred writing system; no wording score added.'
@@ -89,8 +91,13 @@ function R.DetailText(entry, reasons, sections)
                 or (match.pack == "guild" or match.pack == "creator") and "Name with nearby insulting or teasing wording."
                 or "Phrase matched an enabled category."
             lines[#lines + 1] = i .. ". " .. (match.phrase or "Matched wording") .. " - " .. explanation
+            if match.typo then lines[#lines+1]='Spelling guess: '..entry.original:sub(match.first,match.last)..' -> '..match.phrase..' ('..(match.typoEdits or '?')..' edits). Rule action unchanged.' end
             if match.gommage and match.score == 0 then
                 lines[#lines + 1] = "Category: " .. (match.pack or "unknown") .. "; display only, no confidence contribution."
+            elseif match.policy then
+                lines[#lines+1]='Category: '..(match.pack or 'unknown')..'; '..(match.ruleKind or 'configured rule')..'; action '..(match.action or entry.action)..'.'
+                if match.stance then lines[#lines+1]='Interpretation: '..match.stance..'; expression '..(match.strength or 'unknown')..'; evidence '..(match.certainty or 'unknown')..'. This interpretation is inferred from the wording.' end
+                if match.reason then lines[#lines+1]=match.reason end
             elseif match.threshold then
                 lines[#lines + 1] = "Category: " .. (match.pack or "unknown") .. "; score " .. (match.score or 0) .. "; minimum " .. match.threshold
             end
@@ -100,6 +107,46 @@ function R.DetailText(entry, reasons, sections)
     end
     return sections and lines or table.concat(lines, "\n")
 end
+function R.ReaderBlocks(entry,reasons)
+    if not entry then return {{text='Review filtered chat',kind='title'},{text='Select a message on the left to read its original and result.',kind='body'}} end
+    local verdict=({Hidden='Hidden from chat',Redacted='Text covered',Warning='Visible with a warning',Replaced='Wording replaced',Unchanged='Kept visible'})[entry.action] or entry.action
+    local tone=entry.action=='Hidden' and 'danger' or (entry.action=='Redacted' or entry.action=='Warning') and 'warning' or 'success'
+    local blocks={{text=verdict,kind='title',tone=tone},{text=R.Source({kind=entry.kind})..'  /  '..R.TimeLabel(entry),kind='meta'},
+        {text=(entry.kind=='playerName' or entry.kind=='npcName' or entry.kind=='targetName') and 'Original name or label' or 'Original message',kind='heading'},
+        {text=R.DisplayOriginal(entry),kind='quote'}}
+    if entry.truncated then blocks[#blocks+1]={text='Long original shortened in review history.',kind='meta'} end
+    if entry.restored then blocks[#blocks+1]={text='Saved from an earlier session.',kind='meta'} end
+    local summary=entry.shieldReason or entry.spamReason or entry.language and entry.language.reason
+        or (#entry.matches>0 and (#entry.matches..' wording match'..(#entry.matches==1 and '' or 'es')..' under your saved filtering preferences.'))
+        or 'Your filtering preferences determined this result.'
+    for _,match in ipairs(entry.matches) do if match.contextPolicyVersion==2 and match.stance then
+        local meaning=match.stance=='threat' and 'a recognized explicit threat'
+            or match.stance=='support' and ((match.strength=='strong' and 'strong promotion' or 'mild support')..' of a selected topic')
+            or (match.strength or '')..' directed criticism'
+        summary='Interpreted as '..meaning..' under your selected category preference. Result: '..(match.action or entry.action)..'.'
+        break
+    end end
+    blocks[#blocks+1]={text='Filter summary',kind='heading'};blocks[#blocks+1]={text=summary,kind='body'}
+    local record=Saved(entry)
+    if record then
+        blocks[#blocks+1]={text='Saved feedback',kind='heading'}
+        blocks[#blocks+1]={text=(record.feedback or 'Saved report')..' / Wanted: '..T.Label(T.Actions,record.expectedAction),kind='accent'}
+        if record.note and record.note~='' then blocks[#blocks+1]={text=record.note,kind='body'} end
+    end
+    if reasons then
+        local lines=R.DetailText(entry,true,true);local include=false
+        for _,line in ipairs(lines) do
+            if line:find('Why this matched',1,true) then include=true end
+            if include then
+                local trimmed=line:match('^%s*(.-)%s*$')
+                blocks[#blocks+1]={text=trimmed,kind=line:match('^\n.+\n$') and 'heading'
+                    or trimmed:match('^%d+%. ') and 'accent' or trimmed:match('^Category:') and 'meta'
+                    or trimmed:match('^Preset') and 'meta' or trimmed:match('^Confidence:') and 'meta' or 'body'}
+            end
+        end
+    else blocks[#blocks+1]={text='Choose Why filtered? for individual matches, confidence and spelling evidence.',kind='meta'} end
+    return blocks
+end
 local function UpdateDetails(resetScroll)
     local entry = R.Get(selected)
     if details then
@@ -107,6 +154,7 @@ local function UpdateDetails(resetScroll)
         if resetScroll then detailScroll:SetVerticalScroll(0) end
         detailTitle:SetText(entry and ((entry.kind=='playerName' and 'Original name' or 'Original message').."  |  " .. entry.action) or "Message review")
         reportButton:SetEnabled(entry ~= nil); correctButton:SetEnabled(entry ~= nil); reasonButton:SetEnabled(entry ~= nil)
+        reportPlayerButton:SetEnabled(R.CanReportPlayer(entry) == true)
         reasonButton:SetText(showReasons and "Hide details" or "Why filtered?")
         if allowLanguage then
             allowLanguage:SetShown(entry~=nil and entry.language~=nil)
@@ -180,6 +228,10 @@ function ns.OpenReview(tab)
         messageTab=Button(window,"Messages",120,14,-70,function() ns.SetReviewTab('messages') end)
         shieldTab=Button(window,"Shield",120,144,-70,function() ns.SetReviewTab('shield') end)
         captureTab=Button(window,"Chat capture",120,274,-70,function() ns.SetReviewTab('capture') end)
+        ns.ReviewRulesButton=Button(window,"My rules",120,806,-70,function() ns.OpenPersonal('rules') end)
+        local updates=Button(window,'Updates',100,696,-70,function() ns.OpenUpdates() end)
+        T.Tooltip(updates,'Update notes','Read what changed in this release. These notes open once after updating unless you turn that off.')
+        T.Tooltip(ns.ReviewRulesButton,'My rules','Open your saved phrase rules directly. Rules apply to new matching chat and supported text; existing chat lines are not rewritten.')
         T.Tooltip(captureTab,"Chat capture","Start or pause local recording, save incident bookmarks and choose what to export. Capture starts off.")
         T.Tooltip(shieldTab,"ChatWarden Shield","Review contact alerts and manage shielded or allowed players. Protection settings are in ChatWarden Options.")
         local pages=CreateFrame("Frame",nil,window);pages:SetPoint("TOPLEFT",0,-38);pages:SetPoint("BOTTOMRIGHT",0,0)
@@ -247,13 +299,21 @@ function ns.OpenReview(tab)
         detailScroll = CreateFrame("ScrollFrame", nil, paper, "UIPanelScrollFrameTemplate")
         detailScroll:SetPoint("TOPLEFT", 16, -16); detailScroll:SetPoint("BOTTOMRIGHT", -32, 16)
         details=T.ReadOnlyDocument(detailScroll);ns.ReviewDocument=details
-        correctButton = Button(messagePage, "Dismiss", 145, 376, -577, function()
+        correctButton = Button(messagePage, "Dismiss", 105, 376, -577, function()
             if selected then R.Remove(selected); Select(nil); ns.RefreshReview() end
         end)
         T.Tooltip(correctButton, "Dismiss this message", "Removes it from the session inbox. Saved reports and phrase rules are kept.")
-        reportButton = Button(messagePage, "Report a problem", 185, 531, -577, function()
+        reportButton = Button(messagePage, "Report problem", 135, 486, -577, function()
             local entry = R.Get(selected); if entry then ns.OpenReport(entry, "False positive") end
         end)
+        T.Tooltip(reportButton, "Report a filtering problem", "Saves feedback for ChatWarden. This does not report the player to Blizzard.")
+        reportPlayerButton = Button(messagePage, "Report player", 95, 626, -577, function()
+            local entry = R.Get(selected)
+            local _, status = R.ReportPlayer(entry)
+            footer:SetText(status)
+        end)
+        ns.ReviewReportPlayerButton = reportPlayerButton
+        T.Tooltip(reportPlayerButton, "Report player", "Opens Blizzard's report window for the selected live player-chat message. You still choose the reason and submit the report yourself. Old entries may use a player link in chat instead.")
         footer = T.Muted(Text(messagePage, "GameFontHighlightSmall", 18, -615, 898))
         window:SetScript("OnShow", ns.RefreshReview); Select(nil)
     end

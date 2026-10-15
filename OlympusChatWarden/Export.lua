@@ -45,6 +45,7 @@ local function Names(batch)
         end
     end
     Walk(batch.items)
+    if ns.Activity then Walk(ns.Activity.entries) end
     for _,entry in ipairs(ns.Review.entries) do Add(entry.sender) end
     if ns.ChatCapture and ns.ChatCapture.db then Walk(ns.ChatCapture.db.entries) end
     for _,entry in ipairs(ns.Shield.List()) do Add(entry.name) end
@@ -73,6 +74,10 @@ local function Scrub(text,names)
         if names.tokens[lower] or base and names.tokens[base] then return '[player]' end
         return token
     end))
+end
+function E.TextPreview(text,hideNames,extraNames)
+    if hideNames then return Scrub(text,Names({items={},extraNames=extraNames or ''})) end
+    return text
 end
 function E.Build(batch)
     local names=batch.hideNames and Names(batch) or nil

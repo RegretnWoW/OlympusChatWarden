@@ -1,587 +1,561 @@
 {
-  "schema": 2,
   "id": "language",
-  "title": "Inclusive wording",
+  "title": "Inclusive language terminology",
   "author": "Regretn",
-  "version": 6,
-  "description": "Version 6 (ChatWarden rc30+): Broad scoring unchanged; separate curated Gommage display masks contribute no confidence score. Replaces the retired literal list. Scored phrases and body-label replacements are unchanged from v5.",
+  "schema": 4,
+  "version": 9,
+  "gommage": [],
+  "replacements": [],
+  "statements": [],
+  "stance": "avoid-support",
+  "purpose": "topic",
   "rules": [
     {
-      "origin": "Microsoft style guide; variant where noted in SOURCES.md",
-      "phrase": "inclusive language",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusive terminology",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusive wording",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "bias-free language",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "bias free language",
-      "score": 82
-    },
-    {
-      "origin": "Microsoft style guide; variant where noted in SOURCES.md",
-      "phrase": "bias-free communication",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "bias free communication",
-      "score": 82
-    },
-    {
-      "origin": "CDC communication guides; variant where noted in SOURCES.md",
-      "phrase": "person-first language",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "person first language",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "people-first language",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "people first language",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "identity-first language",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "identity first language",
-      "score": 82
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "inclusive leadership",
-      "score": 70
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "fostering inclusivity",
-      "score": 70
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "people-centered care",
-      "score": 70
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "people centered care",
-      "score": 70
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "person-centered care",
-      "score": 70
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "person centered care",
-      "score": 70
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "sense of belonging",
-      "score": 45
-    },
-    {
-      "phrase": "non-sexist language",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "nonsexist language",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "non sexist language",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "nondiscriminatory language",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "non-discriminatory language",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "bias-aware language",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
       "phrase": "bias aware language",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
     },
     {
-      "phrase": "inclusive communication",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
+      "phrase": "bias free communication",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
     },
     {
-      "phrase": "inclusive communications",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
+      "phrase": "bias free language",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
     },
     {
-      "phrase": "inclusive storytelling",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "inclusive writing",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "inclusive naming",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "inclusive greetings",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "person-first terminology",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "people-first terminology",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "identity-first terminology",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "respectful terminology",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "inclusive accessibility",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "inclusive design",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "origin": "documented spelling/spacing variant of an existing author preference",
-      "phrase": "people-centred care",
-      "score": 70
-    },
-    {
-      "origin": "documented spelling/spacing variant of an existing author preference",
-      "phrase": "people centred care",
-      "score": 70
-    },
-    {
-      "origin": "documented spelling/spacing variant of an existing author preference",
-      "phrase": "person-centred care",
-      "score": 70
-    },
-    {
-      "origin": "documented spelling/spacing variant of an existing author preference",
-      "phrase": "person centred care",
-      "score": 70
-    },
-    {
-      "phrase": "inclusive localization",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclusive localisation",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclusive dialogue",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclusive dialog",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gender-inclusive dialogue",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gender-inclusive dialog",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gender inclusive dialogue",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gender inclusive dialog",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "identity-affirming language",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "identity affirming language",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclusive character language",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclusive player language",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclusive player terminology",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gender-neutral player terminology",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive language",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive language",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive terminology",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive terminology",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive wording",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive wording",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive leadership",
-      "score": 70,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive leadership",
-      "score": 70,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive communication",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive communication",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive communications",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive communications",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive storytelling",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive storytelling",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive writing",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive writing",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive naming",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive naming",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive greetings",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive greetings",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive design",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive design",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive localization",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive localization",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive localisation",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive localisation",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive dialogue",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive dialogue",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive dialog",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive dialog",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gendre-inclusive dialogue",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gneder-inclusive dialogue",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gender-inclsuive dialogue",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gender-inlcusive dialogue",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gendre-inclusive dialog",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gneder-inclusive dialog",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gender-inclsuive dialog",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gender-inlcusive dialog",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gendre inclusive dialogue",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gneder inclusive dialogue",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gender inclsuive dialogue",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gender inlcusive dialogue",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gendre inclusive dialog",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gneder inclusive dialog",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+      "phrase": "fostering inclusivity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
     },
     {
       "phrase": "gender inclsuive dialog",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "gender inclsuive dialogue",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "gender inclusive dialog",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "gender inclusive dialogue",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
     },
     {
       "phrase": "gender inlcusive dialog",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
     },
     {
-      "phrase": "inclsuive character language",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive character language",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive player language",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive player language",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive player terminology",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive player terminology",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gendre-neutral player terminology",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gneder-neutral player terminology",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "gender-nuetral player terminology",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+      "phrase": "gender inlcusive dialogue",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
     },
     {
       "phrase": "gender-neutal player terminology",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "gender-neutral player terminology",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "gender-nuetral player terminology",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "gendre inclusive dialog",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "gendre inclusive dialogue",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "gendre-neutral player terminology",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "gneder inclusive dialog",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "gneder inclusive dialogue",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "gneder-neutral player terminology",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "identity affirming language",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "identity first language",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "identity-first terminology",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive character language",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive communication",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive communications",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive design",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive dialog",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive dialogue",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive greetings",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive language",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "inclsuive leadership",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive localisation",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive localization",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive naming",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive player language",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive player terminology",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive storytelling",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive terminology",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "inclsuive wording",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "inclsuive writing",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive accessibility",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive character language",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive communication",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive communications",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive design",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive dialog",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive dialogue",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive greetings",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive language",
+      "score": 0,
+      "origin": "Microsoft style guide; variant where noted in SOURCES.md",
+      "role": "topic"
+    },
+    {
+      "phrase": "inclusive leadership",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive localisation",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive localization",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive naming",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive player language",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive player terminology",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive storytelling",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive terminology",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "inclusive wording",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "inclusive writing",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive character language",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive communication",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive communications",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive design",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive dialog",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive dialogue",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive greetings",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive language",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "inlcusive leadership",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive localisation",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive localization",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive naming",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive player language",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive player terminology",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive storytelling",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive terminology",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "inlcusive wording",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "inlcusive writing",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "non sexist language",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "nondiscriminatory language",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "people centered care",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "people centred care",
+      "score": 0,
+      "origin": "documented spelling/spacing variant of an existing author preference",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "people first language",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "people-first terminology",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "person centered care",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "person centred care",
+      "score": 0,
+      "origin": "documented spelling/spacing variant of an existing author preference",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "person first language",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "person-first terminology",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "respectful terminology",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "sense of belonging",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
     }
   ],
-  "replacements": [],
-  "gommage": []
+  "description": "Contextual personal topic preference. A reference alone has no action. With Context on, neutral discussion, questions, quotations and criticism stay visible. Mild support warns in Balanced; stronger promotion redacts. Broad hides eligible unwanted expressions. Wider references require Broad. Original Gommage meme masks remain separate. Requires alpha12 or later."
 }

@@ -2,8 +2,24 @@
 local _, ns = ...
 local S={alerts={},capabilities={}};ns.Shield=S
 S.Profiles={
+    balanced={title='Balanced protection',whispers={3,120,600},repeatedWhispers={6,30,600},trades={4,60,300},duels={4,60,300},invites={4,60,300}},
     normal={title='Normal Harassment',whispers={3,120,600},repeatedWhispers={6,30,600},trades={4,600,900},duels={4,120,600},invites={4,600,900}},
 }
+S.RuleKinds={'trades','duels','invites','whispers','repeatedWhispers'}
+S.RuleTitles={trades='Trade requests',duels='Duel requests',invites='Group invites',whispers='Strong-wording whispers',repeatedWhispers='Repeated whispers'}
+local function ValidRule(rule)
+    if type(rule)~='table' then return false end
+    for i,range in ipairs({{2,20},{10,600},{60,3600}}) do
+        local v=ns.SafeNumber(rule[i]);if not v or v%1~=0 or v<range[1] or v>range[2] then return false end
+    end
+    return rule[3]%60==0
+end
+function S.GetRule(kind)
+    local db=ns.DB and ns.DB.shield
+    if db and db.profile=='custom' and db.custom and ValidRule(db.custom[kind]) then return db.custom[kind] end
+    local preset=db and S.Profiles[db.profile] or S.Profiles.balanced
+    return (preset or S.Profiles.balanced)[kind]
+end
 local contacts,counts,seen,seenOrder,pending={},{},{},{},{}
 local MAX=512
 local function Clock() return ns.SafeNumber(ns.SafeCall(GetServerTime)) or ns.SafeNumber(ns.SafeCall(time)) end
@@ -77,7 +93,7 @@ function S.Initialize()
     if type(db)~='table' then db={} end
     ns.DB.shield=db
     if type(db.enabled)~='boolean' then db.enabled=true end
-    if not S.Profiles[db.profile] then db.profile='normal' end
+    if not S.Profiles[db.profile] and db.profile~='custom' then db.profile='balanced' end
     for _,key in ipairs({'whispers','repeatedWhispers','trades','duels','invites','visibleChat','bubbles'}) do
         if type(db[key])~='boolean' then db[key]=true end
     end
@@ -87,6 +103,15 @@ function S.Initialize()
     if db.defaultsVersion~=2 then
         db.enabled=true;db.profile='normal';db.quiet=false;db.defaultsVersion=2
         ns.DB.olympusMuteSignal=true
+    end
+    if db.tuningV1~=true then
+        if db.profile=='normal' then db.profile='balanced' end
+        db.tuningV1=true
+    end
+    local custom=type(db.custom)=='table' and db.custom or {};db.custom={}
+    for _,kind in ipairs(S.RuleKinds) do
+        local r=ValidRule(custom[kind]) and custom[kind] or S.Profiles.balanced[kind]
+        db.custom[kind]={r[1],r[2],r[3]}
     end
     local allowed={};local n=0
     for key,name in pairs(type(db.allowed)=='table' and db.allowed or {}) do
@@ -127,19 +152,23 @@ function S.List()
     end
     table.sort(list,function(a,b) return a.key<b.key end);return list
 end
-function S.IsShielded(name)
-    if not S.Active() then return false end
+function S.HasShield(name)
     local key=S.Key(name);local item=key and contacts[key];local now=Clock()
     return item and not ns.DB.shield.allowed[key] and (item.expires==0 or now and item.expires>now) or false
 end
+function S.IsShielded(name)
+    return S.Active() and S.HasShield(name) or false
+end
 function S.Alert(name,kind,message)
     local now=ns.SessionTime();local last=S.alerts[1]
-    if last and last.name==name and last.kind==kind and last.message==message and now-last.at<30 then
-        last.count=last.count+1;last.at=now
+    if last and last.at and last.name==name and last.kind==kind and last.message==message and now-last.at<30 then
+        last.count=last.count+1;last.at=now;last.timestamp=Clock();last.activityEvicted=nil
     else
-        table.insert(S.alerts,1,{name=name,kind=kind,message=message,at=now,count=1})
+        S.nextAlertID=(S.nextAlertID or 0)+1
+        table.insert(S.alerts,1,{id=S.nextAlertID,name=name,kind=kind,message=message,at=now,timestamp=Clock(),count=1})
         if #S.alerts>200 then table.remove(S.alerts) end
     end
+    if ns.Activity then ns.Activity.SyncShield() end
     if ns.RefreshShield then ns.RefreshShield() end
 end
 function S.Add(name,duration,reason)
@@ -147,6 +176,7 @@ function S.Add(name,duration,reason)
     local key=S.Key(name);local now=Clock()
     if not key or key==S.Key(S.UnitName('player')) then return false,'Enter a player name, with realm if needed.' end
     if ns.DB.shield.allowed[key] then return false,'Remove this player from Allowed first.' end
+    if S.HasShield(name) then return false,'This player is already shielded. Remove the existing shield before adding a different duration.' end
     if duration~='session' and duration~=0 and (not ns.SafeNumber(duration) or duration<1 or not now) then return false,'Invalid duration or unavailable clock.' end
     local n=0;for _ in pairs(contacts) do n=n+1 end
     if not contacts[key] and n>=MAX then return false,'Shield list is full. Remove an entry first.' end
@@ -158,10 +188,11 @@ function S.Add(name,duration,reason)
     return true
 end
 function S.Remove(name)
-    local key=S.Key(name);if not key then return end
+    local key=S.Key(name);if not key then return false,'Enter a valid player name.' end
     contacts[key]=nil;counts[key]=nil;Save();Changed()
     if ns.WhisperRepeat then ns.WhisperRepeat.Reset(name) end
     if ns.Spam then ns.Spam.Reset(name) end
+    return true,'Shield removed. This player can contact you again.'
 end
 function S.Allow(name)
     local key=S.Key(name);if not key then return false,'Enter a valid player name.' end
@@ -178,10 +209,23 @@ function S.Reset(name,kind)
     local key=S.Key(name);if key and counts[key] then counts[key][kind]=nil end
 end
 function S.SetProfile(profile)
-    if not S.Profiles[profile] then return end
+    if not S.Profiles[profile] and profile~='custom' then return end
     ns.DB.shield.profile=profile;counts={};pending={};Changed()
     if ns.WhisperRepeat then ns.WhisperRepeat.Reset() end
     if ns.Spam then ns.Spam.Reset() end
+end
+function S.SetTuning(profile,rules)
+    if profile~='balanced' and profile~='custom' and profile~='normal' then return false,'Choose a protection preset.' end
+    local copy={}
+    if profile=='custom' then
+        for _,kind in ipairs(S.RuleKinds) do
+            local rule=type(rules)=='table' and rules[kind]
+            if not ValidRule(rule) then return false,S.RuleTitles[kind]..': use 2–20 triggers, 10–600 seconds and 1–60 timeout minutes.' end
+            copy[kind]={rule[1],rule[2],rule[3]}
+        end
+        ns.DB.shield.custom=copy
+    end
+    S.SetProfile(profile);return true,'Protection settings saved. Existing shield expiry times are unchanged.'
 end
 function S.SetOption(key,value)
     if key=='quiet' and ns.Notifications then return ns.Notifications.Set('chat',not value) end
@@ -194,7 +238,7 @@ function S.Observe(kind,name)
     local key=S.Key(name)
     if not key or key==S.Key(S.UnitName('player')) or ns.DB.shield.allowed[key] then return false end
     if S.IsShielded(name) then return true end
-    local rule=S.Profiles[ns.DB.shield.profile][kind];if not rule then return false end
+    local rule=S.GetRule(kind);if not rule then return false end
     local now=ns.SessionTime()
     if not counts[key] then
         local n=0;local oldest,at
@@ -223,7 +267,7 @@ function S.ObserveWhisper(message,source,key)
     if not S.Active('whispers') then return end
     -- Gommage-only masks contribute zero. Replacements are not harassment signals.
     for _,match in ipairs(ns.Find(message)) do
-        if not match.replacement and (match.score or 0)>=80 then S.Observe('whispers',source.sender);return end
+        if match.shieldEligible==true and not match.replacement and match.accepted~=false and (match.score or 0)>=80 then S.Observe('whispers',source.sender);return end
     end
 end
 function S.FilterChat(event,message,...)

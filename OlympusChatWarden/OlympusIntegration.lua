@@ -42,6 +42,7 @@ local function Badge(host)
     return alertHosts[host]
 end
 function I.HasNewCaptures()
+    if ns.Activity then return ns.Activity.Unread()>0 end
     return ns.Review and ns.Review.Unread() > 0 or false
 end
 function I.UpdateAlerts()
@@ -79,10 +80,166 @@ local function Loaded()
     for _, name in ipairs(names) do if _G[name] then return true end end
     return false
 end
+-- Open through Olympus's public minimap button. A shown window only needs
+-- focus: invoking its toggle in that case would close the user's launcher.
+function I.Available()
+    if not Loaded() then return false end
+    for _,name in ipairs(names) do if SafeFrame(_G[name]) then return true end end
+    local b=_G.OlympusMinimapButton
+    return SafeFrame(b) and b.GetScript and type(b:GetScript('OnClick'))=='function' or false
+end
+function I.ValidIconTexture(value)
+    local number=ns.SafeNumber(value)
+    if number then return number>0 and number%1==0 and number<=2147483647 end
+    if not ns.CanRead(value) or #value>512 or value:find('[%c|:]') or value:find('..',1,true) then return false end
+    value=value:gsub('/','\\')
+    -- Native getters can return internal handles such as "mask0". They are
+    -- not file paths; SetTexture(handle) can assert in the client, outside Lua.
+    return value:lower():match('^interface\\[^\\]+\\.+')~=nil
+end
+local function ReadIcon(icon)
+    if not icon then return end
+    for _,method in ipairs({'GetTextureFilePath','GetTexture','GetTextureFileID'}) do
+        local value=ns.SafeCall(icon[method],icon)
+        if I.ValidIconTexture(value) then return value end
+    end
+end
+function I.IconTexture()
+    local button=_G.OlympusMinimapButton
+    -- Reading a public texture is safe even when the owning button is protected.
+    -- Some releases expose it as a normal texture rather than .icon.
+    if button and ns.Readable(button) and not (button.IsForbidden and button:IsForbidden()) then
+        local regions={button.icon,button.Icon,ns.SafeCall(button.GetNormalTexture,button)}
+        -- ipairs cannot traverse nil holes in the public fields above.
+        for index=1,3 do
+            local icon=regions[index]
+            local texture=ReadIcon(icon)
+            if type(texture)=='string' and texture~='' or ns.SafeNumber(texture) and texture>0 then return texture,'minimap' end
+        end
+        if button.GetRegions then
+            local found={pcall(button.GetRegions,button)}
+            if found[1] then for index=2,math.min(#found,18) do
+                local region=found[index];local texture=ReadIcon(region)
+                if type(texture)=='string' and texture:lower():find('olympus',1,true)
+                    and texture:lower():find('logo',1,true) then return texture,'minimap region' end
+            end end
+        end
+    end
+    local api=C_AddOns and C_AddOns.GetAddOnMetadata or GetAddOnMetadata
+    local metadata=ns.SafeCall(api,'Olympus','IconTexture')
+    if ns.CanRead(metadata) and metadata~='' then
+        metadata=metadata:gsub('/','\\')
+        if (metadata:find('\\',1,true) or metadata:match('%.%w+$')) and not metadata:lower():find('^interface\\') then
+            metadata='Interface\\AddOns\\Olympus\\'..metadata
+        end
+        if I.ValidIconTexture(metadata) then return metadata,'metadata' end
+    end
+    -- Public Olympus.toc IconTexture; reference its installed asset, never copy it.
+    -- https://github.com/dnl-gentile/olympus-addon/blob/main/Olympus/Olympus.toc
+    if not button and not Loaded() then return nil,'Olympus unavailable' end
+    return 'Interface\\AddOns\\Olympus\\media\\logo128.tga','installed logo128'
+end
+function I.ApplyIcon(texture)
+    -- Keep a bundled fallback ready for an explicit native load failure.
+    if not texture.ChatWardenFallback and texture.GetParent then
+        local parent=texture:GetParent()
+        if parent and parent.CreateTexture then
+            local fallback=parent:CreateTexture(nil,'ARTWORK',nil,0)
+            ns.Art.SetIcon(fallback,'olympus');fallback:SetAllPoints(texture)
+            texture.ChatWardenFallback=fallback
+        end
+    end
+    if texture.ChatWardenFallback then texture.ChatWardenFallback:Show() end
+    -- Copy the loaded public minimap icon first. Metadata may point at a file
+    -- absent from an older Olympus install, so never leave a failed load blank.
+    local lastResult,lastReadBack,requested
+    local function Load(path)
+        if not I.ValidIconTexture(path) then lastResult='invalid texture reference';return false end
+        if type(path)=='string' then path=path:gsub('/','\\') end
+        if type(path)=='string' and path:lower():match('^interface\\addons\\olympus\\media\\logo%d+$') then path=path..'.tga' end
+        requested=path
+        if texture.ChatWardenOlympusTexture==path then
+            lastResult='unchanged';lastReadBack=ReadIcon(texture);return true
+        end
+        local ok,loaded=pcall(texture.SetTexture,texture,path)
+        lastResult=ok and (type(loaded)=='boolean' and tostring(loaded) or type(loaded)) or 'error'
+        texture.ChatWardenOlympusTexture=nil
+        if not ok or loaded==false then return false end
+        texture.ChatWardenOlympusTexture=path
+        lastReadBack=ReadIcon(texture)
+        -- This client's custom-file getters can be absent/unreported. A void
+        -- SetTexture result is not a failed load of the verified installed logo.
+        -- Do not overwrite a valid lion texture with our fallback just because
+        -- its read-back is unavailable.
+        return true
+    end
+    local candidate,source=I.IconTexture()
+    local loaded=candidate~=nil and Load(candidate) or false
+    if not loaded and candidate~=nil then
+        candidate='Interface\\AddOns\\Olympus\\media\\logo128.tga'
+        loaded=Load(candidate)
+    end
+    local function SaveDiagnostic()
+        if not ns.DB then return end
+        if type(ns.DB.uiDiagnostics)~='table' then ns.DB.uiDiagnostics={} end
+        ns.DB.uiDiagnostics.olympusIcon={source=I.IconSource,requested=ns.SafeString(requested,512) or ns.SafeNumber(requested),
+            setResult=lastResult,readBack=ns.SafeString(lastReadBack,512) or ns.SafeNumber(lastReadBack) or 'unreported',
+            fallback=not loaded,nativeFontFamilies=_G.ChatWardenFont14~=nil,addonVersion=ns.VERSION}
+    end
+    if not loaded then
+        I.IconSource='bundled fallback'
+        SaveDiagnostic()
+        -- The primary texture may already have its portrait mask. Its atlas
+        -- coordinates cannot be changed, even when the native load fails.
+        -- The independent, unmasked fallback owns its own atlas crop.
+        if texture.ChatWardenFallback then texture:Hide()
+        elseif not texture.ChatWardenOlympusMasked then ns.Art.SetIcon(texture,'olympus');texture:Show() end
+        return false
+    end
+    I.IconSource=source or 'installed logo'
+    if texture.ChatWardenFallback then texture.ChatWardenFallback:Hide() end
+    texture.ChatWardenArt=nil;texture.ChatWardenIconBox=nil
+    -- SetTexCoord is forbidden after SetMask on this client. Configure the
+    -- full image once, before attaching our mask, and retain it on refresh.
+    if not texture.ChatWardenOlympusMasked then
+        texture:SetTexCoord(0,1,0,1)
+        if texture.SetMask then
+            texture.ChatWardenOlympusMasked=pcall(texture.SetMask,texture,'Interface\\CharacterFrame\\TempPortraitAlphaMask')
+        end
+    end
+    texture:Show();texture:SetVertexColor(1,1,1,1)
+    if texture.SetDrawLayer then texture:SetDrawLayer('OVERLAY',1) end
+    SaveDiagnostic()
+    return true
+end
+function I.Open()
+    if InCombatLockdown and InCombatLockdown() then return false,'Open Olympus after combat.' end
+    local hidden
+    for _,name in ipairs(names) do
+        local f=_G[name]
+        if SafeFrame(f) then
+            if f:IsShown() then ns.Theme.RegisterWindow(f,true);ns.Theme.FocusWindow(f);return true end
+            hidden=hidden or f
+        end
+    end
+    local b=_G.OlympusMinimapButton
+    local click=SafeFrame(b) and b.GetScript and b:GetScript('OnClick')
+    if click and not (IsShiftKeyDown and IsShiftKeyDown()) then
+        local ok=pcall(click,b,'LeftButton')
+        if not ok then return false,'Olympus could not open its launcher.' end
+    elseif hidden then hidden:Show()
+    else return false,'Olympus launcher is unavailable. Enable Olympus and reload.' end
+    local function Focus()
+        for _,name in ipairs(names) do local f=_G[name]
+            if SafeFrame(f) and f:IsShown() then ns.Theme.RegisterWindow(f,true);ns.Theme.FocusWindow(f);return end
+        end
+    end
+    Focus();if C_Timer and C_Timer.After then C_Timer.After(0,Focus) end;return true
+end
 function I.Status()
-    if I.IsActive() then return "Olympus tab ready. Left-click for Review; right-click for Settings." end
-    if Loaded() then return "Open Olympus once to create the ChatWarden tab. /ocw also opens setup." end
-    return "Olympus required. Use /ocw for setup while installing/updating it."
+    if I.IsActive() then return "Olympus tab ready. Left-click for Overview; right-click for Settings." end
+    if Loaded() then return "Open Olympus once to create the ChatWarden tab. /ocw opens Overview." end
+    return "Olympus required. Use /ocw to open ChatWarden while installing/updating it."
 end
 local function Queue()
     if queued then return end
@@ -103,6 +260,9 @@ local function Place(record)
     button:SetFrameLevel(level + 12)
     -- Below the 62px portrait, above the left column's bottom-up native tabs.
     button:ClearAllPoints(); button:SetPoint("TOPRIGHT", root, "TOPLEFT", 0, -76)
+end
+local function OpenHome()
+    if ns.Workspace then ns.Workspace.Open('overview') else ns.OpenReview() end
 end
 local function MakeTab(root)
     local ok, button = pcall(CreateFrame, "CheckButton", nil, root, "RightSideTabTemplate")
@@ -131,11 +291,11 @@ local function MakeTab(root)
         I.AcknowledgeAlerts()
         if mouse == "RightButton" then
             if SlashCmdList.OLYMPUSCHATWARDEN then SlashCmdList.OLYMPUSCHATWARDEN("options") end
-        else ns.OpenReview() end
+        else OpenHome() end
         self:SetChecked(false) -- launcher, not an Olympus page selection
     end
     if native then button:HookScript("OnClick", Click) else button:SetScript("OnClick", Click) end
-    ns.Theme.Tooltip(button, ns.NAME, "Left-click: Review messages. Right-click: ChatWarden settings. Select messages in Review to dismiss their alerts.")
+    ns.Theme.Tooltip(button, ns.NAME, "Left-click: Overview. Right-click: ChatWarden settings. Select messages in Messages to dismiss their alerts.")
     return button
 end
 function I.Install()
@@ -214,8 +374,8 @@ function I.AttachLauncher(parent, anchor, point, relativePoint, x, y)
     if not manual then
         manual = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate"); manual:Hide()
         manualHost = parent; manual:SetSize(110, 24); manual:SetText("ChatWarden")
-        manual:SetScript("OnClick", function() I.AcknowledgeAlerts(); ns.OpenReview() end)
-        ns.Theme.Tooltip(manual, ns.NAME, "Open Review messages. Settings: /ocw.")
+        manual:SetScript("OnClick", function() I.AcknowledgeAlerts(); OpenHome() end)
+        ns.Theme.Tooltip(manual, ns.NAME, "Open Overview. Settings: /ocw settings.")
     end
     manual:ClearAllPoints(); manual:SetPoint(point, anchor, relativePoint, x, y)
     manual:SetFrameLevel(math.max(parent:GetFrameLevel(), anchor:GetFrameLevel()) + 2)

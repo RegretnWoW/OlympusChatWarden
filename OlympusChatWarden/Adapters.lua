@@ -534,7 +534,7 @@ local function BarberLabel(button)
         badge:SetPoint("TOP", button, "BOTTOM", 0, -3)
         local texture = badge:CreateTexture(nil, "BACKGROUND")
         texture:SetAllPoints()
-        texture:SetColorTexture(0, 0, 0, 1)
+        texture:SetColorTexture(unpack(ns.RedactionColor))
         local label = badge:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
         label:SetAllPoints(); label:SetTextColor(0.69, 0.71, 0.73)
         badge:EnableMouse(false); badge:RegisterForClicks("LeftButtonUp")
@@ -619,8 +619,9 @@ for _, event in ipairs(npcEvents) do npcLookup[event] = true end
 function ns.ChatFilter(frame, event, message, ...)
     local source, key = ns.ChatReviewSource(event, ...)
     local capture=ns.ChatReports and ns.ChatReports.Capture(event,message,source.sender,select(10,...))
+    local safePreview
     local function Record(action,info,diagnostic)
-        if capture then ns.ChatReports.RecordOutcome(capture,action,info or source,diagnostic) end
+        if capture then ns.ChatReports.RecordOutcome(capture,action,info or source,diagnostic,safePreview) end
     end
     local shielded,shieldSource
     if ns.Shield then shielded,shieldSource=ns.Shield.FilterChat(event,message,...) end
@@ -628,7 +629,7 @@ function ns.ChatFilter(frame, event, message, ...)
     if not ns.Active(npcLookup[event] and "npc" or "chat") or not ns.CanRead(message) then
         Record('Unchanged',shieldSource);return false
     end
-    local matches = ns.Find(message)
+    local matches = ns.Find(message,ns.TypoFilter.Allowed(event,source),source)
     local language = ns.Language and ns.Language.Check(message,event,source)
     if source.kind=='player' and ns.Language and ns.Language.NamesActive() and ns.ChatReports then
         -- Resolve the final native name label against this exact original before
@@ -652,7 +653,7 @@ function ns.ChatFilter(frame, event, message, ...)
         nextChatRevealKey = nextChatRevealKey + 1
         lineKey = "chat-render:" .. nextChatRevealKey
     end
-    key = key or ns.ChatFallbackKey(event, message, source)
+    key = key or capture and capture.deliveryKey or ns.ChatFallbackKey(event, message, source)
     local frameName = frame and frame.GetName and ns.SafeString(ns.SafeCall(frame.GetName, frame), 128) or tostring(frame)
     local revealKey = lineKey .. ":" .. (frameName or "chat") .. ":" .. tostring(ns.PolicyRevision)
     local rendered = action == "Hidden" and "[Hidden - original available in review inbox]"
@@ -663,6 +664,9 @@ function ns.ChatFilter(frame, event, message, ...)
     if wordAction == "Warning" then rendered = ns.RenderWarning(rendered) end
     if language and language.action == "Warning" then rendered = "|cffb0b5bb[Language: " .. language.label .. "]|r " .. rendered end
     local retained
+    safePreview=action=='Hidden' and '[Hidden message]' or ns.Engine.Render(message,displayMatches,function(original,match)
+        return match.replacement or (ns.IsRedacted(match) and '[redacted]' or original)
+    end)
     if ns.Review then
         local preview = action == "Hidden" and rendered or ns.Engine.Render(message, displayMatches, function(original, match)
             return match.replacement or (ns.IsRedacted(match) and "[redacted]" or original)

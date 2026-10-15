@@ -8,7 +8,8 @@ function R.Reset(name)
 end
 function R.Prune()
     local now=ns.SessionTime()
-    for key,item in pairs(senders) do if now-item.last>30 then senders[key]=nil end end
+    local rule=ns.Shield.GetRule('repeatedWhispers');local window=rule and rule[2] or 30
+    for key,item in pairs(senders) do if now-item.last>window then senders[key]=nil end end
 end
 function R.Normalize(text)
     text=text:gsub('|H.-|h(.-)|h','%1'):gsub('|c%x%x%x%x%x%x%x%x',''):gsub('|r',''):gsub('|T.-|t',''):gsub('|A.-|a','')
@@ -47,7 +48,7 @@ function R.Observe(message,name)
     local key=S.Key(name)
     if not key or key==S.Key(S.UnitName('player')) or ns.DB.shield.allowed[key] or S.IsShielded(name) then return false end
     local text,long=R.Normalize(message);if not text then return false end
-    local rule=S.Profiles[ns.DB.shield.profile].repeatedWhispers;local now=ns.SessionTime()
+    local rule=S.GetRule('repeatedWhispers');local now=ns.SessionTime()
     if not senders[key] then
         local count,oldest,at=0,nil,nil
         for id,item in pairs(senders) do count=count+1;if not at or item.last<at then oldest,at=id,item.last end end

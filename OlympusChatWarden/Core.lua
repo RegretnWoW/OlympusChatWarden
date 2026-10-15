@@ -1,5 +1,5 @@
 local ADDON_NAME, ns = ...
-ns.NAME, ns.VERSION = "Olympus ChatWarden", "0.9.0-rc49"
+ns.NAME, ns.VERSION = "Olympus ChatWarden", "1.0.0"
 ns.TAGLINE = "CHUDS WITHOUT BORDERS"
 ns.REPORT_URL = "https://github.com/RegretnWoW/OlympusChatWarden/issues"
 ns.PROJECT_URL = "https://github.com/RegretnWoW/OlympusChatWarden"
@@ -30,27 +30,29 @@ function ns.Active(scope)
         and ns.Membership and ns.Membership.Allowed()
 end
 
-function ns.Find(text)
+function ns.Find(text,incomingTypos,source)
     if not ns.CanRead(text) or #text > ns.Engine.MAX_TEXT then
         ns.Stats.skipped = ns.Stats.skipped + 1
         return {}
     end
-    if cache[text] then
+    incomingTypos=incomingTypos==true and ns.DB.typoFiltering==true
+    local key=incomingTypos and ('typo:'..ns.TypoFilter.Revision..':'..ns.TypoFilter.Mode()..':'..ns.TypoFilter.Identity(source)..':'..text) or text
+    if cache[key] then
         ns.Stats.cacheHits = ns.Stats.cacheHits + 1
-        return cache[text]
+        return cache[key]
     end
     ns.Stats.scans = ns.Stats.scans + 1
-    local matches, report, err = ns.Confidence.Analyze(ns.Matcher, text, ns.DB, ns.ExceptionMatcher)
+    local matches, report, err = ns.Confidence.Analyze(ns.Matcher, text, ns.DB, ns.ExceptionMatcher,incomingTypos,source)
     if err then ns.Stats.skipped = ns.Stats.skipped + 1 end
-    if cacheBytes + #text > 262144 or cacheRecords + #matches > 8192 then
+    if cacheBytes + #key > 262144 or cacheRecords + #matches > 8192 then
         cache, order, cursor, cacheBytes, cacheRecords = {}, {}, 1, 0, 0
     end
     local previous = order[cursor]
     if previous then
         cacheBytes = cacheBytes - #previous; cacheRecords = cacheRecords - #cache[previous]; cache[previous] = nil
     end
-    order[cursor], cache[text] = text, matches
-    cacheBytes = cacheBytes + #text
+    order[cursor], cache[key] = key, matches
+    cacheBytes = cacheBytes + #key
     cacheRecords = cacheRecords + #matches
     cursor = cursor % 128 + 1
     return matches
@@ -59,8 +61,10 @@ end
 function ns.PolicyChanged()
     ns.PolicyRevision = ns.PolicyRevision + 1
     cache, order, cursor, cacheBytes, cacheRecords = {}, {}, 1, 0, 0
+    if ns.TypoFilter then ns.TypoFilter.Invalidate() end
     if ns.Language then ns.Language.Invalidate() end
     if ns.Spam then ns.Spam.Reset() end
+    if ns.Spelling then ns.Spelling.Reset() end
     if ns.ChatFonts then ns.ChatFonts.Refresh() end
     if ns.Initializing then return end
     if ns.Matcher and ns.RefreshUI then ns.RefreshUI(true) end
@@ -72,17 +76,23 @@ function ns.PolicyChanged()
 end
 
 function ns.SetPreset(preset)
-    preset = ({selective = "strict", broad = "aggressive", all = "maximum", gommage = "maximum", ["all listed terms"] = "maximum"})[preset] or preset
-    if not ns.Confidence.Presets[preset] then return false, "Choose selective, balanced, broad, or gommage." end
+    preset = ({mild='strict',selective = "strict", broad = "aggressive", all = "maximum", gommage = "maximum", ["all listed terms"] = "maximum"})[preset] or preset
+    if preset=='maximum' then ns.DB.gommage=true;preset=ns.DB.preset=='strict' and 'strict' or ns.DB.preset=='aggressive' and 'aggressive' or 'balanced' end
+    if not ns.Confidence.Presets[preset] then return false, "Choose mild, balanced, or broad. Gommage is a separate toggle." end
     ns.DB.preset = preset; ns.PolicyChanged(); return true
+end
+function ns.SetGommage(value)
+    if type(value)~='boolean' then return false end
+    ns.DB.gommage=value;ns.PolicyChanged();return true
 end
 function ns.SetPackPreset(pack, preset)
     local known
     for _, name in ipairs(ns.PackNames) do if name == pack then known = true end end
     if not known then return false, "Unknown category." end
-    preset = ({selective = "strict", broad = "aggressive", all = "maximum", gommage = "maximum"})[preset] or preset
+    preset = ({mild='strict',selective = "strict", broad = "aggressive", all = "maximum", gommage = "maximum"})[preset] or preset
+    if preset=='maximum' then ns.DB.gommage=true;ns.DB.gommagePacks=ns.DB.gommagePacks or {};ns.DB.gommagePacks[pack]=true;preset='aggressive' end
     if preset ~= "default" and preset ~= "off" and not ns.Confidence.Presets[preset] then
-        return false, "Choose default, off, selective, balanced, broad, or gommage."
+        return false, "Choose default, off, mild, balanced, or broad."
     end
     ns.DB.disabledPacks[pack] = preset == "off"
     ns.DB.packPresets[pack] = ns.Confidence.Presets[preset] and preset or nil
@@ -110,8 +120,8 @@ end
 function ns.Status()
     ns.Print(ns.NAME .. " v" .. ns.VERSION .. " - " .. (ns.Active() and "active" or "paused"))
     ns.Print(ns.Membership.Status())
-    local label = ({maximum = "Gommage", aggressive = "Broad", balanced = "Balanced", strict = "Selective"})[ns.DB.preset]
-    ns.Print("Preset: " .. label .. "; " .. #ns.Personal.rules .. " personal rules; " .. #ns.Personal.reports .. " saved reports.")
+    local label = ({aggressive = "Broad", balanced = "Balanced", strict = "Mild"})[ns.DB.preset]
+    ns.Print("Preset: " .. label .. (ns.DB.gommage and '; Gommage on' or '; Gommage off').."; " .. #ns.Personal.rules .. " personal rules; " .. #ns.Personal.reports .. " saved reports.")
     local overrides = 0
     for _, pack in ipairs(ns.PackNames) do if ns.DB.packPresets[pack] then overrides = overrides + 1 end end
     ns.Print(overrides .. " category preset overrides. Configure with /ocw categories.")
@@ -133,11 +143,12 @@ function ns.SetLauncher(mode)
 end
 
 function ns.Initialize()
+    if ns.History then ns.History.Flush() end
     ns.Initializing = true
     ns.Membership.InstallAccessGuards()
     if type(OlympusChatWardenDB) ~= "table" then OlympusChatWardenDB = {} end
     ns.DB = OlympusChatWardenDB
-    local defaults={enabled=true,chat=true,npc=false,barber=true,bubbles=true,captureAlerts=true,olympusMuteSignal=true,languageEnabled=false,
+    local defaults={enabled=true,chat=true,npc=false,barber=true,bubbles=true,captureAlerts=true,olympusMuteSignal=true,languageEnabled=false,typoFiltering=false,
         dialogue=false,vendor=false,nameplates=false,targetNames=false,tooltips=false,
         playerNames=false,npcNames=false,talkingHead=false,history=true,context=true}
     for key,default in pairs(defaults) do
@@ -145,11 +156,29 @@ function ns.Initialize()
         if type(ns.DB[key]) ~= "boolean" then ns.DB[key] = default end
     end
     ns.DB.worldNames, ns.DB.olympusText = nil, nil -- retired adapters; reports retain captured policy
+    if ns.DB.typoFilteringV1~=true then ns.DB.typoFiltering=false;ns.DB.typoFilteringV1=true end
+    -- Keep the incoming-matching migration from earlier builds; later choices persist.
+    if ns.DB.typoFilteringPrivateV2~=true then ns.DB.typoFiltering=true;ns.DB.typoFilteringMode='balanced';ns.DB.typoFilteringPrivateV2=true end
+    if ns.DB.typoFilteringMode~='aggressive' then ns.DB.typoFilteringMode='balanced' end
+    if type(ns.DB.workspaceScale)~='number' or ns.DB.workspaceScale~=ns.DB.workspaceScale or ns.DB.workspaceScale<.5 or ns.DB.workspaceScale>1.5 then ns.DB.workspaceScale=nil end
     if type(ns.DB.talkingHead) ~= "boolean" then ns.DB.talkingHead = false end
     if type(ns.DB.history) ~= "boolean" then ns.DB.history = true end
     ns.DB.minimap, ns.DB.minimapAngle = nil, nil
-    if not ns.Confidence.Presets[ns.DB.preset] then ns.DB.preset = "aggressive" end
-    if type(ns.DB.context) ~= "boolean" then ns.DB.context = true end
+    if type(ns.DB.gommagePacks)~='table' then ns.DB.gommagePacks={} end
+    if type(ns.DB.gommage)~='boolean' then
+        local legacyGlobal=ns.DB.preset=='maximum';local any=legacyGlobal
+        for _,value in pairs(type(ns.DB.packPresets)=='table' and ns.DB.packPresets or {}) do if value=='maximum' then any=true end end
+        ns.DB.gommage=any
+        if any then for _,pack in ipairs(ns.RulePacks.Order) do
+            local value=type(ns.DB.packPresets)=='table' and ns.DB.packPresets[pack]
+            ns.DB.gommagePacks[pack]=(value or (legacyGlobal and 'maximum' or 'balanced'))=='maximum'
+        end end
+    end
+    if ns.DB.preset=='maximum' then ns.DB.preset='aggressive' end
+    if not ns.Confidence.Presets[ns.DB.preset] then ns.DB.preset = "balanced" end
+    -- Context interpretation is part of the engine. Retain this field for
+    -- older report readers, but retire the saved opt-out and its UI control.
+    ns.DB.context = true
     if type(ns.DB.disabledPacks) ~= "table" then ns.DB.disabledPacks = {} end
     for _, pack in ipairs(ns.RulePacks.Order) do
         local value = ns.DB.disabledPacks[pack]
@@ -160,7 +189,7 @@ function ns.Initialize()
     local saved = type(ns.DB.packPresets) == "table" and ns.DB.packPresets or {}
     ns.DB.packPresets = {}
     for _, pack in ipairs(ns.RulePacks.Order) do
-        if ns.Confidence.Presets[saved[pack]] then ns.DB.packPresets[pack] = saved[pack] end
+        if ns.Confidence.Presets[saved[pack]] then ns.DB.packPresets[pack] = saved[pack]=='maximum' and 'aggressive' or saved[pack] end
     end
     ns.DB.olympusIntegration = true
     ns.Membership.Refresh()
@@ -170,9 +199,14 @@ function ns.Initialize()
     if ns.OlympusMuteSignal then ns.OlympusMuteSignal.Initialize() end
     if ns.Shield then ns.Shield.Initialize() end
     if ns.Notifications then ns.Notifications.Initialize() end
+    if ns.Activity then ns.Activity.Initialize() end
+    if ns.Mentions then ns.Mentions.Initialize() end
     if ns.Language then ns.Language.Initialize() end
     if ns.Personal then ns.Personal.Initialize() end
     if ns.ChatCapture then ns.ChatCapture.Initialize() end
+    if ns.Spelling then ns.Spelling.Initialize() end
+    if ns.History then ns.History.Initialize() end
+    ns.DB.playerCover = nil -- retired body-cover experiment; ordinary name filtering remains
     ns.Initializing = false
     if ns.Membership.Allowed() then ns.RulePacks.Restore() else ns.PacksSuspended = true end
 end
@@ -193,6 +227,7 @@ events:SetScript("OnEvent", function(_, event, loaded)
     if ns.BuildMinimap then ns.BuildMinimap() end
     if ns.OlympusIntegration then ns.OlympusIntegration.Refresh() end
     if ns.CheckWelcome then ns.CheckWelcome(event) end
+    if ns.CheckUpdateScreen then ns.CheckUpdateScreen(event) end
     if ns.QueueScan then
         local reset = event == "QUEST_DETAIL" or event == "QUEST_PROGRESS" or event == "QUEST_COMPLETE"
             or event == "GOSSIP_SHOW" or event == "QUEST_GREETING" or event == "TALKINGHEAD_REQUESTED"

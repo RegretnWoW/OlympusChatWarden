@@ -1,2538 +1,9 @@
 {
-  "schema": 2,
   "id": "institutional",
-  "title": "DEI and institutional terminology",
+  "title": "Workplace & institutional terminology",
   "author": "Regretn",
-  "version": 6,
-  "description": "Version 6 (ChatWarden rc30+): Broad scoring unchanged; separate curated Gommage display masks contribute no confidence score. Replaces the retired literal list. Scored phrases and body-label replacements are unchanged from v5.",
-  "rules": [
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity equity and inclusion",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity, equity, and inclusion",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity, equity and inclusion",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity equity inclusion",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity diversity and inclusion",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity, diversity, and inclusion",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity, diversity and inclusion",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity and inclusion",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity & inclusion",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity and inclusion",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity & inclusion",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity and equity",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity & equity",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusion and belonging",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity equity inclusion and belonging",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity, equity, inclusion, and belonging",
-      "score": 82
-    },
-    {
-      "origin": "CDC communication guides; variant where noted in SOURCES.md",
-      "phrase": "equity-centered communication",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity centered communication",
-      "score": 82
-    },
-    {
-      "origin": "CDC communication guides; variant where noted in SOURCES.md",
-      "phrase": "equity-centered approach",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity centered approach",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "anti-racist policy",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "antiracist policy",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "anti-racism training",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "antiracism training",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "anti-racist education",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "antiracist education",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "anti-oppression training",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "anti oppression training",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "anti-oppressive practice",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "anti oppressive practice",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "intersectional feminism",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "intersectional approach",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "intersectional lens",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "intersectional analysis",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "systemic oppression",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "structural oppression",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "systems of oppression",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "systems of privilege",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "unconscious bias training",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "implicit bias training",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "check your privilege",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "examine your privilege",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "acknowledge your privilege",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "unpack your privilege",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "dismantle the patriarchy",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "smash the patriarchy",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "dismantle systemic racism",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "decolonize the curriculum",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "decolonise the curriculum",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "decolonize your mind",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "decolonise your mind",
-      "score": 82
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity training",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity initiative",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity initiatives",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity officer",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity office",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity committee",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity council",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity framework",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity strategy",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity statement",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity workshop",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity audit",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "diversity goals",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity training",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity initiative",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity initiatives",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity officer",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity office",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity committee",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity council",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity framework",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity strategy",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity statement",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity workshop",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity audit",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "equity goals",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusion training",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusion initiative",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusion initiatives",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusion officer",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusion office",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusion committee",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusion council",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusion framework",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusion strategy",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusion statement",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusion workshop",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusion audit",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "inclusion goals",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "dei training",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "dei initiative",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "dei initiatives",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "dei officer",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "dei office",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "dei committee",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "dei council",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "dei framework",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "dei strategy",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "dei statement",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "dei workshop",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "dei audit",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "dei goals",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "belonging training",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "belonging initiative",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "belonging initiatives",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "belonging officer",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "belonging office",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "belonging committee",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "belonging council",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "belonging framework",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "belonging strategy",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "belonging statement",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "belonging workshop",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "belonging audit",
-      "score": 74
-    },
-    {
-      "origin": "proposed test candidate",
-      "phrase": "belonging goals",
-      "score": 74
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "community diversity",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "community equity",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "cultural competence",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "cultural sensitivity",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "culturally appropriate",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "culturally responsive",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "diverse backgrounds",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "diverse communities",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "diverse community",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "diverse group",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "diverse groups",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "enhance the diversity",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "enhancing diversity",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "equal opportunity",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "health disparity",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "health equity",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "hispanic minority",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "implicit biases",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "increase diversity",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "increase the diversity",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "indigenous community",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "race and ethnicity",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "racial diversity",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "racial identity",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "racial inequality",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "promote diversity",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "promoting diversity",
-      "score": 65
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "confirmation bias",
-      "score": 45
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "cultural differences",
-      "score": 45
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "cultural heritage",
-      "score": 45
-    },
-    {
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "phrase": "hate speech",
-      "score": 45
-    },
-    {
-      "phrase": "diversity equity inclusion and accessibility",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "diversity, equity, inclusion, and accessibility",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "diversity equity inclusion belonging and accessibility",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "diversity inclusion and belonging",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "diversity, inclusion, and belonging",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "diversity equity inclusion justice and belonging",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei hire",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei hires",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei hiring",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "diversity hire",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "diversity hires",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "diversity hiring",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "diversity quota",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "diversity quotas",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei quota",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei quotas",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei compliance",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei program",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei programs",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei policy",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei policies",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei consultant",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei consultants",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei department",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei departments",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei agenda",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei ideology",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "dei training program",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "racial equity training",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "racial equity audit",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "equity impact assessment",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "equity impact assessments",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "cultural humility",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "cultural humility training",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "anti-bias training",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "anti bias training",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "antibias training",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "anti-racist training",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "antiracist training",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "anti-racism education",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "antiracism education",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "employee resource group",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "employee resource groups",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "affinity group",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "affinity groups",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "inclusive hiring",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "equitable hiring",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "inclusive recruitment",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "phrase": "equitable recruitment",
-      "score": 74,
-      "origin": "author preference expansion rc22; phrase-specific terminology"
-    },
-    {
-      "origin": "documented spelling/spacing variant of an existing author preference",
-      "phrase": "equity-centred communication",
-      "score": 82
-    },
-    {
-      "origin": "documented spelling/spacing variant of an existing author preference",
-      "phrase": "equity centred communication",
-      "score": 82
-    },
-    {
-      "origin": "documented spelling/spacing variant of an existing author preference",
-      "phrase": "equity-centred approach",
-      "score": 82
-    },
-    {
-      "origin": "documented spelling/spacing variant of an existing author preference",
-      "phrase": "equity centred approach",
-      "score": 82
-    },
-    {
-      "phrase": "dei certification",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "dei certifications",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "dei consulting",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "dei hiring policy",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "dei hiring policies",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity hiring policy",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity hiring policies",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "mandatory diversity training",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "mandatory dei training",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclusive excellence",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inclusion and justice",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inclusion accessibility and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity-focused hiring",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity focused hiring",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity targets",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity recruitment",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclusion metrics",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity metrics",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy equity and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty equity and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety equity and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity and inclsuion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity and inlcusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity eqiuty and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy, equity, and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty, equity, and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety, equity, and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity, equity, and inclsuion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity, equity, and inlcusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity, eqiuty, and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy, equity and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty, equity and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety, equity and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity, equity and inclsuion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity, equity and inlcusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity, eqiuty and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy equity inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty equity inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety equity inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inclsuion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inlcusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity eqiuty inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity diveristy and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity diversitty and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity diversety and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity diversity and inclsuion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity diversity and inlcusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty diversity and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity, diveristy, and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity, diversitty, and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity, diversety, and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity, diversity, and inclsuion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity, diversity, and inlcusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty, diversity, and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity, diveristy and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity, diversitty and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity, diversety and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity, diversity and inclsuion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity, diversity and inlcusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty, diversity and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity and inclsuion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity and inlcusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy & inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty & inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety & inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity & inclsuion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity & inlcusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity and inclsuion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity and inlcusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty and inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity & inclsuion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "equity & inlcusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty & inclusion",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy and equity",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty and equity",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety and equity",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity and eqiuty",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy & equity",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty & equity",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety & equity",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity & eqiuty",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion and belonging",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion and belonging",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy equity inclusion and belonging",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty equity inclusion and belonging",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety equity inclusion and belonging",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inclsuion and belonging",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inlcusion and belonging",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity eqiuty inclusion and belonging",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy, equity, inclusion, and belonging",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty, equity, inclusion, and belonging",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety, equity, inclusion, and belonging",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity, equity, inclsuion, and belonging",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity, equity, inlcusion, and belonging",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity, eqiuty, inclusion, and belonging",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty-centered communication",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty centered communication",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty-centered approach",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty centered approach",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "intersectonal feminism",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "intersectonal approach",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "intersectonal lens",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "intersectonal analysis",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy training",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty training",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety training",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy initiative",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty initiative",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety initiative",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy initiatives",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty initiatives",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety initiatives",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy officer",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty officer",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety officer",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy office",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty office",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety office",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy committee",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty committee",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety committee",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy council",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty council",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety council",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy framework",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty framework",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety framework",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy strategy",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty strategy",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety strategy",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy statement",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty statement",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety statement",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy workshop",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty workshop",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety workshop",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy audit",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty audit",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety audit",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy goals",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty goals",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety goals",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty training",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty initiative",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty initiatives",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty officer",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty office",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty committee",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty council",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty framework",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty strategy",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty statement",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty workshop",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty audit",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty goals",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion training",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion training",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion initiative",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion initiative",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion initiatives",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion initiatives",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion officer",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion officer",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion office",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion office",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion committee",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion committee",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion council",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion council",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion framework",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion framework",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion strategy",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion strategy",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion statement",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion statement",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion workshop",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion workshop",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion audit",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion audit",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion goals",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion goals",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "community diveristy",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "community diversitty",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "community diversety",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "community eqiuty",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "enhance the diveristy",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "enhance the diversitty",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "enhance the diversety",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "enhancing diveristy",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "enhancing diversitty",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "enhancing diversety",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "health eqiuty",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "increase diveristy",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "increase diversitty",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "increase diversety",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "increase the diveristy",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "increase the diversitty",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "increase the diversety",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "racial diveristy",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "racial diversitty",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "racial diversety",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "promote diveristy",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "promote diversitty",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "promote diversety",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "promoting diveristy",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "promoting diversitty",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "promoting diversety",
-      "score": 65,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy equity inclusion and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty equity inclusion and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety equity inclusion and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inclsuion and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inlcusion and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity eqiuty inclusion and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy, equity, inclusion, and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty, equity, inclusion, and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety, equity, inclusion, and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity, equity, inclsuion, and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity, equity, inlcusion, and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity, eqiuty, inclusion, and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy equity inclusion belonging and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty equity inclusion belonging and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety equity inclusion belonging and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inclsuion belonging and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inlcusion belonging and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity eqiuty inclusion belonging and accessibility",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy inclusion and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty inclusion and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety inclusion and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity inclsuion and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity inlcusion and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy, inclusion, and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty, inclusion, and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety, inclusion, and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity, inclsuion, and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity, inlcusion, and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy equity inclusion justice and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty equity inclusion justice and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety equity inclusion justice and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inclsuion justice and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inlcusion justice and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity eqiuty inclusion justice and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy hire",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty hire",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety hire",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy hires",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty hires",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety hires",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy hiring",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty hiring",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety hiring",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy quota",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty quota",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety quota",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy quotas",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty quotas",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety quotas",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "racial eqiuty training",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "racial eqiuty audit",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty impact assessment",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty impact assessments",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive hiring",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive hiring",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive recruitment",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive recruitment",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty-centred communication",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty centred communication",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty-centred approach",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty centred approach",
-      "score": 82,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy hiring policy",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty hiring policy",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety hiring policy",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy hiring policies",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty hiring policies",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety hiring policies",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "mandatory diveristy training",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "mandatory diversitty training",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "mandatory diversety training",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuive excellence",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusive excellence",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy equity inclusion and justice",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty equity inclusion and justice",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety equity inclusion and justice",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inclsuion and justice",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inlcusion and justice",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity eqiuty inclusion and justice",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy equity inclusion accessibility and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty equity inclusion accessibility and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety equity inclusion accessibility and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inclsuion accessibility and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity equity inlcusion accessibility and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversity eqiuty inclusion accessibility and belonging",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty-focused hiring",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty focused hiring",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy targets",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty targets",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety targets",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diveristy recruitment",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversitty recruitment",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "diversety recruitment",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inclsuion metrics",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "inlcusion metrics",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    },
-    {
-      "phrase": "eqiuty metrics",
-      "score": 74,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent"
-    }
-  ],
-  "replacements": [],
+  "schema": 4,
+  "version": 9,
   "gommage": [
     "dei",
     "dei hire",
@@ -2554,5 +25,2964 @@
     "microagression",
     "microagressions",
     "minority"
-  ]
+  ],
+  "replacements": [],
+  "statements": [],
+  "stance": "avoid-support",
+  "purpose": "topic",
+  "rules": [
+    {
+      "phrase": "acknowledge your privilege",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "affinity group",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "affinity groups",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "anti bias training",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "anti oppression training",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "anti oppressive practice",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "antiracism education",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "antiracism training",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "antiracist education",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "antiracist policy",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "antiracist training",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "belonging audit",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "belonging committee",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "belonging council",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "belonging framework",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "belonging goals",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "belonging initiative",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "belonging initiatives",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "belonging office",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "belonging officer",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "belonging statement",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "belonging strategy",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "belonging training",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "belonging workshop",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "check your privilege",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "community diveristy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "community diversety",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "community diversitty",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "community diversity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "community eqiuty",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "community equity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "confirmation bias",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "cultural competence",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "cultural differences",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "cultural heritage",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "cultural humility",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "cultural humility training",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "cultural sensitivity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "culturally appropriate",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "culturally responsive",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "decolonise the curriculum",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "decolonise your mind",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "decolonize the curriculum",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "decolonize your mind",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "dei",
+      "score": 0,
+      "role": "topic",
+      "origin": "Author-signed concept reference; stance and expression strength required"
+    },
+    {
+      "phrase": "dei agenda",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei audit",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei certification",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei certifications",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei committee",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei compliance",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei consultant",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei consultants",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei consulting",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei council",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei department",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei departments",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei framework",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei goals",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei hire",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei hires",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei hiring",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei hiring policies",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei hiring policy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei ideology",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei initiative",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei initiatives",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei office",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei officer",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei policies",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei policy",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei program",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei programs",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei quota",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei quotas",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei statement",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei strategy",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei training",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei training program",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "dei workshop",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "deia",
+      "score": 0,
+      "role": "topic",
+      "origin": "Author-signed concept reference; stance and expression strength required"
+    },
+    {
+      "phrase": "deiab",
+      "score": 0,
+      "role": "topic",
+      "origin": "Author-signed concept reference; stance and expression strength required"
+    },
+    {
+      "phrase": "deib",
+      "score": 0,
+      "role": "topic",
+      "origin": "Author-signed concept reference; stance and expression strength required"
+    },
+    {
+      "phrase": "deiba",
+      "score": 0,
+      "role": "topic",
+      "origin": "Author-signed concept reference; stance and expression strength required"
+    },
+    {
+      "phrase": "deij",
+      "score": 0,
+      "role": "topic",
+      "origin": "Author-signed concept reference; stance and expression strength required"
+    },
+    {
+      "phrase": "dismantle systemic racism",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "dismantle the patriarchy",
+      "score": 90,
+      "origin": "proposed test candidate",
+      "role": "advocacy"
+    },
+    {
+      "phrase": "diveristy & equity",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diveristy & inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diveristy and equity",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diveristy and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diveristy audit",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy committee",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy council",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy equity and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diveristy equity inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diveristy equity inclusion accessibility and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy equity inclusion and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy equity inclusion and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diveristy equity inclusion and justice",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy equity inclusion belonging and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy equity inclusion justice and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy framework",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy goals",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy hire",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy hires",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy hiring",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy hiring policies",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy hiring policy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy inclusion and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy initiative",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy initiatives",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy office",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy officer",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy quota",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy quotas",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy recruitment",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy statement",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy strategy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy targets",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy training",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy workshop",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy, equity and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diveristy, equity, and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diveristy, equity, inclusion, and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diveristy, equity, inclusion, and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diveristy, inclusion, and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diverse backgrounds",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diverse communities",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diverse community",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diverse group",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diverse groups",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety & equity",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversety & inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversety and equity",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversety and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversety audit",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety committee",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety council",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety equity and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversety equity inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversety equity inclusion accessibility and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety equity inclusion and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety equity inclusion and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversety equity inclusion and justice",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety equity inclusion belonging and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety equity inclusion justice and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety framework",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety goals",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety hire",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety hires",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety hiring",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety hiring policies",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety hiring policy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety inclusion and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety initiative",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety initiatives",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety office",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety officer",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety quota",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety quotas",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety recruitment",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety statement",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety strategy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety targets",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety training",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety workshop",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety, equity and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversety, equity, and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversety, equity, inclusion, and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversety, equity, inclusion, and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversety, inclusion, and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty & equity",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversitty & inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversitty and equity",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversitty and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversitty audit",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty committee",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty council",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty equity and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversitty equity inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversitty equity inclusion accessibility and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty equity inclusion and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty equity inclusion and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversitty equity inclusion and justice",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty equity inclusion belonging and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty equity inclusion justice and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty framework",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty goals",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty hire",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty hires",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty hiring",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty hiring policies",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty hiring policy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty inclusion and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty initiative",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty initiatives",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty office",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty officer",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty quota",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty quotas",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty recruitment",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty statement",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty strategy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty targets",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty training",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty workshop",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty, equity and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversitty, equity, and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversitty, equity, inclusion, and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversitty, equity, inclusion, and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversitty, inclusion, and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity & eqiuty",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity & equity",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity & inclsuion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity & inclusion",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity & inlcusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity and eqiuty",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity and equity",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity and inclsuion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity and inclusion",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity and inlcusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity audit",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity committee",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity council",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity eqiuty and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity eqiuty inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity eqiuty inclusion accessibility and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity eqiuty inclusion and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity eqiuty inclusion and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity eqiuty inclusion and justice",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity eqiuty inclusion belonging and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity eqiuty inclusion justice and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity equity and inclsuion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity equity and inclusion",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity equity and inlcusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity equity inclsuion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity equity inclsuion accessibility and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity equity inclsuion and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity equity inclsuion and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity equity inclsuion and justice",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity equity inclsuion belonging and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity equity inclsuion justice and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity equity inclusion",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity equity inclusion accessibility and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity equity inclusion and accessibility",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity equity inclusion and belonging",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity equity inclusion and justice",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity equity inclusion belonging and accessibility",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity equity inclusion justice and belonging",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity equity inlcusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity equity inlcusion accessibility and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity equity inlcusion and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity equity inlcusion and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity equity inlcusion and justice",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity equity inlcusion belonging and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity equity inlcusion justice and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity framework",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity goals",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity hire",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity hires",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity hiring",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity hiring policies",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity hiring policy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity inclsuion and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity inclusion and belonging",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity initiative",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity initiatives",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity inlcusion and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity office",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity officer",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity quota",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity quotas",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity recruitment",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity statement",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity strategy",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity targets",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity training",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity workshop",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity, eqiuty and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity, eqiuty, and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity, eqiuty, inclusion, and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity, eqiuty, inclusion, and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity, equity and inclsuion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity, equity and inclusion",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity, equity and inlcusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity, equity, and inclsuion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity, equity, and inclusion",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity, equity, and inlcusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity, equity, inclsuion, and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity, equity, inclsuion, and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity, equity, inclusion, and accessibility",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity, equity, inclusion, and belonging",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity, equity, inlcusion, and accessibility",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity, equity, inlcusion, and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "diversity, inclsuion, and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity, inclusion, and belonging",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "diversity, inlcusion, and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "employee resource group",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "employee resource groups",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "enhance the diveristy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "enhance the diversety",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "enhance the diversitty",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "enhance the diversity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "enhancing diveristy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "enhancing diversety",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "enhancing diversitty",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "enhancing diversity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty & inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "eqiuty and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "eqiuty audit",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty centered approach",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "eqiuty centered communication",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "eqiuty centred approach",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "eqiuty centred communication",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "eqiuty committee",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty council",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty diversity and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "eqiuty focused hiring",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty framework",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty goals",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty impact assessment",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty impact assessments",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty initiative",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty initiatives",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty metrics",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty office",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty officer",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty statement",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty strategy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty training",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty workshop",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "eqiuty, diversity and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "eqiuty, diversity, and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equal opportunity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equitable hiring",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equitable recruitment",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity & inclsuion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity & inclusion",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity & inlcusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity and inclsuion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity and inclusion",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity and inlcusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity audit",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity centered approach",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity centered communication",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity centred approach",
+      "score": 0,
+      "origin": "documented spelling/spacing variant of an existing author preference",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity centred communication",
+      "score": 0,
+      "origin": "documented spelling/spacing variant of an existing author preference",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity committee",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity council",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity diveristy and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity diversety and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity diversitty and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity diversity and inclsuion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity diversity and inclusion",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity diversity and inlcusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity focused hiring",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity framework",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity goals",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity impact assessment",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity impact assessments",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity initiative",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity initiatives",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity metrics",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity office",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity officer",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity statement",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity strategy",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity training",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity workshop",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "equity, diveristy and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity, diveristy, and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity, diversety and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity, diversety, and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity, diversitty and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity, diversitty, and inclusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity, diversity and inclsuion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity, diversity and inclusion",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity, diversity and inlcusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity, diversity, and inclsuion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity, diversity, and inclusion",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "equity, diversity, and inlcusion",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "examine your privilege",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "hate speech",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "health disparity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "health eqiuty",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "health equity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "hispanic minority",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "implicit bias training",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "implicit biases",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuion and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "inclsuion audit",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuion committee",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuion council",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuion framework",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuion goals",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuion initiative",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuion initiatives",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuion metrics",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuion office",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuion officer",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuion statement",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuion strategy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuion training",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuion workshop",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive excellence",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive hiring",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclsuive recruitment",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusion and belonging",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "inclusion audit",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusion committee",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusion council",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusion framework",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusion goals",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusion initiative",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusion initiatives",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusion metrics",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusion office",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusion officer",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusion statement",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusion strategy",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusion training",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusion workshop",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive excellence",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive hiring",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inclusive recruitment",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "increase diveristy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "increase diversety",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "increase diversitty",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "increase diversity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "increase the diveristy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "increase the diversety",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "increase the diversitty",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "increase the diversity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "indigenous community",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusion and belonging",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "inlcusion audit",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusion committee",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusion council",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusion framework",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusion goals",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusion initiative",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusion initiatives",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusion metrics",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusion office",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusion officer",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusion statement",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusion strategy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusion training",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusion workshop",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive excellence",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive hiring",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "inlcusive recruitment",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "intersectional analysis",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "intersectional approach",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "intersectional feminism",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "intersectional lens",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "intersectonal analysis",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "intersectonal approach",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "intersectonal feminism",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "intersectonal lens",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topic"
+    },
+    {
+      "phrase": "mandatory dei training",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "mandatory diveristy training",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "mandatory diversety training",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "mandatory diversitty training",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "mandatory diversity training",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "promote diveristy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "promote diversety",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "promote diversitty",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "promote diversity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "promoting diveristy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "promoting diversety",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "promoting diversitty",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "promoting diversity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "race and ethnicity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "racial diveristy",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "racial diversety",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "racial diversitty",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "racial diversity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "racial eqiuty audit",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "racial eqiuty training",
+      "score": 0,
+      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "racial equity audit",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "racial equity training",
+      "score": 0,
+      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "racial identity",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "racial inequality",
+      "score": 0,
+      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
+      "role": "topicBroad"
+    },
+    {
+      "phrase": "smash the patriarchy",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "structural oppression",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "systemic oppression",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "systems of oppression",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "systems of privilege",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "unconscious bias training",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    },
+    {
+      "phrase": "unpack your privilege",
+      "score": 0,
+      "origin": "proposed test candidate",
+      "role": "topic"
+    }
+  ],
+  "description": "Contextual personal topic preference. A reference alone has no action. With Context on, neutral discussion, questions, quotations and criticism stay visible. Mild support warns in Balanced; stronger promotion redacts. Broad hides eligible unwanted expressions. Wider references require Broad. Original Gommage meme masks remain separate. Requires alpha12 or later."
 }

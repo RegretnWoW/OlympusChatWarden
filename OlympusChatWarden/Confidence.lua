@@ -18,7 +18,21 @@ function ns.MatchAction(matches)
 end
 local C = {Presets = {strict = 85, balanced = 65, aggressive = 40, maximum = 40}}
 ns.Confidence = C
-ns.RULE_VERSION = ns.RULE_VERSION .. "-context-6-evasion-1-case-1-boundary-2-categories-1"
+local actionScores={Unchanged=0,Warning=55,Redacted=80,Hidden=95}
+function C.Policy(preset,kind,uncertain)
+    if uncertain then return (preset=='aggressive' or preset=='maximum') and 'Warning' or 'Unchanged' end
+    if kind=='threat' then return 'Hidden' end
+    if kind=='criticism' or kind=='supportMild' then return preset=='strict' and 'Unchanged' or preset=='balanced' and 'Warning' or 'Hidden' end
+    if kind=='topicBroad' then return (preset=='aggressive' or preset=='maximum') and 'Redacted' or 'Unchanged' end
+    if kind=='topic' then return preset=='strict' and 'Unchanged' or 'Redacted' end
+    return preset=='strict' and 'Warning' or preset=='balanced' and 'Redacted' or 'Hidden'
+end
+function C.GommageEnabled(settings,pack)
+    if settings.gommage~=nil then return settings.gommage==true and not (settings.gommagePacks and settings.gommagePacks[pack]==false) end
+    -- Read historical report settings and pre-toggle saved imports unchanged.
+    return C.PackPreset(settings,pack)=='maximum'
+end
+ns.RULE_VERSION = ns.RULE_VERSION .. "-context-7-evasion-1-case-1-boundary-2-categories-1"
 function C.PackPreset(settings, pack)
     local value = settings.packPresets and settings.packPresets[pack]
     return C.Presets[value] and value or (C.Presets[settings.preset] and settings.preset or "aggressive")
@@ -28,7 +42,7 @@ local function GommageMatcher(settings)
     if not ns.Gommage then return end
     local enabled, keys = {}, {}
     for _, pack in ipairs(ns.PackNames) do
-        if C.PackPreset(settings, pack) == "maximum" and not (settings.disabledPacks and settings.disabledPacks[pack]) then
+        if C.GommageEnabled(settings,pack) and not (settings.disabledPacks and settings.disabledPacks[pack]) then
             enabled[pack] = true; keys[#keys + 1] = pack
         end
     end
@@ -42,6 +56,16 @@ local function GommageMatcher(settings)
         gommageKey = key
     end
     return gommageMatcher
+end
+function C.PrepareTypos(settings,prepare)
+    prepare(ns.Matcher)
+    if ns.Personal and ns.Personal.matcher then prepare(ns.Personal.matcher) end
+    local masks=GommageMatcher(settings)
+    if masks then prepare(masks) end
+    if settings.barber~=false then
+        if ns.BodyReplacements then prepare(ns.BodyReplacements) end
+        if ns.BuiltinBodyReplacements then prepare(ns.BuiltinBodyReplacements) end
+    end
 end
 local function Word(byte)
     return byte and ((byte >= 48 and byte <= 57) or (byte >= 97 and byte <= 122) or byte == 95 or byte >= 128)
@@ -62,14 +86,46 @@ local criticism = {"stop using", "do not use", "don't use", "reject", "rejects",
 local discussion = {"the phrase", "the term", "a phrase", "a term", "definition of", "defined as", "means", "what does", "what is meant by"}
 local positive = {"promote", "promotes", "support", "supports", "embrace", "embraces", "implement", "adopt", "encourage", "encourages"}
 local context = {"diversity", "equity", "inclusion", "pronouns", "gender", "anti-racism", "antiracism", "dei"}
+local function PreferenceContext(before,after)
+    -- A selected wording preference is not an abuse judgment. Bound polarity
+    -- to the current clause; Gommage masks are evaluated separately afterward.
+    local stop=after:find(' but ',1,true) or after:find(' however',1,true)
+    if stop then after=after:sub(1,stop-1) end
+    local lead=before:sub(-80):gsub("don't oppose",'support'):gsub('do not oppose','support')
+    local opposed=Any(lead,criticism) or Any(lead,{"don't support","do not support","stop saying","stop calling","making fun of","mocking","mock","lol","lmao"})
+        or Any(after:sub(1,80),{'is bad','are bad','is nonsense','is absurd','is wrong','are wrong','is harmful','are harmful','is stupid','are stupid','is ridiculous','are ridiculous','is cringe','are cringe','sucks','suck'})
+    if opposed then return false,'selected wording criticized or mocked: '..opposed end
+    local supported=Any(lead,positive) or Any(lead,{'i like','we like','i love','we love','in favor of','in favour of','agree with'})
+        or Any(after:sub(1,80),{'is good','are good','is great','are great','is wonderful','are wonderful','is important','are important','is the best','are the best'})
+    return true,supported and 'configured supportive wording preference: '..supported or 'configured terminology preference',supported~=nil
+end
 local function SentenceStop(lower,i)
     local c=lower:sub(i,i)
     if c:match("[%.!%?]") and lower:sub(i-1,i-1):match("[%w]") and lower:sub(i+1,i+1):match("[%w]") then return false end
     return c:match("[%.!%?;\n]") ~= nil
 end
-local function Window(lower, hit)
+local function ContextGroups(lower)
+    local groups,offset,group={},0,nil
+    for _,piece in ipairs(ns.Engine.Segments(lower)) do
+        if piece.editable or piece.text:match('^|c%x%x%x%x%x%x%x%x$') or piece.text=='|r' then
+            if not group then group={offset+1,offset};groups[#groups+1]=group end
+            group[2]=offset+#piece.text
+        else group=nil end
+        offset=offset+#piece.text
+    end
+    return groups
+end
+local function Window(lower, hit, groups)
     local first = math.max(hit.segmentFirst or 1, hit.first - 100)
     local last = math.min(hit.segmentLast or #lower, hit.last + 100)
+    if groups then
+        local low,high=1,#groups
+        while low<=high do
+            local mid=math.floor((low+high)/2);local group=groups[mid]
+            if hit.first<group[1] then high=mid-1 elseif hit.first>group[2] then low=mid+1
+            else first=math.max(group[1],hit.first-100);last=math.min(group[2],hit.last+100);break end
+        end
+    end
     for i = hit.first - 1, first, -1 do
         if SentenceStop(lower,i) then first = i + 1; break end
     end
@@ -109,13 +165,22 @@ local function Quoted(before, after)
     return (before:find("“", 1, true) and after:find("”", 1, true))
         or (before:find("‘", 1, true) and after:find("’", 1, true))
 end
-function C.Analyze(matcher, text, settings, exceptionMatcher)
+function C.Analyze(matcher, text, settings, exceptionMatcher,incomingTypos,source)
     settings = settings or {}
     local threshold = C.Presets[settings.preset] or C.Presets.aggressive
     if type(text) ~= "string" or #text > ns.Engine.MAX_TEXT then return {}, {}, "unsupported" end
     local hits, errorMessage = matcher:FindFlexible(text, true)
     if errorMessage then return {}, {}, errorMessage end
+    local typoWork=incomingTypos and settings.typoFiltering and ns.TypoFilter.Work(text,settings,source) or nil
+    local function WithTypos(target,found)
+        if typoWork then for _,hit in ipairs(ns.TypoFilter.Hits(target,text,found,typoWork)) do
+            if #found<ns.Engine.MAX_CANDIDATES then found[#found+1]=hit end
+        end end
+        return found
+    end
+    hits=WithTypos(matcher,hits)
     local lower = ns.Engine.Lower(text)
+    local contextGroups=ContextGroups(lower)
     local exceptions, exceptionError = {}, nil
     if exceptionMatcher then exceptions, exceptionError = exceptionMatcher:Find(text, true) end
     if exceptionError then return {}, {}, exceptionError end
@@ -135,8 +200,12 @@ function C.Analyze(matcher, text, settings, exceptionMatcher)
         local phrase = matcher.rules[hit.rule]
         local meta = ns.RuleMeta[phrase] or {id = "custom:" .. phrase, pack = "custom", base = 95, origin = "custom user rule"}
         local packThreshold = C.Presets[C.PackPreset(settings, meta.pack)]
-        local first, last = Window(lower, hit)
+        local first, last = Window(lower, hit, contextGroups)
         local before, after = lower:sub(first, hit.first - 1), lower:sub(hit.last + 1, last)
+        -- Formatting codes carry no grammatical meaning. Keep all matching
+        -- offsets in the original text; never join words across item/player links.
+        before=before:gsub('|c%x%x%x%x%x%x%x%x',''):gsub('|r','')
+        after=after:gsub('|c%x%x%x%x%x%x%x%x',''):gsub('|r','')
         -- Contrast clauses separate prior criticism/support from the next assertion.
         local contrastEnd
         for _, contrast in ipairs({" but ", " however ", " however, "}) do
@@ -150,36 +219,82 @@ function C.Analyze(matcher, text, settings, exceptionMatcher)
         if contrastEnd then before = before:sub(contrastEnd + 1) end
         local score, reasons = meta.base, {"base " .. meta.base .. " (" .. meta.pack .. ")"}
         if hit.evasion then reasons[#reasons+1] = "bounded spelling/spacing/symbol variation" end
-        local directed = meta.pack == "guild" or meta.pack == "creator"
+        local directed = meta.pack == "guild" or meta.pack == "creator" or meta.policy and meta.purpose=='subject'
+        local policy=meta.policy or meta.pack=='guild' or meta.pack=='creator'
+        local topic=meta.policy and meta.purpose=='topic'
+        local semantic=meta.contextual or meta.pack=='guild' or meta.pack=='creator'
+        local kind
         if meta.pack == "guild" then
             local detail
-            score, detail = ns.GuildScore(before, after)
+            score, detail,kind = ns.GuildScore(before, after,typoWork)
             reasons = {"guild context " .. score .. ": " .. detail}
         elseif meta.pack == "creator" then
             local detail
-            score, detail = ns.CreatorScore(before, after, meta)
+            score, detail,kind = ns.CreatorScore(before, after, meta,typoWork)
             if score < 90 and AdjacentCreatorInsult(before, after) then
                 score, detail = 90, "adjacent creator reference: that/this guy sucks"
             end
             reasons = {"creator context " .. score .. ": " .. detail}
+        elseif meta.policy and meta.role=='reference' then
+            local detail
+            score,detail,kind=ns.SubjectPatterns.Score(before,after,meta.subjectModel,typoWork)
+            reasons={'subject context '..score..': '..detail}
         end
+        kind=kind or (topic and (meta.role=='viewpoint' and 'topic' or meta.role) or meta.role=='threat' and 'threat' or score>=95 and 'threat' or score>=85 and 'strong' or score>=65 and 'preference' or score>0 and 'criticism')
+        local decision
+        if semantic and topic then
+            decision=ns.ContextDecision.Topic(before,after,meta,Quoted(before,after),typoWork)
+            local mode=C.PackPreset(settings,meta.pack)
+            local wider=meta.role=='topicBroad' or meta.role=='advocacyBroad'
+            if wider and mode~='aggressive' and mode~='maximum' then
+                decision.eligible=false;decision.contextCue=decision.contextCue..'; wider coverage is off in this preset'
+            end
+            kind=decision.strength=='mild' and 'supportMild' or 'supportStrong'
+            score=decision.eligible and (decision.strength=='mild' and 55 or 90) or 0
+        elseif semantic and directed then
+            decision=ns.ContextDecision.Subject(before,after,score,kind,Quoted(before,after))
+            if not decision.eligible then score=0 end
+        end
+        if decision then reasons[#reasons+1]=decision.contextCue end
+        if topic and not semantic and (meta.stance=='avoid-support' or meta.role=='viewpoint') then
+            local allowed,detail,supported=PreferenceContext(before,after)
+            if not allowed or meta.role=='viewpoint' and not supported then score=0 end
+            reasons[#reasons+1]=meta.role=='viewpoint' and not supported and 'no explicit supportive statement for this viewpoint reference' or detail
+        end
+        local rawScore=score
+        local contextUncertain=false
+        if hit.typo then reasons[#reasons+1]='spelling guess: '..text:sub(hit.first,hit.last)..' -> '..phrase..' ('..hit.typoEdits..' edits)' end
         local excluded = false
         for i = first, last do
             if exceptionStarts[i] and exceptionStarts[i] <= last then excluded = true; break end
         end
         local disabled = settings.disabledPacks and settings.disabledPacks[meta.pack]
-        local negative = settings.context ~= false and (Any(before:sub(-60), criticism)
+        local negative = (Any(before:sub(-60), criticism)
             or Any(after:sub(1, 60), {"is not", "is nonsense", "is absurd", "should not be used", "is wrong", "is harmful"}))
-        if directed and settings.context ~= false then
+        if directed and not semantic then
             negative = negative or Any(before:sub(-60), {"don't say", "do not say", "stop saying",
                 "don't call", "do not call", "stop calling", "don't hate", "do not hate", "not saying"})
         end
-        if negative then score = score - 35; reasons[#reasons + 1] = "-35 criticism/negation: " .. negative end
-        if settings.context ~= false then
-            if Quoted(before, after) then score = score - 15; reasons[#reasons + 1] = "-15 quoted wording" end
+        if directed and not semantic then
+            local detail
+            score,detail=ns.DirectedContext.Apply(before,after,score,Quoted(before,after))
+            if detail then reasons[#reasons+1]=detail end
+            contextUncertain=detail and (detail:find('capped',1,true)~=nil or detail:find('question',1,true)~=nil) or false
+            -- Retain the old objection safeguards for less explicit defenses.
+            -- "not only" asserts the wording and is not a negation exception.
+            if negative and not after:match('^%s*is%s+not%s+only%s+') and not after:match('^%s*are%s+not%s+only%s+') then
+                score=math.min(score,55);reasons[#reasons+1]='objection context; stock score capped at 55: '..negative
+            end
+        end
+        if negative and not directed and not topic then score = score - 35; reasons[#reasons + 1] = "-35 criticism/negation: " .. negative end
+        if not semantic then
+            if not directed and not topic and Quoted(before, after) then score = score - 15; reasons[#reasons + 1] = "-15 quoted wording" end
             local mention = Any(before:sub(-60), discussion)
-            if mention then score = score - 20; reasons[#reasons + 1] = "-20 term discussion: " .. mention end
-            if not directed and meta.base < 85 and not negative then
+            if mention and not topic then
+                score=policy and math.min(score,55) or score-20;contextUncertain=policy==true
+                reasons[#reasons+1]='term discussion: '..mention
+            end
+            if not policy and not directed and meta.base < 85 and not negative then
                 local cue = Any(before .. " " .. after, context)
                 local support = Any(before:sub(-60), positive)
                 if cue then score = score + 12; reasons[#reasons + 1] = "+12 nearby vocabulary: " .. cue end
@@ -201,14 +316,30 @@ function C.Analyze(matcher, text, settings, exceptionMatcher)
             end
         end
         score = math.max(0, math.min(100, score))
+        local confidenceScore,action,shieldEligible=score,nil,false
+        if policy then
+            local uncertain=not semantic and (contextUncertain or rawScore>score and score<=55)
+            action=score>0 and C.Policy(C.PackPreset(settings,meta.pack),kind,uncertain) or 'Unchanged'
+            score=actionScores[action]
+            shieldEligible=(kind=='strong' or kind=='threat') and confidenceScore>=80 and score>=80
+                and (not decision or decision.detectorType~='topicPreference')
+            reasons[#reasons+1]='action preset: '..(C.PackPreset(settings,meta.pack)=='strict' and 'Mild' or C.PackPreset(settings,meta.pack)=='balanced' and 'Balanced' or 'Broad')..'; '..tostring(kind)..' -> '..action
+            if typoWork and (typoWork.contextRepairs or 0)>0 then reasons[#reasons+1]='bounded context spelling repair used' end
+        end
         if disabled then reasons[#reasons + 1] = "pack disabled" end
         if excluded then reasons[#reasons + 1] = "exception phrase in same context window" end
         -- Context determines eligibility/action; redaction replaces only the hit.
         local match = {first = hit.first,
             last = hit.last, rule = hit.rule, phrase = phrase,
-            score = score, pack = meta.pack, id = meta.id, origin = meta.origin,
-            reason = table.concat(reasons, "; "), threshold = packThreshold,
-            accepted = not disabled and not excluded and score >= packThreshold}
+            score = score, pack = meta.pack, id = meta.id, origin = meta.origin,typo=hit.typo==true,typoEdits=hit.typoEdits,
+            reason = table.concat(reasons, "; "), threshold = policy and 0 or packThreshold,
+            confidenceScore=policy and confidenceScore or nil,policy=policy==true,action=action,ruleKind=kind,shieldEligible=shieldEligible,
+            accepted = not disabled and not excluded and (policy and score>0 or not policy and score>=packThreshold)}
+        if decision then
+            if decision.eligible and (hit.typo or typoWork and (typoWork.contextRepairs or 0)>0) then decision.certainty='medium' end
+            for _,key in ipairs({'stance','strength','certainty','contextCue','detectorType','stanceSource','contextPolicyVersion'}) do match[key]=decision[key] end
+            match.target=phrase
+        end
         report[#report + 1] = match
         if match.accepted then accepted[#accepted + 1] = match end
     end
@@ -216,11 +347,12 @@ function C.Analyze(matcher, text, settings, exceptionMatcher)
     if vocabularyMatcher then
         local literal, literalError = vocabularyMatcher:FindFlexible(text, true)
         if literalError then return {}, {}, literalError end
+        literal=WithTypos(vocabularyMatcher,literal)
         if #hits + #literal > ns.Engine.MAX_CANDIDATES then return {}, {}, "candidate budget exceeded" end
         for _, hit in ipairs(literal) do
             local phrase = vocabularyMatcher.rules[hit.rule]
             local meta = ns.Gommage.Meta[phrase]
-            if C.PackPreset(settings, meta.pack) == "maximum" then
+            if C.GommageEnabled(settings,meta.pack) then
             local first, last = Window(lower, hit)
             local excluded = false
             for i = first, last do
@@ -229,11 +361,12 @@ function C.Analyze(matcher, text, settings, exceptionMatcher)
             local disabled = settings.disabledPacks and settings.disabledPacks[meta.pack]
             local reason = "Gommage display mask; no confidence score contribution"
             if hit.evasion then reason = reason .. "; bounded spelling/spacing/symbol variation" end
+            if hit.typo then reason=reason..'; spelling guess: '..text:sub(hit.first,hit.last)..' -> '..phrase..' ('..hit.typoEdits..' edits)' end
             if disabled then reason = reason .. "; pack disabled" end
             if excluded then reason = reason .. "; exception phrase in same context window" end
             local match = {first = hit.first, last = hit.last, rule = hit.rule,
                 phrase = phrase, score = 0, gommage = true, action = "Redacted", pack = meta.pack, id = meta.id, origin = meta.origin,
-                reason = reason, threshold = 0, accepted = not disabled and not excluded}
+                reason = reason, threshold = 0, accepted = not disabled and not excluded,typo=hit.typo==true,typoEdits=hit.typoEdits}
             report[#report + 1] = match
             if match.accepted then accepted[#accepted + 1] = match end
             end
@@ -252,6 +385,7 @@ function C.Analyze(matcher, text, settings, exceptionMatcher)
     for _, source in ipairs(replacementSources) do
         local replacements, replacementError = source[1]:FindFlexible(text, true)
         if replacementError then return {}, {}, replacementError end
+        replacements=WithTypos(source[1],replacements)
         for _, hit in ipairs(replacements) do
             local first, last = Window(lower, hit)
             local excluded = false
@@ -263,6 +397,7 @@ function C.Analyze(matcher, text, settings, exceptionMatcher)
             hit.score, hit.threshold, hit.action = 80, 0, "Replaced"
             hit.replacement = BodyLabelCase(source[2][phrase], text:sub(hit.first, hit.last))
             hit.origin, hit.reason = source[4], "display replacement: " .. hit.replacement
+            if hit.typo then hit.reason=hit.reason.."; spelling guess: "..text:sub(hit.first,hit.last).." -> "..phrase end
             hit.accepted = not excluded
             if hit.accepted then
                 for _, stock in ipairs(report) do
@@ -275,7 +410,7 @@ function C.Analyze(matcher, text, settings, exceptionMatcher)
     end
     end
     if ns.Personal and settings.personalRules ~= false then
-        local personal, personalError = ns.Personal.Hits(text)
+        local personal, personalError = ns.Personal.Hits(text,typoWork)
         if personalError then return {}, {}, personalError end
         for _, hit in ipairs(personal) do
             local first, last = Window(lower, hit)
@@ -360,9 +495,10 @@ function C.Analyze(matcher, text, settings, exceptionMatcher)
         end
         result = composed
     end
-    return result, report
+    return result, report,nil,typoWork
 end
 function C.Describe(match, hidePhrase)
+    if match.policy then return (hidePhrase and 'Match' or match.phrase)..' — '..(match.action or 'Unchanged')..'; '..(match.ruleKind or 'configured rule')..'. '..match.reason end
     if match.gommage and match.score == 0 then
         return (hidePhrase and "Match" or match.phrase) .. " — Gommage display only; no score contribution. " .. match.reason
     end

@@ -61,25 +61,37 @@ function R.Snapshot(text, source, event, policy, sourceInfo)
     local scope = Scope(source)
     local active = settings.enabled ~= false and (not scope or ns.DB[scope] ~= false)
     if policy and policy.chatEnabled ~= nil then active = policy.enabled and policy.chatEnabled and policy.adapterSupported end
-    local matches, candidates, err = ns.Confidence.Analyze(ns.Matcher, text, settings, ns.ExceptionMatcher)
+    local incomingTypos=ns.TypoFilter.Allowed(event,sourceInfo or {kind=source}) and settings.typoFiltering~=false
+    local matches, candidates, err,typoWork = ns.Confidence.Analyze(ns.Matcher, text, settings, ns.ExceptionMatcher,incomingTypos,sourceInfo)
     local predicted, _, score = ns.MatchAction(matches)
     local retained = {}
+    local personalCount,enabledPersonalCount,personalMatches=0,0,0
+    for _,rule in ipairs(ns.Personal and ns.Personal.rules or {}) do
+        personalCount=personalCount+1;if rule.enabled then enabledPersonalCount=enabledPersonalCount+1 end
+    end
+    for i, hit in ipairs(candidates) do
+        if hit.pack=='personal' then personalMatches=personalMatches+1 end
+    end
     for i, hit in ipairs(candidates) do
         if i > R.MAX_MATCHES then break end
         local copy = {score = hit.score, threshold = hit.threshold, accepted = hit.accepted, gommage = hit.gommage == true,
-            first = hit.first, last = hit.last}
-        for _, field in ipairs({"phrase", "pack", "id", "origin", "reason", "replacement", "action"}) do copy[field] = R.Clip(hit[field], 512) end
+            first = hit.first, last = hit.last,typo=hit.typo==true,typoEdits=hit.typoEdits,confidenceScore=hit.confidenceScore,policy=hit.policy==true,shieldEligible=hit.shieldEligible==true}
+        ns.ContextDecision.CopyEvidence(hit,copy)
+        for _, field in ipairs({"phrase", "pack", "id", "origin", "reason", "replacement", "action","ruleKind"}) do copy[field] = R.Clip(hit[field], 512) end
         retained[#retained + 1] = copy
     end
     local languageContext=ns.Language and ns.Language.Context(text,event,sourceInfo or {kind=source})
     local language=languageContext and languageContext.result
     local combined=language and ns.Language.Action(active and predicted or 'Unchanged',language) or active and predicted or 'Unchanged'
-    return {spamContext=ns.Spam and ns.Spam.Context(event,sourceInfo,text),addonVersion = ns.VERSION, ruleVersion = ns.RULE_VERSION, preset = settings.preset,
-        context = settings.context ~= false, bodyTypeWording = settings.barber ~= false, threshold = ns.Confidence.Presets[settings.preset],
+    return {typoContext=ns.TypoFilter.Context(incomingTypos,typoWork,settings),spamContext=ns.Spam and ns.Spam.Context(event,sourceInfo,text),addonVersion = ns.VERSION, ruleVersion = ns.RULE_VERSION, preset = settings.preset,
+        context = true, bodyTypeWording = settings.barber ~= false, threshold = ns.Confidence.Presets[settings.preset],
+        gommage=settings.gommage==true,gommagePacks=Packs(settings.gommagePacks),actionPolicyVersion=2,
         disabledPacks = Packs(settings.disabledPacks), packPresets = R.PackPresets(settings.packPresets),
         signedPacks = ns.RulePacks.Snapshot(),
         packsVerifying = ns.RulePacks.Restoring == true,
         exceptionCount = settings.exceptionCount or #ns.DB.exceptions,
+        personalRuleCount=personalCount,enabledPersonalRuleCount=enabledPersonalCount,personalMatchCount=personalMatches,
+        personalRulesEnabled=settings.personalRules~=false,
         enabled = settings.enabled ~= false, coverageEnabled = active == true,
         actualAction = combined, predictedAction = predicted, wordPredictedAction=predicted,combinedPredictedAction=combined,
         language=language,languageContext=languageContext,
@@ -101,10 +113,11 @@ function R.Normalize(record)
     for _, key in ipairs({"addonVersion", "ruleVersion", "preset", "event", "reportMethod", "selection", "diagnosticError", "analysisTiming", "shieldReason"}) do
         if ns.CanRead(record[key]) then out[key] = R.Clip(record[key], 256) end
     end
-    for _, key in ipairs({"capturedTimestamp", "capturedSessionTime", "score", "threshold", "exceptionCount", "matchCount"}) do
+    for _, key in ipairs({"capturedTimestamp", "capturedSessionTime", "score", "threshold", "exceptionCount", "matchCount",
+        "personalRuleCount","enabledPersonalRuleCount","personalMatchCount","actionPolicyVersion"}) do
         out[key] = ns.SafeNumber(record[key])
     end
-    for _, key in ipairs({"context", "enabled", "coverageEnabled", "packsVerifying", "bodyTypeWording", "displayOnly", "nameDisplay", "actionRecorded"}) do
+    for _, key in ipairs({"context", "enabled", "coverageEnabled", "packsVerifying", "bodyTypeWording", "displayOnly", "nameDisplay", "actionRecorded","personalRulesEnabled","gommage"}) do
         if type(record[key]) == "boolean" then out[key] = record[key] end
     end
     out.actualAction = actions[record.actualAction] and record.actualAction or nil
@@ -113,10 +126,17 @@ function R.Normalize(record)
     out.combinedPredictedAction=actions[record.combinedPredictedAction] and record.combinedPredictedAction or nil
     out.metadataKnown = record.metadataKnown == true or out.actualAction ~= nil and out.preset ~= nil
     if record.spamContext and ns.Spam then out.spamContext=ns.Spam.Copy(record.spamContext) end
+    if type(record.typoContext)=='table' then
+        local context=record.typoContext
+        out.typoContext={enabled=context.enabled==true,active=context.active==true,limited=context.limited==true,
+            mode=context.mode=='balanced' and 'balanced' or 'aggressive',version=context.version==3 and 3 or context.version==2 and 2 or 1}
+        for _,key in ipairs({'maxText','maxWords','maxChecks','revision','pendingIndexes','checks','ambiguous','contextRepairs'}) do out.typoContext[key]=ns.SafeNumber(context[key]) end
+    end
     if record.language and ns.Language then out.language=ns.Language.Copy(record.language) end
     if record.languageContext and ns.Language then out.languageContext=ns.Language.CopyContext(record.languageContext) end
     if type(record.disabledPacks) == "table" then out.disabledPacks = Packs(record.disabledPacks) end
     if type(record.packPresets) == "table" then out.packPresets = R.PackPresets(record.packPresets) end
+    if type(record.gommagePacks)=='table' then out.gommagePacks=Packs(record.gommagePacks) end
     if type(record.signedPacks) == "table" then
         out.signedPacks = {}
         for _, id in ipairs(ns.RulePacks.Order) do
@@ -132,8 +152,10 @@ function R.Normalize(record)
         if i > R.MAX_MATCHES then break end
         if type(hit) == "table" then
             local copy = {score = ns.SafeNumber(hit.score), threshold = ns.SafeNumber(hit.threshold), accepted = hit.accepted == true, gommage = hit.gommage == true,
-                first = ns.SafeNumber(hit.first), last = ns.SafeNumber(hit.last)}
-            for _, key in ipairs({"phrase", "pack", "id", "origin", "reason", "replacement", "action"}) do copy[key] = R.Clip(hit[key], 512) end
+                first = ns.SafeNumber(hit.first), last = ns.SafeNumber(hit.last),typo=hit.typo==true,typoEdits=ns.SafeNumber(hit.typoEdits),
+                confidenceScore=ns.SafeNumber(hit.confidenceScore),policy=hit.policy==true,shieldEligible=hit.shieldEligible==true}
+            ns.ContextDecision.CopyEvidence(hit,copy)
+            for _, key in ipairs({"phrase", "pack", "id", "origin", "reason", "replacement", "action","ruleKind"}) do copy[key] = R.Clip(hit[key], 512) end
             out.matches[#out.matches + 1] = copy
         end
     end

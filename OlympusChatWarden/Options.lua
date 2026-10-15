@@ -1,18 +1,18 @@
 local _, ns = ...
 local T = ns.Theme
 local category, feedback, controls, packControls, sensitivity, sensitivityText, categoryWindow, integrationText
-local labels = {maximum = "Gommage", aggressive = "Broad", balanced = "Balanced", strict = "Selective"}
-local descriptions = {aggressive = "Default: includes weaker matches and warnings.",
-    balanced = "Uses the standard match threshold. A good starting point.",
-    strict = "Filters stronger matches only. Leaves more borderline wording visible.",
-    maximum = "Broad scoring plus listed word masks. Masks never change scores."}
-local packLabels = {labels = "Body-label replacements", reproductive = "Pregnancy / reproductive wording",
-    language = "General inclusive wording", gender = "Gender / pronoun wording", institutional = "DEI / institutional terminology",
-    slogans = "Social / political slogans", broad = "Broad contextual phrases", guild = "Olympus Protection",
+local labels = {aggressive = "Broad", balanced = "Balanced", strict = "Mild"}
+local descriptions = {aggressive = "Hides eligible opinions and attacks; recognizes wider topics.",
+    balanced = "Your preferences: warns on mild opinions; redacts strong expressions.",
+    strict = "Warns on strong eligible expressions. Explicit threats hide."}
+local packLabels = {labels = "Body-label replacements", reproductive = "Pregnancy & parenting terminology",
+    language = "Inclusive language terminology", gender = "Gender & pronouns", institutional = "Workplace & institutional terminology",
+    slogans = "Political slogans", broad = "Social terminology", guild = "Olympus Protection",
     creator = "King Protection", america = "USA Protection"}
-local shortLabels = {labels = "Body labels", reproductive = "Reproductive", language = "Inclusive wording", gender = "Gender / pronouns",
-    institutional = "DEI / institutional", slogans = "Slogans", broad = "Contextual phrases", guild = "Olympus Protection", creator = "King Protection", america = "USA Protection"}
+local shortLabels = {labels = "Body labels", reproductive = "Pregnancy & parenting", language = "Inclusive language", gender = "Gender & pronouns",
+    institutional = "Workplace & institutions", slogans = "Political slogans", broad = "Social terminology", guild = "Olympus Protection", creator = "King Protection", america = "USA Protection"}
 local summaries = {}
+local workspacePackControls = {}
 local categoryLabels = {}
 local function PackChoice(pack)
     return ns.DB.disabledPacks[pack] and "off" or ns.DB.packPresets[pack] or "default"
@@ -32,16 +32,16 @@ local function Sync()
     end
     for pack, text in pairs(summaries) do
         local choice = PackChoice(pack)
-        text:SetShown(positions[pack] ~= nil)
+        text:SetShown(not ns.Workspace and positions[pack] ~= nil)
         if positions[pack] then
             text:ClearAllPoints(); text:SetPoint("TOPLEFT", 12, -72 - (positions[pack] - 1) * 18)
             text:SetText((shortLabels[pack] or ns.RulePacks.Title(pack)) .. ": " .. (labels[choice] or (choice == "off" and "Off" or "Default")))
         end
     end
+    for _,control in pairs(workspacePackControls) do control:Refresh() end
     if sensitivity then
         sensitivity:Refresh()
-        sensitivityText:SetText(ns.DB.preset == "maximum" and #ns.Gommage.Rules == 0
-            and "Stock packs use context rules. Import a v6 pack for Gommage display terms." or descriptions[ns.DB.preset])
+        sensitivityText:SetText(descriptions[ns.DB.preset] or descriptions.balanced)
     end
     if categoryWindow then categoryWindow.DefaultText:SetText("Default follows the main preset: " .. labels[ns.DB.preset] .. ". Other choices stay fixed.") end
     if integrationText and ns.OlympusIntegration then integrationText:SetText(ns.OlympusIntegration.Status()) end
@@ -56,6 +56,7 @@ local function Sync()
         and (ns.Membership.method == "local-guild-name" and "Filter active - local Olympus guild-name check. Official affiliation is not verified."
             or "Filter active - choose where it runs and which categories it uses.")
         or "Filter paused - enable it above to filter new messages.") end
+    if ns.Workspace and ns.Workspace.mounted==ns.OptionsPanel then ns.Workspace.LayoutMounted() end
 end
 ns.SyncOptions = Sync
 function ns.OpenTextCoverage()
@@ -80,8 +81,8 @@ function ns.OpenCategories()
         categoryWindow.DefaultText = T.Muted(Text(20, -70, 610))
         T.Muted(Text(20, -100, 610, "Choose a preset for each category, or Off. Personal phrase rules and exceptions still apply."))
         packControls = {}; ns.CategoryDropdowns = packControls
-        local choices = {{"default", "Default (main preset)"}, {"off", "Off"}, {"strict", "Selective"},
-            {"balanced", "Balanced"}, {"aggressive", "Broad"}, {"maximum", "Gommage"}}
+        local choices = {{"default", "Default (main preset)"}, {"off", "Off"}, {"strict", "Mild"},
+            {"balanced", "Balanced"}, {"aggressive", "Broad"}}
         for i, name in ipairs(ns.RulePacks.Order) do
             local pack = name
             local y = -141 - (i - 1) * 40
@@ -91,7 +92,7 @@ function ns.OpenCategories()
                 function(value) ns.SetPackPreset(pack, value); Sync() end)
             T.Tooltip(packControls[pack], packLabels[pack], pack == "labels"
                 and "Body Type 1/2 replacements are built in. The Barber & body-type wording option controls them and this pack's extra replacement variants. This category controls its other phrases."
-                or "Default uses the main preset. Selective: minimum 85. Balanced: 65. Broad: 40. Gommage also uses this category's Gommage display list; scores stay unchanged. Off disables this category.")
+                or "Default follows the main action preset. Balanced warns on mild unwanted support or criticism and redacts stronger promotion or attacks. Context handling keeps neutral references visible. Gommage is the separate meme mask option. Off disables this category.")
         end
         T.Muted(Text(20, -550, 610, "Only installed packs appear here. Import optional categories with Rule packs."))
         local manage = CreateFrame("Button", nil, categoryWindow, "UIPanelButtonTemplate")
@@ -126,6 +127,7 @@ function ns.BuildOptions()
     controls = {}
     local function Check(parent, key, label, x, y, width, callback, help)
         local check = CreateFrame("CheckButton", nil, parent, "UICheckButtonTemplate")
+        check:SetSize(26,26)
         check:SetPoint("TOPLEFT", x, y); check.Text:SetText(label); check.Text:SetFontObject("GameFontHighlightSmall")
         T.Light(check.Text); check.Text:SetWidth(width); check.Text:SetJustifyH("LEFT"); check.Text:SetWordWrap(false)
         check:SetScript("OnClick", callback)
@@ -139,9 +141,12 @@ function ns.BuildOptions()
     local mode = T.Panel(panel, 14, -146, 612, 82)
     T.Gold(Text(mode, 12, -10, 340, "Sensitivity", "GameFontNormal"))
     sensitivityText = T.Muted(Text(mode, 12, -30, 335))
-    sensitivity = T.Dropdown(mode, 362, -20, 236, {{"strict", labels.strict}, {"balanced", labels.balanced}, {"aggressive", labels.aggressive}, {"maximum", labels.maximum}},
+    sensitivity = T.Dropdown(mode, 362, -20, 236, {{"strict", labels.strict}, {"balanced", labels.balanced}, {"aggressive", labels.aggressive}},
         function() return ns.DB.preset end, function(value) ns.SetPreset(value); Sync() end)
-    T.Tooltip(sensitivity,"Main sensitivity","Broad catches more wording, Balanced skips weaker matches, and Selective catches stronger matches. Gommage also covers listed words from optional packs.")
+    T.Tooltip(sensitivity,"Action preset","Mild warns on strong eligible expressions. Balanced warns on mild unwanted opinions and redacts stronger promotion or attacks. Broad hides eligible expressions and recognizes wider topics. Context handling keeps neutral references, genuine questions and quotations visible. Recognized explicit threats have separate protection.")
+    controls.gommage=Check(mode,'gommage','Gommage: cover curated words',12,-66,500,function(self)
+        ns.SetGommage(ns.Checked(self:GetChecked()));Sync()
+    end,'The deliberately exaggerated meme option. Separate from practical context filtering: it covers your original curated terms even in questions or criticism, in any preset. Exceptions still apply.')
     local coverage = T.Panel(panel, 14, -239, 298, 264)
     T.Gold(Text(coverage, 12, -12, 274, "Where to filter", "GameFontNormal"))
     local scroll = CreateFrame("ScrollFrame", "OlympusChatWardenCoverageScroll", coverage, "UIPanelScrollFrameTemplate")
@@ -166,7 +171,6 @@ function ns.BuildOptions()
         {"npcNames", "NPC names (experimental)", "NPC headings and public nameplate names. Only matching words are covered; the rest of the name stays visible."},
         {"targetNames", "Unit-frame names", "Filters supported unit name labels when Player names or NPC names is enabled. Ctrl + left-click the covered phrase to reveal. Ordinary clicks retain targeting. Protected combat updates wait until combat ends."},
         {"nameplates", "Nameplates (experimental)", "Filters accessible nameplate labels when Player names or NPC names is enabled. Enable nameplates yourself in WoW; ChatWarden keeps native targeting and health bars. Floating-name Ctrl + left-click is experimental and may be unavailable. Read originals in Messages."},
-        {"context", "Use context clues", "Look at nearby words to help tell a direct insult from a discussion or quote. Gommage word covers still follow their lists."},
         {"history", "Keep review history", "Keep warnings and redactions in the session inbox. Hidden originals always enter review."},
         {"olympusMuteSignal", "OlympusMute signal tooltips", "On by default. Adds a tooltip note when compatible OlympusMute sharing was seen from that player. It may miss ordinary addon use. Turning this off hides the note and stops new observations, but keeps saved history."},
         {"tooltips", "Tooltips", "Filters accessible native tooltip text. Hold Ctrl to reveal tooltip wording; release it to re-cover. Item and spell actions keep their native identities."},
@@ -184,11 +188,11 @@ function ns.BuildOptions()
         end
     end
     local languageSettings=CreateFrame('Button',nil,content,'UIPanelButtonTemplate')
-    languageSettings:SetSize(230,24);languageSettings:SetPoint('TOPLEFT',6,-451);languageSettings:SetText('Language settings')
+    languageSettings:SetSize(230,24);languageSettings:SetPoint('TOPLEFT',6,-423);languageSettings:SetText('Language settings')
     languageSettings:SetScript('OnClick',ns.OpenLanguageOptions);T.Tooltip(languageSettings,'Language settings','One master switch, Low and High actions, optional name filtering, incoming chat switches and the languages you read. Confidence always runs with a fixed four-letter minimum.')
-    ns.CoverageNameStatus = T.Muted(Text(content, 6, -488, 236))
-    ns.CoverageRecoveryStatus = T.Muted(Text(content, 6, -558, 236))
-    T.Muted(Text(content, 6, -626, 236, "Player/NPC names start off. Ctrl + left-click reveals supported labels; floating-name clicks are experimental. Enable nameplates in WoW yourself. Originals are in Messages."))
+    ns.CoverageNameStatus = T.Muted(Text(content, 6, -460, 236))
+    ns.CoverageRecoveryStatus = T.Muted(Text(content, 6, -530, 236))
+    local coverageHelp=T.Muted(Text(content, 6, -598, 236, "Player/NPC names start off. Ctrl + left-click reveals supported labels; floating-name clicks are experimental. Enable nameplates in WoW yourself. Originals are in Messages."))
     local packs = T.Panel(panel, 324, -239, 302, 264)
     T.Gold(Text(packs, 12, -12, 278, "Rule packs & sensitivity", "GameFontNormal"))
     local configure = CreateFrame("Button", nil, packs, "UIPanelButtonTemplate")
@@ -201,7 +205,49 @@ function ns.BuildOptions()
         local pack = name
         summaries[pack] = Text(packs, 12, -72 - (i - 1) * 16, 278)
     end
-    T.Muted(Text(packs, 12, -245, 275, "Two stock packs. Import other categories."))
+    local packHelp=T.Muted(Text(packs, 12, -245, 275, "Two stock packs. Import other categories."))
+    if ns.Workspace then
+        local W,V=ns.Workspace,ns.Art
+        configure:Hide();manage:Hide();languageSettings:Hide();help:Hide()
+        local packScroll=CreateFrame('ScrollFrame',nil,packs)
+        packScroll:SetPoint('TOPLEFT',14,-42);packScroll:SetPoint('BOTTOMRIGHT',-34,82)
+        local packContent=CreateFrame('Frame',nil,packScroll);packContent:SetSize(470,440);packScroll:SetScrollChild(packContent);V.SkinScroll(packScroll)
+        local names={};local choices={{'default','Default (main preset)'},{'off','Off'},{'strict','Mild'},{'balanced','Balanced'},{'aggressive','Broad'}}
+        for _,packName in ipairs(ns.RulePacks.Order) do
+            local pack=packName
+            names[pack]=Text(packContent,0,0,238,ns.RulePacks.Title(pack))
+            workspacePackControls[pack]=T.Dropdown(packContent,254,0,214,choices,function() return PackChoice(pack) end,function(v) ns.SetPackPreset(pack,v);Sync() end)
+            T.Tooltip(workspacePackControls[pack],ns.RulePacks.Title(pack),'Default follows the main sensitivity. Other choices stay fixed; Off disables this category.')
+        end
+        ns.WorkspacePackDropdowns=workspacePackControls
+        function panel:ChatWardenLayout(w,h)
+            local half=(w-52)/2
+            W.Place(controls.enabled,18,-18,w-70);W.Place(feedback,22,-54,w-44)
+            W.Place(mode,18,-83,w-36,112);W.Place(sensitivityText,14,-36,w-362,26)
+            W.Place(sensitivity,w-336,-34,282,34)
+            W.Place(coverage,18,-199,half,h-217);W.Place(packs,34+half,-199,half,h-217)
+            content:SetWidth(half-46)
+            for _,c in pairs(controls) do if c~=controls.enabled then c.Text:SetWidth(half-84) end end
+            W.Place(ns.CoverageNameStatus,6,-468,half-58,64)
+            W.Place(ns.CoverageRecoveryStatus,6,-536,half-58,64)
+            W.Place(coverageHelp,6,-604,half-58,80);content:SetHeight(700)
+            packContent:SetWidth(half-48)
+            for _,text in pairs(summaries) do text:Hide() end
+            local positions={};for i,pack in ipairs(ns.PackNames) do positions[pack]=i end
+            for pack,d in pairs(workspacePackControls) do
+                local i=positions[pack];d:SetShown(i~=nil);names[pack]:SetShown(i~=nil)
+                if i then
+                    names[pack]:SetText(ns.RulePacks.Title(pack))
+                    W.Place(names[pack],0,-10-(i-1)*44,half-294)
+                    W.Place(d,half-282,-(i-1)*44,230,32)
+                end
+            end
+            packContent:SetHeight(math.max(1,#ns.PackNames*44))
+            W.Place(packHelp,14,-(h-281),half-28,48)
+            packHelp:SetText('Default follows the main preset. Optional categories are signed imports.')
+        end
+    end
+    if not ns.Workspace then
     local notifications=CreateFrame('Button',nil,panel,'UIPanelButtonTemplate')
     notifications:SetSize(286,24);notifications:SetPoint('TOPLEFT',20,-512);notifications:SetText('Notifications')
     notifications:SetScript('OnClick',ns.OpenNotificationOptions)
@@ -209,15 +255,16 @@ function ns.BuildOptions()
     T.Muted(Text(panel,326,-517,290,'Choose which hidden messages notify you.'))
     integrationText = T.Muted(Text(panel, 20, -542, 600))
     for i, spec in ipairs({{"Preview test", ns.MakeDemo}, {"Review messages", ns.OpenReview},
-        {"My reports & rules", ns.OpenPersonal}, {"Export reports", function() ns.OpenReportExport() end}}) do
+        {"My rules", ns.OpenRules}, {"My reports", ns.OpenReports}}) do
         local button = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
         button:SetSize(140, 26); button:SetPoint("TOPLEFT", 20 + (i - 1) * 151, -562)
         button:SetText(spec[1]); button:SetScript("OnClick", spec[2]); T.ActionHelp(button,spec[1])
     end
+    end
     panel:SetScript("OnShow", Sync)
     T.BindSettings(panel)
     ns.OptionsPanel = panel
-    category = Settings.RegisterCanvasLayoutCategory(panel, ns.NAME); Settings.RegisterAddOnCategory(category); ns.BuildShieldOptions(category); ns.BuildLanguageOptions(category); ns.BuildNotificationsOptions(category); Sync()
+    category = Settings.RegisterCanvasLayoutCategory(ns.Workspace and ns.Workspace.SettingsCanvas(panel,'general') or panel, ns.NAME); Settings.RegisterAddOnCategory(category); ns.BuildShieldOptions(category); ns.BuildLanguageOptions(category); ns.BuildNotificationsOptions(category); ns.BuildSpellingOptions(category); Sync()
 end
 
 SLASH_OLYMPUSCHATWARDEN1 = "/chatwarden"
@@ -231,6 +278,8 @@ SlashCmdList.OLYMPUSCHATWARDEN = function(message)
     elseif command == "shield" then ns.OpenShield()
     elseif command == "help" or command == "tutorial" then ns.OpenTutorial()
     elseif command == "languages" then ns.OpenLanguageOptions()
+    elseif command == "spelling" then ns.OpenSpellingOptions()
+    elseif command == "updates" then ns.OpenUpdates()
     elseif command == "welcome" then ns.OpenWelcome()
     elseif command == "personal" or command == "reports" then ns.OpenPersonal("reports")
     elseif command == "rules" then ns.OpenPersonal("rules")
@@ -259,9 +308,11 @@ SlashCmdList.OLYMPUSCHATWARDEN = function(message)
     elseif command == "preset" then
         local ok, err = ns.SetPreset(argument:lower())
         if ok then Sync(); ns.Status() else ns.Print(err) end
+    elseif command == 'gommage' then
+        if argument=='on' or argument=='off' then ns.SetGommage(argument=='on');Sync() end
+        ns.Print('Gommage '..(ns.DB.gommage and 'on' or 'off')..'. Use /ocw gommage on|off. The action preset is unchanged.')
     elseif command == "logic" then
-        if argument ~= "on" and argument ~= "off" then ns.Print("Use /ocw logic on or off."); return end
-        ns.DB.context = argument == "on"; ns.PolicyChanged(); Sync()
+        ns.Print("Context handling is always active. Choose Mild, Balanced or Broad to change filtering strength.")
     elseif command == "pack" then
         local pack, setting = argument:lower():match("^(%S+)%s+(%S+)$")
         local known = false
@@ -274,7 +325,7 @@ SlashCmdList.OLYMPUSCHATWARDEN = function(message)
             local ok, err = ns.SetPackPreset(pack, setting); Sync(); ns.Print(ok and (pack .. " sensitivity: " .. setting) or err)
         else
             for _, name in ipairs(ns.PackNames) do ns.Print(name .. ": " .. (ns.DB.disabledPacks[name] and "off" or "on")) end
-            ns.Print("Use /ocw pack NAME default|off|selective|balanced|broad|gommage, or /ocw categories.")
+            ns.Print("Use /ocw pack NAME default|off|mild|balanced|broad, or /ocw categories. Gommage is a separate toggle.")
         end
     elseif command == "allow" or command == "unallow" then
         local rules = {}
@@ -297,5 +348,5 @@ SlashCmdList.OLYMPUSCHATWARDEN = function(message)
     elseif command == "options" or command == "" then
         if category and Settings.OpenToCategory then Settings.OpenToCategory(category:GetID())
         else ns.Print("Options panel unavailable; use /ocw inbox, pack, allow, on, off, test, or status.") end
-    else ns.Print("Commands: options | inbox | shield | shieldoptions | reports | report | feedback | export [misses] | rules | preview | on/off | status | rescan | preset selective/balanced/broad/gommage | logic on/off | pack NAME on/off | allow/unallow PHRASE | exceptions | history on/off | bubbles on/off") end
+    else ns.Print("Commands: options | inbox | shield | shieldoptions | reports | report | feedback | export [misses] | rules | preview | on/off | status | rescan | preset mild/balanced/broad | gommage on/off | pack NAME on/off | allow/unallow PHRASE | exceptions | history on/off | bubbles on/off") end
 end

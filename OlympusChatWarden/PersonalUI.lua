@@ -1,6 +1,9 @@
 local _, ns = ...
 local T, P = ns.Theme, ns.Personal
-local window, mode, selected, page, seed = nil, "reports", nil, 1, nil
+local instances={}
+local function Instance(mode)
+local window, selected, page, seed = nil, nil, 1, nil
+local Refresh
 local rows, title, pager, previous, nextPage, detail, detailScroll, phrase, action, enabled, status, save, remove, use, editor
 local replacement, replacementLabel
 local deleteArmed
@@ -23,7 +26,7 @@ end
 local function DetailsText()
     local item = Current()
     if mode == "rules" then return seed and {"Original report", seed.original} or {} end
-    if not item then return {"Select a saved report.\n\nSaving a report leaves your rules unchanged. Choose Make a rule to change specific wording.\n\nExport reports opens a privacy preview. Nothing is sent automatically."} end
+    if not item then return {"Select a saved report.\n\nReports save examples and feedback. They do not change filtering.\n\nExport reports opens a privacy preview. Nothing is sent automatically."} end
     local result = item.actualAction and ("Filter chose: " .. T.Label(T.Actions, item.actualAction))
         or item.predictedAction and ("Settings when reported: " .. T.Label(T.Actions, item.predictedAction))
         or "Original filter result unavailable for this older report."
@@ -40,10 +43,10 @@ local function Select(id)
         phrase:SetText(item and item.phrase or ""); action.value = item and item.action or seed and seed.expectedAction or "Redacted"
         enabled:SetChecked(not item or item.enabled); replacement:SetText(item and item.replacement or ""); action:Refresh()
     end
-    status:SetText(""); ns.RefreshPersonal()
+    status:SetText(""); Refresh()
     detail:ClearFocus(); window.DetailScroll:SetVerticalScroll(0)
 end
-function ns.RefreshPersonal()
+Refresh=function()
     if not window or not window:IsShown() then return end
     local items = Items(); local pages = math.max(1, math.ceil(#items / 8)); page = math.min(page, pages)
     title:SetText((mode == "rules" and "My phrase rules" or "My saved reports") .. "  |  " .. #items)
@@ -70,25 +73,26 @@ function ns.RefreshPersonal()
         detailScroll:SetSize(421, 342)
     end
     detail:SetSections(DetailsText())
-    use:SetShown(mode == "reports"); use:SetEnabled(Current() ~= nil and not Current().originalTruncated)
     save:SetShown(mode == "rules")
     remove:SetEnabled(Current() ~= nil); remove:SetText(deleteArmed and "Confirm delete" or mode == "rules" and "Delete rule" or "Delete report")
-    window.Mode:Refresh()
 end
-function ns.OpenPersonal(requestedMode)
-    if requestedMode == "reports" or requestedMode == "rules" then mode, selected, seed, page = requestedMode, nil, nil, 1 end
+local function Open()
+    local first=not window
     if not window then
-        window = T.Window("OlympusChatWardenPersonal", UIParent, 800, 630)
-        ns.PersonalWindow = window; T.Title(window, ns.NAME); T.Crest(window)
-        T.Gold(Label(window, "My reports & phrase rules", 78, -30, 690))
-        T.Muted(Label(window, "Saved on this account. Nothing is sent automatically.", 78, -50, 690))
+        window = T.Window(mode=="rules" and "OlympusChatWardenRules" or "OlympusChatWardenReports", UIParent, 800, 630)
+        if mode=="rules" then ns.RulesWindow=window else ns.ReportsWindow=window end
+        T.Title(window, ns.NAME); T.Crest(window)
+        T.Gold(Label(window, mode=="rules" and "My rules" or "My reports", 78, -30, 690))
+        T.Muted(Label(window, mode=="rules" and "Personal phrase actions. Applies to new matching text." or "Saved filter feedback. Nothing is sent automatically.", 78, -50, 690))
         local toolbar = T.Panel(window, 14, -74, 772, 42)
-        window.Mode = T.Dropdown(toolbar, 10, -8, 220, {{"reports", "My saved reports"}, {"rules", "My phrase rules"}},
-            function() return mode end, function(value) mode, page, seed = value, 1, nil; Select(nil) end)
-        Button(toolbar, "New rule", 244, -9, 100, function() mode, seed, page = "rules", nil, 1; Select(nil) end)
-        Button(toolbar, "Report a miss", 353, -9, 120, function() ns.OpenReport(nil, "Missed match") end)
-        Button(toolbar, "Export reports", 482, -9, 135, function() ns.OpenReportExport() end)
-        Button(toolbar, "Send feedback", 626, -9, 135, function() ns.OpenReportLink() end)
+        if mode=="rules" then
+            Button(toolbar,"New rule",10,-9,140,function() seed=nil;Select(nil) end)
+            T.Muted(Label(toolbar,"Rules change filtering. Reports are managed separately.",166,-16,590))
+        else
+            Button(toolbar,"Report a miss",10,-9,140,function() ns.OpenReport(nil,"Missed match") end)
+            Button(toolbar,"Export reports",164,-9,150,function() ns.OpenReportExport() end)
+            Button(toolbar,"Send feedback",328,-9,150,function() ns.OpenReportLink() end)
+        end
         local list = T.Panel(window, 14, -124, 285, 410)
         title = Label(list, "", 12, -12, 261); rows = {}
         for i = 1, 8 do
@@ -105,10 +109,10 @@ function ns.OpenPersonal(requestedMode)
         phrase = CreateFrame("EditBox", nil, editor, "InputBoxTemplate"); phrase:SetSize(422, 26); phrase:SetPoint("TOPLEFT", 24, -42)
         phrase:SetAutoFocus(false); phrase:SetMaxLetters(120); phrase:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
         T.TextField(phrase)
-        T.Tooltip(phrase,"Exact phrase","Use specific wording you want to change. A whole phrase is safer than a very short or common word.")
+        T.Tooltip(phrase,"Exact phrase","Enter the words to match, without quotation marks around them. Matches ignore English capitalization and use whole words. Rules apply to new messages, not earlier chat lines. A player name rule covers matching name text; it does not silence everything that player says.")
         Label(editor, "What should happen when this phrase appears?", 18, -88, 430, true)
         action = T.Dropdown(editor, 18, -112, 430, T.RuleActions, function() return action and action.value or "Redacted" end,
-            function(value) action.value = value; ns.RefreshPersonal() end)
+            function(value) action.value = value; Refresh() end)
         enabled = CreateFrame("CheckButton", nil, editor, "UICheckButtonTemplate"); enabled:SetPoint("TOPLEFT", 12, -209)
         enabled.Text:SetText("Enable this personal rule"); T.Ink(enabled.Text)
         T.Tooltip(enabled,"Use this rule","Turn the rule off to keep it saved without applying it.")
@@ -120,18 +124,14 @@ function ns.OpenPersonal(requestedMode)
         T.TextField(replacement)
         T.Tooltip(replacement,"Your replacement","This wording appears in gray instead of the matching phrase. It is not filtered again.")
         T.Tooltip(action,"What should happen?","Pick how this phrase should appear. Your personal rule works across sensitivity presets, but still follows text-area switches and exceptions.")
-        ns.RulePhraseBox, ns.RuleReplacementBox, ns.RuleActionDropdown = phrase, replacement, action
-        Label(editor, "Whole phrases: 3-120 English characters. Replacement text: 1-120. Coverage and exceptions apply.", 18, -244, 430, true)
+        if mode=="rules" then ns.RulePhraseBox, ns.RuleReplacementBox, ns.RuleActionDropdown = phrase, replacement, action end
+        Label(editor, "Exact whole words: 3-120 English characters. Applies to new chat; coverage and exceptions still apply.", 18, -244, 430, true)
         local scroll = CreateFrame("ScrollFrame", nil, window.Paper, "UIPanelScrollFrameTemplate"); window.DetailScroll = scroll
-        detail = T.ReadOnlyDocument(scroll);ns.PersonalDocument=detail
+        detail = T.ReadOnlyDocument(scroll);if mode=="reports" then ns.PersonalDocument=detail else ns.RulesDocument=detail end
         status = Label(window.Paper, "", 18, -370, 430, true)
-        previous = Button(window, "Previous", 14, -546, 90, function() page = math.max(1, page - 1); ns.RefreshPersonal() end)
-        nextPage = Button(window, "Next", 209, -546, 90, function() page = page + 1; ns.RefreshPersonal() end)
+        previous = Button(window, "Previous", 14, -546, 90, function() page = math.max(1, page - 1); Refresh() end)
+        nextPage = Button(window, "Next", 209, -546, 90, function() page = page + 1; Refresh() end)
         pager = Label(window, "", 113, -552, 95)
-        use = Button(window, "Make a rule", 312, -546, 145, function()
-            local report = Current(); if not report or report.originalTruncated then return end
-            seed, mode, page = report, "rules", 1; Select(nil)
-        end)
         save = Button(window, "Save personal rule", 312, -546, 175, function()
             local ok, message, id = P.SaveRule(phrase:GetText(), action.value, selected, seed and seed.original, ns.Checked(enabled:GetChecked()), replacement:GetText())
             if ok then seed = nil; Select(id) end
@@ -139,15 +139,31 @@ function ns.OpenPersonal(requestedMode)
         end)
         remove = Button(window, "Delete report", 502, -546, 140, function()
             local item = Current(); if not item then return end
-            if deleteArmed ~= item.id then deleteArmed = item.id; ns.RefreshPersonal(); return end
+            if deleteArmed ~= item.id then deleteArmed = item.id; Refresh(); return end
             if mode == "rules" then P.ChangeRule(item.id, nil, true) else P.RemoveReport(item.id) end
             Select(nil)
         end)
         Button(window, "Close", 686, -546, 100, function() window:Hide() end)
-        T.Muted(Label(window, "Save a phrase rule to change your filter. Export reports to share feedback. Deleting a report keeps its phrase rules.", 18, -593, 764))
-        window:SetScript("OnShow", ns.RefreshPersonal)
+        T.Muted(Label(window, mode=="rules" and "Rules are saved on this account. Existing chat lines are not rewritten." or "Reports are saved on this account. Deleting a report leaves your rules unchanged.", 18, -593, 764))
+        window:SetScript("OnShow", Refresh)
         window:SetScript("OnHide", function() deleteArmed = nil; phrase:ClearFocus(); replacement:ClearFocus(); detail:ClearFocus() end)
     end
     local w, h = UIParent:GetWidth(), UIParent:GetHeight()
-    window:SetScale(math.min(1, (w - 30) / 800, (h - 30) / 630)); T.ShowWindow(window); Select(selected)
+    window:SetScale(math.min(1, (w - 30) / 800, (h - 30) / 630)); T.ShowWindow(window)
+    if first then Select(nil) else Refresh() end
+end
+
+return {Open=Open,Refresh=function() if window then Refresh() end end}
+end
+local function Open(mode)
+    if not ns.DB then return end
+    instances[mode]=instances[mode] or Instance(mode)
+    instances[mode].Open()
+end
+function ns.OpenRules() Open('rules') end
+function ns.OpenReports() ns.OpenExport('reports',nil,nil,'review') end
+function ns.OpenPersonal(mode) if mode=='rules' then ns.OpenRules() else ns.OpenReports() end end
+function ns.RefreshPersonal()
+    for _,instance in pairs(instances) do instance.Refresh() end
+    if ns.RefreshReportsView then ns.RefreshReportsView() end
 end

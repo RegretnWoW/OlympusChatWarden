@@ -1,0 +1,101 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+<!-- Preserve the native alphabet-specific font family; never flatten it to one TTF. -->
+  <FontFamily name="ChatWardenFont11" virtual="true">
+    <Member alphabet="roman"><Font font="Fonts\FRIZQT__.TTF" height="11"/></Member>
+    <Member alphabet="korean"><Font font="Fonts\2002.ttf" height="11"/></Member>
+    <Member alphabet="simplifiedchinese"><Font font="Fonts\ARKai_T.ttf" height="11"/></Member>
+    <Member alphabet="traditionalchinese"><Font font="Fonts\blei00d.TTF" height="11"/></Member>
+    <Member alphabet="russian"><Font font="Fonts\FRIZQT___CYR.TTF" height="11"/></Member>
+  </FontFamily>
+  <FontFamily name="ChatWardenFont12" virtual="true">
+    <Member alphabet="roman"><Font font="Fonts\FRIZQT__.TTF" height="12"/></Member>
+    <Member alphabet="korean"><Font font="Fonts\2002.ttf" height="12"/></Member>
+    <Member alphabet="simplifiedchinese"><Font font="Fonts\ARKai_T.ttf" height="12"/></Member>
+    <Member alphabet="traditionalchinese"><Font font="Fonts\blei00d.TTF" height="12"/></Member>
+    <Member alphabet="russian"><Font font="Fonts\FRIZQT___CYR.TTF" height="12"/></Member>
+  </FontFamily>
+  <FontFamily name="ChatWardenFont13" virtual="true">
+    <Member alphabet="roman"><Font font="Fonts\FRIZQT__.TTF" height="13"/></Member>
+    <Member alphabet="korean"><Font font="Fonts\2002.ttf" height="13"/></Member>
+    <Member alphabet="simplifiedchinese"><Font font="Fonts\ARKai_T.ttf" height="13"/></Member>
+    <Member alphabet="traditionalchinese"><Font font="Fonts\blei00d.TTF" height="13"/></Member>
+    <Member alphabet="russian"><Font font="Fonts\FRIZQT___CYR.TTF" height="13"/></Member>
+  </FontFamily>
+  <FontFamily name="ChatWardenFont14" virtual="true">
+    <Member alphabet="roman"><Font font="Fonts\FRIZQT__.TTF" height="14"/></Member>
+    <Member alphabet="korean"><Font font="Fonts\2002.ttf" height="14"/></Member>
+    <Member alphabet="simplifiedchinese"><Font font="Fonts\ARKai_T.ttf" height="14"/></Member>
+    <Member alphabet="traditionalchinese"><Font font="Fonts\blei00d.TTF" height="14"/></Member>
+    <Member alphabet="russian"><Font font="Fonts\FRIZQT___CYR.TTF" height="14"/></Member>
+  </FontFamily>
+  <FontFamily name="ChatWardenFont15" virtual="true">
+    <Member alphabet="roman"><Font font="Fonts\FRIZQT__.TTF" height="15"/></Member>
+    <Member alphabet="korean"><Font font="Fonts\2002.ttf" height="15"/></Member>
+    <Member alphabet="simplifiedchinese"><Font font="Fonts\ARKai_T.ttf" height="15"/></Member>
+    <Member alphabet="traditionalchinese"><Font font="Fonts\blei00d.TTF" height="15"/></Member>
+    <Member alphabet="russian"><Font font="Fonts\FRIZQT___CYR.TTF" height="15"/></Member>
+  </FontFamily>
+  <FontFamily name="ChatWardenFont16" virtual="true">
+    <Member alphabet="roman"><Font font="Fonts\FRIZQT__.TTF" height="16"/></Member>
+    <Member alphabet="korean"><Font font="Fonts\2002.ttf" height="16"/></Member>
+    <Member alphabet="simplifiedchinese"><Font font="Fonts\ARKai_T.ttf" height="16"/></Member>
+    <Member alphabet="traditionalchinese"><Font font="Fonts\blei00d.TTF" height="16"/></Member>
+    <Member alphabet="russian"><Font font="Fonts\FRIZQT___CYR.TTF" height="16"/></Member>
+  </FontFamily>
+  <FontFamily name="ChatWardenFont17" virtual="true">
+    <Member alphabet="roman"><Font font="Fonts\FRIZQT__.TTF" height="17"/></Member>
+    <Member alphabet="korean"><Font font="Fonts\2002.ttf" height="17"/></Member>
+    <Member alphabet="simplifiedchinese"><Font font="Fonts\ARKai_T.ttf" height="17"/></Member>
+    <Member alphabet="traditionalchinese"><Font font="Fonts\blei00d.TTF" height="17"/></Member>
+    <Member alphabet="russian"><Font font="Fonts\FRIZQT___CYR.TTF" height="17"/></Member>
+  </FontFamily>
+  <FontFamily name="ChatWardenFont18" virtual="true">
+    <Member alphabet="roman"><Font font="Fonts\FRIZQT__.TTF" height="18"/></Member>
+    <Member alphabet="korean"><Font font="Fonts\2002.ttf" height="18"/></Member>
+    <Member alphabet="simplifiedchinese"><Font font="Fonts\ARKai_T.ttf" height="18"/></Member>
+    <Member alphabet="traditionalchinese"><Font font="Fonts\blei00d.TTF" height="18"/></Member>
+    <Member alphabet="russian"><Font font="Fonts\FRIZQT___CYR.TTF" height="18"/></Member>
+  </FontFamily>
+  <FontFamily name="ChatWardenFont19" virtual="true">
+    <Member alphabet="roman"><Font font="Fonts\FRIZQT__.TTF" height="19"/></Member>
+    <Member alphabet="korean"><Font font="Fonts\2002.ttf" height="19"/></Member>
+    <Member alphabet="simplifiedchinese"><Font font="Fonts\ARKai_T.ttf" height="19"/></Member>
+    <Member alphabet="traditionalchinese"><Font font="Fonts\blei00d.TTF" height="19"/></Member>
+    <Member alphabet="russian"><Font font="Fonts\FRIZQT___CYR.TTF" height="19"/></Member>
+  </FontFamily>
+  <FontFamily name="ChatWardenFont20" virtual="true">
+    <Member alphabet="roman"><Font font="Fonts\FRIZQT__.TTF" height="20"/></Member>
+    <Member alphabet="korean"><Font font="Fonts\2002.ttf" height="20"/></Member>
+    <Member alphabet="simplifiedchinese"><Font font="Fonts\ARKai_T.ttf" height="20"/></Member>
+    <Member alphabet="traditionalchinese"><Font font="Fonts\blei00d.TTF" height="20"/></Member>
+    <Member alphabet="russian"><Font font="Fonts\FRIZQT___CYR.TTF" height="20"/></Member>
+  </FontFamily>
+  <FontFamily name="ChatWardenFont22" virtual="true">
+    <Member alphabet="roman"><Font font="Fonts\FRIZQT__.TTF" height="22"/></Member>
+    <Member alphabet="korean"><Font font="Fonts\2002.ttf" height="22"/></Member>
+    <Member alphabet="simplifiedchinese"><Font font="Fonts\ARKai_T.ttf" height="22"/></Member>
+    <Member alphabet="traditionalchinese"><Font font="Fonts\blei00d.TTF" height="22"/></Member>
+    <Member alphabet="russian"><Font font="Fonts\FRIZQT___CYR.TTF" height="22"/></Member>
+  </FontFamily>
+  <FontFamily name="ChatWardenFont25" virtual="true">
+    <Member alphabet="roman"><Font font="Fonts\FRIZQT__.TTF" height="25"/></Member>
+    <Member alphabet="korean"><Font font="Fonts\2002.ttf" height="25"/></Member>
+    <Member alphabet="simplifiedchinese"><Font font="Fonts\ARKai_T.ttf" height="25"/></Member>
+    <Member alphabet="traditionalchinese"><Font font="Fonts\blei00d.TTF" height="25"/></Member>
+    <Member alphabet="russian"><Font font="Fonts\FRIZQT___CYR.TTF" height="25"/></Member>
+  </FontFamily>
+  <FontFamily name="ChatWardenFont27" virtual="true">
+    <Member alphabet="roman"><Font font="Fonts\FRIZQT__.TTF" height="27"/></Member>
+    <Member alphabet="korean"><Font font="Fonts\2002.ttf" height="27"/></Member>
+    <Member alphabet="simplifiedchinese"><Font font="Fonts\ARKai_T.ttf" height="27"/></Member>
+    <Member alphabet="traditionalchinese"><Font font="Fonts\blei00d.TTF" height="27"/></Member>
+    <Member alphabet="russian"><Font font="Fonts\FRIZQT___CYR.TTF" height="27"/></Member>
+  </FontFamily>
+  <FontFamily name="ChatWardenFont28" virtual="true">
+    <Member alphabet="roman"><Font font="Fonts\FRIZQT__.TTF" height="28"/></Member>
+    <Member alphabet="korean"><Font font="Fonts\2002.ttf" height="28"/></Member>
+    <Member alphabet="simplifiedchinese"><Font font="Fonts\ARKai_T.ttf" height="28"/></Member>
+    <Member alphabet="traditionalchinese"><Font font="Fonts\blei00d.TTF" height="28"/></Member>
+    <Member alphabet="russian"><Font font="Fonts\FRIZQT___CYR.TTF" height="28"/></Member>
+  </FontFamily>
+</Ui>

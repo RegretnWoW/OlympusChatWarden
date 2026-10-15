@@ -6,7 +6,7 @@ local pageID, loginReady, queued, deferFrame = "basics", false, false
 local pages = {
     {id = "basics", title = "Overview", text = [[OLYMPUS CHATWARDEN
 
-Open Review & Protection from Olympus or /ocw inbox.
+Open the ChatWarden workspace from Olympus or /ocw. Overview is the default page. Use the sidebar for pages and horizontal tabs for views.
 
 ACCESS
 
@@ -14,57 +14,85 @@ ChatWarden requires Olympus as a separate word in your current character's guild
 
 Guild changes are checked automatically. All features stop outside a qualifying guild, including capture, reports, exports and pack actions. Open tools close and settings lock. Saved data is kept; access resumes when the character qualifies.
 
-Messages: filtered originals and unread hidden messages.
+Messages: your filtering feed across all channels, including whispers. Review warnings, replacements, redactions and hidden originals. Ctrl + left-click reveals covered names.
 Shield: contact alerts and shielded or allowed players.
-Chat capture: saved chat and incident bookmarks. Recording starts off.
+Mentions: your full character name, nicknames and literal watch phrases. Badges start on; sound and toast start off.
+Chat capture: saved chat, incident bookmarks and whisper conversations. Recording starts off.
 
 DISPLAY
 
 Gold [!]: warning; the message remains visible.
-Black bars: matching words are covered.
+Bronze bars: matching words are covered.
 Gray text: a wording replacement.
 Hidden: removed from chat; its original remains in Messages.
 
 Ctrl + left-click a covered phrase to reveal or cover it. Hold Ctrl to reveal filtered tooltip text. Some protected labels do not support click-to-reveal.
 
-Red badges count unread hidden messages from your enabled notification categories. Select each message to clear its badge everywhere. Repeated-message spam, rapid chat, gold/service ads and guild recruitment ads are quiet by default; their originals remain in Messages. Settings > ChatWarden > Notifications controls badges, categories and Shield chat notices. Notification settings do not change filtering.
+Messages contains wording/language filtering activity: warnings, replacements, redactions and hidden messages. Ordinary chat stays out. Warnings and replacements appear quietly; the Messages badge counts eligible unread hides by default. Redaction alerts have a separate switch and start off. Shield, spam and advertising records appear in Shield; Mentions contains mention activity. Overview combines these feeds. Select an entry to clear its category's unread state. Language-only filtering and spam/advertising notifications start quiet. Settings > Notifications controls badges, categories and Shield notices without changing filtering.
 
 STORAGE
 
-Messages and Shield alerts clear on reload. Rules, reports, saved shields, chat capture and bookmarks persist. Session shields end on logout or reload.
+Messages, Mentions, contact alerts and read states now survive reloads and logins, separately for each character. History restores quietly and oldest records roll off at the limits.
+
+Settings > Activity history controls saving and Clear all history for this character. Clearing history keeps rules, reports, capture, bookmarks and protection lists. Session shields still end on logout or reload; saved timed shields retain their original expiry.
 
 COMMANDS
 
-/ocw: settings
+/ocw: overview
+/ocw settings: settings
+/ocw overview: dashboard
+/ocw mentions: mention alerts
 /ocw inbox: message review
 /ocw shield: player management
 /ocw capture: recording and bookmarks
 /ocw export: report export preview
 /ocw languages: language settings
+/ocw spelling: spelling suggestions
 /ocw help: this guide]]},
+    {id = "mentions", title = "Mentions", text = [[MENTION ALERTS
+
+Open Mentions or /ocw mentions. Use the page’s Enable/Pause Mentions button or click its icon to toggle alerts. Your full current character name, including the Forever surname, is watched automatically. Mention settings lets you add nicknames and literal watch phrases, edit or disable them, and choose channels.
+
+Badges start on; sound and toast start off. Optional sound and toast share an adjustable cooldown. Your own messages, duplicate deliveries, hidden chat and shielded contacts do not trigger mention alerts. Redacted previews stay redacted. Multiple phrases in one message create one entry.
+
+Read an entry or use Mark all read for the current category. Overview, category pages and the Olympus launcher share their unread counts. Reading Messages does not clear an unread mention from the same line.
+
+The shared activity stream is limited to 300 entries or 1 MB in memory. Messages, Mentions, contact alerts and read states are saved per character by default. Saved history has a 2 MB budget per character, 12 characters and 8 MB total. Use Settings > Activity history to stop remembering or clear this character’s activity. Watch phrases and channel preferences persist. Capture stays opt-in and is independent of mention detection.]]},
     {id = "confidence", title = "Filtering", text = [[SENSITIVITY
 
-Broad: accepts matches scoring 40 or more. Default.
-Balanced: accepts 65 or more.
-Selective: accepts 85 or more.
-Gommage: Broad scoring plus display masks supplied by installed signed imports. No mask list is included in this package.
+Mild: warns on strong eligible expressions. Mild unwanted opinions stay visible.
+Balanced (new-user default): follows the author's display preferences. Mild unwanted support or criticism warns; stronger promotion or attacks redact.
+Broad: hides eligible unwanted expressions and recognizes wider selected topics.
+Context handling keeps neutral references, genuine questions, quotations and the opposite stance visible. Recognized explicit threats use separate protection.
+Gommage starts off. It is the separate, deliberately exaggerated meme option: cover the original curated lists in any preset, even inside criticism or questions.
 
 RESULTS
 
-40-64: warning.
-65-84: cover matching words or apply a replacement.
-85+: hide the chat message and retain its original.
+Warnings keep the message visible. Redactions cover matched wording. Hidden messages retain their original for review.
+Current terminology packs recognize topics without filtering a bare reference. They filter support/promotion of the author's selected concepts and leave criticism visible. Protected subjects such as USA have the opposite direction: praise stays visible and directed attacks may filter. Broad recognizes wider topics, but does not bypass the context checks.
+Examples in Balanced: DEI is useful warns; We should adopt DEI hiring policies redacts; What does DEI mean stays visible. USA sucks redacts; Why does USA suck stays visible.
+Topic preferences, replacements and Gommage masks are separate from abuse signals and cannot automatically shield a sender.
 
-Weak matches do not add together. Display masks do not increase scores. Scores indicate rule-match strength, not a player's intent.
+Actions follow topic relevance, expressed stance and strength, then the preset. Why filtered? and reports retain those separate interpretations. They are bounded wording inferences, not calibrated probabilities or a judgment about a player.
 
-Use context clues is on by default. It checks nearby wording when supported by a rule.
+Context handling is always active; the old switch has been removed. Choose Mild, Balanced or Broad to adjust actions. Genuine questions and reported wording are interpreted separately from direct assertions.
+
+EXPERIMENTAL INCOMING TYPO FILTERING
+
+This build also checks close English spelling guesses in other players' chat, including eligible words in directed statement patterns. Matching keeps the selected action policy. Gommage guesses add no score. Originals remain unchanged in Review and reports. Incorrect guesses are possible.
+
+Settings > Spelling > Typo-aware incoming filtering starts enabled in Balanced mode by default. Choose Balanced, Aggressive or Off to compare; subsequent choices persist. Typing highlights and automatic correction are separate. Your own messages, names, NPC/system text and native hyperlinks are excluded from the extra pass. Existing rc60 signed packs remain valid.
 
 REVIEW
 
-Select a message and choose Why filtered? for its matched rules. Report a problem saves feedback. Saving a report alone does not change filtering.
+Select a message and choose Why filtered? for its matched rules. Report problem saves feedback about ChatWarden. Report player opens Blizzard's report flow for a player-chat message; you still choose the reason and submit it yourself. Saving a ChatWarden report alone does not change filtering.
 
 Personal phrase rules can keep text visible, warn, redact, hide or replace it. Other matching rules and coverage settings still apply.]]},
-    {id = "presets", title = "Settings", text = [[COVERAGE
+    {id = "presets", title = "Settings", text = [[SETTINGS WORKSPACE
+
+The Settings landing page opens Filtering, Languages, Shield, Spam, Notifications and Spelling. Each detail page uses the full workspace. Filtering includes direct sensitivity dropdowns for installed packs. Spelling has a scrolling personal dictionary. Mention preferences remain in Mentions > Mention settings. Window size is available from the Settings landing page.
+
+COVERAGE
 
 Player chat and accessible chat bubbles start on. NPC chat, quests/dialogue, vendors, names, nameplates and general tooltip filtering start off.
 
@@ -91,9 +119,9 @@ Shield starts on. Settings > ChatWarden > Shield has switches for each protectio
 
 Strong-wording whispers: 3 in 2 minutes; shield 10 minutes.
 Repeated whispers: 6 in 30 seconds; shield 10 minutes.
-Trades: 4 in 10 minutes; shield 15 minutes.
-Duels: 4 in 2 minutes; shield 10 minutes.
-Group invites: 4 in 10 minutes; shield 15 minutes.
+Trades, duels and group invites: 4 requests in 60 seconds; shield 5 minutes.
+
+These are Balanced defaults and are shown beneath every check, including while Custom limits are selected. Settings > Shield offers Custom limits for each check: 2–20 triggers, a 10–600 second window and 1–60 timeout minutes. Apply saves all limits together and resets detection counters. Reset defaults restores Balanced. Existing shield timers keep their expiry. Your individual protection switches are retained.
 
 REPEATED WHISPERS
 
@@ -119,7 +147,9 @@ Reports keep spam settings, the pause/timeout stage and the recorded filter resu
 
 PLAYER MANAGEMENT
 
-Review > Shield > Recent alerts or Players. Select a player or enter Name-Realm. Add shield, Remove shield or Allow player. Allowed players still use ordinary word filters.
+Shield > Recent alerts, Active shields or Allowed players. Select a player to see applicable actions. Remove shield ends a stored shield; End chat pause clears a brief pause. An unshielded player offers Add shield, and an allowed player offers Stop allowing. Historical alerts remain after removal with the current status.
+
+Add player accepts a full name (and realm when needed). Duplicate identities are rejected without changing the existing duration. A new shield opens Active shields with the player selected. Allowed players still use ordinary word filters.
 
 Right-click player names for shortcuts. Export shields opens a selectable privacy preview. Shields are local preferences, not moderator findings.
 
@@ -132,7 +162,7 @@ OLYMPUSMUTE SIGNAL TOOLTIPS
 On by default. Adds ChatWarden: OlympusMute Signal Detected when compatible sharing was observed. This does not prove current addon use; absence of a note proves nothing. Observations have no age expiry, with a 10,000-player limit. Disabling detection preserves history.]]},
     {id = "capture", title = "Chat capture", text = [[RECORDING
 
-Open Review > Chat capture or /ocw capture. Check the whisper and guild/officer switches, then Start capture.
+Open Capture or /ocw capture. Start Capture and the page icon both toggle recording; the button becomes Pause Capture while recording. Use Capture settings for whisper and guild/officer switches.
 
 Records supported player chat, including your own messages. Continues across normal logouts and reloads until paused. Recording is independent of word filtering.
 
@@ -146,7 +176,7 @@ BOOKMARKS
 
 Select a line, enter a title or note, then Save bookmark. Saves up to 10 already captured lines before and after it. Future messages are not added.
 
-Show > Bookmarks lists saved incidents. Titles and notes can be updated. Limit: 50 bookmarks or 1 MB, separate from the rolling capture.
+The Bookmarks tab lists saved incidents. Titles and notes can be updated. Limit: 50 bookmarks or 1 MB, separate from the rolling capture.
 
 RIGHT-CLICK ACTIONS
 
@@ -191,7 +221,7 @@ Personal/category rules still apply to chat names separately. Covered names appe
 
 REVIEW AND REPORTS
 
-Only hidden messages in enabled notification categories receive unread badges. Select one to clear its badges everywhere. Why filtered? shows the detection and action rule. Allow language updates the reading list.
+Hidden-message alerts start on and redaction alerts start off. Enable either independently in Notifications; category preferences still apply. Select one to clear its badges everywhere. Why filtered? shows the detection and action rule. Allow language updates the reading list.
 
 Report a problem saves feedback. Report a miss from the player's chat-name menu or paste an example. Received examples keep their message-time settings and action rule; pasted examples use current settings. Export previews let you select records, hide known names and omit notes.
 
@@ -205,9 +235,13 @@ Incorrect result: select the original in Messages > Report a problem.
 
 Choose the expected action, add a note if needed, and save. A report records feedback only. Also apply a personal phrase rule changes your filter immediately.
 
+READ AND SHARE REPORTS
+
+Reports includes Read reports and Share preview in the main workspace. Read reports shows the original and your feedback. Share preview selects the reports to export and controls privacy. Rules has its own sidebar page.
+
 EXPORT PREVIEW
 
-Reports, Shield lists, captured chat and bookmarks use the same preview.
+Reports, Shield lists, captured chat and bookmarks use the same preview. The page heading identifies the current tool: Report exports, Shield exports, Chat Capture exports or Bookmark exports.
 
 1. Select the entries to include.
 2. Choose whether to hide known player names.
@@ -221,7 +255,27 @@ Known names start hidden. Notes start excluded. Name removal does not guarantee 
 Selections and privacy changes rebuild the preview. Make final text edits last. New messages do not alter the open export batch.
 
 Filter feedback retains matched-rule details. Signed pack exports preserve their complete signed text. Nothing is submitted automatically.]]},
-}
+    {id = "spelling", title = "Spelling", text = [[SPELLING ASSISTANCE
+
+Enable spelling highlights in Settings > Spelling. This starts off.
+
+Possible English spelling mistakes receive an orange highlight in accessible one-line text inputs. Right-click a highlighted word to choose a suggestion, save a personal word or ignore it until reload.
+
+Automatic correction is a separate option and starts off. It applies a clear best correction after you finish a word. Ambiguous text stays unchanged. Corrections never send the message.
+
+Password, protected, numeric, IME, code/import and read-only fields are excluded. Links, known player names and common WoW terms are skipped. American and British spellings are supported. No text leaves the game.
+
+INCOMING FILTERING
+
+Typo-aware incoming filtering is separate from typing assistance. Balanced is enabled once by default. It matches installed phrases while using the English dictionary to protect correctly spelled words, without loading the suggestion index. Known names and ambiguous different guesses stay unchanged. Choose Balanced, Aggressive or Off in Settings > Spelling. Why filtered? and saved reports preserve originals, guesses, edit counts and the message-time mode. Optional watch-phrase typo alerts are in Mention settings; names and nicknames remain literal.
+
+WINDOWS AND UPDATE NOTES
+
+All addon pages, editors, exports and guides now share one bronze main window with compact page bars. Overview feature icons and the header Filtering/Shield icons toggle their features. Inactive icons have a minus badge. Messages shows selected originals automatically; Overview keeps a safe preview until Show original is clicked. Details and Actions have separate framed boxes. Lists use padded rows and always-visible scrollbars, and keep your place as new messages arrive. Blue buttons indicate selected views or primary actions, gray buttons navigate or offer utilities, and red buttons remove data or protection. Updates contains the 1.0 launch tour and feature locations. Settings > Window size lets you save a 50-150% size using the slider or typed input; Fit to screen restores automatic sizing. Use the sidebar and tabs to switch views. Drag the header to move the workspace. Dropdowns and spelling suggestions close when switching views.
+
+Rules contains personal phrase actions. Reports contains saved filter feedback and its Share preview. They have separate pages; reports never change rules automatically.
+
+Update notes appear once after an installed release changes. Use /ocw updates or the Updates sidebar page to reopen them. Turn off automatic notes on that screen if desired.]]},}
 ns.HelpPages = pages
 local function Label(parent, text, x, y, width, font, paper)
     local label = parent:CreateFontString(nil, "OVERLAY", font or "GameFontHighlightSmall")
@@ -243,6 +297,10 @@ end
 local function Page(id)
     for _, page in ipairs(pages) do if page.id == id then return page end end
 end
+function ns.TutorialTopics()
+    local topics={};for _,page in ipairs(pages) do topics[#topics+1]={id=page.id,title=page.title} end;return topics
+end
+function ns.TutorialPage(id) return Page(id) or pages[1] end
 local function SetPage(id)
     local page = Page(id) or pages[1]; pageID = page.id
     tutorial.Heading:SetText(page.title)
@@ -266,7 +324,7 @@ function ns.OpenTutorial(requestedPage)
         local paper = T.Panel(tutorial, 14, -126, 752, 428, true)
         scroll = CreateFrame("ScrollFrame", nil, paper, "UIPanelScrollFrameTemplate")
         scroll:SetSize(700, 390); scroll:SetPoint("TOPLEFT", 18, -18)
-        body = CreateFrame("EditBox", nil, scroll); ns.TutorialText = body
+        body = CreateFrame("EditBox", nil, scroll); ns.TutorialText = body;body.ChatWardenNoSpelling=true
         body:SetMultiLine(true); body:SetAutoFocus(false); T.Body(body); T.Ink(body)
         body:SetSize(696, 390); scroll:SetScrollChild(body)
         measure = body:CreateFontString(nil, "OVERLAY"); T.Body(measure)
@@ -301,7 +359,7 @@ function ns.OpenWelcome()
         T.Muted(Label(welcome, "Local filtering, contact protection and optional chat recording.", 78, -50, 570))
         local cards = {
             {"Filtering and review", "Configure sensitivity and coverage in Settings. Messages retains filtered originals. Select hidden messages to clear their unread badges."},
-            {"Contact protection", "Shield starts on with Normal Harassment. It detects strong wording, repeated whispers and repeated requests. Manage players in Review > Shield."},
+            {"Contact protection", "Shield starts on with Balanced protection. It detects strong wording, repeated whispers and repeated requests. Manage players in Review > Shield."},
             {"Chat capture and exports", "Recording starts off. Start it in Chat capture, save incident bookmarks, and select entries and privacy options before copying an export."},
         }
         for i, card in ipairs(cards) do
@@ -313,14 +371,14 @@ function ns.OpenWelcome()
         T.Muted(Label(welcome, "Open this overview with /ocw welcome. Full reference: /ocw help.", 20, -432, 640))
         Button(welcome, "Close", 20, -470, 110, function() welcome:Hide() end)
         Button(welcome, "Settings", 142, -470, 140, function()
-            welcome:Hide(); SlashCmdList.OLYMPUSCHATWARDEN("options")
+            SlashCmdList.OLYMPUSCHATWARDEN("options")
         end)
         Button(welcome, "How filtering works", 294, -470, 200, function()
-            welcome:Hide(); ns.OpenTutorial("basics")
+            ns.OpenTutorial("basics")
         end)
         T.Muted(Label(welcome, "Data stays local. Reports are shared only when you copy and submit them.", 20, -507, 640))
     end
-    local preset = ({maximum = "Gommage", aggressive = "Broad", balanced = "Balanced", strict = "Selective"})[ns.DB.preset]
+    local preset = ({aggressive = "Broad", balanced = "Balanced", strict = "Mild"})[ns.DB.preset] or 'Balanced'
     welcome.Status:SetHeight(34)
     welcome.Status:SetText("Filter: " .. (ns.Active() and "active" or "paused") .. "  |  Current sensitivity: " .. preset
         .. (ns.Membership and ("\n" .. ns.Membership.Status()) or ""))

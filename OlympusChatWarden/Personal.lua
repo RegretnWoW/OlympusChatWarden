@@ -67,7 +67,10 @@ function P.SaveRule(phrase, action, id, original, enabled, replacement)
     local prepared, err = P.PrepareRule(phrase, action, id, original, enabled, replacement)
     if not prepared then return false, err end
     Commit(prepared.rules, prepared.matcher, prepared.byPhrase)
-    return true, "Personal rule saved. It applies to new chat and supported text.", prepared.rule.id
+    local message=prepared.rule.enabled and "Rule saved and enabled. Applies to new messages and supported text."
+        or "Rule saved but switched off. Enable it to apply it."
+    if prepared.rule.enabled and ns.DB.chat==false then message=message.." Player chat filtering is off in Settings." end
+    return true, message, prepared.rule.id
 end
 function P.ChangeRule(id, enabled, remove)
     local rules, found = {}, false
@@ -81,11 +84,16 @@ function P.ChangeRule(id, enabled, remove)
     if not matcher then return false, err end
     Commit(rules, matcher, byPhrase); return true
 end
-function P.Hits(text)
+function P.Hits(text,typoWork)
     if not P.matcher then return {} end
     local found, err = P.matcher:Find(text, true)
     if err then return {}, err end
-    table.sort(found, function(a, b) return a.first < b.first or a.first == b.first and a.last > b.last end)
+    if typoWork then for _,hit in ipairs(ns.TypoFilter.Hits(P.matcher,text,found,typoWork)) do found[#found+1]=hit end end
+    table.sort(found, function(a, b)
+        if a.first~=b.first then return a.first<b.first end
+        if a.last~=b.last then return a.last>b.last end
+        return not a.typo and b.typo==true
+    end)
     local hits, cursor = {}, 1
     for _, hit in ipairs(found) do
         if hit.first >= cursor then
@@ -94,6 +102,7 @@ function P.Hits(text)
         hit.replacement = rule.replacement
         hit.pack, hit.id, hit.origin = "personal", "personal:" .. rule.id, "saved personal phrase rule"
         hit.threshold, hit.reason = 0, "personal action: " .. rule.action
+        if hit.typo then hit.reason=hit.reason..'; spelling guess: '..text:sub(hit.first,hit.last)..' -> '..phrase..' ('..hit.typoEdits..' edits)' end
         hits[#hits + 1] = hit; cursor = hit.last + 1
         end
     end

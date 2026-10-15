@@ -51,7 +51,7 @@ function C.Capture(event, message, sender, lineID)
         lineID = id, deliveryKey=deliveryKey, sessionTime = ns.SessionTime(),
         timestamp = ns.SafeNumber(ns.SafeCall(time)) or ns.SafeNumber(ns.SafeCall(GetServerTime)),
         truncated = #message > C.MAX_TEXT, captureID = session .. ":" .. C.nextID,
-        capturePolicy = {preset = ns.DB.preset, context = ns.DB.context == true,
+        capturePolicy = {preset = ns.DB.preset, context = ns.DB.context == true,typoFiltering=ns.DB.typoFiltering==true,typoFilteringMode=ns.TypoFilter.Mode(),
             enabled = ns.DB.enabled == true, chatEnabled = ns.DB.chat ~= false,
             adapterSupported = supported[event] == true, disabledPacks = {}, packPresets = ns.Reports.PackPresets(ns.DB.packPresets),
             threshold = ns.Confidence.Presets[ns.DB.preset], exceptionCount = #ns.DB.exceptions}}
@@ -65,7 +65,7 @@ function C.Capture(event, message, sender, lineID)
     C.entries[#C.entries + 1] = entry; C.bytes = C.bytes + entry.bytes
     return entry
 end
-function C.RecordOutcome(entry,action,source,diagnostic)
+function C.RecordOutcome(entry,action,source,diagnostic,preview)
     if type(entry)~='table' or type(entry.captureSnapshot)~='table'
         or not ({Unchanged=true,Warning=true,Redacted=true,Replaced=true,Hidden=true})[action] then return false end
     local snapshot=entry.captureSnapshot;local before=#ns.Reports.JSON(snapshot)
@@ -77,6 +77,7 @@ function C.RecordOutcome(entry,action,source,diagnostic)
     local delta=#ns.Reports.JSON(snapshot)-before
     entry.bytes=entry.bytes+delta;C.bytes=C.bytes+delta
     while C.bytes>C.MAX_BYTES and #C.entries>0 do RemoveFirst() end
+    if ns.Mentions then ns.Mentions.Observe(entry,source,preview) end
     return true
 end
 function C.Find(sender, lineID)
@@ -156,7 +157,7 @@ end
 function C.BuildMenu(_, root, ctx)
     awaitingMenu = nil
     local shieldMenu=ns.PlayerMenus and ns.PlayerMenus.Add(root,ctx)
-    if not ns.DB or not ns.Readable(ctx) or type(ctx) ~= "table" or not ns.CanRead(ctx.name) then return end
+    if not ns.Active() or not ns.Readable(ctx) or type(ctx) ~= "table" or not ns.CanRead(ctx.name) then return end
     if not ns.Readable(ctx.chatFrame) then return end
     local frame = ctx.chatFrame
     if not frame and (not ns.Readable(ctx.unit) or (ctx.unit and ctx.unit ~= "")) then return end
@@ -176,17 +177,22 @@ function C.BuildMenu(_, root, ctx)
     -- Only chat-name menus. Portraits, rosters, Battle.net and unrelated menus are untouched.
     if not frame and not menu.click then return end
     if not root or not root.CreateButton then return end
+    local click=menu.click
+    local recording=ns.ChatCapture and ns.ChatCapture.db.enabled
+    if not ns.DB.chat and not recording then return end
     awaitingMenu = menu
-    if not shieldMenu then
-        if root.CreateDivider then root:CreateDivider() end
-        if root.CreateTitle then root:CreateTitle(ns.NAME) end
-    end
+    root=shieldMenu or ns.PlayerMenus.Submenu(root)
+    if not root then return end
+    if ns.DB.chat then
     local item = root:CreateButton("Report missed filter", function() C.Open(menu.click) end)
     if item and item.SetTooltip then item:SetTooltip(function(tooltip)
         tooltip:AddLine("Report missed filter", 1, 0.82, 0.39)
         tooltip:AddLine("Review the message, choose its wanted action and save an example for rule tuning.", 1, 1, 1, true)
     end) end
-    root:CreateButton('Bookmark this chat message',function()
+    end
+    -- Some Classic menus receive their clicked hyperlink after construction.
+    -- Resolve the clicked line at activation, while hiding this action when paused.
+    if recording then root:CreateButton('Bookmark this message',function()
         local click=menu.click
         local entry=click and ns.ChatCapture.Find(click.sender,click.lineID)
         if not entry then
@@ -195,11 +201,7 @@ function C.BuildMenu(_, root, ctx)
         end
         local ok,message=ns.ChatCapture.Bookmark(entry.id,'','');ns.Print(message)
         if ok then ns.OpenCaptureBookmark(ns.ChatCapture.nextBookmark) end
-    end)
-    local startCapture=not ns.ChatCapture.db.enabled
-    root:CreateButton(startCapture and 'Start chat capture' or 'Pause chat capture',function()
-        ns.ChatCapture.SetOption('enabled',startCapture);ns.OpenCapture()
-    end)
+    end) end
 end
 function C.Install()
     if not eventFrame then
@@ -230,5 +232,7 @@ function C.OnEvent(_, event, message, sender, ...)
         local channel=ns.SafeString(select(7,...),128) or ns.SafeString(select(2,...),128)
         ns.ChatCapture.Record(event,message,sender,select(9,...),channel~='' and channel or nil)
     end
-    C.Capture(event, message, sender, select(9, ...))
+    local entry=C.Capture(event, message, sender, select(9, ...))
+    if entry then entry.channel=ns.SafeString(select(7,...),128) or ns.SafeString(select(2,...),128) end
+    if entry and ns.Mentions and C_Timer and C_Timer.After then C_Timer.After(0,function() ns.Mentions.Unrendered(entry) end) end
 end
