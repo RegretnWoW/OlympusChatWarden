@@ -1,0 +1,31 @@
+{
+  "version": "1.0.2",
+  "addonSha256": "3d3ce002de0ef376046eb077dd8e11117799c953ebbf36c4cc91ac2ef418fc76",
+  "evidenceSha256": "150204ede5cc835810702da9e31734b0556b04b09e9ecff94b48345638f6efec",
+  "fromDeliveredArchives": true,
+  "externalDependencyOnly": "Lupa Lua 5.1",
+  "nativeAssertions": 211,
+  "wantedAssertions": 106,
+  "functionalCases": 129,
+  "signedPackComparisons": 1896,
+  "failed": 0,
+  "suites": [
+    {
+      "suite": "test-integration.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-wanted.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "run-functional-baseline.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "run-signed-pack-regression.py",
+      "exitCode": 0
+    }
+  ],
+  "liveWoWTested": false
+}
