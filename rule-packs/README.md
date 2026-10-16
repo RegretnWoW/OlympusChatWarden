@@ -1,6 +1,6 @@
-# Optional signed packs — 1.0.1 candidate
+# Optional signed packs
 
-Use with 1.0.1 or compatible previews from preview3 onward. Only Olympus
+Compatible with ChatWarden 1.0.1 and 1.0.2. The packs are unchanged for 1.0.2; current imports do not need replacing. Only Olympus
 Protection v10 and King Protection v9 ship inside the addon. Optional packs
 are separate manual imports.
 
