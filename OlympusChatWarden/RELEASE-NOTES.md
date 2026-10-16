@@ -1,3 +1,17 @@
+# Olympus ChatWarden 1.0.2 — release
+
+- Zeus artwork meets the full panel's bottom-left trim. Compact activity icons are centered, with less space around the toggles. Clicking a compact entry marks it read.
+- Olympus 1.2.4 gets a compact ChatWarden page with quick controls and more scrolling recent activity. Right-click its tab for the full UI.
+- Updates keeps older release notes. Use Previous update and Next update to browse 1.0.1 and 1.0.0.
+- Mentions is now Alerts. Personal mentions and Wanted encounters have separate views and settings, and both remain in Overview.
+- Exact full Wanted names in visible chat get an icon with current bounty details on hover. Chat mentions never create Wanted notifications; your own visible chat works for testing.
+- Guild rank appears beside Zeus without the extra role label. The Title row appears only when Olympus supplies a selected title. Connection status stays in the top bar.
+- With Olympus 1.2.4, grant access in `/oly privacy` so Olympus can confirm membership. Older Olympus versions keep the guild-name fallback.
+
+Filtering rules and signed packs are unchanged. Keep your SavedVariables when replacing the addon folder. Sound and toast start off. See RELEASE-CHECKS.md for the remaining live checks.
+
+---
+
 # Olympus ChatWarden 1.0.1
 
 ## Filtering and packs

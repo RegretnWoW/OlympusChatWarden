@@ -93,7 +93,8 @@ local function ReviewValid(item)
 end
 local function ActivityValid(item)
     if type(item.id)~='string' or #item.id>512 or type(item.categories)~='table' then return false end
-    if not (item.categories.messages==true or item.categories.mentions==true or item.categories.shield==true or item.categories.activity==true) then return false end
+    if not (item.categories.messages==true or item.categories.mentions==true or item.categories.shield==true or item.categories.activity==true or item.categories.wanted==true) then return false end
+    if item.categories.wanted and (not ns.Wanted or not ns.Wanted.ValidRecord(item.wanted)) then return false end
     for _,key in ipairs({'text','preview','sender','event','channel','action'}) do
         if item[key]~=nil and type(item[key])~='string' then return false end
     end
@@ -147,7 +148,7 @@ function H.Flush()
     local activity={}
     for _,item in ipairs(ns.Activity.entries) do
         local row={shieldID=item.shieldAlert and item.shieldAlert.id}
-        for _,key in ipairs({'id','reviewID','sender','event','channel','preview','text','mentionMatches','timestamp','action','read','quiet','categories'}) do row[key]=item[key] end
+        for _,key in ipairs({'id','reviewID','sender','event','channel','preview','text','mentionMatches','timestamp','action','read','quiet','categories','wanted'}) do row[key]=item[key] end
         activity[#activity+1]=row
     end
     local data=Normalize({review=ns.Review.entries,activity=activity,alerts=ns.Shield.alerts,
@@ -201,11 +202,11 @@ function H.Initialize()
             local id=alert and 'shield:'..alert.id or 'saved-activity:'..i
             if entry then entry.activityID=id;entry.activityEvicted=false end
             if alert then alert.activityEvicted=false end
-            for _,category in ipairs({'messages','mentions','shield','activity'}) do
-                if item.categories[category] and ((category=='messages' or category=='activity') and entry or category=='shield' and (alert or entry) or category=='mentions') then
+            for _,category in ipairs({'messages','mentions','shield','activity','wanted'}) do
+                if item.categories[category] and ((category=='messages' or category=='activity') and entry or category=='shield' and (alert or entry) or category=='mentions' or category=='wanted' and ns.Wanted.ValidRecord(item.wanted)) then
                     local restored=ns.Activity.Add(id,category,{reviewID=entry and entry.id,shieldAlert=alert,
                         sender=item.sender,event=item.event,channel=item.channel,preview=item.preview,text=item.text,
-                        mentionMatches=item.mentionMatches,timestamp=item.timestamp,action=item.action},item.quiet[category]==true)
+                        mentionMatches=item.mentionMatches,timestamp=item.timestamp,action=item.action,wanted=item.wanted},item.quiet[category]==true)
                     if restored then restored.read[category]=item.read[category]==true end
                 end
             end

@@ -1,8 +1,14 @@
 # Olympus ChatWarden
 
-Version **1.0.1**. Open from Olympus or `/ocw`; Overview is the default page. Includes context-aware signed packs, curated WoW/Olympus spellings and automatic first/full-name Mentions. Current v11 terminology packs, USA v6 and Labels v7 remain compatible. Updating the addon does not replace older imported packs; use the clearly named files in the separate pack download to update their signed titles.
+Version **1.0.2** — release. The fixed Olympus panel has a shorter header, four clickable feature icons and three complete recent entries at the standard size. The full UI shows guild rank beside Zeus and hides the Title row until a selected title is available. Zeus artwork meets the full panel's bottom-left trim. Updates keeps prior release pages with Previous/Next navigation. Recent icons stay centered, and selecting a compact entry marks it read. Connection status is in the top bar. Right-click ChatWarden's tab in Olympus to open the full UI. Grant access through `/oly privacy` with Olympus 1.2.4 installed.
 
-Personal local filtering, contact protection, mentions, saved review and optional chat capture for World of Warcraft. The current character's guild must contain Olympus as a separate word until the official membership API is available. Access pauses outside a qualifying guild; saved data is retained.
+Personal local filtering, contact protection, mentions, saved review and optional chat capture for World of Warcraft. Olympus 1.2.4's membership decision takes priority and requires its per-addon data permission. Older Olympus versions retain the local guild-name check. Missing permission or membership pauses protection and keeps saved data. The native page stays available for connection help.
+
+The native page supports old and HD Olympus layouts. Its header, icon row and bottom Open ChatWarden button stay fixed while Recent Activity scrolls. Click a feature icon to enable or pause it; hover for its name and state. Capture remains off until you start it. The full workspace remains available through `/ocw`.
+
+Mentions is now **Alerts**, with All alerts, Mentions and Wanted views. Wanted encounters require an attackable target or mouseover matching a listed GUID. Encounters appear in Alerts, Overview and the compact recent list. Alerts > Wanted settings controls encounter sound, toast, badges and a five-minute default cooldown. Sound and toast start off. Visible chat gets only an icon beside exact full listed names, with current bounty details on hover; it never sends Wanted notifications. Your own visible chat and outgoing whispers support solo icon testing. Olympus continues to manage the board and bounties.
+
+Filtering logic, spelling vocabulary and signed pack contents are unchanged from 1.0.1. Existing v11 terminology packs, USA v6 and Labels v7 need no reimport. See RELEASE-CHECKS.md for the native checks to perform in WoW.
 
 ## Contextual filtering
 
@@ -24,7 +30,7 @@ Olympus Protection and King Protection are included, at stock revisions 10 and 9
 
 ## Workspace and data
 
-Messages is the filtering feed for warnings, replacements, redactions and hides across channels, including whispers. Ordinary chat stays out. Warnings/replacements are quiet; hidden-message alerts start on and redaction alerts start off, with separate controls in Notifications. Mentions contains mention activity; Shield contains contact/spam activity; Overview combines the feeds.
+Messages is the filtering feed for warnings, replacements, redactions and hides across channels, including whispers. Ordinary chat stays out. Warnings/replacements are quiet; hidden-message alerts start on and redaction alerts start off, with separate controls in Notifications. Alerts contains personal mentions and Wanted encounters; Shield contains contact/spam activity; Overview combines the feeds.
 
 History/read states persist per character with bounded storage and silent restoration. Settings > Activity history > Clear all clears character activity while keeping packs, settings, reports, captures and bookmarks. Covered names require Ctrl + left-click; originals are retained. Previous masked-icon, badge and multilingual-name fixes remain.
 
@@ -44,7 +50,7 @@ Use `/ocw test <phrase>`, for example `/ocw test Olympus is trash`. The command 
 
 ## Launch defaults
 
-Filtering, Shield, Mentions and Spam protection start on. Balanced is the main filtering preset and contact profile. Gommage and Chat Capture start off.
+Filtering, Shield, Alerts and Spam protection start on. Balanced is the main filtering preset and contact profile. Gommage and Chat Capture start off.
 
 Player chat, chat bubbles, barber/body-type wording, review history, OlympusMute signal tooltips and Balanced incoming typo matching start on. NPC chat, dialogue, vendor labels, talking-head captions, name/nameplate/unit-frame filtering, tooltips, language filtering and typing assistance start off.
 

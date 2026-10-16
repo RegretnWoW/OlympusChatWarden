@@ -623,6 +623,12 @@ function ns.ChatFilter(frame, event, message, ...)
     local function Record(action,info,diagnostic)
         if capture then ns.ChatReports.RecordOutcome(capture,action,info or source,diagnostic,safePreview) end
     end
+    local function Decorate(text)
+        if not ns.Wanted then return text end
+        local ok,result=pcall(ns.Wanted.Decorate,frame,text,capture,source)
+        if ok and ns.CanRead(result) then return result end
+        return text
+    end
     local shielded,shieldSource
     if ns.Shield then shielded,shieldSource=ns.Shield.FilterChat(event,message,...) end
     if shielded then Record('Hidden',shieldSource);return true end
@@ -639,6 +645,8 @@ function ns.ChatFilter(frame, event, message, ...)
     end
     if #matches == 0 and not language then
         Record('Unchanged',shieldSource,shieldSource and shieldSource.filterStatus=='review-unavailable' and 'Original could not be retained for review.' or nil)
+        local decorated=Decorate(message)
+        if decorated~=message then return false,decorated,... end
         return false
     end
     local wordAction = ns.MatchAction(matches)
@@ -682,7 +690,7 @@ function ns.ChatFilter(frame, event, message, ...)
         return retained ~= nil
     end
     Record(action,source)
-    return false, rendered, ...
+    return false, Decorate(rendered), ...
 end
 
 function ns.InstallAdapters()

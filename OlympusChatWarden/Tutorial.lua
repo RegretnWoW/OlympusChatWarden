@@ -6,16 +6,16 @@ local pageID, loginReady, queued, deferFrame = "basics", false, false
 local pages = {
     {id = "basics", title = "Overview", text = [[GETTING STARTED
 
-Open ChatWarden from Olympus or type /ocw. Overview brings your recent filtering, mentions and Shield alerts together.
+Open ChatWarden from Olympus or type /ocw. Overview brings your filtering, mentions, Shield and Wanted alerts together.
 
 Messages: Read filtered messages and see why they matched.
-Mentions: Find messages that use your name or a phrase you watch.
+Alerts: Find personal mentions and Olympus Wanted encounters. Choose a type with the tabs.
 Shield: Manage unwanted contact and players you have shielded.
 Capture: Record chat when you want to keep a conversation.
 Rules: Add your own phrases and replacements.
 Packs: Choose which optional topics to filter.
 Reports: Save examples of missed or incorrect filtering.
-Updates: Read patch highlights, take the tour or open this guide.
+Updates: Read patch highlights, browse older updates, take the tour or open this guide.
 
 READING FILTERED CHAT
 
@@ -27,21 +27,34 @@ Select a feed entry to mark it read. Each feed has its own unread count. Nothing
 
 GUILD ACCESS
 
-Your guild name needs to contain Olympus as a separate word. If your character leaves a matching guild, ChatWarden pauses and keeps your saved data.
+With Olympus 1.2.4 or later, open /oly privacy and choose Yes for Olympus ChatWarden. Olympus then checks your membership. Your guild and guild rank appear above Zeus in the full UI. A title appears only when Olympus supplies a selected title. Connection status is in the top bar. Right-click ChatWarden's tab in Olympus to open the full UI.
+
+Older Olympus versions use the local guild-name check. Protection pauses when access is missing; your settings and saved activity are kept.
 
 USEFUL COMMANDS
 
 /ocw: Open ChatWarden.
-/ocw mentions: Open Mentions.
+/ocw alerts: Open Alerts. /ocw mentions also works.
 /ocw capture: Open Capture.
 /ocw test <phrase>: Check how your word filters handle a phrase, without posting it.
 /ocw updates: Read patch highlights.
 /ocw help: Open this guide.]]},
+    {id = "wanted", title = "Wanted alerts", text = [[OLYMPUS WANTED ALERTS
+
+Wanted encounters appear in Alerts > Wanted, Overview > View All and the compact Olympus panel's scrolling list.
+
+An encounter means an attackable player you targeted or moused over matched a GUID on Olympus's Wanted list. Its entry saves the time, zone and Olympus-listed bounty.
+
+An exact full listed name in visible chat gets a small Wanted icon. Hover for the listed bounty and kills. This works in your own chat and outgoing whispers too. Chat icons do not create feed entries, badges, sounds or popups. First names alone, typo guesses, hidden messages and covered names do not match.
+
+Open Alerts > Wanted settings to choose encounter sounds, popups and badges, or change the cooldown. Sound and toast start off. The default encounter cooldown is five minutes per player. Chat icons have their own switch and never send notifications.
+
+Olympus supplies and manages the Wanted board. ChatWarden saves your personal alerts and their historical bounty details. Grant access in /oly privacy; permission loss pauses alerts and clears the live list. Saved alerts follow your Activity history setting.]]},
     {id = "mentions", title = "Mentions", text = [[WATCH YOUR NAME
 
 Mentions watches your first name and full character name. For Rune Escape, both "Rune, ready?" and "Rune Escape, ready?" work. No @ is needed. A surname alone does not match automatically.
 
-Open Mention settings to add nicknames or watch phrases and choose your channels. Names and nicknames match exactly, ignoring letter case. Close typo matching is available for watch phrases.
+Open Alerts > Mention settings to add nicknames or watch phrases and choose your channels. Names and nicknames match exactly, ignoring letter case. Close typo matching is available for watch phrases.
 
 ALERTS
 
@@ -53,7 +66,7 @@ Your own messages, hidden messages and shielded players stay quiet. Covered text
 
 KEEPING YOUR PLACE
 
-Select an entry to mark it read, or choose Mark all mentions read. Reading Messages does not clear an unread mention from the same message.
+Select an entry to mark it read, or choose Mark all read. The Mentions and Wanted tabs each mark only their own type read; All alerts marks both. Reading Messages does not clear an unread mention from the same message.
 
 Mentions works with Capture off. Saved mentions, read states and watch phrases return after reload. Settings > Activity history controls saved feed history.]]},
     {id = "confidence", title = "Filtering", text = [[CHOOSE A PRESET
@@ -83,7 +96,7 @@ TRY A PHRASE
 Type /ocw test followed by the phrase. It uses your current word-filter settings and sends nothing. It does not test spam, language filtering or Shield limits.]]},
     {id = "presets", title = "Settings", text = [[WHERE TO FIND THINGS
 
-Settings has pages for Filtering, Languages, Shield, Spam, Notifications and Spelling. Window size and Activity history are on the Settings page. Mention settings is inside Mentions.
+Settings has pages for Filtering, Languages, Shield, Spam, Notifications and Spelling. Window size and Activity history are on the Settings page. Mention settings and Wanted settings are inside Alerts.
 
 WHAT GETS FILTERED
 
@@ -105,7 +118,7 @@ WINDOW AND HISTORY
 
 Drag the top bar to move ChatWarden. Settings > Window size changes its size; Fit to screen restores the automatic size.
 
-Settings > Activity history controls saved Messages, Mentions and Shield alerts for this character. Clearing history keeps your rules, reports, Capture and bookmarks.]]},
+Settings > Activity history controls saved Messages, Alerts and Shield activity for this character. Clearing history keeps your rules, reports, Capture and bookmarks.]]},
     {id = "shield", title = "Shield", text = [[CONTACT PROTECTION
 
 Shield helps with repeated whispers, unwanted requests and strong directed abuse. It starts on. Open Settings > Shield to choose which checks to use.

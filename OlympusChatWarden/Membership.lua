@@ -1,5 +1,5 @@
--- Prefer Olympus's current-character check. Until that API ships, use a local
--- guild-name gate; this does not establish official guild affiliation.
+-- Olympus 1.2.4's own profile is authoritative and requires the player's consent.
+-- Older Olympus versions retain the clearly labelled local guild-name gate.
 local _, ns = ...
 local M = {allowed = false, method = "pending", reason = "Waiting for current-character guild information."}
 ns.Membership = M
@@ -36,7 +36,8 @@ function M.InstallAccessGuards()
         Spam={'Set','Observe'}, Shield={'Add','Remove','Allow','Unallow','SetProfile','SetTuning','SetOption','Alert','Prune'},
         Spelling={'SetEnabled','SetOption','AddWord','RemoveWord','Ignore','Correct','OpenSuggestions'}, TypoFilter={'Set','SetMode'},
         Mentions={'Set','SetChannel','Save','Change'},
-        Workspace={'Open','Copy','RuleEditor','ExceptionEditor','ShieldEditor','PackSensitivity','CaptureSettings','MentionSettings','WatchPhrases','BookmarkEditor','SettingsSub'},
+        Wanted={'Set'},
+        Workspace={'Open','Copy','RuleEditor','ExceptionEditor','ShieldEditor','PackSensitivity','CaptureSettings','MentionSettings','WantedSettings','WatchPhrases','BookmarkEditor','SettingsSub'},
         RulePacks={'BeginImport','Commit','Remove','Export','Restore'}, PackUpdates={'Check'},
         Export={'Batch','Build','TextPreview'}, Reports={'Export'}, Review={'Add'}, Language={'Set','Allow'}, LanguageDisplay={'Toggle'},
     }
@@ -89,8 +90,15 @@ local function LocalGuild()
 end
 function M.Refresh()
     local allowed, reason, method
+    local connection=ns.OlympusConnection
+    if connection then connection.Refresh() end
     local bridge = OlympusBridge
-    if ns.Readable(bridge) and type(bridge) == "table" and ns.Readable(bridge.IsMember) and type(bridge.IsMember) == "function" then
+    if connection and connection.modern then
+        method='olympus-api'
+        local profile=connection.Profile()
+        allowed=connection.state=='connected' and profile~=nil and profile.member==true
+        reason=connection.Reason()
+    elseif ns.Readable(bridge) and type(bridge) == "table" and ns.Readable(bridge.IsMember) and type(bridge.IsMember) == "function" then
         method = "olympus"
         local ok, member = pcall(bridge.IsMember)
         allowed = ok and ns.Readable(member) and member == true

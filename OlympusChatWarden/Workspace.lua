@@ -1,11 +1,11 @@
 -- One live workspace, backed by the existing filtering and storage modules.
 local _,ns=...
 local V,T,A=ns.Art,ns.Theme,ns.Activity
-local W={pages={},navigation={},legacyFrames={},width=1400,height=900};ns.Workspace=W
+local W={pages={},navigation={},legacyFrames={},width=1400,height=900,leftOverhang=5,bottomOverhang=4};ns.Workspace=W
 local definitions={
     {'overview','Overview','Your personal chat protection and notification center.'},
     {'messages','Messages','Your filtering feed: warnings, replacements, redactions and hidden messages across all channels.'},
-    {'mentions','Mention Alerts','Names and phrases you watch, without losing them in busy chat.'},
+    {'mentions','Alerts','Personal mentions and Olympus Wanted alerts.'},
     {'shield','Contact Protection','Manage local shields, allowed players and contact alerts.'},
     {'capture','Chat Capture','Search, bookmark and revisit locally recorded conversations.'},
     {'rules','My Rules','Your personal phrase actions and exceptions.'},
@@ -99,13 +99,17 @@ local function Channel(item)
     return item.channel and item.channel~='' and item.channel or ({CHAT_MSG_WHISPER='Whisper',CHAT_MSG_WHISPER_INFORM='Whisper',CHAT_MSG_GUILD='Guild',CHAT_MSG_OFFICER='Officer',CHAT_MSG_SAY='Say',CHAT_MSG_YELL='Yell'})[item.event] or item.event and item.event:gsub('CHAT_MSG_',''):gsub('_',' ') or 'Activity'
 end
 local function Icon(item)
+    if item.categories and item.categories.wanted then return 'reports' end
     if item.categories and item.categories.shield then return 'shield' end
     local e=item.event or '';if e:find('WHISPER',1,true) then return 'whisper' elseif e:find('GUILD',1,true) or e:find('OFFICER',1,true) then return 'guild'
     elseif e:find('PARTY',1,true) or e:find('RAID',1,true) then return 'party' end
     return item.categories and item.categories.mentions and 'mentions' or 'messages'
 end
+W.ActivityIcon=Icon
+W.ActivityChannel=Channel
 local function ShowStatus(text) if W.status then W.status:SetText(text or '') end end
 function W.Queue()
+    if ns.OlympusPanel then ns.OlympusPanel.Queue() end
     if W.queued then return end;W.queued=true
     local function refresh() W.queued=false;W.Refresh() end
     if C_Timer and C_Timer.After then C_Timer.After(0,refresh) else refresh() end
@@ -115,28 +119,51 @@ function W.FeatureEnabled(key)
     if key=='filtering' then return ns.DB.enabled end
     if key=='shield' then return ns.Shield.Active() end
     if key=='capture' then return ns.ChatCapture.db.enabled end
-    return ns.DB.enabled and ns.Mentions.db.enabled
+    return ns.DB.enabled and ns.DB.alertsEnabled~=false and (ns.Mentions.db.enabled or ns.Wanted.db.enabled)
 end
 function W.ToggleFeature(key)
     if not ns.Membership.Allowed() then return end
     if key=='filtering' then ns.DB.enabled=not ns.DB.enabled;ns.PolicyChanged()
     elseif key=='shield' then ns.Shield.SetOption('enabled',not ns.DB.shield.enabled)
     elseif key=='capture' then ns.ChatCapture.SetOption('enabled',not ns.ChatCapture.db.enabled)
-    elseif key=='mentions' then ns.Mentions.Set('enabled',not ns.Mentions.db.enabled) end
+    elseif key=='mentions' then
+        ns.DB.alertsEnabled=ns.DB.alertsEnabled==false;ns.Wanted.Refresh(true)
+        if not ns.DB.alertsEnabled and ns.HideMentionToast then ns.HideMentionToast() end
+    end
     W.Queue()
 end
 local function FeatureIcon(button,key)
     V.SetIcon(button.Icon,featureIcons[key][W.FeatureEnabled(key) and 1 or 2])
 end
+function W.LayoutGuardian(hasTitle)
+    local width=hasTitle and 150 or 184;local height=width*1269/1240
+    W.guardian:SetSize(width,height)
+    -- Align the straight gold rails baked into the transparent artwork with
+    -- the outer frame. The jewel tips can overlap the corner by a few pixels.
+    W.guardian:ClearAllPoints()
+    W.guardian:SetPoint('BOTTOMLEFT',W.window,'BOTTOMLEFT',-width*27/1024,-height*21/1024)
+end
 function W.Refresh()
     if not W.window then return end
     W.filterStatus:SetText(ns.DB.enabled and '|cff64df55Filtering Enabled|r' or 'Filtering Paused')
     W.shieldStatus:SetText(ns.Shield.Active() and 'Shield Active' or 'Shield Paused')
-    W.olympusStatus:SetText(ns.OlympusIntegration.Available() and 'Olympus Launcher' or 'Olympus Unavailable')
+    local connection=ns.OlympusConnection
+    W.olympusStatus:SetText(connection.StatusText())
+    W.olympusStatus:SetTextColor(unpack(connection.state=='connected' and {.42,.84,.55} or V.gold))
+    W.olympusHint:SetText(ns.OlympusIntegration.Available() and 'Open Olympus' or 'Olympus Unavailable')
+    local own=connection.Profile();own=own and own.member and own or nil
+    W.profileRows[1].value:SetText(own and own.guild or 'Unavailable')
+    W.profileRows[2].value:SetText(own and own.rank or 'Unavailable')
+    local title=own and own.title
+    W.profileRows[3].value:SetText(title or '')
+    W.profileRows[3].value:SetShown(title~=nil);W.profileRows[3].label:SetShown(title~=nil)
+    W.profile:SetHeight(title and 102 or 68)
+    W.LayoutGuardian(title~=nil)
     FeatureIcon(W.filterButton,'filtering');FeatureIcon(W.shieldButton,'shield')
     W.UpdatePageToggle()
     if W.nativeMaster then W.nativeMaster:SetChecked(ns.DB.enabled) end
-    for _,id in ipairs({'messages','mentions','shield'}) do W.navigation[id].Badge:SetCount(A.Unread(id)) end
+    for _,id in ipairs({'messages','mentions','shield'}) do W.navigation[id].Badge:SetCount(A.Unread(id=='mentions' and 'alerts' or id)) end
+    W.navigation.overview.Badge:SetCount(0)
     W.totalBadge:SetCount(A.Unread())
     local page=W.pages[W.current];if page and page.Refresh and page:IsShown() then page:Refresh() end
     if W.activeSetting and W.current=='settings' and ns.SyncOptions then ns.SyncOptions() end
@@ -151,6 +178,7 @@ function W.Ensure()
     if W.window then return end
     local root=V.Panel(UIParent,0,0,W.width,W.height,'dark');root:ClearAllPoints();root:SetPoint('CENTER')
     root:SetFrameStrata('DIALOG');root:SetClampedToScreen(true);root:SetMovable(true);root:EnableMouse(true)
+    if root.SetClampRectInsets then root:SetClampRectInsets(-W.leftOverhang,0,0,-W.bottomOverhang) end
     root.ChatWardenOwned=true;root:SetScript('OnHide',function() V.CloseMenus() end)
     W.window=root;ns.WorkspaceWindow=root
     T.RegisterWindow(root)
@@ -161,18 +189,32 @@ function W.Ensure()
     V.Text(header,'Olympus ChatWarden',115,-25,460,27,V.gold)
     W.filterButton=V.IconButton(header,'enabled',25,693,-25,function() W.ToggleFeature('filtering') end,'Filtering','Click to enable or pause filtering.');W.filterStatus=V.Text(header,'',727,-31,152,12)
     W.shieldButton=V.IconButton(header,'shieldActive',25,896,-24,function() W.ToggleFeature('shield') end,'Shield','Click to enable or pause all Shield protection.');W.shieldStatus=V.Text(header,'',927,-31,115,12)
-    W.olympusButton=V.IconButton(header,'olympus',25,1065,-24,function() local _,message=ns.OlympusIntegration.Open();if message then ShowStatus(message) end;W.Queue() end,'Olympus','Open the Olympus launcher or bring it to the front.');W.olympusStatus=V.Text(header,'',1096,-31,205,12)
+    W.olympusButton=V.IconButton(header,'olympus',25,1065,-24,function() local _,message=ns.OlympusIntegration.Open();if message then ShowStatus(message) end;W.Queue() end,'Olympus','Open Olympus and bring it to the front.')
+    W.olympusStatus=V.Text(header,'',1096,-23,205,12)
+    W.olympusHint=V.Text(header,'',1096,-41,205,10,V.muted)
+    W.olympusButton:HookScript('OnEnter',function()
+        if GameTooltip then GameTooltip:AddLine(ns.OlympusConnection.Reason(),.9,.9,.85,true);GameTooltip:Show() end
+    end)
     V.Button(header,'X',1322,-16,38,38,function() root:Hide() end,'danger')
     W.totalBadge=V.Badge(header,-48,-48)
     local sidebar=V.Panel(root,12,-101,196,778,'sidebar')
     for i,d in ipairs(definitions) do
-        local id=d[1];local b=V.Button(sidebar,d[2]=='Mention Alerts' and 'Mentions' or d[2]=='Contact Protection' and 'Shield' or d[2]=='Chat Capture' and 'Capture' or d[2]=='Rule Packs' and 'Packs' or d[2]=='My Rules' and 'Rules' or d[2]=='My Reports' and 'Reports' or d[2]=='Updates & Help' and 'Updates' or d[2],8,-12-(i-1)*51,180,49,function() W.Open(id) end,'row')
+        local id=d[1];local b=V.Button(sidebar,d[2]=='Contact Protection' and 'Shield' or d[2]=='Chat Capture' and 'Capture' or d[2]=='Rule Packs' and 'Packs' or d[2]=='My Rules' and 'Rules' or d[2]=='My Reports' and 'Reports' or d[2]=='Updates & Help' and 'Updates' or d[2],8,-12-(i-1)*51,180,49,function() W.Open(id) end,'row')
         local fontPath=b.Caption:GetFont();b.Caption:SetFont(fontPath,16,'')
         b.Caption:ClearAllPoints();b.Caption:SetPoint('LEFT',49,0);b.Caption:SetWidth(104);b.Caption:SetJustifyH('LEFT')
         V.Icon(b,id,34,10,-7);b.SelectedArt=V.Nine(b,'selected');b.SelectedArt:SetShown(false)
         b.Badge=V.Badge(b,-4,-11);W.navigation[id]=b
     end
-    W.guardian=V.Texture(sidebar,'Guardian',{0,0,1024,1024},'ARTWORK');W.guardian:SetSize(204,204*1269/1240);W.guardian:SetPoint('BOTTOMLEFT',-4,-4)
+    W.profile=CreateFrame('Frame',nil,sidebar);W.profile:SetPoint('TOPLEFT',10,-532);W.profile:SetSize(178,102)
+    W.profileRows={}
+    for i,label in ipairs({'Guild','Rank','Title'}) do
+        local row={label=V.Text(W.profile,label,0,-(i-1)*34,38,10,V.blue),value=V.Text(W.profile,'',40,-(i-1)*34,138,12,V.gold)}
+        row.value:SetHeight(32);row.value:SetWordWrap(true);row.value:SetJustifyV('TOP')
+        if row.value.SetMaxLines then row.value:SetMaxLines(2) end
+        W.profileRows[i]=row
+    end
+    T.Tooltip(W.profile,'Olympus Profile','Your guild, rank and selected title come from Olympus after you grant access.');W.profile:EnableMouse(true)
+    W.guardian=V.Texture(sidebar,'Guardian',{0,0,1024,1024},'ARTWORK');W.LayoutGuardian(false)
     W.pageHeader=V.Panel(root,220,-101,1168,76,'dark')
     W.pageIcon=V.Icon(W.pageHeader,'overview',30,18,-9)
     W.heading=V.Text(W.pageHeader,'',61,-12,1030,22,V.gold)
@@ -250,8 +292,8 @@ function W.UpdatePageToggle()
     local id=W.current;local feature=id=='capture' or id=='shield' or id=='mentions'
     W.pageToggle:SetShown(feature);W.pageIconButton:SetShown(feature)
     if feature then
-        local configured=id=='capture' and ns.ChatCapture.db.enabled or id=='shield' and ns.DB.shield.enabled or id=='mentions' and ns.Mentions.db.enabled
-        local name=({capture='Capture',shield='Shield',mentions='Mentions'})[id]
+        local configured=id=='capture' and ns.ChatCapture.db.enabled or id=='shield' and ns.DB.shield.enabled or id=='mentions' and ns.DB.alertsEnabled~=false
+        local name=({capture='Capture',shield='Shield',mentions='Alerts'})[id]
         W.pageToggle:SetText((configured and 'Pause ' or id=='capture' and 'Start ' or 'Enable ')..name)
         FeatureIcon({Icon=W.pageIcon},id)
     end
@@ -265,7 +307,8 @@ function W.HidePages()
 end
 function W.Fit()
     local width,height=UIParent:GetWidth(),UIParent:GetHeight()
-    local scale=ns.DB.workspaceScale or math.min(1,math.max(.35,(width-26)/W.width),math.max(.35,(height-26)/W.height))
+    -- Include the ornament on both sides of a centered window when fitting it.
+    local scale=ns.DB.workspaceScale or math.min(1,math.max(.35,(width-26)/(W.width+2*W.leftOverhang)),math.max(.35,(height-26)/(W.height+2*W.bottomOverhang)))
     W.window:SetScale(scale);return scale
 end
 local Fit=W.Fit
@@ -279,6 +322,7 @@ local builders={}
 local Bookmark
 function W.Open(id)
     if not ns.DB or not ns.Membership.Allowed() then ns.Print(ns.Membership.Status());return end
+    if id=='alerts' then id='mentions' end
     id=labels[id] and id or 'overview';W.Ensure();W.HidePages();W.current=id;W.Header(id);Fit();W.window:Show()
     ShowStatus('Local data. Nothing is sent automatically.')
     if builders[id] then W.pages[id]=W.pages[id] or builders[id]();W.pages[id]:Show();if W.pages[id].Activate then W.pages[id]:Activate() end
@@ -492,14 +536,27 @@ builders.shield=function()
     end
     return p
 end
+local function WantedDetail(item)
+    if not ns.Wanted.ValidRecord(item.wanted) then return {'Wanted alert','This saved alert is unavailable.'} end
+            local w=item.wanted
+            local blocks={{text=w.kind=='encounter' and 'Wanted Player Encountered' or 'Wanted Player Mentioned',kind='title'},
+                {text=Stamp(item)..(w.zone and '  /  Your zone: '..w.zone or ''),kind='meta'},
+                {text=w.kind=='encounter' and ('Observed through '..w.via..'.') or ('Mentioned in chat by '..A.DisplayName(w.speaker)..'.'),kind='body'},
+                {text='Olympus-listed bounty',kind='heading'},{text=w.bounty..' points',kind='quote'},
+                {text='Listed kills: '..w.kills..'  |  Bounty cycle: '..w.cycle,kind='meta'},
+                {text='Saved at the time of this alert. Olympus manages the Wanted board and its updates.',kind='body'}}
+            if w.kind=='mention' then blocks[#blocks+1]={text='A chat mention does not establish this player\'s location.',kind='body'} end
+            return blocks,'Player: '..A.DisplayName(w.name)..'\n\nSource: '..w.via..'\n\n'..Stamp(item)
+end
 builders.overview=function()
     local p=ListPage(nil,'Recent Activity',function() return A.List() end,function(item,page)
+        if item and item.wanted then return WantedDetail(item) end
         if not item then return {{text='Welcome to ChatWarden',kind='title'},
             {text='Your chat protection workspace',kind='heading'},{text='Filters, mention alerts and contact protection come together here.',kind='body'},
             {text='Review your activity',kind='heading'},{text='Select an entry on the left to see its safe preview and available actions. Overview keeps hidden originals behind Show original.',kind='body'},
-            {text='Explore the sidebar',kind='heading'},{text='Messages explains filtering. Shield manages unwanted contact. Mentions watches your name and phrases.',kind='body'},
+            {text='Explore the sidebar',kind='heading'},{text='Messages explains filtering. Shield manages unwanted contact. Alerts collects personal mentions and Wanted activity.',kind='body'},
             {text='Recording is your choice',kind='heading'},{text='Enable Chat Capture when you want a local record of ordinary conversations. Saved review history survives reloads while enabled.',kind='body'}} end
-        local categories={};for _,key in ipairs({'messages','mentions','shield','activity'}) do if item.categories[key] then categories[#categories+1]=({messages='Messages',mentions='Mentions',shield='Shield',activity='Activity'})[key] end end
+        local categories={};for _,key in ipairs({'messages','mentions','shield','activity'}) do if item.categories[key] then categories[#categories+1]=({messages='Messages',mentions='Alerts',shield='Shield',activity='Activity'})[key] end end
         local entry=item.reviewID and ns.Review.Get(item.reviewID)
         return {{text='Recent Activity',kind='title'},{text=Channel(item)..'  /  '..Stamp(item),kind='meta'},
             {text=A.EventLabel(item) or 'Activity',kind='heading'},
@@ -509,19 +566,20 @@ builders.overview=function()
             'Player: '..A.DisplayName(item.sender)..'\n\nChannel: '..Channel(item)..'\n\n'..Stamp(item)
     end,function(page)
         page.reveal=page:AddAction('Show original',function(_,self) self.original=not self.original;self:Refresh() end)
-        page:AddAction('Open activity',function(item) W.Open(item.categories.mentions and 'mentions' or item.categories.shield and 'shield' or item.categories.activity and 'overview' or 'messages');local target=W.pages[W.current];target.selected=item;if item.categories.activity then target.original=true end;A.Mark(item.id,W.current=='overview' and 'activity' or W.current);target:Refresh() end)
-    page:AddAction('Copy message',function(item) W.Copy(item.preview,'Copy activity') end)
-        page:AddAction('Bookmark message',Bookmark)
-        page:AddAction('Add to Shield',function(item) W.ShieldEditor(item.sender) end)
+        page.openActivity=page:AddAction('Open activity',function(item) W.Open(item.categories.mentions and 'mentions' or item.categories.shield and 'shield' or item.categories.activity and 'overview' or 'messages');local target=W.pages[W.current];target.selected=item;if item.categories.activity then target.original=true end;A.Mark(item.id,W.current=='overview' and 'activity' or W.current);target:Refresh() end)
+        page.copy=page:AddAction('Copy message',function(item) W.Copy(item.preview,'Copy activity') end)
+        page.bookmark=page:AddAction('Bookmark message',Bookmark)
+        page.addShield=page:AddAction('Add to Shield',function(item) W.ShieldEditor(item.sender) end)
+        page.openOlympus=page:AddAction('Open Olympus',function() local _,message=ns.OlympusIntegration.Open();if message then ShowStatus(message) end end,'neutral')
     end)
-    p.markAll=V.Button(p,'Mark all read',880,-640,260,31,function() A.MarkCategory('messages');A.MarkCategory('mentions');A.MarkCategory('shield');p:Refresh() end,'neutral')
+    p.markAll=V.Button(p,'Mark all read',880,-640,260,31,function() A.MarkCategory('messages');A.MarkCategory('mentions');A.MarkCategory('shield');A.MarkCategory('wanted');p:Refresh() end,'neutral')
     p.unreadOnly:Hide();p.pageSize=6;p.contentTop=149
     p.search:GetParent():ClearAllPoints();p.search:GetParent():SetPoint('TOPLEFT',0,-97)
     p.channelMenu:ClearAllPoints();p.channelMenu:SetPoint('TOPLEFT',436,-97)
     p.timeMenu:ClearAllPoints();p.timeMenu:SetPoint('TOPLEFT',666,-97)
     for _,spec in ipairs({{p.list,0},{p.center,312},{p.right,872}}) do spec[1]:ClearAllPoints();spec[1]:SetPoint('TOPLEFT',spec[2],-149);spec[1]:SetHeight(444) end
     p.documentPanel:SetHeight(344);p.scroll:SetHeight(306)
-    local specs={{'filtering','Filtering','settings'},{'shield','Shield','shield'},{'capture','Chat Capture','capture'},{'mentions','Mention Alerts','mentions'}}
+    local specs={{'filtering','Filtering','settings'},{'shield','Shield','shield'},{'capture','Chat Capture','capture'},{'mentions','Alerts','mentions'}}
     p.cards={}
     for i,spec in ipairs(specs) do
         local key=spec[1];local card=V.Panel(p,(i-1)*288,0,276,82,'dark')
@@ -533,13 +591,17 @@ builders.overview=function()
         for _,card in ipairs(self.cards) do FeatureIcon(card.toggle,card.feature) end
         local entry=self.selected and self.selected.reviewID and ns.Review.Get(self.selected.reviewID)
         self.reveal:SetEnabled(entry~=nil);self.reveal:SetShown(entry~=nil);self.reveal:SetText(self.original and 'Hide original' or 'Show original')
+        local wanted=self.selected and self.selected.categories and self.selected.categories.wanted
+        self.openOlympus:SetShown(wanted==true);self.bookmark:SetShown(not wanted);self.addShield:SetShown(not wanted)
+        self.openActivity:SetShown(not wanted)
+        self.copy:SetText(wanted and 'Copy alert' or 'Copy message')
         self.cards[1].detail:SetText(ns.DB.enabled and ('Enabled  |  '..T.Label({{'aggressive','Strict'},{'balanced','Balanced'},{'strict','Mild'}},ns.DB.preset)..(ns.DB.gommage and ' + Gommage' or '')) or 'Paused')
         self.cards[2].detail:SetText((ns.Shield.Active() and 'Active' or 'Off')..'  |  '..#ns.Shield.List()..' players shielded')
         self.cards[3].detail:SetText((ns.ChatCapture.db.enabled and 'Recording' or 'Paused')..'  |  '..#ns.ChatCapture.db.entries..' lines')
-        self.cards[4].detail:SetText((W.FeatureEnabled('mentions') and 'Enabled' or 'Off')..'  |  '..#ns.Mentions.db.phrases..' custom phrases')
+        self.cards[4].detail:SetText((W.FeatureEnabled('mentions') and 'Enabled' or 'Off')..'  |  '..A.Unread('alerts')..' unread')
     end
     function p:Activate()
-        W.Tabs({})
+        W.Tabs({{'all','View All',function() W.Open('overview') end}},'all')
     end
     return p
 end
@@ -615,6 +677,27 @@ local function FormPage(title,description)
     V.Text(p,title,24,-18,1050,23,V.gold);V.Text(p,description,24,-58,1050,13,V.muted)
     p.status=V.Text(p,'',24,-561,1040,13,V.gold);return p
 end
+function W.WantedSettings()
+    if not ns.Membership.Allowed() then return end
+    W.current='mentions'
+    local p=FormPage('Olympus Wanted alerts','Encounter alerts appear in Alerts and Overview. Chat icons show hover details without sending notifications.')
+    local panel=V.Panel(p,18,-96,1104,408,'dark');local wanted=ns.Wanted
+    local controls={{'enabled','Enable Wanted alerts',24,24},{'encounters','Target and mouseover encounters',24,82},
+        {'chatIndicators','Show Wanted icons in visible chat',24,140},{'badges','Unread badge for Wanted alerts',24,198},
+        {'sound','Play a sound',574,24},{'toast','Show a toast notification',574,82}}
+    for _,spec in ipairs(controls) do
+        local key=spec[1];V.Check(panel,spec[2],spec[3],-spec[4],wanted.db[key],function(value)
+            wanted.Set(key,value);p.status:SetText(wanted.Status())
+        end,490)
+    end
+    V.Text(panel,'Per-player cooldown',574,-157,480,14,V.gold)
+    V.Dropdown(panel,574,-185,490,{{30,'30 seconds'},{60,'1 minute'},{300,'5 minutes (default)'},{900,'15 minutes'},{1800,'30 minutes'}},
+        function() return wanted.db.cooldown end,function(value) wanted.Set('cooldown',value);p.status:SetText(wanted.Status()) end)
+    V.Text(panel,'Encounters match an attackable player\'s GUID. Chat icons require the exact full name and do not establish proximity. They never trigger sounds, toasts or feed entries.',24,-276,1034,14,V.muted)
+    V.Text(panel,'Sound and toast start off. Bounty details are saved with each alert; open Olympus to review the board.',24,-342,1034,14,V.muted)
+    p.status:SetText(wanted.Status())
+    W.AlertTabs('wanted-settings')
+end
 function W.ScaleSettings()
     if not ns.Membership.Allowed() then return end
     W.Open('settings')
@@ -675,7 +758,7 @@ function W.HistorySettings()
     if not ns.Membership.Allowed() then return end
     W.Open('settings');local p=FormPage('Activity history','Keep review evidence and read states for this character across reloads and logins.')
     local panel=V.Panel(p,18,-98,1104,420,'dark')
-    V.Check(panel,'Remember Messages, Mentions and contact alerts',24,-26,ns.DB.persistHistory~=false,function(value)
+    V.Check(panel,'Remember Messages, Alerts and contact activity',24,-26,ns.DB.persistHistory~=false,function(value)
         ns.History.SetEnabled(value);p.status:SetText(value and 'History will be remembered for this character.' or 'Saved history for this character removed. Current entries remain available until reload.')
     end,1000)
     local messages,mentions,alerts=ns.History.Stats()
@@ -685,7 +768,7 @@ function W.HistorySettings()
     V.Text(panel,'Limits: 200 review entries, 300 shared activity entries and 200 contact alerts; up to 2 MB per character, 12 characters and 8 MB total. Capture and bookmarks have their own limits.',24,-246,1000,14,V.muted):SetHeight(56)
     local armed=false;local clear
     clear=V.Button(panel,'Clear all history for this character',24,-336,460,38,function()
-        if not armed then armed=true;clear:SetText('Confirm clear history');p.status:SetText('Clears Messages, Mentions and contact alerts for this character. Capture, bookmarks, reports, rules and protection lists are kept.');return end
+        if not armed then armed=true;clear:SetText('Confirm clear history');p.status:SetText('Clears Messages, Alerts and contact activity for this character. Capture, bookmarks, reports, rules and protection lists are kept.');return end
         ns.History.Clear();W.HistorySettings();W.pages.form.status:SetText('This character’s activity history was cleared.')
     end,'danger')
 end
@@ -728,6 +811,14 @@ function W.CaptureSettings()
     V.Text(p,'Capture: 5,000 lines / 4 MB. Bookmarks: 50 / 1 MB. Oldest captured lines roll off when full. Clearing capture keeps bookmarks.',24,-285,1030,14,V.muted)
     local armed=false;V.Button(p,'Clear rolling capture',24,-369,300,39,function(self) if not armed then armed=true;self:SetText('Click again to clear');return end;C.Clear();p.status:SetText('Capture cleared. Bookmarks kept.');self:SetText('Clear rolling capture');armed=false end,'danger')
 end
+function W.AlertTabs(current)
+    local function View(mode)
+        W.Open('mentions');local page=W.pages.mentions;page.mode=mode;page.selected=nil;page:Activate();page:Refresh()
+    end
+    W.Tabs({{'all','All alerts',function() View('all') end},{'mentions','Mentions',function() View('mentions') end},
+        {'wanted','Wanted',function() View('wanted') end},{'mention-settings','Mention settings',W.MentionSettings},
+        {'wanted-settings','Wanted settings',W.WantedSettings}},current or 'all')
+end
 function W.MentionSettings()
     W.current='mentions';W.Header('mentions');local p=FormPage('Mention settings','Your first or full name matches without @. Names and nicknames stay exact. Hidden and Shielded messages stay quiet.')
     local M=ns.Mentions;local db=M.db
@@ -743,7 +834,8 @@ function W.MentionSettings()
     local channelNames={{'general','General'},{'trade','Trade'},{'lfg','LookingForGroup'},{'other','Other channels / emotes'},{'say','Say'},{'yell','Yell'},{'guild','Guild / officer'},{'party','Party / instance'},{'raid','Raid'},{'whispers','Whispers'}}
     for i,c in ipairs(channelNames) do local key=c[1];V.Check(p,c[2],22+((i-1)%3)*360,-305-math.floor((i-1)/3)*34,db.channels[key],function(v) M.SetChannel(key,v) end,350) end
     V.Button(p,'Manage nicknames & phrases',22,-472,330,39,function() W.WatchPhrases() end)
-    V.Button(p,'Mark all mentions read',376,-472,330,39,function() A.MarkCategory('mentions');p.status:SetText('Mentions marked read. Other categories kept.') end,'neutral')
+    V.Button(p,'Mark all mentions read',376,-472,330,39,function() A.MarkCategory('mentions');p.status:SetText('Mentions marked read.') end,'neutral')
+    W.AlertTabs('mention-settings')
 end
 function W.WatchPhrases(edit)
     W.current='mentions';local p=FormPage('Nicknames & watch phrases','One notification per message, even when several phrases match. Nicknames and phrases are literal and case-insensitive.')
@@ -811,26 +903,37 @@ builders.messages=function()
     return p
 end
 builders.mentions=function()
-    local p=ListPage('mentions','Mentions',function() return A.List('mentions') end,function(item)
-        if not item then return {'Mention Alerts','Your character name, nicknames and watch phrases can create quiet alerts here. Configure phrases in Mention settings.'} end
+    local p=ListPage('alerts','Alerts',function(self) return A.List(self.mode=='mentions' and 'mentions' or self.mode=='wanted' and 'wanted' or 'alerts') end,function(item)
+        if item and item.wanted then return WantedDetail(item) end
+        if not item then return {'Alerts','Personal mentions and Olympus Wanted activity appear here. Use the tabs to choose a type or change its settings.'} end
         local phrases={};for _,match in ipairs(item.mentionMatches or {}) do phrases[#phrases+1]=match.text end
         return {{text='Mention alert',kind='title'},{text=Channel(item)..'  /  '..Stamp(item),kind='meta'},
             {text=item.text or item.preview,kind='quote'},{text='Matched phrases',kind='heading'},{text=table.concat(phrases,', '),kind='accent'}},
             'Player: '..A.DisplayName(item.sender)..'\n\nChannel: '..Channel(item)..'\n\nMatched: '..table.concat(phrases,', ')
     end,function(page)
-        page:AddAction('Mark read',function(item) A.Mark(item.id,'mentions') end)
-        page:AddAction('Copy message',function(item) W.Copy(item.text or item.preview,'Copy mention') end)
-        page:AddAction('Bookmark message',Bookmark)
-        page:AddAction('Mute matched phrase',function(item)
+        page:AddAction('Mark read',function(item) A.Mark(item.id,'alerts') end)
+        page.copy=page:AddAction('Copy message',function(item) W.Copy(item.text or item.preview,'Copy mention') end)
+        page.bookmark=page:AddAction('Bookmark message',Bookmark)
+        page.mute=page:AddAction('Mute matched phrase',function(item)
             for _,match in ipairs(item.mentionMatches or {}) do if match.id==0 then ns.Mentions.Set('character',false) else ns.Mentions.Change(match.id,false) end end
             ShowStatus('Matched phrases muted for future alerts.')
         end)
-        page:AddAction('Add watch phrase',function() W.WatchPhrases() end)
-        page:AddAction('Delete mention',function(item) item.categories.mentions=nil;item.read.mentions=nil;if not next(item.categories) then A.Remove(item.id) else A.Changed() end end,'danger')
+        page.watch=page:AddAction('Add watch phrase',function() W.WatchPhrases() end)
+        page:AddAction('Delete alert',function(item)
+            for _,key in ipairs({'mentions','wanted'}) do item.categories[key]=nil;item.read[key]=nil;item.quiet[key]=nil end
+            if not next(item.categories) then A.Remove(item.id) else A.Changed() end
+        end,'danger')
+        page.openOlympus=page:AddAction('Open Olympus',function() local _,message=ns.OlympusIntegration.Open();if message then ShowStatus(message) end end,'neutral')
     end)
-    function p:Activate() W.Tabs({{'mentions','Mentions',function() end},{'settings','Mention settings',W.MentionSettings}},'mentions') end
+    function p:Activate() W.AlertTabs(self.mode) end
+    p.markAll:SetScript('OnClick',function()
+        A.MarkCategory(p.mode=='mentions' and 'mentions' or p.mode=='wanted' and 'wanted' or 'alerts');p:Refresh()
+    end)
     function p:AfterRefresh()
-        local item=self.selected;if not item then return end
+        local item=self.selected;local wanted=item and item.wanted~=nil
+        self.bookmark:SetShown(not wanted);self.mute:SetShown(not wanted);self.watch:SetShown(not wanted)
+        self.openOlympus:SetShown(wanted);self.copy:SetText(wanted and 'Copy alert' or 'Copy message')
+        if not item or wanted then return end
         local ranges={};for _,hit in ipairs(item.mentionMatches or {}) do ranges[#ranges+1]=hit end
         table.sort(ranges,function(a,b) return a.first<b.first or a.first==b.first and a.last>b.last end)
         local text=item.text or item.preview;local parts,cursor={},1
@@ -966,16 +1069,42 @@ builders.updates=function()
     V.Icon(updateHero,'updates',76,20,-17)
     p.releaseTitle=V.Text(updateHero,ns.NAME..' '..ns.InstalledUpdate.version,124,-22,986,26,V.gold)
     p.releaseTitle:SetHeight(34);p.releaseTitle:SetJustifyV('TOP')
-    p.releaseSubtitle=V.Text(updateHero,'What is new in this update',125,-65,978,14)
+    p.releaseSubtitle=V.Text(updateHero,'Highlights since 1.0.1',125,-65,978,14)
     p.releaseSubtitle:SetHeight(22);p.releaseSubtitle:SetJustifyV('TOP')
     p.noteCards={}
-    for i,spec in ipairs(ns.InstalledUpdate.cards) do
-        local card=V.Panel(p.notes,0,-125-(i-1)*86,1140,76,'dark');V.Icon(card,spec[3],42,18,-17)
-        V.Text(card,spec[1],78,-13,1040,18,V.gold)
-        local description=V.Text(card,spec[2],79,-40,1040,14);description:SetHeight(28)
+    local slots=0;for _,release in ipairs(ns.UpdateHistory) do slots=math.max(slots,#release.cards) end
+    for i=1,slots do
+        local card=V.Panel(p.notes,0,-125-(i-1)*76,1140,66,'dark')
+        card.icon=V.Icon(card,'updates',36,18,-15)
+        card.title=V.Text(card,'',72,-11,1046,17,V.gold)
+        card.description=V.Text(card,'',73,-35,1046,13);card.description:SetHeight(24)
         p.noteCards[i]=card
     end
-    p.githubNotes=V.Button(p.notes,'Full notes on GitHub',0,-565,360,38,function() W.Copy(ns.PROJECT_URL..'/releases','Full patch notes on GitHub',true) end)
+    p.githubNotes=V.Button(p.notes,'Full notes on GitHub',0,-587,360,38,function()
+        local path=p.releaseIndex>1 and '/releases/tag/v'..ns.UpdateHistory[p.releaseIndex].version or '/releases'
+        W.Copy(ns.PROJECT_URL..path,'Full patch notes on GitHub',true)
+    end)
+    p.previousUpdate=V.Button(p.notes,'Previous update',500,-587,204,38,function() p:SetRelease(p.releaseIndex+1) end,'neutral')
+    p.nextUpdate=V.Button(p.notes,'Next update',716,-587,204,38,function() p:SetRelease(p.releaseIndex-1) end,'neutral')
+    p.releasePosition=V.Text(p.notes,'',944,-599,184,13,V.muted)
+    function p:SetRelease(index)
+        self.releaseIndex=math.max(1,math.min(#ns.UpdateHistory,index))
+        local release=ns.UpdateHistory[self.releaseIndex];local compact=#release.cards>5
+        self.releaseTitle:SetText(ns.NAME..' '..release.version)
+        self.releaseSubtitle:SetText(release.subtitle or 'Highlights since 1.0.1')
+        for i,card in ipairs(self.noteCards) do
+            local spec=release.cards[i];card:SetShown(spec~=nil)
+            if spec then
+                card:ClearAllPoints();card:SetPoint('TOPLEFT',0,-125-(i-1)*(compact and 76 or 86));card:SetHeight(compact and 66 or 76)
+                card.icon.ChatWardenIconBox={size=compact and 36 or 42,x=18,y=compact and -15 or -17};V.SetIcon(card.icon,spec[3])
+                card.title:SetText(spec[1]);card.description:SetText(spec[2])
+                card.description:ClearAllPoints();card.description:SetPoint('TOPLEFT',73,compact and -35 or -34);card.description:SetHeight(compact and 24 or 32)
+            end
+        end
+        self.previousUpdate:SetEnabled(self.releaseIndex<#ns.UpdateHistory);self.nextUpdate:SetEnabled(self.releaseIndex>1)
+        self.releasePosition:SetText(self.releaseIndex..' / '..#ns.UpdateHistory)
+    end
+    p:SetRelease(1)
     local hero=V.Panel(p.tour,0,0,1140,111,'header')
     local crest=V.Texture(hero,'Logo',{0,0,512,512},'ARTWORK');crest:SetSize(92,92);crest:SetPoint('TOPLEFT',16,-9)
     V.Text(hero,'Welcome to Olympus ChatWarden',124,-18,986,28,V.gold)
@@ -984,7 +1113,7 @@ builders.updates=function()
     local features={
         {'messages','Messages & filtering','Review filtered chat, read originals and inspect why a message matched.','Messages  /  Settings > Filtering','messages'},
         {'shield','Contact protection','Manage unwanted whispers, trades, duels and invitations. Allow players you trust.','Shield  /  Settings > Shield','shieldActive'},
-        {'mentions','Mention Alerts','Watch your first or full name, nicknames and phrases. No @ needed. Choose channels, sounds and quiet alerts.','Mentions > Mention settings','mentions'},
+        {'mentions','Alerts','Watch your name and Olympus Wanted encounters. Choose sounds and quiet alerts.','Alerts > Mention settings or Wanted settings','mentions'},
         {'capture','Chat Capture','Record chat locally when enabled. Search conversations and save incident bookmarks.','Capture > Recent, Bookmarks or Conversations','capture'},
         {'rules','Personal rules','Choose what to keep, warn about, redact, hide or replace with your own phrase rules.','Rules > My rules, Exceptions or Replacements','rules'},
         {'packs','Author-signed packs','Tune Olympus and King Protection. Import optional categories through verified signed packs.','Packs > Installed packs or Import signed pack','packs'},
@@ -1007,6 +1136,7 @@ builders.updates=function()
     function p:SetView(mode)
         self.mode=mode=='tour' and 'tour' or 'notes'
         self.ShowUpdates:SetChecked(ns.DB.showUpdates~=false)
+        self.ShowUpdates:ClearAllPoints();self.ShowUpdates:SetPoint('TOPLEFT',850,self.mode=='notes' and -642 or -622)
         self.notes:SetShown(self.mode=='notes');self.tour:SetShown(self.mode=='tour')
         W.UpdateTabs(self.mode)
     end
@@ -1110,7 +1240,7 @@ ns.OpenCapture=function() W.Open('capture') end
 ns.OpenRules=function() W.Open('rules') end
 ns.OpenPersonal=function(mode) W.Open(mode=='rules' and 'rules' or 'reports') end
 ns.OpenReports=function() W.Open('reports') end
-ns.OpenUpdates=function() ns.DB.updateSeen=ns.VERSION;W.Open('updates');if W.pages.updates then W.pages.updates:SetView('notes') end end
+ns.OpenUpdates=function() ns.DB.updateSeen=ns.VERSION;W.Open('updates');if W.pages.updates then W.pages.updates:SetRelease(1);W.pages.updates:SetView('notes') end end
 ns.OpenWelcome=function() W.Open('updates');if W.pages.updates then W.pages.updates:SetView('tour') end;ns.DB.welcomeSeen=1;ns.DB.updateSeen=ns.VERSION end
 ns.OpenShieldPlayer=function(name) W.Open('shield');W.ShieldEditor(name) end
 ns.OpenCapturePlayer=function(name) W.Open('capture');W.pages.capture.mode='recent';W.pages.capture.search:SetText(name or '');W.pages.capture:Activate();W.pages.capture:Refresh() end
@@ -1134,11 +1264,13 @@ SlashCmdList.OLYMPUSCHATWARDEN=function(message)
     local command=(message or ''):match('^%s*(%S*)'):lower()
     if command=='' then W.Open('overview')
     elseif command=='options' or command=='settings' then W.Open('settings')
-    elseif command=='mentions' then W.Open('mentions')
+    elseif command=='mentions' or command=='alerts' then W.Open('mentions')
     elseif command=='overview' then W.Open('overview') else oldSlash(message) end
 end
 local toast
+function ns.HideMentionToast() if toast then toast:Hide() end end
 function ns.ShowMentionToast(item)
+    if ns.DB.alertsEnabled==false then return end
     if not toast then
         toast=V.Panel(UIParent,0,0,390,94,'dark');toast:ClearAllPoints();toast:SetPoint('TOP',UIParent,'TOP',0,-110);toast:SetFrameStrata('TOOLTIP')
         V.Icon(toast,'mentions',46,14,-18);toast.title=V.Text(toast,'',70,-17,300,15,V.gold);toast.preview=V.Text(toast,'',70,-43,300,12)
@@ -1147,6 +1279,28 @@ function ns.ShowMentionToast(item)
     toast.title:SetText(Plain(A.DisplayName(item.sender)..' mentioned you'));toast.preview:SetText(Plain((item.preview or ''):sub(1,180)))
     toast.generation=(toast.generation or 0)+1;local generation=toast.generation;toast:Show()
     if C_Timer and C_Timer.After then C_Timer.After(5,function() if toast.generation==generation then toast:Hide() end end) end
+end
+local wantedToast
+function ns.HideWantedToast() if wantedToast then wantedToast:Hide() end end
+function ns.ShowWantedToast(item)
+    if not ns.Wanted.Active() or not item.wanted or not ns.Wanted.ValidRecord(item.wanted) then return end
+    if not wantedToast then
+        wantedToast=V.Panel(UIParent,0,0,390,94,'dark');wantedToast:ClearAllPoints();wantedToast:SetPoint('TOP',UIParent,'TOP',0,-214);wantedToast:SetFrameStrata('TOOLTIP')
+        V.Icon(wantedToast,'reports',42,18,-22)
+        wantedToast.title=V.Text(wantedToast,'',76,-18,292,15,V.gold);wantedToast.title:SetHeight(20);wantedToast.title:SetWordWrap(false)
+        wantedToast.detail=V.Text(wantedToast,'',76,-43,292,12,V.muted);wantedToast.detail:SetHeight(34)
+        wantedToast:EnableMouse(true);wantedToast:SetScript('OnMouseUp',function(_,button)
+            if button=='RightButton' then wantedToast:Hide();return end
+            if InCombatLockdown and InCombatLockdown() then ns.Print('Open this alert in Alerts after combat.');return end
+            local selected=wantedToast.item;wantedToast:Hide()
+            W.Open('mentions');local page=W.pages.mentions;page.mode='all';page.selected=selected;page:Activate();page:Refresh()
+        end)
+    end
+    wantedToast.item=item
+    wantedToast.title:SetText(W.NameText(item,wantedToast.title,false))
+    wantedToast.detail:SetText((item.wanted.kind=='encounter' and 'Wanted player encountered' or 'Wanted player mentioned')..'\nBounty: '..item.wanted.bounty..' points')
+    wantedToast.generation=(wantedToast.generation or 0)+1;local generation=wantedToast.generation;wantedToast:Show()
+    if C_Timer and C_Timer.After then C_Timer.After(6,function() if wantedToast.generation==generation then wantedToast:Hide() end end) end
 end
 A.Subscribe(W.Queue)
 local oldCaptureChanged=ns.ChatCapture.Changed
@@ -1171,4 +1325,4 @@ function W.SettingsCanvas(panel,key)
     T.BindSettings(canvas);return canvas
 end
 local hideAll=T.HideAll
-T.HideAll=function() hideAll();if toast then toast:Hide() end;V.CloseMenus() end
+T.HideAll=function() hideAll();if toast then toast:Hide() end;if wantedToast then wantedToast:Hide() end;V.CloseMenus() end

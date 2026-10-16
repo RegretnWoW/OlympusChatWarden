@@ -2,6 +2,9 @@
 local _,ns=...
 local A={entries={},byID={},MAX_ENTRIES=300,MAX_BYTES=1048576,bytes=0,listeners={}}
 ns.Activity=A
+local function Category(key,category)
+    return not category or key==category or category=='alerts' and (key=='mentions' or key=='wanted')
+end
 function A.Initialize() A.entries={};A.byID={};A.bytes=0 end
 function A.Subscribe(fn) A.listeners[#A.listeners+1]=fn end
 function A.Changed()
@@ -55,14 +58,14 @@ function A.Unread(category)
     local count=0
     for _,item in ipairs(A.entries) do
         for key in pairs(item.categories) do
-            if (not category or key==category) and not item.read[key] and not item.quiet[key] then count=count+1;break end
+            if Category(key,category) and not item.read[key] and not item.quiet[key] then count=count+1;break end
         end
     end
     return count
 end
 function A.Mark(id,category)
     local item=A.byID[id];if not item then return false end
-    for key in pairs(item.categories) do if not category or key==category then item.read[key]=true end end
+    for key in pairs(item.categories) do if Category(key,category) then item.read[key]=true end end
     if item.shieldAlert and (not category or category=='shield') then item.shieldAlert.chatWardenRead=true end
     if item.reviewID and (not category or category==ns.Review.ActivityCategory(ns.Review.Get(item.reviewID))) then local r=ns.Review.Get(item.reviewID);if r then r.read=true end end
     A.Changed();return true
@@ -70,17 +73,19 @@ end
 function A.MarkCategory(category)
     if category=='shield' then for _,alert in ipairs(ns.Shield.alerts) do alert.chatWardenRead=true end end
     for _,item in ipairs(A.entries) do
-        if item.categories[category] then item.read[category]=true end
+        for key in pairs(item.categories) do if Category(key,category) then item.read[key]=true end end
         if item.categories[category] and item.reviewID then local r=ns.Review.Get(item.reviewID);if r then r.read=true end end
     end
     A.Changed()
 end
 function A.List(category)
-    local out={};for i=#A.entries,1,-1 do local item=A.entries[i];if not category or item.categories[category] then out[#out+1]=item end end;return out
+    local out={};for i=#A.entries,1,-1 do local item=A.entries[i]
+        for key in pairs(item.categories) do if Category(key,category) then out[#out+1]=item;break end end
+    end;return out
 end
 function A.EntryUnread(item,category)
     if not item or not item.categories then return false end
-    for key in pairs(item.categories) do if (not category or key==category) and not item.read[key] then return true end end
+    for key in pairs(item.categories) do if Category(key,category) and not item.read[key] then return true end end
     return false
 end
 function A.DisplayName(name)
@@ -90,6 +95,9 @@ function A.DisplayName(name)
     return ns.Engine.Render(name,matches,function(original,match) return ns.IsRedacted(match) and '[redacted]' or match.replacement or original end)
 end
 function A.EventLabel(item)
+    if item.wanted and ns.Wanted.ValidRecord(item.wanted) then
+        return item.wanted.kind=='encounter' and 'Wanted Encounter' or 'Wanted Mention'
+    end
     local labels={}
     local categories=item.categories or {}
     local entry=item.reviewID and ns.Review.Get(item.reviewID)

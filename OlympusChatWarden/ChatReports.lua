@@ -234,5 +234,7 @@ function C.OnEvent(_, event, message, sender, ...)
     end
     local entry=C.Capture(event, message, sender, select(9, ...))
     if entry then entry.channel=ns.SafeString(select(7,...),128) or ns.SafeString(select(2,...),128) end
-    if entry and ns.Mentions and C_Timer and C_Timer.After then C_Timer.After(0,function() ns.Mentions.Unrendered(entry) end) end
+    if entry and C_Timer and C_Timer.After then C_Timer.After(0,function()
+        if ns.Mentions then ns.Mentions.Unrendered(entry) end
+    end) end
 end

@@ -136,7 +136,7 @@ function M.Find(text,channel,hasLinks)
     return found
 end
 function M.Observe(entry,source,preview,assessment)
-    if not M.db or not M.db.enabled or not ns.Active() or not entry or entry.event=='CHAT_MSG_WHISPER_INFORM' then return end
+    if not M.db or not M.db.enabled or ns.DB.alertsEnabled==false or not ns.Active() or not entry or entry.event=='CHAT_MSG_WHISPER_INFORM' then return end
     local own=ns.Shield.Key(ns.Shield.UnitName('player'));local sender=ns.Shield.Key(entry.sender)
     if not sender or own and sender==own or ns.Shield.IsShielded(entry.sender) or ns.Spam.PauseRemaining(entry.sender)>0 then return end
     local snapshot=entry.captureSnapshot
@@ -162,7 +162,7 @@ function M.Observe(entry,source,preview,assessment)
     return item
 end
 function M.Unrendered(entry)
-    if not entry or entry.captureSnapshot.actionRecorded or not M.db or not M.db.enabled or not ns.Active() then return end
+    if not entry or entry.captureSnapshot.actionRecorded or not M.db or not M.db.enabled or ns.DB.alertsEnabled==false or not ns.Active() then return end
     local source={kind='player',sender=entry.sender,channel=entry.channel,event=entry.event}
     local matches=ns.Active('chat') and ns.Find(entry.original,ns.TypoFilter.Allowed(entry.event,source),source) or {}
     local language=ns.Language.Check(entry.original,entry.event,source)

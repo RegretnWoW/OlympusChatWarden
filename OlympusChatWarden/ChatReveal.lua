@@ -136,6 +136,7 @@ local function Toggle(link, frame)
     end
 end
 function ns.OnLink(link, frame, button)
+    if ns.CanRead(link) and ns.Readable(button) and ns.Readable(frame) and ns.Wanted and ns.Wanted.OnLink(link,frame,button) then return end
     if not ns.CanRead(link) or not ns.Readable(button) or not ns.Readable(frame) or button ~= "LeftButton"
         or not ns.RevealModifier or not ns.RevealModifier() then return end
     local name=ns.LanguageDisplay and ns.LanguageDisplay.CanReveal(link)

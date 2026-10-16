@@ -1,3 +1,34 @@
+# 1.0.2
+
+- Preserve original 1.0.1 and 1.0.0 update pages with Previous/Next navigation.
+- Refresh the Updates screen with all six highlights since 1.0.1, keeping the Launch Tour and User Guide separate.
+
+- Aligned the gold edges of the Zeus artwork with the panel trim; selected titles retain a smaller, aligned ornament.
+- Corrected compact icon atlas fitting, tightened toggle spacing and marked compact selections read.
+- Added the native Olympus panel and authoritative permission/membership checks.
+- Reduced the compact header and controls; three complete recent entries fit the stock viewport.
+- Renamed Mentions to Alerts, with independent Mentions and Wanted views/settings and a shared pause switch.
+- Added Wanted encounter alerts and quiet chat icons with current bounty details on hover. Chat names never create Wanted notifications.
+- Show actual guild rank alone; hide an unavailable Title row. Keep connection status in the full header.
+- Updated the guide, tour and patch highlights. Existing packs and filtering policy are unchanged.
+
+# 1.0.2-preview2
+
+- Move guild, rank and selected Olympus title to the full workspace sidebar above Zeus; show connection status in the top bar.
+- Replace the compact header's Zeus and duplicate crest with one crest on the right. Fit character names and omit the realm suffix.
+- Remove the compact profile card and use full-width activity rows with the existing icons, unread wash/gem and hover art. Long event labels wrap.
+- Restore native Olympus window focus from the workspace button.
+- Add right-click-to-open-full-UI on ChatWarden's own native tab, retaining Olympus's original selection handler and other tabs.
+- Preserve permission checks, saved settings, filtering logic, signed packs and artwork.
+
+# 1.0.2-preview1
+
+- Add a native Olympus 1.2.4 page with the ChatWarden crest, Zeus guardian, responsive feature controls, profile and recent activity.
+- Use Olympus's consented membership answer. Modern installs require permission; older versions keep the local fallback.
+- Show guild, rank, role and title from a session-only profile cache. Update on permission/profile changes.
+- Preserve full-workspace access and older launchers when the shared native slot is unavailable.
+- Keep filtering policy, author-signed packs, spelling vocabulary, saved choices and artwork unchanged from 1.0.1.
+
 # 1.0.1-preview4 (internal test build)
 
 - Add 1,078 curated offline spelling tokens: 1,068 game terms and 10 established Olympus/project names. Preserve the English base, personal words and feature defaults.
@@ -395,4 +426,3 @@ Curated stock references share bounded statement patterns. Negated and defended 
 - Added incident bookmarks, search and bounded local storage.
 - Added player right-click actions for Shield management and chat capture.
 - Added Shield-list exports and selectable privacy previews for personal exports.
-

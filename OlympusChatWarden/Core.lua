@@ -1,5 +1,5 @@
 local ADDON_NAME, ns = ...
-ns.NAME, ns.VERSION = "Olympus ChatWarden", "1.0.1"
+ns.NAME, ns.VERSION = "Olympus ChatWarden", "1.0.2"
 ns.TAGLINE = "CHUDS WITHOUT BORDERS"
 ns.REPORT_URL = "https://github.com/RegretnWoW/OlympusChatWarden/issues"
 ns.PROJECT_URL = "https://github.com/RegretnWoW/OlympusChatWarden"
@@ -148,7 +148,7 @@ function ns.Initialize()
     ns.Membership.InstallAccessGuards()
     if type(OlympusChatWardenDB) ~= "table" then OlympusChatWardenDB = {} end
     ns.DB = OlympusChatWardenDB
-    local defaults={enabled=true,chat=true,npc=false,barber=true,bubbles=true,captureAlerts=true,olympusMuteSignal=true,languageEnabled=false,typoFiltering=false,
+    local defaults={enabled=true,alertsEnabled=true,chat=true,npc=false,barber=true,bubbles=true,captureAlerts=true,olympusMuteSignal=true,languageEnabled=false,typoFiltering=false,
         dialogue=false,vendor=false,nameplates=false,targetNames=false,tooltips=false,
         playerNames=false,npcNames=false,talkingHead=false,history=true,context=true}
     for key,default in pairs(defaults) do
@@ -206,9 +206,11 @@ function ns.Initialize()
     if ns.ChatCapture then ns.ChatCapture.Initialize() end
     if ns.Spelling then ns.Spelling.Initialize() end
     if ns.History then ns.History.Initialize() end
+    if ns.Wanted then ns.Wanted.Initialize() end
     ns.DB.playerCover = nil -- retired body-cover experiment; ordinary name filtering remains
     ns.Initializing = false
     if ns.Membership.Allowed() then ns.RulePacks.Restore() else ns.PacksSuspended = true end
+    if ns.Wanted then ns.Wanted.Refresh() end
 end
 
 local events = CreateFrame("Frame")
@@ -220,6 +222,8 @@ end
 events:SetScript("OnEvent", function(_, event, loaded)
     if event == "ADDON_LOADED" and loaded == ADDON_NAME then ns.Initialize() end
     if not ns.DB then return end
+    if ns.OlympusConnection and (event=='PLAYER_LOGIN' or event=='PLAYER_ENTERING_WORLD'
+        or event=='PLAYER_GUILD_UPDATE' and (loaded==nil or loaded=='player')) then ns.OlympusConnection.Invalidate() end
     ns.Membership.Refresh()
     if ns.InstallAdapters then ns.InstallAdapters() end
     if ns.ChatReports then ns.ChatReports.Install() end

@@ -1,7 +1,6 @@
--- Olympus 1.2.1's UI.lua creates these named windows on first open. Its UI
--- namespace is private; attach our own launcher without changing its tab list.
+-- Prefer Olympus 1.2.4's supported native page. Retain the older launcher fallback.
 local _, ns = ...
-local I = {SOURCE_VERSION = "1.2.1", records = {}}
+local I = {SOURCE_VERSION = "1.2.4", records = {}}
 ns.OlympusIntegration = I
 ns.OlympusLaunchers = I.records
 local names = {"OlympusFrame", "OlympusFrameBasic", "OlympusFrameHD", "OlympusFrameHDBasic"}
@@ -47,6 +46,7 @@ function I.HasNewCaptures()
 end
 function I.UpdateAlerts()
     if not ns.DB then return end
+    if ns.OlympusPanel then ns.OlympusPanel.Queue() end
     local active = Enabled() and ns.DB.captureAlerts ~= false and I.HasNewCaptures()
     -- This exact public button belongs to Olympus. No handler is replaced or
     -- invoked: clicking it continues to open Olympus normally.
@@ -69,6 +69,7 @@ function I.HasShownLauncher()
     return false
 end
 function I.IsActive()
+    if ns.OlympusConnection and ns.OlympusConnection.SurfaceReady() then return true end
     if not Enabled() then return false end
     if manual and SafeFrame(manualHost) then return true end
     for _, record in pairs(I.records) do if Current(record) then return true end end
@@ -83,6 +84,7 @@ end
 -- Open through Olympus's public minimap button. A shown window only needs
 -- focus: invoking its toggle in that case would close the user's launcher.
 function I.Available()
+    if ns.OlympusConnection and ns.OlympusConnection.SurfaceReady() then return true end
     if not Loaded() then return false end
     for _,name in ipairs(names) do if SafeFrame(_G[name]) then return true end end
     local b=_G.OlympusMinimapButton
@@ -212,8 +214,18 @@ function I.ApplyIcon(texture)
     SaveDiagnostic()
     return true
 end
+local function FocusOlympus()
+    for _,name in ipairs(names) do local f=_G[name]
+        if SafeFrame(f) and f:IsShown() then ns.Theme.RegisterWindow(f,true);ns.Theme.FocusWindow(f);return end
+    end
+end
 function I.Open()
     if InCombatLockdown and InCombatLockdown() then return false,'Open Olympus after combat.' end
+    if ns.OlympusConnection and ns.OlympusConnection.SurfaceReady() then
+        local ok,message=ns.OlympusConnection.OpenSurface()
+        if ok then FocusOlympus();if C_Timer and C_Timer.After then C_Timer.After(0,FocusOlympus) end end
+        return ok,message
+    end
     local hidden
     for _,name in ipairs(names) do
         local f=_G[name]
@@ -229,14 +241,13 @@ function I.Open()
         if not ok then return false,'Olympus could not open its launcher.' end
     elseif hidden then hidden:Show()
     else return false,'Olympus launcher is unavailable. Enable Olympus and reload.' end
-    local function Focus()
-        for _,name in ipairs(names) do local f=_G[name]
-            if SafeFrame(f) and f:IsShown() then ns.Theme.RegisterWindow(f,true);ns.Theme.FocusWindow(f);return end
-        end
-    end
-    Focus();if C_Timer and C_Timer.After then C_Timer.After(0,Focus) end;return true
+    FocusOlympus();if C_Timer and C_Timer.After then C_Timer.After(0,FocusOlympus) end;return true
 end
 function I.Status()
+    if ns.OlympusConnection and ns.OlympusConnection.modern then
+        local c=ns.OlympusConnection
+        return c.Reason()..(c.surfaceState=='surface-full' and ' Another addon is using the native page; /ocw opens the full workspace.' or '')
+    end
     if I.IsActive() then return "Olympus tab ready. Left-click for Overview; right-click for Settings." end
     if Loaded() then return "Open Olympus once to create the ChatWarden tab. /ocw opens Overview." end
     return "Olympus required. Use /ocw to open ChatWarden while installing/updating it."
@@ -263,6 +274,34 @@ local function Place(record)
 end
 local function OpenHome()
     if ns.Workspace then ns.Workspace.Open('overview') else ns.OpenReview() end
+end
+function I.HookNativeTabRoot(root)
+    if InCombatLockdown and InCombatLockdown() or not ns.OlympusConnection.SurfaceReady() or not SafeFrame(root) then return end
+    -- Olympus API v1 has one global external page slot. A successful registration
+    -- owns that slot; match its materialized page and tab, never another native tab.
+    local known=false;for _,name in ipairs(names) do if _G[name]==root then known=true;break end end
+    if not known or type(root.tabs)~='table' or type(root.apiSurfaceViews)~='table' then return end
+    for _,tab in ipairs(root.tabs) do
+        if SafeFrame(tab) and ns.CanRead(tab.key) and tab.key:match('^api%-surface:%d+$')
+            and root.apiSurfaceViews[tab.key] and not tab.ChatWardenRightClick then
+            tab.ChatWardenRightClick=true
+            tab:RegisterForClicks('LeftButtonUp','RightButtonUp')
+            tab:HookScript('OnClick',function(_,button)
+                if button~='RightButton' then return end
+                if InCombatLockdown and InCombatLockdown() then ns.Print('Open ChatWarden after combat.');return end
+                OpenHome()
+                -- Olympus finishes its own selection/focus first; keep the full workspace on top.
+                if C_Timer and C_Timer.After then C_Timer.After(0,function()
+                    if not (InCombatLockdown and InCombatLockdown()) and ns.Workspace.window and ns.Workspace.window:IsShown() then
+                        ns.Theme.FocusWindow(ns.Workspace.window)
+                    end
+                end) end
+            end)
+            tab:HookScript('OnEnter',function()
+                if GameTooltip then GameTooltip:AddLine('Right-click: Open the full ChatWarden UI.',.9,.9,.85,true);GameTooltip:Show() end
+            end)
+        end
+    end
 end
 local function MakeTab(root)
     local ok, button = pcall(CreateFrame, "CheckButton", nil, root, "RightSideTabTemplate")
@@ -299,6 +338,7 @@ local function MakeTab(root)
     return button
 end
 function I.Install()
+    if ns.OlympusConnection and ns.OlympusConnection.SurfaceReady() then return end
     if not Enabled() or hooked or type(hooksecurefunc) ~= "function" then return end
     local ok = pcall(hooksecurefunc, "CreateFrame", function(kind, name)
         if Enabled() and ns.CanRead(kind) and kind:lower() == "frame" and ns.CanRead(name) and styles[name] then Queue() end
@@ -314,8 +354,11 @@ function I.Refresh()
         SyncOptions()
         return
     end
+    if ns.OlympusPanel then ns.OlympusPanel.Ensure() end
+    local native=ns.OlympusConnection and ns.OlympusConnection.SurfaceReady()
+    if native then for _,name in ipairs(names) do I.HookNativeTabRoot(_G[name]) end end
     I.Install()
-    if Enabled() then
+    if Enabled() and not native then
         for _, name in ipairs(names) do
             local root = _G[name]
             if SafeFrame(root) and not watched[root] then
@@ -333,11 +376,11 @@ function I.Refresh()
     end
     local primary = manual
     for _, record in pairs(I.records) do
-        local active = Enabled() and Current(record)
+        local active = not native and Enabled() and Current(record)
         if active then Place(record); if not primary or record.host:IsShown() then primary = record.button end end
         record.button:SetShown(active)
     end
-    if manual then manual:SetShown(Enabled() and SafeFrame(manualHost)) end
+    if manual then manual:SetShown(not native and Enabled() and SafeFrame(manualHost)) end
     ns.OlympusLauncher = primary
     I.UpdateAlerts()
     if ns.BuildMinimap then ns.BuildMinimap() end
@@ -352,6 +395,14 @@ discovery:SetScript("OnUpdate", function(_, delta)
     elapsed = elapsed + delta
     if elapsed < 0.5 then return end
     elapsed = 0
+    if not ns.DB then return end
+    if ns.OlympusConnection then ns.OlympusConnection.Refresh() end
+    if not (InCombatLockdown and InCombatLockdown()) and ns.OlympusPanel then ns.OlympusPanel.Ensure() end
+    if SafeFrame(_G.OlympusMinimapButton) and not alertHosts[_G.OlympusMinimapButton] then I.UpdateAlerts() end
+    if ns.OlympusConnection and ns.OlympusConnection.SurfaceReady() then
+        if not (InCombatLockdown and InCombatLockdown()) then for _,name in ipairs(names) do I.HookNativeTabRoot(_G[name]) end end
+        return
+    end
     if not Enabled() or (InCombatLockdown and InCombatLockdown()) then return end
     if not alertHosts[_G.OlympusMinimapButton] then I.UpdateAlerts() end
     local refresh = not I.IsActive()
