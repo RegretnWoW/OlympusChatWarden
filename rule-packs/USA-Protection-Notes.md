@@ -1,5 +1,15 @@
-# USA Protection v5
+# USA Protection v6 — internal 1.0.1 candidate
 
-Author-signed schema-4 update for 1.0.0. Mild criticism including America is dumb warns in Balanced; USA sucks redacts. Praise, ordinary references and genuine questions stay visible. The reported conditional question If USA is so bad why does half the world want to live there stays visible through the shared context handling. Recognized explicit threats remain separate.
+Author-signed schema-5 subject policy. Retains 17 country/group references and
+all 17 Gommage masks. Removes old scored statements; actual directed context
+now selects a shared country action profile.
 
-Five authored dumb statement scores change from strong to mild. References, other statements and all 17 Gommage masks are preserved. Gommage starts off and remains a separate literal meme option. Use normal signature verification/import; updates retain enablement and category presets. The addon ZIP alone cannot update a saved USA import.
+“America is dumb,” “USA sucks,” and “All Americans are idiots” give
+Unchanged / Warning / Redacted across Mild / Balanced / Strict. “Fuck America”
+gives Warning / Hidden / Hidden. Praise, specific policy criticism, questions,
+negation and merely quoted/reported wording stay visible. Explicit covered IRL
+threats remain separate. Gommage is optional, literal, and defaults off.
+
+Use normal signed updates. Old USA versions remain saved but pause entirely
+until updated; the update preserves enablement and sensitivity. Addon
+installation alone does not update a saved pack.

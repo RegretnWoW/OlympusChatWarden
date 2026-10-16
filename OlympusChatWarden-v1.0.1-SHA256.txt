@@ -1,0 +1,5 @@
+a804c35d95a15356e5216e6b00f71a3e06e371e90eb264837baa98a6bf93b22a  OlympusChatWarden-v1.0.1.zip
+47e445b36668d01c8825643588141943bf0932b91ffce027fef1fb69745e4bf1  OlympusChatWarden-RulePacks-v1.0.1.zip
+9337ddee1519330628fa7d2df457f6fbcd9c1477282d61f6bb44e1270a83297b  OlympusChatWarden-v1.0.1-Test-Evidence.zip
+e096c950a6bf8aa0e127fe14d0838cef95ca507759b411fc109b3087e212d1c1  OlympusChatWarden-v1.0.1-Release-Notes.md
+f0d5f13a3c69f1726551a32c4ed690322863b8020db1c531428939ca0464b325  OlympusChatWarden-v1.0.1-Validation.json

@@ -1,5 +1,5 @@
 local ADDON_NAME, ns = ...
-ns.NAME, ns.VERSION = "Olympus ChatWarden", "1.0.0"
+ns.NAME, ns.VERSION = "Olympus ChatWarden", "1.0.1"
 ns.TAGLINE = "CHUDS WITHOUT BORDERS"
 ns.REPORT_URL = "https://github.com/RegretnWoW/OlympusChatWarden/issues"
 ns.PROJECT_URL = "https://github.com/RegretnWoW/OlympusChatWarden"
@@ -78,7 +78,7 @@ end
 function ns.SetPreset(preset)
     preset = ({mild='strict',selective = "strict", broad = "aggressive", all = "maximum", gommage = "maximum", ["all listed terms"] = "maximum"})[preset] or preset
     if preset=='maximum' then ns.DB.gommage=true;preset=ns.DB.preset=='strict' and 'strict' or ns.DB.preset=='aggressive' and 'aggressive' or 'balanced' end
-    if not ns.Confidence.Presets[preset] then return false, "Choose mild, balanced, or broad. Gommage is a separate toggle." end
+    if not ns.Confidence.Presets[preset] then return false, "Choose Mild, Balanced, or Strict. Gommage is a separate toggle." end
     ns.DB.preset = preset; ns.PolicyChanged(); return true
 end
 function ns.SetGommage(value)
@@ -92,7 +92,7 @@ function ns.SetPackPreset(pack, preset)
     preset = ({mild='strict',selective = "strict", broad = "aggressive", all = "maximum", gommage = "maximum"})[preset] or preset
     if preset=='maximum' then ns.DB.gommage=true;ns.DB.gommagePacks=ns.DB.gommagePacks or {};ns.DB.gommagePacks[pack]=true;preset='aggressive' end
     if preset ~= "default" and preset ~= "off" and not ns.Confidence.Presets[preset] then
-        return false, "Choose default, off, mild, balanced, or broad."
+        return false, "Choose Default, Off, Mild, Balanced, or Strict."
     end
     ns.DB.disabledPacks[pack] = preset == "off"
     ns.DB.packPresets[pack] = ns.Confidence.Presets[preset] and preset or nil
@@ -120,7 +120,7 @@ end
 function ns.Status()
     ns.Print(ns.NAME .. " v" .. ns.VERSION .. " - " .. (ns.Active() and "active" or "paused"))
     ns.Print(ns.Membership.Status())
-    local label = ({aggressive = "Broad", balanced = "Balanced", strict = "Mild"})[ns.DB.preset]
+    local label = ({aggressive = "Strict", balanced = "Balanced", strict = "Mild"})[ns.DB.preset]
     ns.Print("Preset: " .. label .. (ns.DB.gommage and '; Gommage on' or '; Gommage off').."; " .. #ns.Personal.rules .. " personal rules; " .. #ns.Personal.reports .. " saved reports.")
     local overrides = 0
     for _, pack in ipairs(ns.PackNames) do if ns.DB.packPresets[pack] then overrides = overrides + 1 end end

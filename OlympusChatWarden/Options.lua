@@ -1,16 +1,15 @@
 local _, ns = ...
 local T = ns.Theme
 local category, feedback, controls, packControls, sensitivity, sensitivityText, categoryWindow, integrationText
-local labels = {aggressive = "Broad", balanced = "Balanced", strict = "Mild"}
-local descriptions = {aggressive = "Hides eligible opinions and attacks; recognizes wider topics.",
-    balanced = "Your preferences: warns on mild opinions; redacts strong expressions.",
+local labels = {aggressive = "Strict", balanced = "Balanced", strict = "Mild"}
+local descriptions = {aggressive = "Stronger actions within the same covered subjects and concepts.",
+    balanced = "Mild viewing preferences warn; promotion redacts. Protection packs grade attacks separately.",
     strict = "Warns on strong eligible expressions. Explicit threats hide."}
-local packLabels = {labels = "Body-label replacements", reproductive = "Pregnancy & parenting terminology",
-    language = "Inclusive language terminology", gender = "Gender & pronouns", institutional = "Workplace & institutional terminology",
-    slogans = "Political slogans", broad = "Social terminology", guild = "Olympus Protection",
-    creator = "King Protection", america = "USA Protection"}
-local shortLabels = {labels = "Body labels", reproductive = "Pregnancy & parenting", language = "Inclusive language", gender = "Gender & pronouns",
-    institutional = "Workplace & institutions", slogans = "Political slogans", broad = "Social terminology", guild = "Olympus Protection", creator = "King Protection", america = "USA Protection"}
+local function PackHelp(pack)
+    return pack == "labels"
+        and "Body Type 1/2 replacements are built in. The Barber & body-type wording option controls them and this pack's extra replacement variants. This category controls its other phrases."
+        or "Default follows the main action preset. Balanced warns on mild unwanted support or criticism and redacts stronger promotion or attacks. Context handling keeps neutral references visible. Gommage is the separate meme mask option. Off disables this category."
+end
 local summaries = {}
 local workspacePackControls = {}
 local categoryLabels = {}
@@ -28,6 +27,7 @@ local function Sync()
             control:ClearAllPoints(); control:SetPoint("TOPLEFT", 382, -141 - (index - 1) * 40)
             categoryLabels[pack]:ClearAllPoints(); categoryLabels[pack]:SetPoint("TOPLEFT", 26, -146 - (index - 1) * 40)
             categoryLabels[pack]:SetText(ns.RulePacks.Title(pack)); control:Refresh()
+            T.Tooltip(control,ns.RulePacks.Title(pack),PackHelp(pack))
         end
     end
     for pack, text in pairs(summaries) do
@@ -35,10 +35,12 @@ local function Sync()
         text:SetShown(not ns.Workspace and positions[pack] ~= nil)
         if positions[pack] then
             text:ClearAllPoints(); text:SetPoint("TOPLEFT", 12, -72 - (positions[pack] - 1) * 18)
-            text:SetText((shortLabels[pack] or ns.RulePacks.Title(pack)) .. ": " .. (labels[choice] or (choice == "off" and "Off" or "Default")))
+            text:SetText(ns.RulePacks.Title(pack) .. ": " .. (labels[choice] or (choice == "off" and "Off" or "Default")))
         end
     end
-    for _,control in pairs(workspacePackControls) do control:Refresh() end
+    for pack,control in pairs(workspacePackControls) do
+        control:Refresh();T.Tooltip(control,ns.RulePacks.Title(pack),'Default follows the main sensitivity. Other choices stay fixed; Off disables this category.')
+    end
     if sensitivity then
         sensitivity:Refresh()
         sensitivityText:SetText(descriptions[ns.DB.preset] or descriptions.balanced)
@@ -82,7 +84,7 @@ function ns.OpenCategories()
         T.Muted(Text(20, -100, 610, "Choose a preset for each category, or Off. Personal phrase rules and exceptions still apply."))
         packControls = {}; ns.CategoryDropdowns = packControls
         local choices = {{"default", "Default (main preset)"}, {"off", "Off"}, {"strict", "Mild"},
-            {"balanced", "Balanced"}, {"aggressive", "Broad"}}
+            {"balanced", "Balanced"}, {"aggressive", "Strict"}}
         for i, name in ipairs(ns.RulePacks.Order) do
             local pack = name
             local y = -141 - (i - 1) * 40
@@ -90,9 +92,7 @@ function ns.OpenCategories()
             packControls[pack] = T.Dropdown(categoryWindow, 382, y, 240, choices,
                 function() return PackChoice(pack) end,
                 function(value) ns.SetPackPreset(pack, value); Sync() end)
-            T.Tooltip(packControls[pack], packLabels[pack], pack == "labels"
-                and "Body Type 1/2 replacements are built in. The Barber & body-type wording option controls them and this pack's extra replacement variants. This category controls its other phrases."
-                or "Default follows the main action preset. Balanced warns on mild unwanted support or criticism and redacts stronger promotion or attacks. Context handling keeps neutral references visible. Gommage is the separate meme mask option. Off disables this category.")
+            T.Tooltip(packControls[pack], ns.RulePacks.Title(pack),PackHelp(pack))
         end
         T.Muted(Text(20, -550, 610, "Only installed packs appear here. Import optional categories with Rule packs."))
         local manage = CreateFrame("Button", nil, categoryWindow, "UIPanelButtonTemplate")
@@ -143,7 +143,7 @@ function ns.BuildOptions()
     sensitivityText = T.Muted(Text(mode, 12, -30, 335))
     sensitivity = T.Dropdown(mode, 362, -20, 236, {{"strict", labels.strict}, {"balanced", labels.balanced}, {"aggressive", labels.aggressive}},
         function() return ns.DB.preset end, function(value) ns.SetPreset(value); Sync() end)
-    T.Tooltip(sensitivity,"Action preset","Mild warns on strong eligible expressions. Balanced warns on mild unwanted opinions and redacts stronger promotion or attacks. Broad hides eligible expressions and recognizes wider topics. Context handling keeps neutral references, genuine questions and quotations visible. Recognized explicit threats have separate protection.")
+    T.Tooltip(sensitivity,"Action preset","Packs use the same covered concepts in every preset. Balanced warns on mild qualified expressions, redacts stronger promotion or attacks and hides severe directed abuse. Strict increases actions within that same scope. Uncertain cases stay visible. Older optional policy packs pause until updated; Labels v7 remains compatible.")
     controls.gommage=Check(mode,'gommage','Gommage: cover curated words',12,-66,500,function(self)
         ns.SetGommage(ns.Checked(self:GetChecked()));Sync()
     end,'The deliberately exaggerated meme option. Separate from practical context filtering: it covers your original curated terms even in questions or criticism, in any preset. Exceptions still apply.')
@@ -212,7 +212,7 @@ function ns.BuildOptions()
         local packScroll=CreateFrame('ScrollFrame',nil,packs)
         packScroll:SetPoint('TOPLEFT',14,-42);packScroll:SetPoint('BOTTOMRIGHT',-34,82)
         local packContent=CreateFrame('Frame',nil,packScroll);packContent:SetSize(470,440);packScroll:SetScrollChild(packContent);V.SkinScroll(packScroll)
-        local names={};local choices={{'default','Default (main preset)'},{'off','Off'},{'strict','Mild'},{'balanced','Balanced'},{'aggressive','Broad'}}
+        local names={};local choices={{'default','Default (main preset)'},{'off','Off'},{'strict','Mild'},{'balanced','Balanced'},{'aggressive','Strict'}}
         for _,packName in ipairs(ns.RulePacks.Order) do
             local pack=packName
             names[pack]=Text(packContent,0,0,238,ns.RulePacks.Title(pack))
@@ -273,7 +273,8 @@ SlashCmdList.OLYMPUSCHATWARDEN = function(message)
     if not ns.DB then return end
     local command, argument = (message or ""):match("^%s*(%S*)%s*(.-)%s*$")
     command = (command or ""):lower()
-    if command == "shieldoptions" then ns.OpenShieldOptions()
+    if command=='test' then ns.PhraseTester.Run(argument)
+    elseif command == "shieldoptions" then ns.OpenShieldOptions()
     elseif command == "inbox" or command == "review" then ns.OpenReview()
     elseif command == "shield" then ns.OpenShield()
     elseif command == "help" or command == "tutorial" then ns.OpenTutorial()
@@ -306,13 +307,13 @@ SlashCmdList.OLYMPUSCHATWARDEN = function(message)
         end
         ns.Print(ns.BubbleStatus())
     elseif command == "preset" then
-        local ok, err = ns.SetPreset(argument:lower())
+        local ok, err = ns.SetPreset(argument:lower()=='strict' and 'aggressive' or argument:lower())
         if ok then Sync(); ns.Status() else ns.Print(err) end
     elseif command == 'gommage' then
         if argument=='on' or argument=='off' then ns.SetGommage(argument=='on');Sync() end
         ns.Print('Gommage '..(ns.DB.gommage and 'on' or 'off')..'. Use /ocw gommage on|off. The action preset is unchanged.')
     elseif command == "logic" then
-        ns.Print("Context handling is always active. Choose Mild, Balanced or Broad to change filtering strength.")
+        ns.Print("Context handling is always active. Choose Mild, Balanced or Strict to change filtering strength.")
     elseif command == "pack" then
         local pack, setting = argument:lower():match("^(%S+)%s+(%S+)$")
         local known = false
@@ -348,5 +349,5 @@ SlashCmdList.OLYMPUSCHATWARDEN = function(message)
     elseif command == "options" or command == "" then
         if category and Settings.OpenToCategory then Settings.OpenToCategory(category:GetID())
         else ns.Print("Options panel unavailable; use /ocw inbox, pack, allow, on, off, test, or status.") end
-    else ns.Print("Commands: options | inbox | shield | shieldoptions | reports | report | feedback | export [misses] | rules | preview | on/off | status | rescan | preset mild/balanced/broad | gommage on/off | pack NAME on/off | allow/unallow PHRASE | exceptions | history on/off | bubbles on/off") end
+    else ns.Print("Commands: test PHRASE | options | inbox | shield | shieldoptions | reports | report | feedback | export [misses] | rules | preview | on/off | status | rescan | preset mild/balanced/strict | gommage on/off | pack NAME on/off | allow/unallow PHRASE | exceptions | history on/off | bubbles on/off") end
 end

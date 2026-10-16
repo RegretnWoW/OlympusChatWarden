@@ -1,7 +1,26 @@
-# Included subject protection
+# Included subject protection — 1.0.1 candidate
 
-Olympus Protection v9 has six signed-in-code subject spellings; King Protection v8 has 17 subject references and 15 selected nickname preferences. Their vocabulary is unchanged from alpha11. Shared context policy 2 keeps genuine questions, defenses and merely quoted/reported statements visible with always-active context handling. Mild directed criticism warns in Balanced; strong attacks redact; recognized explicit threats hide. Curated nickname preferences retain their existing action behavior.
+Olympus Protection v10 and King Protection v9 retain six guild references,
+17 creator references and 15 curated nickname entries. The same subjects apply
+in every preset. See stock-inventory.json for exact entries.
 
-Only these two categories are stock. Optional topic names and direction remain in author-signed imports. Stock category disablement and per-pack presets remain available. See stock-inventory.json for the exact stock entries.
+| Qualified expression | Mild | Balanced | Strict |
+| --- | --- | --- | --- |
+| Olympus is trash | Unchanged | Warning | Redacted |
+| Olympus members are idiots | Unchanged | Redacted | Redacted |
+| Asmon is an idiot/clown | Unchanged | Unchanged | Warning |
+| Asmon is bald / Asmonbald | Unchanged | Unchanged | Unchanged |
+| Fuck Olympus / I fucking hate Asmon | Warning | Hidden | Hidden |
+| Asmon is a terrorist | Warning | Redacted | Hidden |
+| Explicit covered IRL threat / self-harm encouragement | Hidden | Hidden | Hidden |
 
-Release 1.0: dumb is mild criticism, including linked, leading and elliptical expressions. Strong attacks and recognized threats retain their separate actions. No stock subject vocabulary was added.
+Specific leadership/strategy criticism, questions, negation and unendorsed
+reports/quotations stay visible. Narrow affection can reduce a minor guild
+insult, but not independently severe abuse or group insults. Bare combat wording
+without established real-world context stays visible. Redactions cover the
+offending expression, preserving separate target offsets in evidence.
+
+Only these two categories are stock. Disabled packs contribute no policy action
+or strong-abuse signal. Eligible strong wording is separate from display action;
+ordinary roasts, optional preferences and Gommage cannot establish abuse.
+Shield/contact/spam code is unchanged from the approved preview1 baseline.

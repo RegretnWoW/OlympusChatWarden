@@ -290,11 +290,16 @@ end
 local function Page()
     local f=CreateFrame('Frame',nil,W.canvas);f:SetAllPoints();f:Hide();return f
 end
+function W.UpdateTabs(current)
+    W.Tabs({{'notes','Patch Notes',function() ns.OpenUpdates() end},
+        {'tour','Launch Tour',function() W.Open('updates');W.pages.updates:SetView('tour') end},
+        {'guide','User Guide',function() W.Guide('basics') end}},current)
+end
 function W.Guide(topic)
     if not ns.DB or not ns.Membership.Allowed() then return end
     W.Ensure();W.HidePages();W.current='updates';W.Header('updates')
-    W.heading:SetText('User guide')
-    W.Tabs({{'updates','1.0 launch tour',function() W.Open('updates') end},{'guide','User guide',function() end}},'guide')
+    W.heading:SetText('User Guide')
+    W.UpdateTabs('guide')
     local p=W.pages.guide
     if not p then
         p=Page();W.pages.guide=p
@@ -528,7 +533,7 @@ builders.overview=function()
         for _,card in ipairs(self.cards) do FeatureIcon(card.toggle,card.feature) end
         local entry=self.selected and self.selected.reviewID and ns.Review.Get(self.selected.reviewID)
         self.reveal:SetEnabled(entry~=nil);self.reveal:SetShown(entry~=nil);self.reveal:SetText(self.original and 'Hide original' or 'Show original')
-        self.cards[1].detail:SetText(ns.DB.enabled and ('Enabled  |  '..T.Label({{'aggressive','Broad'},{'balanced','Balanced'},{'strict','Mild'}},ns.DB.preset)..(ns.DB.gommage and ' + Gommage' or '')) or 'Paused')
+        self.cards[1].detail:SetText(ns.DB.enabled and ('Enabled  |  '..T.Label({{'aggressive','Strict'},{'balanced','Balanced'},{'strict','Mild'}},ns.DB.preset)..(ns.DB.gommage and ' + Gommage' or '')) or 'Paused')
         self.cards[2].detail:SetText((ns.Shield.Active() and 'Active' or 'Off')..'  |  '..#ns.Shield.List()..' players shielded')
         self.cards[3].detail:SetText((ns.ChatCapture.db.enabled and 'Recording' or 'Paused')..'  |  '..#ns.ChatCapture.db.entries..' lines')
         self.cards[4].detail:SetText((W.FeatureEnabled('mentions') and 'Enabled' or 'Off')..'  |  '..#ns.Mentions.db.phrases..' custom phrases')
@@ -540,11 +545,17 @@ builders.overview=function()
 end
 builders.packs=function()
     local p=ListPage(nil,'Installed packs',function()
-        local out={};for _,pack in ipairs(ns.RulePacks.List()) do out[#out+1]={id=pack.id,title=pack.title,preview=(pack.error and 'Not loaded' or pack.stock and 'Stock' or 'v'..tostring(pack.version or '?'))..'  |  '..(pack.enabled and 'On' or 'Off'),pack=pack} end;return out
+        local out={};for _,pack in ipairs(ns.RulePacks.List()) do out[#out+1]={id=pack.id,title=pack.title,
+            preview=pack.updateRequired and ('v'..pack.version..' | Update Required')
+                or (pack.error and 'Not loaded' or pack.stock and 'Stock' or 'v'..tostring(pack.version or '?'))..'  |  '..(pack.enabled and 'On' or 'Off'),pack=pack} end;return out
     end,function(item)
         if not item then return {'Rule Packs','Olympus Protection and King Protection are included. Optional categories are verified author-signed imports.','Importing the addon does not automatically update installed packs.'} end
         local p=item.pack
         if p.error then return {p.title,'This saved import could not be verified.',p.error,'Import a valid author-signed copy to restore this category.'},'Status: Not loaded\n\nNo rules from this import are active.' end
+        if p.updateRequired then return {p.title,'Update Required — v'..p.version,
+            'This pack and its Gommage masks are paused until a compatible signed update is imported.',
+            'Your signed import, enabled choice, sensitivity and history are kept. Use Get packs link, then Import signed pack.'},
+            'Status: Update Required\n\nSaved choice: '..(p.enabled and 'On' or 'Off')..'\n\nCurrent rules: Inactive\n\nGommage masks: Inactive' end
         return {p.title,'Version '..p.version..'  |  '..(p.stock and 'Included with ChatWarden' or 'Author: '..(p.author or 'Unknown')),
             p.description or '',p.rules..' scored phrases\n'..p.gommage..' Gommage terms\n'..p.replacements..' replacements',
             p.stock and 'Stock reference matches use context. Gommage terms do not add scores.' or 'Verified author key: '..(p.keyID or '')},
@@ -703,7 +714,7 @@ end
 function W.PackSensitivity(id)
     W.current='packs';local p=FormPage('Pack sensitivity',ns.RulePacks.Title(id))
     local value=ns.DB.disabledPacks[id] and 'off' or ns.DB.packPresets[id] or 'default'
-    V.Dropdown(p,24,-126,600,{{'default','Default (main preset)'},{'off','Off'},{'strict','Mild'},{'balanced','Balanced'},{'aggressive','Broad'}},function() return value end,function(v) value=v end)
+    V.Dropdown(p,24,-126,600,{{'default','Default (main preset)'},{'off','Off'},{'strict','Mild'},{'balanced','Balanced'},{'aggressive','Strict'}},function() return value end,function(v) value=v end)
     local masks=ns.DB.gommagePacks[id]~=false
     V.Check(p,"Include this pack's curated masks when Gommage is on",24,-187,masks,function(v) masks=v end,1000)
     V.Button(p,'Save preset',24,-254,260,39,function() local ok,err=ns.SetPackPreset(id,value);if ok then ns.DB.gommagePacks[id]=masks;ns.PolicyChanged();W.Open('packs') else p.status:SetText(err) end end)
@@ -718,11 +729,11 @@ function W.CaptureSettings()
     local armed=false;V.Button(p,'Clear rolling capture',24,-369,300,39,function(self) if not armed then armed=true;self:SetText('Click again to clear');return end;C.Clear();p.status:SetText('Capture cleared. Bookmarks kept.');self:SetText('Clear rolling capture');armed=false end,'danger')
 end
 function W.MentionSettings()
-    W.current='mentions';W.Header('mentions');local p=FormPage('Mention settings','Names and nicknames match exactly. Close typos in watch phrases are optional. Hidden and Shielded messages stay quiet.')
+    W.current='mentions';W.Header('mentions');local p=FormPage('Mention settings','Your first or full name matches without @. Names and nicknames stay exact. Hidden and Shielded messages stay quiet.')
     local M=ns.Mentions;local db=M.db
     V.Check(p,'Enable Mention Alerts',22,-100,db.enabled,function(v) M.Set('enabled',v) end,360)
-    V.Check(p,'Detect my full character name',22,-140,db.character,function(v) M.Set('character',v) end,420)
-    V.Text(p,M.Character() or 'Name unavailable. Add a manual nickname below.',59,-174,470,12,V.muted)
+    V.Check(p,'Detect my first or full character name',22,-140,db.character,function(v) M.Set('character',v) end,470)
+    V.Text(p,#M.CharacterNames()>0 and table.concat(M.CharacterNames(),' / ') or 'Name unavailable. Add a manual nickname below.',59,-174,470,12,V.muted)
     V.Check(p,'Enable sound',570,-100,db.sound,function(v) M.Set('sound',v) end,340)
     V.Check(p,'Enable toast notifications',570,-140,db.toast,function(v) M.Set('toast',v) end,420)
     V.Dropdown(p,570,-184,520,{{0,'No sound / toast cooldown'},{5,'5-second alert cooldown'},{10,'10-second alert cooldown'},{30,'30-second alert cooldown'},{60,'60-second alert cooldown'}},function() return db.cooldown end,function(v) M.Set('cooldown',v) end)
@@ -949,15 +960,31 @@ builders.settings=function()
 end
 builders.updates=function()
     local p=Page()
-    local hero=V.Panel(p,0,0,1140,111,'header')
+    p.mode='notes';p.notes=CreateFrame('Frame',nil,p);p.notes:SetAllPoints(p)
+    p.tour=CreateFrame('Frame',nil,p);p.tour:SetAllPoints(p)
+    local updateHero=V.Panel(p.notes,0,0,1140,111,'header')
+    V.Icon(updateHero,'updates',76,20,-17)
+    p.releaseTitle=V.Text(updateHero,ns.NAME..' '..ns.InstalledUpdate.version,124,-22,986,26,V.gold)
+    p.releaseTitle:SetHeight(34);p.releaseTitle:SetJustifyV('TOP')
+    p.releaseSubtitle=V.Text(updateHero,'What is new in this update',125,-65,978,14)
+    p.releaseSubtitle:SetHeight(22);p.releaseSubtitle:SetJustifyV('TOP')
+    p.noteCards={}
+    for i,spec in ipairs(ns.InstalledUpdate.cards) do
+        local card=V.Panel(p.notes,0,-125-(i-1)*86,1140,76,'dark');V.Icon(card,spec[3],42,18,-17)
+        V.Text(card,spec[1],78,-13,1040,18,V.gold)
+        local description=V.Text(card,spec[2],79,-40,1040,14);description:SetHeight(28)
+        p.noteCards[i]=card
+    end
+    p.githubNotes=V.Button(p.notes,'Full notes on GitHub',0,-565,360,38,function() W.Copy(ns.PROJECT_URL..'/releases','Full patch notes on GitHub',true) end)
+    local hero=V.Panel(p.tour,0,0,1140,111,'header')
     local crest=V.Texture(hero,'Logo',{0,0,512,512},'ARTWORK');crest:SetSize(92,92);crest:SetPoint('TOPLEFT',16,-9)
-    V.Text(hero,'Welcome to Olympus ChatWarden 1.0',124,-18,986,28,V.gold)
+    V.Text(hero,'Welcome to Olympus ChatWarden',124,-18,986,28,V.gold)
     V.Text(hero,'Cleaner chat, stronger protection and conversation history in one redesigned home.',125,-57,978,14)
-    V.Text(hero,ns.VERSION:find('alpha',1,true) and '1.0 LAUNCH PREVIEW' or '1.0 IS HERE',125,-78,978,11,V.blue)
+    V.Text(hero,'LAUNCH TOUR  |  Installed version '..ns.VERSION,125,-78,978,11,V.blue)
     local features={
         {'messages','Messages & filtering','Review filtered chat, read originals and inspect why a message matched.','Messages  /  Settings > Filtering','messages'},
         {'shield','Contact protection','Manage unwanted whispers, trades, duels and invitations. Allow players you trust.','Shield  /  Settings > Shield','shieldActive'},
-        {'mentions','Mention Alerts','Watch your full name, nicknames and phrases. Choose channels, sounds and quiet alerts.','Mentions > Mention settings','mentions'},
+        {'mentions','Mention Alerts','Watch your first or full name, nicknames and phrases. No @ needed. Choose channels, sounds and quiet alerts.','Mentions > Mention settings','mentions'},
         {'capture','Chat Capture','Record chat locally when enabled. Search conversations and save incident bookmarks.','Capture > Recent, Bookmarks or Conversations','capture'},
         {'rules','Personal rules','Choose what to keep, warn about, redact, hide or replace with your own phrase rules.','Rules > My rules, Exceptions or Replacements','rules'},
         {'packs','Author-signed packs','Tune Olympus and King Protection. Import optional categories through verified signed packs.','Packs > Installed packs or Import signed pack','packs'},
@@ -966,7 +993,7 @@ builders.updates=function()
     }
     p.features={}
     for i,spec in ipairs(features) do
-        local target=spec[1];local card=V.Panel(p,((i-1)%2)*578,-125-math.floor((i-1)/2)*121,562,111,'dark')
+        local target=spec[1];local card=V.Panel(p.tour,((i-1)%2)*578,-125-math.floor((i-1)/2)*121,562,111,'dark')
         V.Icon(card,spec[5],42,17,-17)
         V.Text(card,spec[2],74,-16,470,18,V.gold)
         local description=V.Text(card,spec[3],75,-45,465,13);description:SetHeight(35)
@@ -975,10 +1002,16 @@ builders.updates=function()
         card:SetScript('OnEnter',function(self) self:SetAlpha(.85) end);card:SetScript('OnLeave',function(self) self:SetAlpha(1) end)
         T.Tooltip(card,spec[2],'Click to explore '..labels[target][2]..'.');p.features[i]=card
     end
-    V.Text(p,'Your records stay local. Nothing is sent automatically. Click a feature to explore it.',10,-627,810,13,V.muted)
-    V.Check(p,'Show future update notes',850,-622,ns.DB.showUpdates~=false,function(v) ns.DB.showUpdates=v end,286)
+    V.Text(p.tour,'Your records stay local. Nothing is sent automatically. Click a feature to explore it.',10,-627,810,13,V.muted)
+    p.ShowUpdates=V.Check(p,'Show future update notes',850,-622,ns.DB.showUpdates~=false,function(v) ns.DB.showUpdates=v end,286)
+    function p:SetView(mode)
+        self.mode=mode=='tour' and 'tour' or 'notes'
+        self.ShowUpdates:SetChecked(ns.DB.showUpdates~=false)
+        self.notes:SetShown(self.mode=='notes');self.tour:SetShown(self.mode=='tour')
+        W.UpdateTabs(self.mode)
+    end
     function p:Activate()
-        W.Tabs({{'updates','1.0 launch tour',function() W.Open('updates') end},{'guide','User guide',function() W.Guide('basics') end}},'updates')
+        self:SetView(self.mode)
     end
     return p
 end
@@ -1077,8 +1110,8 @@ ns.OpenCapture=function() W.Open('capture') end
 ns.OpenRules=function() W.Open('rules') end
 ns.OpenPersonal=function(mode) W.Open(mode=='rules' and 'rules' or 'reports') end
 ns.OpenReports=function() W.Open('reports') end
-ns.OpenUpdates=function() ns.DB.updateSeen=ns.VERSION;W.Open('updates') end
-ns.OpenWelcome=function() W.Open('updates');ns.DB.welcomeSeen=1;ns.DB.updateSeen=ns.VERSION end
+ns.OpenUpdates=function() ns.DB.updateSeen=ns.VERSION;W.Open('updates');if W.pages.updates then W.pages.updates:SetView('notes') end end
+ns.OpenWelcome=function() W.Open('updates');if W.pages.updates then W.pages.updates:SetView('tour') end;ns.DB.welcomeSeen=1;ns.DB.updateSeen=ns.VERSION end
 ns.OpenShieldPlayer=function(name) W.Open('shield');W.ShieldEditor(name) end
 ns.OpenCapturePlayer=function(name) W.Open('capture');W.pages.capture.mode='recent';W.pages.capture.search:SetText(name or '');W.pages.capture:Activate();W.pages.capture:Refresh() end
 ns.OpenCaptureBookmark=function(id)

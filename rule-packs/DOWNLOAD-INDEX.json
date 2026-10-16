@@ -1,0 +1,69 @@
+{
+  "addonVersion": "1.0.1",
+  "packs": [
+    {
+      "id": "gender",
+      "title": "Pronoun & Gender Language",
+      "version": 11,
+      "canonicalFile": "packs/gender-v11.ocwpack.txt",
+      "importFile": "Import These Packs/Pronoun & Gender Language v11.ocwpack.txt",
+      "sha256": "3c445d19afd9de7ce23f68639bf71e3b4ca5b70ebbc643f4c934d70c0f355190"
+    },
+    {
+      "id": "labels",
+      "title": "Body-label replacements",
+      "version": 7,
+      "canonicalFile": "packs/labels-v7.ocwpack.txt",
+      "importFile": "Import These Packs/Body-label replacements v7.ocwpack.txt",
+      "sha256": "a19b20e60b8b74b703491a27cdb94658cf3341dd06cc475cd2f20ef74104a941"
+    },
+    {
+      "id": "reproductive",
+      "title": "Birth & Parenting Language",
+      "version": 11,
+      "canonicalFile": "packs/reproductive-v11.ocwpack.txt",
+      "importFile": "Import These Packs/Birth & Parenting Language v11.ocwpack.txt",
+      "sha256": "bc12b014c28de42909b682f06681e99da5f0580d4aa31a8f74eb8d1f3595294f"
+    },
+    {
+      "id": "language",
+      "title": "Inclusive Language",
+      "version": 11,
+      "canonicalFile": "packs/language-v11.ocwpack.txt",
+      "importFile": "Import These Packs/Inclusive Language v11.ocwpack.txt",
+      "sha256": "3325aa7bf1ed8f34c72244d2015b37c943d830ac2fa0f4d946b4b0561be6e077"
+    },
+    {
+      "id": "institutional",
+      "title": "DEI & Institutional Programs",
+      "version": 11,
+      "canonicalFile": "packs/institutional-v11.ocwpack.txt",
+      "importFile": "Import These Packs/DEI & Institutional Programs v11.ocwpack.txt",
+      "sha256": "618d7d65c3736e8bd69f823b3bf5aa38a393a7aca539d2ea01dd343f840164ce"
+    },
+    {
+      "id": "slogans",
+      "title": "Communism & Democratic Party",
+      "version": 11,
+      "canonicalFile": "packs/slogans-v11.ocwpack.txt",
+      "importFile": "Import These Packs/Communism & Democratic Party v11.ocwpack.txt",
+      "sha256": "d12bd4740680ed9e0e9865173c7ba5baaa0a923073618f6dd9de5ba5ef343019"
+    },
+    {
+      "id": "broad",
+      "title": "Social Concepts & Advocacy",
+      "version": 11,
+      "canonicalFile": "packs/broad-v11.ocwpack.txt",
+      "importFile": "Import These Packs/Social Concepts & Advocacy v11.ocwpack.txt",
+      "sha256": "7784bbdc1967ffd48bddf0bee50e72dc97c841304334e13270722454daf27d00"
+    },
+    {
+      "id": "america",
+      "title": "USA Protection",
+      "version": 6,
+      "canonicalFile": "packs/america-v6.ocwpack.txt",
+      "importFile": "Import These Packs/USA Protection v6.ocwpack.txt",
+      "sha256": "b4a73511162c7470e7e35f57503c53385eb046ba418a7fb7e6b661b40e22e1ec"
+    }
+  ]
+}

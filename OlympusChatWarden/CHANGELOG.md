@@ -1,3 +1,40 @@
+# 1.0.1-preview4 (internal test build)
+
+- Add 1,078 curated offline spelling tokens: 1,068 game terms and 10 established Olympus/project names. Preserve the English base, personal words and feature defaults.
+- Use the supplement for spelling recognition/suggestions and Balanced typo protection; exact authored rules, evasion and personal rules continue to apply.
+- Cancel an own-usage match on one immediately attached explicit rejection of the same terminology; keep independent promotion, declarations, Gommage and other packs separate.
+- Recognize bounded shared statements over bare signed topics joined by “and,” preserving each pack's sensitivity, target offsets and one Review entry per message.
+- Replay all 1,896 supplied real-pack cases under Lua 5.1; the six changed results are the two confirmed overlap fixes and four duplicate rejection cases. All 1,518 firm model expectations remain correct.
+- Clarify built-in versus optional body-label switches. Keep signed models/payloads, Shield, spam, native artwork and name reveal unchanged. Internal testing build only.
+
+# 1.0.1-preview3 (internal test build)
+
+- Recognize explicit first-person preference as mild support, including “I prefer” and “we prefer to use.”
+- Recognize complete own-practice statements such as “our standard” and “the way we speak here,” gated by the signed usage capability in Gender/Inclusive Language.
+- Preserve questions, reports, quotes, negation, criticism, third-party practice and uncertain interpretations. Preference/usage matches remain separate from Shield abuse evidence.
+- Parse case-sensitive native markup before ASCII folding; keep both ordinary and quoted-term context within hyperlink/texture boundaries.
+- Rename six optional packs with normal author-signed v11 updates, changing only titles/versions. Keep vocabulary, capabilities, action matrix, Gommage, Labels v7, USA v6, Shield and spam unchanged. Compatible preview2 imports remain active until the optional title update.
+- Validate the feedback with actual signed imports and add cross-concept controls. No public release or native WoW certification.
+
+# 1.0.1-preview2 (internal test build)
+
+- Implement the approved fixed-scope signed optional policies with separate support, promotion, own usage and declaration evidence.
+- Sign seven updated policy packs using the existing author key; preserve all 215 Gommage masks and Labels v7's 46 replacements.
+- Pause incompatible old policy packs, including masks, with Update Required and one persistent advisory. Retain signed imports and saved choices; Labels v7 remains compatible.
+- Add `/ocw test <phrase>` for local wording results without chat delivery or saved activity.
+- Fix direct covered terrorist allegations and explicit IRL attack forms; preserve questions, quotes, negation, gameplay and uncertain interpretations.
+- Preserve preview1 Shield behavior, spam/contact detectors, native artwork, icon loading and name reveal.
+- Preserve historical action/timestamp/evidence and validate normal signed updates and fresh-session migration. This build is unpublished and needs live client testing.
+
+# 1.0.1-preview1 (internal first pass)
+
+- Add pack-gated stock context with separate target, expression, severity and action evidence.
+- Implement the approved Olympus/King examples, narrow affection handling, endorsed quotation checks and conservative uncertainty handling.
+- Redact qualifying expressions instead of the protected subject; preserve both offsets in reports and history.
+- Rename the public Broad preset to Strict while preserving saved keys and the old command alias.
+- Separate strong-abuse Shield eligibility from display action; ordinary roasts and moderate group redactions are not automatic harassment evidence.
+- Preserve optional pack payloads and policy while their definitions are reviewed. No public publication or optional pack update in this preview.
+
 # 1.0.0
 
 - Adopt launch defaults; Gommage/Capture off, core protection and Mentions on.

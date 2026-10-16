@@ -73,8 +73,8 @@ function R.DetailText(entry, reasons, sections)
     if reasons then
         lines[#lines + 1] = "\nWhy this matched\n"
         if entry.language then lines[#lines+1]=entry.language.reason end
-        local preset = ({maximum = "Gommage (legacy)", aggressive = "Broad", balanced = "Balanced", strict = "Mild"})[entry.preset] or "Unknown"
-        local contextual=false;for _,match in ipairs(entry.matches) do if match.contextPolicyVersion==2 then contextual=true;break end end
+        local preset = ({maximum = "Gommage (legacy)", aggressive = "Strict", balanced = "Balanced", strict = "Mild"})[entry.preset] or "Unknown"
+        local contextual=false;for _,match in ipairs(entry.matches) do if match.contextPolicyVersion==2 or match.contextPolicyVersion==3 or match.contextPolicyVersion==4 then contextual=true;break end end
         if #entry.matches>0 then lines[#lines + 1] = "Preset when received: " .. preset end
         lines[#lines + 1] = entry.spamReason and (entry.spamReason:find('Rapid-message burst:',1,true)
             and 'Spam protection: first rapid-message burst. A second full burst within 60 seconds triggers your automatic timeout.'
@@ -91,12 +91,13 @@ function R.DetailText(entry, reasons, sections)
                 or (match.pack == "guild" or match.pack == "creator") and "Name with nearby insulting or teasing wording."
                 or "Phrase matched an enabled category."
             lines[#lines + 1] = i .. ". " .. (match.phrase or "Matched wording") .. " - " .. explanation
-            if match.typo then lines[#lines+1]='Spelling guess: '..entry.original:sub(match.first,match.last)..' -> '..match.phrase..' ('..(match.typoEdits or '?')..' edits). Rule action unchanged.' end
+            if match.typo then lines[#lines+1]='Spelling guess: '..entry.original:sub(match.targetFirst or match.first,match.targetLast or match.last)..' -> '..match.phrase..' ('..(match.typoEdits or '?')..' edits). Rule action unchanged.' end
             if match.gommage and match.score == 0 then
                 lines[#lines + 1] = "Category: " .. (match.pack or "unknown") .. "; display only, no confidence contribution."
             elseif match.policy then
                 lines[#lines+1]='Category: '..(match.pack or 'unknown')..'; '..(match.ruleKind or 'configured rule')..'; action '..(match.action or entry.action)..'.'
-                if match.stance then lines[#lines+1]='Interpretation: '..match.stance..'; expression '..(match.strength or 'unknown')..'; evidence '..(match.certainty or 'unknown')..'. This interpretation is inferred from the wording.' end
+                if match.preferenceKind then lines[#lines+1]='Viewing preference: '..match.preferenceKind..'; action tier '..(match.strength or 'unknown')..'. This is not a misconduct or political-intent finding.'
+                elseif match.stance then lines[#lines+1]='Interpretation: '..match.stance..'; expression '..(match.strength or 'unknown')..'; evidence '..(match.certainty or 'unknown')..'. This interpretation is inferred from the wording.' end
                 if match.reason then lines[#lines+1]=match.reason end
             elseif match.threshold then
                 lines[#lines + 1] = "Category: " .. (match.pack or "unknown") .. "; score " .. (match.score or 0) .. "; minimum " .. match.threshold
@@ -119,11 +120,15 @@ function R.ReaderBlocks(entry,reasons)
     local summary=entry.shieldReason or entry.spamReason or entry.language and entry.language.reason
         or (#entry.matches>0 and (#entry.matches..' wording match'..(#entry.matches==1 and '' or 'es')..' under your saved filtering preferences.'))
         or 'Your filtering preferences determined this result.'
-    for _,match in ipairs(entry.matches) do if match.contextPolicyVersion==2 and match.stance then
-        local meaning=match.stance=='threat' and 'a recognized explicit threat'
+    for _,match in ipairs(entry.matches) do if (match.contextPolicyVersion==2 or match.contextPolicyVersion==3 or match.contextPolicyVersion==4) and match.stance then
+        local meaning=match.stance=='threat' and 'explicit covered threatening or self-harm wording'
             or match.stance=='support' and ((match.strength=='strong' and 'strong promotion' or 'mild support')..' of a selected topic')
             or (match.strength or '')..' directed criticism'
-        summary='Interpreted as '..meaning..' under your selected category preference. Result: '..(match.action or entry.action)..'.'
+        if match.preferenceKind then
+            local label=({pronoun_declaration='Explicit pronoun declaration',declared_affiliation='Declared political affiliation or voting',
+                selected_terminology_usage='Selected terminology usage',support='Support for a selected concept',promotion='Promotion of a selected concept'})[match.preferenceKind] or 'Selected terminology preference'
+            summary=label..' matched '..ns.RulePacks.Title(match.pack)..'. Result: '..(match.action or entry.action)..'. This is a local viewing preference.'
+        else summary='Interpreted as '..meaning..' under your selected category preference. Result: '..(match.action or entry.action)..'.' end
         break
     end end
     blocks[#blocks+1]={text='Filter summary',kind='heading'};blocks[#blocks+1]={text=summary,kind='body'}

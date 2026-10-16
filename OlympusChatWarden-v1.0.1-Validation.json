@@ -1,0 +1,767 @@
+{
+  "version": "1.0.1",
+  "packagedForRelease": true,
+  "published": false,
+  "liveWoWTested": false,
+  "ownerLiveSignoffPending": true,
+  "userSavedVariablesModified": false,
+  "addon": {
+    "file": "OlympusChatWarden-v1.0.1.zip",
+    "bytes": 10214594,
+    "files": 95,
+    "sha256": "a804c35d95a15356e5216e6b00f71a3e06e371e90eb264837baa98a6bf93b22a"
+  },
+  "rulePacks": {
+    "file": "OlympusChatWarden-RulePacks-v1.0.1.zip",
+    "bytes": 40865,
+    "files": 34,
+    "sha256": "47e445b36668d01c8825643588141943bf0932b91ffce027fef1fb69745e4bf1"
+  },
+  "luaModulesCompiled": 72,
+  "expectedActionChecks": 8048,
+  "suites": {
+    "affirmative-usage-summary": {
+      "version": "1.0.1",
+      "normalSignedImports": 8,
+      "classifications": 2100,
+      "passed": 2100,
+      "failed": 0,
+      "evidenceAssertions": 480,
+      "simulatedRulesUsed": false,
+      "signedVocabularyChanged": false
+    },
+    "coordination-summary": {
+      "version": "1.0.1",
+      "normalSignedImports": 8,
+      "classifications": 72,
+      "passed": 72,
+      "failed": 0,
+      "evidenceAndIntegrationAssertions": 122,
+      "oneReviewEntryPerMessage": true,
+      "perPackPresetsIndependent": true,
+      "scope": "bounded and-lists of authored concepts only"
+    },
+    "external-preview4-summary": {
+      "version": "1.0.1",
+      "evaluations": 79,
+      "baselineReproduced": 79,
+      "failed": 0,
+      "passed": 79,
+      "changesFromPreview4": 8,
+      "changes": [
+        {
+          "suite": "adversarial",
+          "id": "rej_however",
+          "message": "Person-first language is our standard; however, I hate it",
+          "preview4": "Warning",
+          "expected": "Unchanged",
+          "actual": "Unchanged",
+          "passed": true,
+          "expectationBasis": "targeted confirmed fix",
+          "reasons": "signed viewing preference: immediately attached rejection of the same terminology; affirmative own practice not established; action preset: Balanced; reference -> Unchanged; signed viewing preference: immediately attached rejection of the same terminology; affirmative own practice not established; action preset: Balanced; reference -> Unchanged"
+        },
+        {
+          "suite": "adversarial",
+          "id": "rej_for",
+          "message": "Person-first language is our standard, but I hate it for that reason",
+          "preview4": "Warning",
+          "expected": "Unchanged",
+          "actual": "Unchanged",
+          "passed": true,
+          "expectationBasis": "targeted confirmed fix",
+          "reasons": "signed viewing preference: immediately attached rejection of the same terminology; affirmative own practice not established; action preset: Balanced; reference -> Unchanged; signed viewing preference: immediately attached rejection of the same terminology; affirmative own practice not established; action preset: Balanced; reference -> Unchanged"
+        },
+        {
+          "suite": "adversarial",
+          "id": "rej_commas",
+          "message": "Person-first language is our standard, but I hate it, personally",
+          "preview4": "Warning",
+          "expected": "Unchanged",
+          "actual": "Unchanged",
+          "passed": true,
+          "expectationBasis": "targeted confirmed fix",
+          "reasons": "signed viewing preference: immediately attached rejection of the same terminology; affirmative own practice not established; action preset: Balanced; reference -> Unchanged; signed viewing preference: immediately attached rejection of the same terminology; affirmative own practice not established; action preset: Balanced; reference -> Unchanged"
+        },
+        {
+          "suite": "qualifier",
+          "id": "12",
+          "message": "I support DEI and communism for real",
+          "preview4": "Unchanged",
+          "expected": "Redacted",
+          "actual": "Redacted",
+          "passed": true,
+          "expectationBasis": "targeted confirmed fix",
+          "reasons": "signed viewing preference: clear favorable statement about the selected concept; action preset: Mild; supportMild -> Unchanged; signed viewing preference: clear favorable statement about the selected concept; shared statement applies to this joined topic; action preset: Strict; supportMild -> Redacted"
+        },
+        {
+          "suite": "qualifier",
+          "id": "19",
+          "message": "We should require DEI and communism for everyone",
+          "preview4": "Warning",
+          "expected": "Hidden",
+          "actual": "Hidden",
+          "passed": true,
+          "expectationBasis": "targeted confirmed fix",
+          "reasons": "signed viewing preference: clear call for adoption, requirements or persuasion; action preset: Mild; supportStrong -> Warning; signed viewing preference: clear call for adoption, requirements or persuasion; shared statement applies to this joined topic; action preset: Strict; supportStrong -> Hidden"
+        },
+        {
+          "suite": "qualifier",
+          "id": "21",
+          "message": "I support DEI and communism at school",
+          "preview4": "Unchanged",
+          "expected": "Redacted",
+          "actual": "Redacted",
+          "passed": true,
+          "expectationBasis": "targeted confirmed fix",
+          "reasons": "signed viewing preference: clear favorable statement about the selected concept; action preset: Mild; supportMild -> Unchanged; signed viewing preference: clear favorable statement about the selected concept; shared statement applies to this joined topic; action preset: Strict; supportMild -> Redacted"
+        },
+        {
+          "suite": "additional",
+          "id": "prefer_reject",
+          "message": "I prefer person-first language, but I hate it",
+          "preview4": "Warning",
+          "expected": "Unchanged",
+          "actual": "Unchanged",
+          "passed": true,
+          "expectationBasis": "targeted confirmed fix",
+          "reasons": "signed viewing preference: immediately attached rejection of the same first-person preference; action preset: Balanced; reference -> Unchanged; signed viewing preference: immediately attached rejection of the same first-person preference; action preset: Balanced; reference -> Unchanged"
+        },
+        {
+          "suite": "additional",
+          "id": "prefer_reject2",
+          "message": "I prefer person-first language, but I do not like it",
+          "preview4": "Warning",
+          "expected": "Unchanged",
+          "actual": "Unchanged",
+          "passed": true,
+          "expectationBasis": "targeted confirmed fix",
+          "reasons": "signed viewing preference: immediately attached rejection of the same first-person preference; action preset: Balanced; reference -> Unchanged; signed viewing preference: immediately attached rejection of the same first-person preference; action preset: Balanced; reference -> Unchanged"
+        }
+      ],
+      "normalSignedImportsPerHost": 8,
+      "externalCodeExecuted": false,
+      "luaVersion": "5.1",
+      "exploratoryResultsAreNotPolicyExpectations": true
+    },
+    "external-review-summary": {
+      "version": "1.0.1",
+      "classifications": 432,
+      "passed": 432,
+      "failed": 0,
+      "reviewOracleOverrides": {
+        "A05": [
+          "Unchanged",
+          "Unchanged",
+          "Unchanged"
+        ],
+        "A19": [
+          "Unchanged",
+          "Unchanged",
+          "Unchanged"
+        ],
+        "A23": [
+          "Warning",
+          "Hidden",
+          "Hidden"
+        ],
+        "A28": [
+          "Unchanged",
+          "Redacted",
+          "Redacted"
+        ]
+      },
+      "externalCodeExecuted": false
+    },
+    "external-signed-summary": {
+      "version": "1.0.1",
+      "normalSignedImports": 8,
+      "evaluations": 1896,
+      "firmModelExpectations": 1518,
+      "regressionComparisons": 1896,
+      "passed": 1896,
+      "failed": 0,
+      "changedFromPreview3": 6,
+      "externalCodeExecuted": false,
+      "luaVersion": "5.1",
+      "liveWoWTested": false
+    },
+    "final-audit-summary": {
+      "version": "1.0.1",
+      "normalSignedImportsPerHost": 8,
+      "externalRowsEvaluated": 91,
+      "baselineMatchesExternal": 86,
+      "documentedExternalHostDifferences": [
+        {
+          "suite": "handmade",
+          "row": 23,
+          "message": "Fuck Asman",
+          "suppliedAction": "Unchanged",
+          "productionBaseline": "Hidden",
+          "basis": "supplied exploratory typo host differs from immutable production baseline; grammar patch retains baseline behavior"
+        },
+        {
+          "suite": "handmade",
+          "row": 24,
+          "message": "Fuck Aston",
+          "suppliedAction": "Unchanged",
+          "productionBaseline": "Hidden",
+          "basis": "supplied exploratory typo host differs from immutable production baseline; grammar patch retains baseline behavior"
+        },
+        {
+          "suite": "adversarial",
+          "row": 32,
+          "message": "Fuck Asman",
+          "suppliedAction": "Unchanged",
+          "productionBaseline": "Hidden",
+          "basis": "supplied exploratory typo host differs from immutable production baseline; grammar patch retains baseline behavior"
+        },
+        {
+          "suite": "adversarial",
+          "row": 34,
+          "message": "Fuck Aston",
+          "suppliedAction": "Unchanged",
+          "productionBaseline": "Hidden",
+          "basis": "supplied exploratory typo host differs from immutable production baseline; grammar patch retains baseline behavior"
+        },
+        {
+          "suite": "adversarial",
+          "row": 38,
+          "message": "Fuck OlympusX",
+          "suppliedAction": "Unchanged",
+          "productionBaseline": "Hidden",
+          "basis": "supplied exploratory typo host differs from immutable production baseline; grammar patch retains baseline behavior"
+        }
+      ],
+      "externalRowsPassed": 91,
+      "changedFromPriorCandidate": 17,
+      "classifications": 1008,
+      "passed": 1008,
+      "failed": 0,
+      "authoredTopicsChecked": 73,
+      "nonAbuseEvidenceAssertions": 612,
+      "suppliedCodeExecuted": false,
+      "duplicateInputIDsPreserved": true
+    },
+    "integration-summary": {
+      "version": "1.0.1",
+      "retainedUIAssertions": 129,
+      "newIntegrationAssertions": 13,
+      "defaultsAssertions": 85,
+      "adapters": [
+        {
+          "file": "workspace-alpha11.lua",
+          "changes": "Use a group-insult redaction and explicit IRL threat, rather than obsolete stock expectations."
+        },
+        {
+          "file": "filter-feed-alpha11.lua",
+          "changes": "Use a group-insult redaction and explicit IRL threat, rather than obsolete stock expectations."
+        },
+        {
+          "file": "workspace-controls-alpha10.lua",
+          "changes": "Public preset label is Strict."
+        }
+      ],
+      "liveWoWTested": false,
+      "userSavedVariablesModified": false,
+      "freshSessionCoverage": "run-v101-migration-tester.py"
+    },
+    "mentions-summary": {
+      "version": "1.0.1",
+      "assertions": 81,
+      "luaVersion": "5.1",
+      "actualTOC": true,
+      "firstAndFullNames": true,
+      "requiresAtSign": false,
+      "captureRequired": false,
+      "globalDictionaryModified": false,
+      "liveWoWTested": false,
+      "failed": 0
+    },
+    "migration-tester-summary": {
+      "version": "1.0.1",
+      "assertions": 80,
+      "luaAssertions": 4,
+      "normalSignedUpgrades": 7,
+      "labelsV7Compatible": true,
+      "oldPackMasksPaused": true,
+      "testerHasNoSavedSideEffects": true,
+      "nonrepeatingNotice": true,
+      "liveWoWTested": false
+    },
+    "pack-policy-summary": {
+      "version": "1.0.1",
+      "normalSignedImports": 8,
+      "classifications": 1734,
+      "passed": 1734,
+      "failed": 0,
+      "oracleClarifications": {
+        "A25": "Owner uncertainty rule: ambiguous attacks can mean PvP, so leave visible."
+      }
+    },
+    "pack-rename-summary": {
+      "version": "1.0.1",
+      "assertions": 58,
+      "normalSignedTitleUpgrades": 6,
+      "policyAndVocabularyUnchanged": true,
+      "compatiblePriorPacksStayActive": true,
+      "settingsPreserved": true,
+      "labelsV7AndUsaV6Unchanged": true,
+      "liveWoWTested": false
+    },
+    "preview5-refinements-summary": {
+      "version": "1.0.1",
+      "classifications": 1007,
+      "passed": 1007,
+      "failed": 0,
+      "evidenceAssertions": 1215,
+      "normalSignedImports": 8,
+      "policyVocabularyChanged": false
+    },
+    "preview5-spelling-summary": {
+      "version": "1.0.1",
+      "comparisonInputs": 506,
+      "changesFromPreview4": 0,
+      "assertions": 1102,
+      "validSupplementTerms": 1078,
+      "changes": [],
+      "typingStillOptIn": true,
+      "ambiguousEnglishTyposRemainManual": true,
+      "failed": 0
+    },
+    "rejection-summary": {
+      "version": "1.0.1",
+      "normalSignedImports": 8,
+      "classifications": 465,
+      "passed": 465,
+      "failed": 0,
+      "usageConceptsChecked": 25,
+      "nonAbuseEvidenceAssertions": 135,
+      "scope": "own usage only; one attached same-topic contrast"
+    },
+    "release-pack-downloads-summary": {
+      "version": "1.0.1",
+      "friendlySignedFiles": 8,
+      "assertions": 59,
+      "normalImports": 8,
+      "normalTitleUpgrades": 6,
+      "payloadBytesUnchanged": true,
+      "settingsTooltipsFollowSignedTitles": true,
+      "liveWoWTested": false,
+      "failed": 0
+    },
+    "spelling-vocabulary-summary": {
+      "version": "1.0.1",
+      "assertions": 5576,
+      "gameWords": 1068,
+      "communityWords": 10,
+      "uniqueSupplementWords": 1078,
+      "categories": {
+        "classes": 109,
+        "abilities": 261,
+        "lore": 96,
+        "community": 10,
+        "gameplay": 346,
+        "zones": 129,
+        "instances": 150
+      },
+      "largeEnglishDictionaryUnchanged": true,
+      "personalDictionaryPreserved": true,
+      "filterTargetsAdded": false,
+      "signedPacksUnchanged": true,
+      "liveWoWTested": false
+    },
+    "stock-summary": {
+      "candidateVersion": "1.0.1",
+      "optionalPacksEnabled": false,
+      "classifications": 1230,
+      "passed": 1230,
+      "failed": 0,
+      "oracleClarifications": {
+        "A25": "Ambiguous attacks can mean PvP; owner-approved uncertainty => visible."
+      },
+      "millisecondsFor1000Messages": 434.79,
+      "spanAndShieldAssertions": 5
+    },
+    "updates-summary": {
+      "version": "1.0.1",
+      "assertions": 43,
+      "patchNotesAndLaunchTourSeparate": true,
+      "endUserHighlightCards": 5,
+      "currentVersionDisplayed": true,
+      "oncePerInstalledRelease": true,
+      "githubNotesLink": true,
+      "liveWoWTested": false,
+      "failed": 0
+    },
+    "vocabulary-summary": {
+      "version": "1.0.1",
+      "assertions": 5582,
+      "topicEntriesChecked": 74,
+      "gommageEntriesChecked": 215,
+      "millisecondsFor1000UncachedAnalyses": 375.22,
+      "liveWoWTested": false
+    }
+  },
+  "signedPacks": [
+    {
+      "id": "gender",
+      "title": "Pronoun & Gender Language",
+      "version": 11,
+      "sha256": "3c445d19afd9de7ce23f68639bf71e3b4ca5b70ebbc643f4c934d70c0f355190",
+      "payloadSha256": "7f548f2f9eb2aa0c07f5307fbf186a642940d9f82e86580631627af152d8ef8f"
+    },
+    {
+      "id": "labels",
+      "title": "Body-label replacements",
+      "version": 7,
+      "sha256": "a19b20e60b8b74b703491a27cdb94658cf3341dd06cc475cd2f20ef74104a941",
+      "payloadSha256": "c9a5c818c053b613a7d0c3aac62b988c984d939fa33cf255c522ca7bf257a156"
+    },
+    {
+      "id": "reproductive",
+      "title": "Birth & Parenting Language",
+      "version": 11,
+      "sha256": "bc12b014c28de42909b682f06681e99da5f0580d4aa31a8f74eb8d1f3595294f",
+      "payloadSha256": "50e85724faae0e07f226fb8fdc37f685fb5bc0a4847121c24941c7fd3ab9dfa7"
+    },
+    {
+      "id": "language",
+      "title": "Inclusive Language",
+      "version": 11,
+      "sha256": "3325aa7bf1ed8f34c72244d2015b37c943d830ac2fa0f4d946b4b0561be6e077",
+      "payloadSha256": "b0087fd5c3dfea73ab4fa386ff9245e29ad0a23545f1159abbf55c5778c4a064"
+    },
+    {
+      "id": "institutional",
+      "title": "DEI & Institutional Programs",
+      "version": 11,
+      "sha256": "618d7d65c3736e8bd69f823b3bf5aa38a393a7aca539d2ea01dd343f840164ce",
+      "payloadSha256": "0eef07d4b8a6eb8958434a282560fe94c2618005df2d54b44fcec2a5e0382ce7"
+    },
+    {
+      "id": "slogans",
+      "title": "Communism & Democratic Party",
+      "version": 11,
+      "sha256": "d12bd4740680ed9e0e9865173c7ba5baaa0a923073618f6dd9de5ba5ef343019",
+      "payloadSha256": "1abfd8f9d678be33fb67a99b3c74ccdfe598c102bb141e54c213f8aef98f3f76"
+    },
+    {
+      "id": "broad",
+      "title": "Social Concepts & Advocacy",
+      "version": 11,
+      "sha256": "7784bbdc1967ffd48bddf0bee50e72dc97c841304334e13270722454daf27d00",
+      "payloadSha256": "87d9de9a2c5aa918323956d2a2fb94424876482cfcf862eac23d9f44fb2112f4"
+    },
+    {
+      "id": "america",
+      "title": "USA Protection",
+      "version": 6,
+      "sha256": "b4a73511162c7470e7e35f57503c53385eb046ba418a7fb7e6b661b40e22e1ec",
+      "payloadSha256": "d2abbefb9a2d9dcd2c7e1c3b68ad77ac4789f3d9580f2084cb43c9efdcf18e09"
+    }
+  ],
+  "friendlyPackFiles": [
+    {
+      "id": "gender",
+      "title": "Pronoun & Gender Language",
+      "version": 11,
+      "canonicalFile": "packs/gender-v11.ocwpack.txt",
+      "importFile": "Import These Packs/Pronoun & Gender Language v11.ocwpack.txt",
+      "sha256": "3c445d19afd9de7ce23f68639bf71e3b4ca5b70ebbc643f4c934d70c0f355190"
+    },
+    {
+      "id": "labels",
+      "title": "Body-label replacements",
+      "version": 7,
+      "canonicalFile": "packs/labels-v7.ocwpack.txt",
+      "importFile": "Import These Packs/Body-label replacements v7.ocwpack.txt",
+      "sha256": "a19b20e60b8b74b703491a27cdb94658cf3341dd06cc475cd2f20ef74104a941"
+    },
+    {
+      "id": "reproductive",
+      "title": "Birth & Parenting Language",
+      "version": 11,
+      "canonicalFile": "packs/reproductive-v11.ocwpack.txt",
+      "importFile": "Import These Packs/Birth & Parenting Language v11.ocwpack.txt",
+      "sha256": "bc12b014c28de42909b682f06681e99da5f0580d4aa31a8f74eb8d1f3595294f"
+    },
+    {
+      "id": "language",
+      "title": "Inclusive Language",
+      "version": 11,
+      "canonicalFile": "packs/language-v11.ocwpack.txt",
+      "importFile": "Import These Packs/Inclusive Language v11.ocwpack.txt",
+      "sha256": "3325aa7bf1ed8f34c72244d2015b37c943d830ac2fa0f4d946b4b0561be6e077"
+    },
+    {
+      "id": "institutional",
+      "title": "DEI & Institutional Programs",
+      "version": 11,
+      "canonicalFile": "packs/institutional-v11.ocwpack.txt",
+      "importFile": "Import These Packs/DEI & Institutional Programs v11.ocwpack.txt",
+      "sha256": "618d7d65c3736e8bd69f823b3bf5aa38a393a7aca539d2ea01dd343f840164ce"
+    },
+    {
+      "id": "slogans",
+      "title": "Communism & Democratic Party",
+      "version": 11,
+      "canonicalFile": "packs/slogans-v11.ocwpack.txt",
+      "importFile": "Import These Packs/Communism & Democratic Party v11.ocwpack.txt",
+      "sha256": "d12bd4740680ed9e0e9865173c7ba5baaa0a923073618f6dd9de5ba5ef343019"
+    },
+    {
+      "id": "broad",
+      "title": "Social Concepts & Advocacy",
+      "version": 11,
+      "canonicalFile": "packs/broad-v11.ocwpack.txt",
+      "importFile": "Import These Packs/Social Concepts & Advocacy v11.ocwpack.txt",
+      "sha256": "7784bbdc1967ffd48bddf0bee50e72dc97c841304334e13270722454daf27d00"
+    },
+    {
+      "id": "america",
+      "title": "USA Protection",
+      "version": 6,
+      "canonicalFile": "packs/america-v6.ocwpack.txt",
+      "importFile": "Import These Packs/USA Protection v6.ocwpack.txt",
+      "sha256": "b4a73511162c7470e7e35f57503c53385eb046ba418a7fb7e6b661b40e22e1ec"
+    }
+  ],
+  "signedModelAndEnvelopeBytesUnchangedFromPreview5": true,
+  "nativeAssetsIdenticalTo1_0_0": [
+    {
+      "file": "OlympusChatWarden/Media/Bar.tga",
+      "sha256": "b5e05dbaab428ae125e8e23e20d14bb350366c8d02e097e32c13caa943b8bf75"
+    },
+    {
+      "file": "OlympusChatWarden/Media/IconScroll.tga",
+      "sha256": "b253418d23f50678ed319b4c8cc04f047f9e6bef8edbb4373f441e81a8ec5432"
+    },
+    {
+      "file": "OlympusChatWarden/Media/V5/Controls.tga",
+      "sha256": "4d0211626e2277c8367d69ab2ccb507cadd9b2e32168f26c09be662fb5ca5655"
+    },
+    {
+      "file": "OlympusChatWarden/Media/V5/Guardian.tga",
+      "sha256": "4966394b71ee9681b54237816b2aedb168efc09c8606648f66876164f657dbd7"
+    },
+    {
+      "file": "OlympusChatWarden/Media/V5/Icons.tga",
+      "sha256": "9646d502153ad401927b7855be0056bc921ccc81ee3072f123739bbcfa6f30a6"
+    },
+    {
+      "file": "OlympusChatWarden/Media/V5/Logo.tga",
+      "sha256": "307ae2b2c6ac3cbd55f28261bb27555031efc65b83d49bcd7c76d12d6b17cefc"
+    },
+    {
+      "file": "OlympusChatWarden/Media/V5/Ornament.tga",
+      "sha256": "05577ac60f979a924e513cb270f6bd6cc6084f085ed8675b12f09cdbcf72c5b0"
+    },
+    {
+      "file": "OlympusChatWarden/Media/V5/Panels.tga",
+      "sha256": "fdf2a1ec6554daeedce7f3293d943dbe1d3b94f166c978ea6cab689b38d259bd"
+    },
+    {
+      "file": "OlympusChatWarden/Media/V5/Status.tga",
+      "sha256": "7f112586d864dc7bc90aa5fdafbe45748404454e93b4548746f13b6358a9da5d"
+    },
+    {
+      "file": "OlympusChatWarden/Media/V5/Tabs.tga",
+      "sha256": "a8fd1ae68a1718adeb4234c1cfeeaad487401521a5212f65b8e1267f2ffea01f"
+    }
+  ],
+  "shieldSpamAndSpellingUnchangedFromPreview5": true,
+  "optionalPacksBundledInsideAddon": false,
+  "privateKeysOrSigningKitsIncluded": false,
+  "changedAddonFilesFromPreview5": [
+    "OlympusChatWarden/Core.lua",
+    "OlympusChatWarden/INTERNAL-TESTING.md",
+    "OlympusChatWarden/OlympusChatWarden.toc",
+    "OlympusChatWarden/Options.lua",
+    "OlympusChatWarden/PreferenceContext.lua",
+    "OlympusChatWarden/README.md",
+    "OlympusChatWarden/RELEASE-NOTES.md",
+    "OlympusChatWarden/RulePacks.lua",
+    "OlympusChatWarden/Tutorial.lua",
+    "OlympusChatWarden/UpdateUI.lua",
+    "OlympusChatWarden/Workspace.lua"
+  ],
+  "archiveReproduction": {
+    "version": "1.0.1",
+    "deliveredArchivesOnly": true,
+    "passed": 8,
+    "failed": 0,
+    "tests": [
+      {
+        "test": "run-v101-mentions.py",
+        "returnCode": 0,
+        "summary": {
+          "version": "1.0.1",
+          "assertions": 81,
+          "luaVersion": "5.1",
+          "actualTOC": true,
+          "firstAndFullNames": true,
+          "requiresAtSign": false,
+          "captureRequired": false,
+          "globalDictionaryModified": false,
+          "liveWoWTested": false,
+          "failed": 0
+        }
+      },
+      {
+        "test": "run-v101-preview5-refinements.py",
+        "returnCode": 0,
+        "summary": {
+          "version": "1.0.1",
+          "classifications": 1007,
+          "passed": 1007,
+          "failed": 0,
+          "evidenceAssertions": 1215,
+          "normalSignedImports": 8,
+          "policyVocabularyChanged": false
+        }
+      },
+      {
+        "test": "run-v101-preview5-spelling.py",
+        "returnCode": 0,
+        "summary": {
+          "version": "1.0.1",
+          "comparisonInputs": 506,
+          "changesFromPreview4": 0,
+          "assertions": 1102,
+          "validSupplementTerms": 1078,
+          "typingStillOptIn": true,
+          "ambiguousEnglishTyposRemainManual": true,
+          "failed": 0
+        }
+      },
+      {
+        "test": "run-v101-preview4-report.py",
+        "returnCode": 0,
+        "summary": {
+          "version": "1.0.1",
+          "evaluations": 79,
+          "baselineReproduced": 79,
+          "failed": 0,
+          "passed": 79,
+          "changesFromPreview4": 8,
+          "normalSignedImportsPerHost": 8,
+          "externalCodeExecuted": false,
+          "luaVersion": "5.1",
+          "exploratoryResultsAreNotPolicyExpectations": true
+        }
+      },
+      {
+        "test": "run-v101-external-signed.py",
+        "returnCode": 0,
+        "summary": {
+          "version": "1.0.1",
+          "normalSignedImports": 8,
+          "evaluations": 1896,
+          "firmModelExpectations": 1518,
+          "regressionComparisons": 1896,
+          "passed": 1896,
+          "failed": 0,
+          "changedFromPreview3": 6,
+          "externalCodeExecuted": false,
+          "luaVersion": "5.1",
+          "liveWoWTested": false
+        }
+      },
+      {
+        "test": "run-v101-release-pack-downloads.py",
+        "returnCode": 0,
+        "summary": {
+          "version": "1.0.1",
+          "friendlySignedFiles": 8,
+          "assertions": 59,
+          "normalImports": 8,
+          "normalTitleUpgrades": 6,
+          "payloadBytesUnchanged": true,
+          "settingsTooltipsFollowSignedTitles": true,
+          "liveWoWTested": false,
+          "failed": 0
+        }
+      },
+      {
+        "test": "run-v101-updates.py",
+        "returnCode": 0,
+        "summary": {
+          "version": "1.0.1",
+          "assertions": 43,
+          "patchNotesAndLaunchTourSeparate": true,
+          "endUserHighlightCards": 5,
+          "currentVersionDisplayed": true,
+          "oncePerInstalledRelease": true,
+          "githubNotesLink": true,
+          "liveWoWTested": false,
+          "failed": 0
+        }
+      },
+      {
+        "test": "run-v101-final-audit.py",
+        "returnCode": 0,
+        "summary": {
+          "version": "1.0.1",
+          "normalSignedImportsPerHost": 8,
+          "externalRowsEvaluated": 91,
+          "baselineMatchesExternal": 86,
+          "documentedExternalHostDifferences": [
+            {
+              "suite": "handmade",
+              "row": 23,
+              "message": "Fuck Asman",
+              "suppliedAction": "Unchanged",
+              "productionBaseline": "Hidden",
+              "basis": "supplied exploratory typo host differs from immutable production baseline; grammar patch retains baseline behavior"
+            },
+            {
+              "suite": "handmade",
+              "row": 24,
+              "message": "Fuck Aston",
+              "suppliedAction": "Unchanged",
+              "productionBaseline": "Hidden",
+              "basis": "supplied exploratory typo host differs from immutable production baseline; grammar patch retains baseline behavior"
+            },
+            {
+              "suite": "adversarial",
+              "row": 32,
+              "message": "Fuck Asman",
+              "suppliedAction": "Unchanged",
+              "productionBaseline": "Hidden",
+              "basis": "supplied exploratory typo host differs from immutable production baseline; grammar patch retains baseline behavior"
+            },
+            {
+              "suite": "adversarial",
+              "row": 34,
+              "message": "Fuck Aston",
+              "suppliedAction": "Unchanged",
+              "productionBaseline": "Hidden",
+              "basis": "supplied exploratory typo host differs from immutable production baseline; grammar patch retains baseline behavior"
+            },
+            {
+              "suite": "adversarial",
+              "row": 38,
+              "message": "Fuck OlympusX",
+              "suppliedAction": "Unchanged",
+              "productionBaseline": "Hidden",
+              "basis": "supplied exploratory typo host differs from immutable production baseline; grammar patch retains baseline behavior"
+            }
+          ],
+          "externalRowsPassed": 91,
+          "changedFromPriorCandidate": 17,
+          "classifications": 1008,
+          "passed": 1008,
+          "failed": 0,
+          "authoredTopicsChecked": 73,
+          "nonAbuseEvidenceAssertions": 612,
+          "suppliedCodeExecuted": false,
+          "duplicateInputIDsPreserved": true
+        }
+      }
+    ],
+    "onlyExternalDependency": "Lupa Lua 5.1 runtime",
+    "liveWoWTested": false,
+    "addonSha256": "a804c35d95a15356e5216e6b00f71a3e06e371e90eb264837baa98a6bf93b22a",
+    "packSha256": "47e445b36668d01c8825643588141943bf0932b91ffce027fef1fb69745e4bf1"
+  }
+}

@@ -2,11 +2,15 @@
 local _,ns=...
 local D={VERSION=2};ns.ContextDecision=D
 function D.CopyEvidence(source,target)
-    for _,key in ipairs({'stance','strength','certainty','contextCue','detectorType','stanceSource','target'}) do
+    for _,key in ipairs({'stance','strength','certainty','contextCue','detectorType','stanceSource','target','preferenceKind'}) do
         local value=source[key]
         if ns.CanRead(value) then target[key]=value:sub(1,512) end
     end
-    if source.contextPolicyVersion==1 or source.contextPolicyVersion==2 then target.contextPolicyVersion=source.contextPolicyVersion end
+    if source.contextPolicyVersion==1 or source.contextPolicyVersion==2 or source.contextPolicyVersion==3 or source.contextPolicyVersion==4 then target.contextPolicyVersion=source.contextPolicyVersion end
+    for _,key in ipairs({'targetFirst','targetLast'}) do
+        local value=source[key]
+        if type(value)=='number' and value>=1 and value<=ns.Engine.MAX_TEXT and value==math.floor(value) then target[key]=value end
+    end
     return target
 end
 local function Trim(text) return text:match('^%s*(.-)%s*$') end

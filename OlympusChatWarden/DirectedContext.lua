@@ -1,4 +1,4 @@
--- Bounded context for the two stock subject preferences. No intent classifier.
+-- Legacy eligibility safeguards for previously signed subject preferences.
 -- This module changes eligibility, never the vocabulary of a signed import.
 local _,ns=...
 local D={};ns.DirectedContext=D
@@ -34,7 +34,7 @@ function D.Apply(before,after,score,quoted)
         'wrong to say','wrong to call','avoid saying','never said','never called'})
     if defending then return 0,'discouraging or denying the wording: '..defending end
     -- Reported speech is uncertain even without literal quotation marks.
-    -- Broad may show a warning; Balanced/Selective leave it untouched.
+    -- The legacy aggressive profile may warn; other profiles leave it untouched.
     local reported=Any(lead,{'say','said','says','saying','write','wrote','writes','claim','claimed','claims','claiming','quoted','quoting',
         'someone called','people call','people called','heard that','hear that'})
     if quoted or reported then return math.min(score,55),quoted and 'quoted statement; stock score capped at 55'

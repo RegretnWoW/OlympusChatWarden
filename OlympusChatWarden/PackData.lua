@@ -70,6 +70,7 @@ end
 local fields={schema=true,id=true,title=true,author=true,version=true,description=true,rules=true,literal=true,replacements=true}
 local fields2={schema=true,id=true,title=true,author=true,version=true,description=true,rules=true,gommage=true,replacements=true}
 local fields3={schema=true,id=true,title=true,author=true,version=true,description=true,rules=true,gommage=true,replacements=true,purpose=true,statements=true,stance=true}
+local fields5={schema=true,id=true,title=true,author=true,version=true,description=true,rules=true,gommage=true,replacements=true,purpose=true,statements=true,stance=true,policy=true}
 local optional={gender=true,labels=true,reproductive=true,language=true,institutional=true,slogans=true,broad=true,america=true}
 D.Optional=optional
 local function exact(t,keys)
@@ -84,11 +85,12 @@ local function clean(s,limit,phrase)
 end
 local function array(t) return type(t)=='table' and getmetatable(t)==D.ARRAY and #t<=2000 end
 function D.Validate(model)
-    local policy = type(model)=='table' and (model.schema==3 or model.schema==4)
-    local contextual = type(model)=='table' and model.schema==4
+    local contract=type(model)=='table' and model.schema==5
+    local policy = type(model)=='table' and (model.schema==3 or model.schema==4 or contract)
+    local contextual = type(model)=='table' and (model.schema==4 or contract)
     local modern = type(model)=='table' and (model.schema==2 or policy)
     local vocabulary = type(model)=='table' and (modern and model.gommage or model.literal)
-    if not exact(model,policy and fields3 or modern and fields2 or fields) or (model.schema~=1 and model.schema~=2 and model.schema~=3 and model.schema~=4) or not optional[model.id] or model.author~='Regretn'
+    if not exact(model,contract and fields5 or policy and fields3 or modern and fields2 or fields) or (model.schema~=1 and model.schema~=2 and model.schema~=3 and model.schema~=4 and model.schema~=5) or not optional[model.id] or model.author~='Regretn'
         or type(model.version)~='number' or model.version%1~=0 or model.version<1 or model.version>2147483647
         or not clean(model.title,80) or not clean(model.author,80) or not clean(model.description,1500)
         or not array(model.rules) or not array(vocabulary) or not array(model.replacements) then
@@ -99,6 +101,17 @@ function D.Validate(model)
         or #model.statements>256 or model.purpose~='subject' and #model.statements>0) then return nil,'Invalid pack policy.' end
     if contextual and (model.purpose=='topic' and model.stance~='avoid-support'
         or model.purpose=='subject' and model.stance~='protect') then return nil,'Invalid contextual pack direction.' end
+    if contract then
+        local p=model.policy
+        if not exact(p,{contract=true,mode=true,declaration=true,profile=true}) or p.contract~=1
+            or (p.mode~='support' and p.mode~='usage' and p.mode~='protection')
+            or (p.declaration~='none' and p.declaration~='pronouns' and p.declaration~='affiliation')
+            or (model.purpose=='subject' and (p.mode~='protection' or p.profile~='country' or p.declaration~='none'))
+            or (model.purpose=='topic' and (p.mode=='protection' or p.profile~='terminology'))
+            or model.purpose=='replacement' or #model.statements>0 or #model.replacements>0 then
+            return nil,'Invalid signed context contract.'
+        end
+    end
     local seen={}; local bytes=0
     for _,rule in ipairs(model.rules) do
         if not exact(rule,policy and {phrase=true,score=true,origin=true,role=true} or {phrase=true,score=true,origin=true}) or not clean(rule.phrase,120,true) or #rule.phrase<3
@@ -106,9 +119,11 @@ function D.Validate(model)
             or seen[rule.phrase] then return nil,'Invalid or duplicated scored rule.' end
         seen[rule.phrase]=true; bytes=bytes+#rule.phrase
         if policy then
-            local roles=model.purpose=='topic' and {topic=true,topicBroad=true,viewpoint=true,advocacy=contextual,advocacyBroad=contextual} or model.purpose=='subject' and {reference=true,preference=true,statement=true,threat=true} or {}
-            local reference=rule.role=='reference' or contextual and (rule.role=='topic' or rule.role=='topicBroad' or rule.role=='viewpoint')
+            local roles=contract and (model.purpose=='topic' and {topic=true,declaration=true} or {reference=true,groupReference=true})
+                or model.purpose=='topic' and {topic=true,topicBroad=true,viewpoint=true,advocacy=contextual,advocacyBroad=contextual} or model.purpose=='subject' and {reference=true,preference=true,statement=true,threat=true} or {}
+            local reference=contract or rule.role=='reference' or contextual and (rule.role=='topic' or rule.role=='topicBroad' or rule.role=='viewpoint')
             if not roles[rule.role] or reference and rule.score~=0 or not reference and rule.score==0 then return nil,'Invalid rule role.' end
+            if contract and rule.role=='declaration' and model.policy.declaration~='pronouns' then return nil,'Declaration rule requires a signed declaration policy.' end
         end
     end
     seen={}

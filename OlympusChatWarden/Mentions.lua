@@ -1,6 +1,7 @@
 -- Literal matching and alert delivery are independent of UI presentation.
 local _,ns=...
 local M={MAX_PHRASES=100,lastAlert=-math.huge};ns.Mentions=M
+M.MAX_MATCHES=M.MAX_PHRASES+2 -- custom watches plus the automatic first/full name
 local defaults={enabled=true,character=true,typos=true,sound=false,toast=false,cooldown=10}
 local channelDefaults={general=true,trade=true,lfg=true,other=true,say=true,yell=true,guild=true,party=true,raid=true,whispers=true}
 function M.Initialize()
@@ -54,6 +55,17 @@ end
 function M.Character()
     local name=ns.Shield.UnitName('player');return name and name:match('^([^%-]+)')
 end
+function M.CharacterNames()
+    -- Read the current identity each time: no saved name or spelling dictionary
+    -- is needed, and changing characters cannot leave another name watched.
+    local name=M.Character();local names={}
+    if name and #name>=2 then
+        names[1]=name
+        local first=name:match('^(%S+)')
+        if first and #first>=2 and first~=name then names[2]=first end
+    end
+    return names
+end
 function M.Channel(event,channel)
     if event=='CHAT_MSG_CHANNEL' then
         local name=ns.Engine.Lower(channel or '')
@@ -84,8 +96,10 @@ function M.PrepareTypos(changed)
     if typoMatcher then ns.TypoFilter.Prepare(typoMatcher) end
 end
 function M.Find(text,channel,hasLinks)
-    local phrases={};local character=M.db.character and M.Character()
-    if character and #character>=2 then phrases[#phrases+1]={id=0,text=character,kind='character',enabled=true,channel='all'} end
+    local phrases={}
+    if M.db.character then for _,name in ipairs(M.CharacterNames()) do
+        phrases[#phrases+1]={id=0,text=name,kind='character',enabled=true,channel='all'}
+    end end
     for _,p in ipairs(M.db.phrases) do phrases[#phrases+1]=p end
     hasLinks=hasLinks or text:find('|H',1,true)~=nil
     text=M.Plain(text)
@@ -95,7 +109,14 @@ function M.Find(text,channel,hasLinks)
         while position<=#lower do
             local first,last=lower:find(needle,position,true);if not first then break end
             if not Letter(lower:byte(first-1)) and not Letter(lower:byte(last+1)) then
-                if not seen[needle] then found[#found+1]={id=p.id,text=p.text,first=first,last=last,kind=p.kind};seen[needle]=true end;break
+                local covered=false
+                if p.kind=='character' then for _,hit in ipairs(found) do
+                    if hit.kind=='character' and first>=hit.first and last<=hit.last then covered=true;break end
+                end end
+                if not covered then
+                    if not seen[needle] then found[#found+1]={id=p.id,text=p.text,first=first,last=last,kind=p.kind};seen[needle]=true end
+                    break
+                end
             end
             position=last+1
         end

@@ -70,10 +70,10 @@ local function ReviewValid(item)
     item.matchCount=Integer(item.matchCount,1000000) or #item.matches
     for _,match in ipairs(item.matches) do
         if type(match)~='table' then return false end
-        for _,key in ipairs({'phrase','pack','id','origin','reason','replacement','action','ruleKind','stance','strength','certainty','contextCue','detectorType','stanceSource','target'}) do
+        for _,key in ipairs({'phrase','pack','id','origin','reason','replacement','action','ruleKind','stance','strength','certainty','contextCue','detectorType','stanceSource','target','preferenceKind'}) do
             if match[key]~=nil and type(match[key])~='string' then return false end
         end
-        for _,key in ipairs({'score','threshold','first','last','typoEdits','confidenceScore','contextPolicyVersion'}) do
+        for _,key in ipairs({'score','threshold','first','last','targetFirst','targetLast','typoEdits','confidenceScore','contextPolicyVersion'}) do
             if match[key]~=nil and not ns.SafeNumber(match[key]) then return false end
         end
         if match.typo and (not Integer(match.first,#item.original) or match.first<1
@@ -102,7 +102,8 @@ local function ActivityValid(item)
     if item.shieldID~=nil and not Integer(item.shieldID,2147483000) then return false end
     if item.categories.mentions then
         local text=item.text or item.preview
-        if type(text)~='string' or type(item.sender)~='string' or type(item.mentionMatches)~='table' or #item.mentionMatches>100 then return false end
+        if type(text)~='string' or type(item.sender)~='string' or type(item.mentionMatches)~='table'
+            or #item.mentionMatches>(ns.Mentions and ns.Mentions.MAX_MATCHES or 102) then return false end
         for _,match in ipairs(item.mentionMatches) do
             if type(match)~='table' or type(match.text)~='string' or not Integer(match.id,2147483000)
                 or not Integer(match.first,#text) or match.first<1 or not Integer(match.last,#text) or match.last<match.first then return false end

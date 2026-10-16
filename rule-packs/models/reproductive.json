@@ -1,801 +1,93 @@
 {
   "id": "reproductive",
-  "title": "Pregnancy & parenting terminology",
+  "title": "Birth & Parenting Language",
   "author": "Regretn",
-  "schema": 4,
-  "version": 9,
+  "schema": 5,
+  "version": 11,
   "gommage": [],
   "replacements": [],
   "statements": [],
+  "description": "Optional local viewing preference for endorsement or promotion of selected replacement terminology. Ordinary healthcare, parenting and matter-of-fact usage stay visible.",
   "stance": "avoid-support",
   "purpose": "topic",
   "rules": [
     {
       "phrase": "birth giver",
       "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "origin": "Owner-approved 1.0.1 concept scope; context is required; not an intent or misconduct claim",
       "role": "topic"
     },
     {
       "phrase": "birth givers",
       "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "origin": "Owner-approved 1.0.1 concept scope; context is required; not an intent or misconduct claim",
       "role": "topic"
     },
     {
-      "phrase": "birthing bodies",
+      "phrase": "birthgiver",
       "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
+      "origin": "Owner-approved 1.0.1 concept scope; context is required; not an intent or misconduct claim",
       "role": "topic"
     },
     {
-      "phrase": "birthing body",
+      "phrase": "birthgivers",
       "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthing individual",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthing individuals",
-      "score": 0,
-      "origin": "proposed test candidate",
+      "origin": "Owner-approved 1.0.1 concept scope; context is required; not an intent or misconduct claim",
       "role": "topic"
     },
     {
       "phrase": "birthing parent",
       "score": 0,
-      "origin": "user-requested starter",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthing parents",
-      "score": 0,
-      "origin": "user-requested starter",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthing partner",
-      "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthing partners",
-      "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "origin": "Owner-approved 1.0.1 concept scope; context is required; not an intent or misconduct claim",
       "role": "topic"
     },
     {
       "phrase": "birthing people",
       "score": 0,
-      "origin": "user-requested starter",
+      "origin": "Owner-approved 1.0.1 concept scope; context is required; not an intent or misconduct claim",
       "role": "topic"
     },
     {
       "phrase": "birthing person",
       "score": 0,
-      "origin": "user-requested starter",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthing persons",
-      "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthng bodies",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthng body",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthng individual",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthng individuals",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthng parent",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthng parents",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthng partner",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthng partners",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthng people",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthng person",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "birthng persons",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "breastfeed people",
-      "score": 0,
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "role": "topicBroad"
-    },
-    {
-      "phrase": "breastfeed person",
-      "score": 0,
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "role": "topicBroad"
-    },
-    {
-      "phrase": "breastfeeding people",
-      "score": 0,
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "role": "topicBroad"
-    },
-    {
-      "phrase": "breastfeeding person",
-      "score": 0,
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "role": "topicBroad"
-    },
-    {
-      "phrase": "chest fed",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "chest feeder",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "chest feeders",
-      "score": 0,
-      "origin": "proposed test candidate",
+      "origin": "Owner-approved 1.0.1 concept scope; context is required; not an intent or misconduct claim",
       "role": "topic"
     },
     {
       "phrase": "chest feeding",
       "score": 0,
-      "origin": "proposed test candidate",
+      "origin": "Owner-approved 1.0.1 concept scope; context is required; not an intent or misconduct claim",
       "role": "topic"
     },
     {
-      "phrase": "chest feeding parent",
+      "phrase": "chest-feeding",
       "score": 0,
-      "origin": "documented spelling/spacing variant of an existing author preference",
+      "origin": "Owner-approved 1.0.1 concept scope; context is required; not an intent or misconduct claim",
       "role": "topic"
     },
     {
-      "phrase": "chest feeding parents",
+      "phrase": "chestfeeding",
       "score": 0,
-      "origin": "documented spelling/spacing variant of an existing author preference",
-      "role": "topic"
-    },
-    {
-      "phrase": "chest feeding people",
-      "score": 0,
-      "origin": "documented spelling/spacing variant of an existing author preference",
-      "role": "topicBroad"
-    },
-    {
-      "phrase": "chest feeding person",
-      "score": 0,
-      "origin": "documented spelling/spacing variant of an existing author preference",
-      "role": "topicBroad"
-    },
-    {
-      "phrase": "chestfeed people",
-      "score": 0,
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "role": "topicBroad"
-    },
-    {
-      "phrase": "chestfeed person",
-      "score": 0,
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "role": "topicBroad"
-    },
-    {
-      "phrase": "chestfeeding support",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "chestfeedng",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "chestfeedng parent",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "chestfeedng parents",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "chestfeedng people",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topicBroad"
-    },
-    {
-      "phrase": "chestfeedng person",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topicBroad"
-    },
-    {
-      "phrase": "chestfeedng support",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "gestating parent",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "gestating parents",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "gestational carrier",
-      "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
-      "role": "topic"
-    },
-    {
-      "phrase": "gestational carriers",
-      "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
-      "role": "topic"
-    },
-    {
-      "phrase": "gestational individual",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "gestational individuals",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "gestational parent",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "gestational parents",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "gestational people",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "gestational person",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "lactating individual",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "lactating individuals",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "lactating parent",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "lactating parents",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "lactating people",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "lactating person",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "lactating persons",
-      "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstrating bodies",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstrating body",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstrating individual",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstrating individuals",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstrating parent",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstrating parents",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstrating people",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstrating person",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstrating persons",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstruating bodies",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstruating body",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstruating individual",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstruating individuals",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstruating parent",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstruating parents",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstruating people",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstruating person",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "menstruating persons",
-      "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
-      "role": "topic"
-    },
-    {
-      "phrase": "people capable of pregnancy",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "people giving birth",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "people who breastfeed",
-      "score": 0,
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "role": "topicBroad"
-    },
-    {
-      "phrase": "people who can become pregant",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "people who can become pregnant",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "people who can give birth",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "people who chestfeed",
-      "score": 0,
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "role": "topicBroad"
-    },
-    {
-      "phrase": "people who give birth",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "people who lactate",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "people who menstruate",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "people with a uterus",
-      "score": 0,
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "role": "topicBroad"
-    },
-    {
-      "phrase": "people with uteruses",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "people with wombs",
-      "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
-      "role": "topic"
-    },
-    {
-      "phrase": "person capable of pregnancy",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "person giving birth",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "person who breastfeeds",
-      "score": 0,
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "role": "topicBroad"
-    },
-    {
-      "phrase": "person who can become pregant",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "person who can become pregnant",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "person who can give birth",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "person who chestfeeds",
-      "score": 0,
-      "origin": "user-supplied expanded phrase preference; listed spelling or documented variant",
-      "role": "topicBroad"
-    },
-    {
-      "phrase": "person who gives birth",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "person who lactates",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "person who menstruates",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "person with a uterus",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "person with a womb",
-      "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregant bodies",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregant body",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregant individual",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregant individuals",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregant parent",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregant parents",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregant people",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregant person",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregant persons",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregnancy capable individual",
-      "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregnancy capable individuals",
-      "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregnancy capable people",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregnancy capable person",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregnant bodies",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregnant body",
-      "score": 0,
-      "origin": "Author-selected rc29 preference; not a claim of endorsement or speaker intent",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregnant individual",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregnant individuals",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregnant parent",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregnant parents",
-      "score": 0,
-      "origin": "proposed test candidate",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregnant people",
-      "score": 0,
-      "origin": "user-requested starter",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregnant person",
-      "score": 0,
-      "origin": "user-requested starter",
-      "role": "topic"
-    },
-    {
-      "phrase": "pregnant persons",
-      "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
-      "role": "topic"
-    },
-    {
-      "phrase": "uterus bearing people",
-      "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
-      "role": "topic"
-    },
-    {
-      "phrase": "uterus bearing person",
-      "score": 0,
-      "origin": "author preference expansion rc22; phrase-specific terminology",
+      "origin": "Owner-approved 1.0.1 concept scope; context is required; not an intent or misconduct claim",
       "role": "topic"
     },
     {
       "phrase": "uterus owner",
       "score": 0,
-      "origin": "proposed test candidate",
+      "origin": "Owner-approved 1.0.1 concept scope; context is required; not an intent or misconduct claim",
       "role": "topic"
     },
     {
       "phrase": "uterus owners",
       "score": 0,
-      "origin": "proposed test candidate",
+      "origin": "Owner-approved 1.0.1 concept scope; context is required; not an intent or misconduct claim",
       "role": "topic"
     }
   ],
-  "description": "Contextual personal topic preference. A reference alone has no action. With Context on, neutral discussion, questions, quotations and criticism stay visible. Mild support warns in Balanced; stronger promotion redacts. Broad hides eligible unwanted expressions. Wider references require Broad. Original Gommage meme masks remain separate. Requires alpha12 or later."
+  "policy": {
+    "contract": 1,
+    "mode": "support",
+    "declaration": "none",
+    "profile": "terminology"
+  }
 }

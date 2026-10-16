@@ -5,7 +5,7 @@ local preview,deleteArmed,editing=nil,nil,false
 local lastPaste,wasRestoring
 local importDraft,exportText='',''
 local detailMeasure,previewMeasure
-local choices={{'default','Default (main preset)'},{'off','Off'},{'strict','Mild'},{'balanced','Balanced'},{'aggressive','Broad'}}
+local choices={{'default','Default (main preset)'},{'off','Off'},{'strict','Mild'},{'balanced','Balanced'},{'aggressive','Strict'}}
 local function Text(parent,value,x,y,width,paper)
     local f=parent:CreateFontString(nil,'OVERLAY','GameFontHighlightSmall')
     f:SetPoint('TOPLEFT',x,y); f:SetWidth(width); f:SetJustifyH('LEFT'); f:SetText(value or '')
@@ -68,7 +68,8 @@ function ns.SyncPacks()
         if m then
             row.title:SetText(m.title); row.label=row.title
             row.note:SetText(m.stock and ('Stock | '..(m.enabled and 'On' or 'Off'))
-                or m.error and 'Not loaded: verification failed' or ('v'..m.version..' | '..(m.enabled and 'On' or 'Off')..(update and (' | Update v'..update.version) or '')))
+                or m.error and 'Not loaded: verification failed' or m.updateRequired and ('v'..m.version..' | Update Required')
+                or ('v'..m.version..' | '..(m.enabled and 'On' or 'Off')..(update and (' | Update v'..update.version) or '')))
             T.RowState(row,m.id==selected,m.error and 'Hidden' or 'Unchanged')
         end
     end
@@ -83,6 +84,7 @@ function ns.SyncPacks()
             or item.stock and (item.title..'\nVersion '..item.version..' | Included with ChatWarden\n\n'..item.rules..' selected phrase/topic entries\n'..item.gommage..' Gommage terms\n'..item.replacements..' replacements\n\nYou can turn this pack off or choose its sensitivity. Ordinary mentions stay visible; context determines the score.\n\nGommage is a separate meme toggle. These stock packs have no literal Gommage lists or replacement entries. Built-in barber/body-label replacements are separate.')
             or (item.title..'\nVersion '..item.version..' by '..item.author..'\n\n'..item.description..(item.legacyGommage and '\n\nLegacy list retired. Update this pack for Gommage masks; scored rules remain active.' or '')..'\n\n'..item.rules..' selected phrase/topic entries\n'..item.gommage..' Gommage terms\n'..item.replacements..' replacements\n\nVerified author key: '..item.keyID..'\nPayload SHA-256:\n'..item.digest))
         local update=ns.PackUpdates.For(item.id)
+        if item.updateRequired then detail:SetText(detail:GetText()..'\n\nUpdate Required\nThis pack and its Gommage masks are inactive. Its signed import, saved enabled choice and sensitivity are kept. Use Get packs link, then manually import the compatible signed version.') end
         if update then detail:SetText(detail:GetText()..'\n\nUpdate available: v'..update.version..' (catalog bundled with '..ns.PackCatalog.release..').\nUse Get packs link, then paste and verify the updated pack. Your sensitivity and enabled state are kept.') end
     else detail:SetText('Select a pack to change its sensitivity, export its signed text, or remove it.\n\nOlympus and Asmongold are the two stock packs. Import other categories only if you want them.\n\nOff pauses a pack without removing it. Default follows your main preset. Personal phrase rules remain separate.') end
     if P.Busy or P.Restoring then ns.SyncPackProgress()
@@ -195,7 +197,7 @@ function ns.OpenPacks(requestedMode)
             if ns.Workspace then paste:ClearFocus();ns.Workspace.Open('packs') else window:Hide() end
         end)
         ns.PackBackButton=back
-        T.Muted(Text(window,'Mild, Balanced and Broad choose actions. Gommage is a separate toggle for curated masks from enabled packs.',18,-637,686))
+        T.Muted(Text(window,'Mild, Balanced and Strict choose actions. Gommage is a separate toggle for curated masks from enabled packs.',18,-637,686))
         window:HookScript('OnShow',ns.SyncPacks); window:HookScript('OnHide',function() paste:ClearFocus() end)
         T.Tooltip(paste,'Pack text','Paste the entire contents of one pack file here. Verify pack checks it before anything is installed.')
         T.Tooltip(sensitivity,'Pack sensitivity','Default follows your main sensitivity. Off pauses this category without removing it.')

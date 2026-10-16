@@ -1,8 +1,8 @@
 ![Olympus ChatWarden](Marketing/CurseForge/olympus-chatwarden-banner-v1.png)
 
-# Olympus ChatWarden 1.0
+# Olympus ChatWarden 1.0.1
 
-**[Download 1.0.0](https://github.com/RegretnWoW/OlympusChatWarden/releases/tag/v1.0.0)** · **[Optional signed packs](rule-packs/README.md)** · **[Filtering guide](ChatWarden-1.0-Filtering-Guide.md)** · **[Release notes](OlympusChatWarden-v1.0.0-ReleaseNotes.md)**
+**[Download 1.0.1](https://github.com/RegretnWoW/OlympusChatWarden/releases/tag/v1.0.1)** · **[Optional signed packs](rule-packs/README.md)** · **[User guide](OlympusChatWarden/README.md)** · **[Release notes](OlympusChatWarden-v1.0.1-Release-Notes.md)**
 
 Built for Olympus, ChatWarden brings chat filtering, contact protection and mention alerts into one Olympus-themed workspace. Review what was filtered, see why an action happened, and choose how much of the conversation you want to see.
 
@@ -15,8 +15,10 @@ A topic being mentioned does not automatically mean it should be filtered. ChatW
 # Choose your filtering strength:
 
 Mild: Leaves mild opinions visible, warns on stronger expressions, and hides recognized explicit threats.
+
 Balanced: Warns on mild unwanted opinions, redacts stronger expressions, and hides recognized explicit threats.
-Broad: Applies wider topic coverage and hides eligible unwanted expressions.
+
+Strict: Applies stronger actions to the same covered topics, including redacting mild eligible opinions and hiding stronger expressions.
 
 Olympus Protection and King Protection are included. Optional author-signed rule packs add other categories and wording preferences.
 
@@ -30,7 +32,7 @@ Use timed protection, manage shielded players, or allow trusted players to bypas
 
 # Catch your mentions
 
-Watch your full character name, custom nicknames and selected phrases across supported chat channels.
+Your first name or full character name can trigger Mentions across supported chat channels. No @ is needed, and Capture can stay off. Add custom nicknames or watch phrases for anything else you want to follow.
 
 Mention alerts include unread badges, optional sound and optional toast notifications. Close typo matching is available for watch phrases; names and nicknames match exactly.
 
@@ -49,11 +51,15 @@ Filtered originals and read states survive reloads and logins. Why filtered? exp
 
 Hidden-message alerts start on. Redaction alerts start off. Both can be adjusted independently.
 
+# Install or update
+
+Exit WoW, extract **OlympusChatWarden-v1.0.1.zip** from the release into `Interface/AddOns`, and keep `WTF/SavedVariables`. Use the addon download rather than GitHub’s automatic Source code ZIP.
+
 # Requirements and access
 
 ChatWarden is built for Olympus. The current version requires “Olympus” as a separate word in your character’s guild name. This is a local access check, not official membership verification. Features pause outside a qualifying guild, while saved data is retained.
 
-Optional rule packs must be imported separately through ChatWarden’s signature verification screen.
+Optional rule packs must be imported separately through ChatWarden’s signature verification screen. Updating the addon does not update saved imports. Start with the clearly named files in [Import These Packs](rule-packs/Import%20These%20Packs), or download the pack ZIP from the release. Updates preserve your enabled choices and pack sensitivity.
 
 # Help improve ChatWarden
 

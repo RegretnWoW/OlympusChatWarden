@@ -3,8 +3,8 @@ local _,ns=...
 local S={ready=false,words={},buckets={},ignored={},MAX_TEXT=8192,MAX_WORDS=256};ns.Spelling=S
 local position=1
 local cache,cacheOrder={},{}
-local common={}
-for word in ('wow olympus chatwarden dps tanking aggro cooldown cooldowns raid raids raiding guild guilds pvp pve aoe afk brb btw pst lfg lfm lf wts wtb wtt bis bop boe soulbound hearthstone warlock paladin shaman druid rogue mage priest hunter warrior tauren orc orcs gnome gnomes dwarf dwarves nightelf undead forsaken draenei bloodelf stormwind orgrimmar darnassus ironforge outland azeroth dalaran northrend ench enchanting enchanter enchants disenchant transmog respec rez rezzing buff buffs debuff debuffs nerf nerfs addon addons ui npc npcs dk dkp gcd mana mp5 str int agi stam hp xp exp inv msg whisper whispers lol lmao rofl ty thx gg gl hf gz grats congrats discord'):gmatch('%S+') do common[word]=true end
+local vocabulary=ns.SpellingVocabulary
+local common=vocabulary and vocabulary.words or {}
 -- A compact frequency signal keeps aggressive automatic correction practical.
 -- The full dictionary intentionally contains rare and dialect words; this set
 -- lets a common candidate outrank one of those entries without hard-coding the
@@ -179,9 +179,12 @@ function S.Suggest(value,onlyOneEdit)
     if not next(hits) then
         local checked=0
         for length=math.max(2,#word-2),math.min(32,#word+2) do
-            for _,candidate in ipairs(S.buckets[word:sub(1,1)..length] or {}) do
-                if checked>=2500 then break end;checked=checked+1
-                local d=Distance(word,candidate);if d<=2 then Add(candidate,d) end
+            local key=word:sub(1,1)..length
+            for _,buckets in ipairs({vocabulary and vocabulary.buckets or {},S.buckets}) do
+                for _,candidate in ipairs(buckets[key] or {}) do
+                    if checked>=2500 then break end;checked=checked+1
+                    local d=Distance(word,candidate);if d<=2 then Add(candidate,d) end
+                end
             end
         end
     end

@@ -267,7 +267,7 @@ function S.ObserveWhisper(message,source,key)
     if not S.Active('whispers') then return end
     -- Gommage-only masks contribute zero. Replacements are not harassment signals.
     for _,match in ipairs(ns.Find(message)) do
-        if match.shieldEligible==true and not match.replacement and match.accepted~=false and (match.score or 0)>=80 then S.Observe('whispers',source.sender);return end
+        if match.shieldEligible==true and not match.replacement and match.accepted~=false then S.Observe('whispers',source.sender);return end
     end
 end
 function S.FilterChat(event,message,...)

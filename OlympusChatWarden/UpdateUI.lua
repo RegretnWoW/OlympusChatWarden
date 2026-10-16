@@ -3,6 +3,13 @@ local _,ns=...
 local T=ns.Theme
 local window,queued,loginReady
 local release=ns.VERSION
+ns.InstalledUpdate={version=release,cards={
+    {'Smarter filtering','Better context handling means fewer false matches in questions, criticism and ordinary discussion.','messages'},
+    {'First-name Mentions','Your first name or full name can trigger Mentions. No @ needed, and Capture can stay off.','mentions'},
+    {'Clearer pack names','Optional packs have clearer names. Import updated packs separately to see the new names.','packs'},
+    {'WoW-friendly spelling','More game terms and Olympus names are recognized. Ambiguous corrections stay suggestions.','settings'},
+    {'Your settings stay yours','Existing choices and saved activity are kept. The launch tour now has its own tab.','reports'},
+}}
 local function Label(parent,text,x,y,width,font)
     local label=parent:CreateFontString(nil,'OVERLAY',font or 'GameFontHighlightSmall')
     label:SetPoint('TOPLEFT',x,y);label:SetWidth(width);label:SetJustifyH('LEFT');label:SetWordWrap(true);label:SetText(text)
@@ -21,13 +28,7 @@ function ns.OpenUpdates()
         T.Title(window,ns.NAME);T.Crest(window)
         T.Gold(Label(window,"What's new",78,-30,570,'GameFontNormalLarge'))
         T.Muted(Label(window,'Update '..release..'  |  Your existing settings and saved data are kept.',78,-52,570))
-        local cards={
-            {'Incoming spelling and evasion matching','On by default in Balanced matching mode. Close misspellings can match enabled rules and use their normal actions, including Hide. Originals stay intact.'},
-            {'Compare the results','Settings > Spelling has Aggressive incoming typo filtering. Turn it off to compare normal matching. Your own messages and name labels are excluded.'},
-            {'Reports and sharing in one window','Read reports and Share preview now share one window. Choose entries and privacy before copying. Language-only notifications start off.'},
-            {'Spelling assistance','Optional English spelling highlights, right-click suggestions and automatic correction. Enable the options you want in Settings > Spelling.'},
-            {'Windows and settings','Keep Review, Rules, Reports and help open together. Window layers move together. The Language guide button now fits inside Settings.'},
-        }
+        local cards=ns.InstalledUpdate.cards
         for i,card in ipairs(cards) do
             local panel=T.Panel(window,18,-84-(i-1)*84,644,76,true)
             T.Heading(T.Body(Label(panel,card[1],14,-10,616,'GameFontNormal')))

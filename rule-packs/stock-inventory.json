@@ -1,7 +1,7 @@
 {
-  "guildVersion": 9,
-  "creatorVersion": 8,
-  "actionPolicyVersion": 2,
+  "guildVersion": 10,
+  "creatorVersion": 9,
+  "actionPolicyVersion": 4,
   "rules": [
     {
       "phrase": "asmnogold",
@@ -10,7 +10,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "author-requested spelling/channel variant; not an identity assertion",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "asmogold",
@@ -19,7 +19,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "author-requested spelling/channel variant; not an identity assertion",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "asmon",
@@ -28,7 +28,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "reported character/channel alias; Dot Esports name-reservation coverage",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "asmonbald",
@@ -37,7 +37,8 @@
       "kind": "nickname",
       "role": "preference",
       "origin": "documented nickname; Know Your Meme",
-      "version": 8
+      "version": 9,
+      "protectionKind": "banter"
     },
     {
       "phrase": "asmonbozo",
@@ -46,7 +47,8 @@
       "kind": "nickname",
       "role": "preference",
       "origin": "author preference for creator-directed compound insult spelling",
-      "version": 8
+      "version": 9,
+      "protectionKind": "roast"
     },
     {
       "phrase": "asmonclown",
@@ -55,7 +57,8 @@
       "kind": "nickname",
       "role": "preference",
       "origin": "author preference for creator-directed compound insult spelling",
-      "version": 8
+      "version": 9,
+      "protectionKind": "roast"
     },
     {
       "phrase": "asmoncringe",
@@ -64,7 +67,8 @@
       "kind": "nickname",
       "role": "preference",
       "origin": "author preference for creator-directed compound insult spelling",
-      "version": 8
+      "version": 9,
+      "protectionKind": "roast"
     },
     {
       "phrase": "asmondgold",
@@ -73,7 +77,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "retained spelling preference; Zakrawr explicitly requested by tester",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "asmonfraud",
@@ -82,7 +86,8 @@
       "kind": "nickname",
       "role": "preference",
       "origin": "author preference for creator-directed compound insult spelling",
-      "version": 8
+      "version": 9,
+      "protectionKind": "roast"
     },
     {
       "phrase": "asmonfresh",
@@ -91,7 +96,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "reported character/channel alias; Dot Esports name-reservation coverage",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "asmongarbage",
@@ -100,7 +105,8 @@
       "kind": "nickname",
       "role": "preference",
       "origin": "author preference for creator-directed compound insult spelling",
-      "version": 8
+      "version": 9,
+      "protectionKind": "roast"
     },
     {
       "phrase": "asmongler",
@@ -109,7 +115,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "reported character/channel alias; Dot Esports name-reservation coverage",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "asmonglod",
@@ -118,7 +124,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "author-requested spelling/channel variant; not an identity assertion",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "asmonglodtv",
@@ -127,7 +133,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "author-requested spelling/channel variant; not an identity assertion",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "asmongold",
@@ -136,7 +142,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "reported character/channel alias; Dot Esports name-reservation coverage",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "asmongold tv",
@@ -145,7 +151,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "Asmongold TV YouTube channel",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "asmongoldd",
@@ -154,7 +160,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "author-requested spelling/channel variant; not an identity assertion",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "asmongoldtv",
@@ -163,7 +169,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "author-requested spelling/channel variant; not an identity assertion",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "asmonincel",
@@ -172,7 +178,8 @@
       "kind": "nickname",
       "role": "preference",
       "origin": "author preference for creator-directed compound insult spelling",
-      "version": 8
+      "version": 9,
+      "protectionKind": "roast"
     },
     {
       "phrase": "asmonloser",
@@ -181,7 +188,8 @@
       "kind": "nickname",
       "role": "preference",
       "origin": "author preference for creator-directed compound insult spelling",
-      "version": 8
+      "version": 9,
+      "protectionKind": "roast"
     },
     {
       "phrase": "asmonmald",
@@ -190,7 +198,8 @@
       "kind": "nickname",
       "role": "preference",
       "origin": "observed community nickname; r/Asmongold",
-      "version": 8
+      "version": 9,
+      "protectionKind": "roast"
     },
     {
       "phrase": "asmonmold",
@@ -199,7 +208,8 @@
       "kind": "nickname",
       "role": "preference",
       "origin": "observed community nickname; r/videos",
-      "version": 8
+      "version": 9,
+      "protectionKind": "roast"
     },
     {
       "phrase": "asmonroach",
@@ -208,7 +218,8 @@
       "kind": "nickname",
       "role": "preference",
       "origin": "observed community nickname; Steam discussion",
-      "version": 8
+      "version": 9,
+      "protectionKind": "roast"
     },
     {
       "phrase": "asmonshill",
@@ -217,7 +228,8 @@
       "kind": "nickname",
       "role": "preference",
       "origin": "author preference for creator-directed compound insult spelling",
-      "version": 8
+      "version": 9,
+      "protectionKind": "roast"
     },
     {
       "phrase": "asmonsimp",
@@ -226,7 +238,8 @@
       "kind": "nickname",
       "role": "preference",
       "origin": "author preference for creator-directed compound insult spelling",
-      "version": 8
+      "version": 9,
+      "protectionKind": "roast"
     },
     {
       "phrase": "asmontrash",
@@ -235,7 +248,8 @@
       "kind": "nickname",
       "role": "preference",
       "origin": "author preference for creator-directed compound insult spelling",
-      "version": 8
+      "version": 9,
+      "protectionKind": "roast"
     },
     {
       "phrase": "asmontv",
@@ -244,7 +258,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "Asmongold TV YouTube channel",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "baldmongold",
@@ -253,7 +267,8 @@
       "kind": "nickname",
       "role": "preference",
       "origin": "observed community nickname; r/Asmongold",
-      "version": 8
+      "version": 9,
+      "protectionKind": "banter"
     },
     {
       "phrase": "zackrawr",
@@ -262,7 +277,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "retained spelling preference; Zakrawr explicitly requested by tester",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "zackrawrr",
@@ -271,7 +286,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "reported character/channel alias; Dot Esports name-reservation coverage",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "zakrawr",
@@ -280,7 +295,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "retained spelling preference; Zakrawr explicitly requested by tester",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "zakrawrr",
@@ -289,7 +304,7 @@
       "kind": "alias",
       "role": "reference",
       "origin": "retained spelling preference; Zakrawr explicitly requested by tester",
-      "version": 8
+      "version": 9
     },
     {
       "phrase": "olmypus",
@@ -298,7 +313,7 @@
       "kind": "subject",
       "role": "reference",
       "origin": "user-requested Olympus guild preference",
-      "version": 9
+      "version": 10
     },
     {
       "phrase": "olymps",
@@ -307,7 +322,7 @@
       "kind": "subject",
       "role": "reference",
       "origin": "user-requested Olympus guild preference",
-      "version": 9
+      "version": 10
     },
     {
       "phrase": "olympus",
@@ -316,7 +331,7 @@
       "kind": "subject",
       "role": "reference",
       "origin": "user-requested Olympus guild preference",
-      "version": 9
+      "version": 10
     },
     {
       "phrase": "olympuss",
@@ -325,7 +340,7 @@
       "kind": "subject",
       "role": "reference",
       "origin": "user-requested Olympus guild preference",
-      "version": 9
+      "version": 10
     },
     {
       "phrase": "olymups",
@@ -334,7 +349,7 @@
       "kind": "subject",
       "role": "reference",
       "origin": "user-requested Olympus guild preference",
-      "version": 9
+      "version": 10
     },
     {
       "phrase": "olypmus",
@@ -343,7 +358,7 @@
       "kind": "subject",
       "role": "reference",
       "origin": "user-requested Olympus guild preference",
-      "version": 9
+      "version": 10
     }
   ]
 }

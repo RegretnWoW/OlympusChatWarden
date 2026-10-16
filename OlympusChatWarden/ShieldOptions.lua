@@ -84,7 +84,7 @@ function ns.BuildShieldOptions(parentCategory)
                     local editable=profile=='custom' and ns.Membership.Allowed()
                     field.input:SetEnabled(editable);field.box:SetAlpha(editable and 1 or .55)
                 end
-                controls[kind].detail:SetText(kind=='whispers' and '80+ accepted wording score. Masks and replacements excluded.'
+                controls[kind].detail:SetText(kind=='whispers' and 'Eligible strong abuse evidence. Display action is separate; masks and replacements excluded.'
                     or kind=='repeatedWhispers' and 'Similar whispers; your reply resets the counter.'
                     or 'Accepted requests reset this player’s counter.')
             end

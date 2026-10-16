@@ -2,7 +2,7 @@
 ## Title: Olympus ChatWarden
 ## Notes: Personal text filtering and wording replacements with inline reveal, review and user reports.
 ## Author: Regretn
-## Version: 1.0.0
+## Version: 1.0.1
 ## SavedVariables: OlympusChatWardenDB
 ## OptionalDeps: Olympus
 ## IconTexture: Interface\AddOns\OlympusChatWarden\Media\V5\Logo.tga
@@ -19,6 +19,8 @@ GuildRules.lua
 CreatorRules.lua
 DirectedContext.lua
 ContextDecision.lua
+ProtectionContext.lua
+PreferenceContext.lua
 PackCrypto.lua
 TrustedPackKeys.lua
 PackData.lua
@@ -50,6 +52,7 @@ ReportUI.lua
 ChatCapture.lua
 History.lua
 SpellingDictionary.lua
+SpellingVocabulary.lua
 Spelling.lua
 SpellingUI.lua
 Export.lua
@@ -75,5 +78,6 @@ SpamOptions.lua
 LanguageOptions.lua
 NotificationOptions.lua
 SpellingOptions.lua
+PhraseTester.lua
 Options.lua
 Workspace.lua

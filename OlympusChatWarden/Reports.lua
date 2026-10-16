@@ -85,7 +85,7 @@ function R.Snapshot(text, source, event, policy, sourceInfo)
     local combined=language and ns.Language.Action(active and predicted or 'Unchanged',language) or active and predicted or 'Unchanged'
     return {typoContext=ns.TypoFilter.Context(incomingTypos,typoWork,settings),spamContext=ns.Spam and ns.Spam.Context(event,sourceInfo,text),addonVersion = ns.VERSION, ruleVersion = ns.RULE_VERSION, preset = settings.preset,
         context = true, bodyTypeWording = settings.barber ~= false, threshold = ns.Confidence.Presets[settings.preset],
-        gommage=settings.gommage==true,gommagePacks=Packs(settings.gommagePacks),actionPolicyVersion=2,
+        gommage=settings.gommage==true,gommagePacks=Packs(settings.gommagePacks),actionPolicyVersion=ns.Confidence.ActionPolicyVersion,
         disabledPacks = Packs(settings.disabledPacks), packPresets = R.PackPresets(settings.packPresets),
         signedPacks = ns.RulePacks.Snapshot(),
         packsVerifying = ns.RulePacks.Restoring == true,

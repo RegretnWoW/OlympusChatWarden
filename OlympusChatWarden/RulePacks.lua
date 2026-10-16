@@ -1,13 +1,17 @@
 local _, ns = ...
 local P = {Revision=0, Busy=false, Restoring=false, Errors={}}; ns.RulePacks=P
 P.Order={'guild','creator','gender','labels','reproductive','language','institutional','slogans','broad','america'}
-P.StockVersions={guild=9,creator=8}
+P.StockVersions={guild=10,creator=9}
 P.StockTitles={guild='Olympus Protection',creator='King Protection'}
 local loaded, pending, token, stockRules, stockMeta = {},nil,0,{},{}
 local stockCaptured=false
 local jobs, worker, scheduled, current = {},nil,false,nil
 local restoreSerial = 0
 local C,D=ns.PackCrypto,ns.PackData
+function P.Compatible(model)
+    if model.id=='labels' then return model.schema==3 and model.purpose=='replacement' and model.version>=7 end
+    return model.schema==5 and model.policy and model.policy.contract==1
+end
 local function SafeCall(fn,...)
     if type(fn)~='function' then return true end
     local ok,err=pcall(fn,...)
@@ -30,13 +34,16 @@ local function Build(models)
     for _,id in ipairs(P.Order) do
         local model=models[id]
         if id=='guild' or id=='creator' or model then names[#names+1]=id end
-        if model then
+        if model and P.Compatible(model) then
             for _,rule in ipairs(model.rules) do
                 if owners[rule.phrase] and owners[rule.phrase]~=id then return nil,'A phrase conflicts with another installed pack.' end
                 owners[rule.phrase]=id; bytes=bytes+#rule.phrase
                 rules[#rules+1]=rule.phrase
                 meta[rule.phrase]={id=id..':'..rule.phrase,pack=id,base=rule.score,origin=rule.origin,version=model.version,
-                    role=rule.role,purpose=model.purpose,stance=model.stance,policy=model.schema==3 or model.schema==4,contextual=model.schema==4,subjectModel=model.purpose=='subject' and model or nil}
+                    role=rule.role,purpose=model.purpose,stance=model.stance,policy=model.schema>=3,contextual=model.schema>=4,
+                    contractPolicy=model.schema==5 and model.policy or nil,
+                    protectionProfile=model.schema==5 and model.purpose=='subject' and model.policy.profile or nil,
+                    subjectModel=model.purpose=='subject' and model or nil}
             end
             for _,phrase in ipairs(model.gommage or {}) do
                 if literalOwners[phrase] or stockMeta[phrase] then return nil,'A literal word conflicts with another installed pack.' end
@@ -64,7 +71,7 @@ local function Apply(built)
     ns.BodyReplacementText,ns.BodyReplacements=built.replacements,built.replacementMatcher
     ns.DB.rules=nil -- legacy duplicated rule lists must never reactivate removed categories
     P.Revision=P.Revision+1
-    local revisions={'stock-guild-9-creator-8-policy-2-packs-4-context-10-evasion-3-case-1-boundary-2-personal-2-replacement-1-gommage-3'}
+    local revisions={'stock-guild-10-creator-9-policy-4-packs-5-context-17-evasion-3-case-1-boundary-2-personal-2-replacement-1-gommage-3-spelling-vocab-1'}
     for _,id in ipairs(P.Order) do if loaded[id] then revisions[#revisions+1]=id..'-'..loaded[id].version end end
     ns.RULE_VERSION=table.concat(revisions,'-')
     if ns.PolicyChanged then ns.PolicyChanged() end
@@ -178,7 +185,8 @@ end
 local function Summary(model)
     return {id=model.id,title=model.title,author=model.author,version=model.version,description=model.description,
         rules=#model.rules,gommage=#(model.gommage or {}),legacyGommage=model.schema==1,replacements=#model.replacements,digest=model.digest,keyID=model.keyID,
-            enabled=ns.DB.disabledPacks[model.id]~=true,stock=false,purpose=model.purpose,schema=model.schema,statements=#(model.statements or {})}
+            enabled=ns.DB.disabledPacks[model.id]~=true,active=P.Compatible(model) and ns.DB.disabledPacks[model.id]~=true,
+            updateRequired=not P.Compatible(model),stock=false,purpose=model.purpose,schema=model.schema,statements=#(model.statements or {})}
 end
 function P.List()
     local list={}
@@ -199,11 +207,13 @@ function P.Snapshot()
     local snapshot={}
     for _,id in ipairs(P.Order) do
         local m=loaded[id]
-        if m then snapshot[id]={version=m.version,digest=m.digest,keyID=m.keyID,enabled=ns.DB.disabledPacks[id]~=true} end
+        if m then snapshot[id]={version=m.version,digest=m.digest,keyID=m.keyID,
+            enabled=P.Compatible(m) and ns.DB.disabledPacks[id]~=true,updateRequired=not P.Compatible(m)} end
     end
     return snapshot
 end
 local function Candidate(model)
+    if not P.Compatible(model) then return nil,'Update Required: this verified pack uses the old policy. Import the compatible signed version from the author.' end
     local existing=loaded[model.id]
     if existing then
         if model.version<existing.version then return nil,'Older versions cannot replace a newer installed pack.' end
@@ -225,6 +235,7 @@ local function Candidate(model)
         for _,r in ipairs(m.literal or {}) do map['retired-literal:'..r]='1' end
         for _,r in ipairs(m.gommage or {}) do map['gommage:'..r]='1' end
         for _,r in ipairs(m.replacements) do map['replace:'..r.phrase]=r.text end
+        if m.policy then map['policy']=m.policy.mode..':'..m.policy.declaration..':'..m.policy.profile end
     end
     Index(existing,old); Index(model,new)
     preview.added,preview.removed,preview.changed=0,0,0

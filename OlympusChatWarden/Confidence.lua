@@ -16,7 +16,7 @@ function ns.MatchAction(matches)
     if score >= 40 then return "Warning", "Low", score end
     return "Unchanged", "Below minimum", score
 end
-local C = {Presets = {strict = 85, balanced = 65, aggressive = 40, maximum = 40}}
+local C = {Presets = {strict = 85, balanced = 65, aggressive = 40, maximum = 40},ActionPolicyVersion=4}
 ns.Confidence = C
 local actionScores={Unchanged=0,Warning=55,Redacted=80,Hidden=95}
 function C.Policy(preset,kind,uncertain)
@@ -181,6 +181,16 @@ function C.Analyze(matcher, text, settings, exceptionMatcher,incomingTypos,sourc
     hits=WithTypos(matcher,hits)
     local lower = ns.Engine.Lower(text)
     local contextGroups=ContextGroups(lower)
+    local protection
+    if ns.ProtectionContext then
+        for _,hit in ipairs(hits) do
+            local meta=ns.RuleMeta[matcher.rules[hit.rule]]
+            if meta and (meta.pack=='guild' or meta.pack=='creator' or meta.contractPolicy)
+                and not (settings.disabledPacks and settings.disabledPacks[meta.pack]) then
+                protection=ns.ProtectionContext.Prepare(lower,hits,matcher,settings,text);break
+            end
+        end
+    end
     local exceptions, exceptionError = {}, nil
     if exceptionMatcher then exceptions, exceptionError = exceptionMatcher:Find(text, true) end
     if exceptionError then return {}, {}, exceptionError end
@@ -223,8 +233,22 @@ function C.Analyze(matcher, text, settings, exceptionMatcher,incomingTypos,sourc
         local policy=meta.policy or meta.pack=='guild' or meta.pack=='creator'
         local topic=meta.policy and meta.purpose=='topic'
         local semantic=meta.contextual or meta.pack=='guild' or meta.pack=='creator'
-        local kind
-        if meta.pack == "guild" then
+        local kind,decision
+        local modernTopic=meta.contractPolicy and topic
+        local stockProtection=ns.ProtectionContext and (meta.pack=='guild' or meta.pack=='creator' or meta.protectionProfile)
+        if stockProtection then
+            decision=protection and not (settings.disabledPacks and settings.disabledPacks[meta.pack])
+                and ns.ProtectionContext.Evaluate(protection,hit,meta,typoWork)
+                or {eligible=false,confidenceScore=0,contextCue='pack disabled',contextPolicyVersion=3}
+            score=decision.confidenceScore or 0;kind=decision.kind or 'reference'
+            reasons={'stock protection: '..decision.contextCue}
+        elseif modernTopic then
+            decision=protection and not (settings.disabledPacks and settings.disabledPacks[meta.pack])
+                and ns.PreferenceContext.Evaluate(protection,hit,meta,typoWork)
+                or {eligible=false,confidenceScore=0,contextCue='pack disabled',contextPolicyVersion=4}
+            score=decision.confidenceScore or 0;kind=decision.kind or 'reference'
+            reasons={'signed viewing preference: '..decision.contextCue}
+        elseif meta.pack == "guild" then
             local detail
             score, detail,kind = ns.GuildScore(before, after,typoWork)
             reasons = {"guild context " .. score .. ": " .. detail}
@@ -241,8 +265,7 @@ function C.Analyze(matcher, text, settings, exceptionMatcher,incomingTypos,sourc
             reasons={'subject context '..score..': '..detail}
         end
         kind=kind or (topic and (meta.role=='viewpoint' and 'topic' or meta.role) or meta.role=='threat' and 'threat' or score>=95 and 'threat' or score>=85 and 'strong' or score>=65 and 'preference' or score>0 and 'criticism')
-        local decision
-        if semantic and topic then
+        if not stockProtection and not modernTopic and semantic and topic then
             decision=ns.ContextDecision.Topic(before,after,meta,Quoted(before,after),typoWork)
             local mode=C.PackPreset(settings,meta.pack)
             local wider=meta.role=='topicBroad' or meta.role=='advocacyBroad'
@@ -251,11 +274,11 @@ function C.Analyze(matcher, text, settings, exceptionMatcher,incomingTypos,sourc
             end
             kind=decision.strength=='mild' and 'supportMild' or 'supportStrong'
             score=decision.eligible and (decision.strength=='mild' and 55 or 90) or 0
-        elseif semantic and directed then
+        elseif not stockProtection and semantic and directed then
             decision=ns.ContextDecision.Subject(before,after,score,kind,Quoted(before,after))
             if not decision.eligible then score=0 end
         end
-        if decision then reasons[#reasons+1]=decision.contextCue end
+        if decision and not stockProtection and not modernTopic then reasons[#reasons+1]=decision.contextCue end
         if topic and not semantic and (meta.stance=='avoid-support' or meta.role=='viewpoint') then
             local allowed,detail,supported=PreferenceContext(before,after)
             if not allowed or meta.role=='viewpoint' and not supported then score=0 end
@@ -319,26 +342,32 @@ function C.Analyze(matcher, text, settings, exceptionMatcher,incomingTypos,sourc
         local confidenceScore,action,shieldEligible=score,nil,false
         if policy then
             local uncertain=not semantic and (contextUncertain or rawScore>score and score<=55)
-            action=score>0 and C.Policy(C.PackPreset(settings,meta.pack),kind,uncertain) or 'Unchanged'
+            action=stockProtection and ns.ProtectionContext.Action(meta.protectionProfile or meta.pack,decision.kind,C.PackPreset(settings,meta.pack),decision.affectionate)
+                or modernTopic and ns.PreferenceContext.Action(decision,C.PackPreset(settings,meta.pack))
+                or (score>0 and C.Policy(C.PackPreset(settings,meta.pack),kind,uncertain) or 'Unchanged')
             score=actionScores[action]
-            shieldEligible=(kind=='strong' or kind=='threat') and confidenceScore>=80 and score>=80
-                and (not decision or decision.detectorType~='topicPreference')
-            reasons[#reasons+1]='action preset: '..(C.PackPreset(settings,meta.pack)=='strict' and 'Mild' or C.PackPreset(settings,meta.pack)=='balanced' and 'Balanced' or 'Broad')..'; '..tostring(kind)..' -> '..action
+            shieldEligible=stockProtection and decision.eligible==true and decision.shieldEligible==true
+                or not stockProtection and (kind=='strong' or kind=='threat') and confidenceScore>=80 and score>=80
+                    and (not decision or decision.detectorType~='topicPreference')
+            reasons[#reasons+1]='action preset: '..(C.PackPreset(settings,meta.pack)=='strict' and 'Mild' or C.PackPreset(settings,meta.pack)=='balanced' and 'Balanced' or 'Strict')..'; '..tostring(kind)..' -> '..action
             if typoWork and (typoWork.contextRepairs or 0)>0 then reasons[#reasons+1]='bounded context spelling repair used' end
         end
         if disabled then reasons[#reasons + 1] = "pack disabled" end
         if excluded then reasons[#reasons + 1] = "exception phrase in same context window" end
-        -- Context determines eligibility/action; redaction replaces only the hit.
-        local match = {first = hit.first,
-            last = hit.last, rule = hit.rule, phrase = phrase,
+        -- Stock protection covers the qualifying expression, not its subject
+        -- reference. Preserve both offsets for recovery and spelling evidence.
+        local match = {first = (stockProtection or modernTopic) and decision.first or hit.first,
+            last = (stockProtection or modernTopic) and decision.last or hit.last, rule = hit.rule, phrase = phrase,
             score = score, pack = meta.pack, id = meta.id, origin = meta.origin,typo=hit.typo==true,typoEdits=hit.typoEdits,
             reason = table.concat(reasons, "; "), threshold = policy and 0 or packThreshold,
             confidenceScore=policy and confidenceScore or nil,policy=policy==true,action=action,ruleKind=kind,shieldEligible=shieldEligible,
             accepted = not disabled and not excluded and (policy and score>0 or not policy and score>=packThreshold)}
         if decision then
             if decision.eligible and (hit.typo or typoWork and (typoWork.contextRepairs or 0)>0) then decision.certainty='medium' end
-            for _,key in ipairs({'stance','strength','certainty','contextCue','detectorType','stanceSource','contextPolicyVersion'}) do match[key]=decision[key] end
+            for _,key in ipairs({'stance','strength','certainty','contextCue','detectorType','stanceSource','contextPolicyVersion','preferenceKind'}) do match[key]=decision[key] end
             match.target=phrase
+            if stockProtection or modernTopic then match.targetFirst=hit.first;match.targetLast=hit.last end
+            if stockProtection and decision.certainty~='high' then match.shieldEligible=false end
         end
         report[#report + 1] = match
         if match.accepted then accepted[#accepted + 1] = match end

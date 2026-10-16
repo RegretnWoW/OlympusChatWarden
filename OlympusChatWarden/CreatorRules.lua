@@ -1,14 +1,15 @@
 -- Curated subject references and explicit nickname viewing preferences.
 -- Matching these preferences does not establish a speaker's intent or a fact.
 local _, ns = ...
-ns.RULE_VERSION = "stock-4-guild-8-creator-7-tuning-5"
+ns.RULE_VERSION = "stock-guild-10-creator-9"
 ns.PackNames = {"guild", "creator"}
 ns.CreatorAliases = {}
 local function Add(phrase, base, origin, kind, needsReference)
     if ns.RuleMeta[phrase] then return end
     ns.StockRules[#ns.StockRules + 1] = phrase
     ns.RuleMeta[phrase] = {id = "creator:" .. phrase, pack = "creator", base = base,
-        origin = origin, version = 8, kind = kind, needsReference = needsReference,role=kind=='alias' and 'reference' or 'preference'}
+        origin = origin, version = 9, kind = kind, needsReference = needsReference,role=kind=='alias' and 'reference' or 'preference',
+        protectionKind=kind=='nickname' and 'roast' or nil}
     if kind == "alias" then ns.CreatorAliases[#ns.CreatorAliases + 1] = phrase end
 end
 local function Names(names, base, origin, kind, needsReference)
@@ -31,6 +32,9 @@ Names({"asmonglod", "asmogold", "asmnogold", "asmongoldd", "asmonglodtv", "asmon
     "author-requested spelling/channel variant; not an identity assertion", "alias")
 Names({"asmongarbage", "asmontrash", "asmonloser", "asmonbozo", "asmonfraud", "asmonshill", "asmonclown", "asmoncringe", "asmonincel", "asmonsimp"}, 82,
     "author preference for creator-directed compound insult spelling", "nickname")
+-- Match the equivalent familiar bald joke. Remaining nickname classes are
+-- conservative mild roasts pending the owner's complete vocabulary review.
+for _,name in ipairs({'asmonbald','baldmongold'}) do ns.RuleMeta[name].protectionKind='banter' end
 
 -- Speculative fan titles and invented aliases are deliberately omitted. Add
 -- a personal rule if a particular title is part of your own viewing preference.
