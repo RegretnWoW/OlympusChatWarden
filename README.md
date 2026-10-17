@@ -1,6 +1,86 @@
-# Olympus ChatWarden 1.0.3
+# Olympus Warden
 
-# Olympus ChatWarden
+**1.1.0** brings the Olympus Warden suite: Warden, ChronicleWarden,
+IntelWarden, ChatWarden, SignalWarden and ShieldWarden. Chronicle and player
+dossiers lead the navigation. ChatWarden contains Messages, Capture, Rules, Packs
+and Reports. Larger module crests and explicit ON/OFF badges keep controls clear.
+
+Settings > Window size stages slider or numeric changes until **Apply**.
+**Fit to screen** restores automatic sizing. Welcome opens the current suite tour.
+Navigation keeps your choice; a smaller display temporarily fits the window
+without replacing the saved preference.
+
+Crowded-area optimizations retain collection detail, exact latest timestamps and
+GUID checks. Personal routes still sample every two seconds. Idle collectors do
+less work; the dictionary expands on first eligible use while incoming known-word
+protection remains available through its existing lookup.
+
+During history loading, prior consent permits a small temporary buffer for selected
+quest, achievement, boss, PvP completion and duel-delivery events. It keeps original
+timestamps/location, never later targets. Coverage remains partial: routes, inspected
+snapshots, scoreboards and full duel sessions are unavailable until loading finishes.
+Unsupported periods and overflow are recorded as gaps. No unvalidated archive is
+modified. Native API availability and gameplay behavior still require client verification.
+
+History loading retains the 4 ms target outside combat and 2 ms during combat.
+Progress shows checked/total chunks. Fresh installations and duel recording remain
+opt-in. No historical evidence expires and no collection category was removed.
+
+Use `/warden chronicle statistics` for runtime category discovery, or
+`/warden chronicle statistics ids PAGE` for fifty IDs and saved values at a time.
+These background observations are visible in Data & Backups > Recorded Events >
+All recorded data > Native activity. No native Statistics UI is forced open.
+
+Optional duel history, dated before/after gear and talents, rival histories and
+unique historical gear configurations remain available. Repeated unchanged
+snapshots reuse content while individual encounters retain their original dates.
+The separate duel consent remains required, and existing recording consent,
+schema 6, saved identity and complete-file backups stay compatible.
+
+The performance foundation retains chunked saving, cooperative indexes and bounded
+caches. Work targets are soft deadlines; an operation or GC can take longer.
+
+Use /warden perf start, browse/play normally, then /warden perf status or
+/warden perf stop for voluntary session-only measurements. Nothing is exported
+or added to recorded history. Whole-UI memory and client-attributed addon memory
+are labelled separately when those APIs are available.
+
+The 1.1 suite connects IntelWarden dossiers, PvP reports and shared
+adventures. Players have evidence-based tiers and visible reasons: Important,
+Activity participant, or Casual observation. External Olympus-only sources stay
+unclassified. Tiers are relationships, not threat scores.
+
+The compact Olympus panel opens exact dossiers, highlights and adventures.
+Its recent feed uses a cooperative meaningful-event index instead of scanning
+the newest raw records. Existing alerts are marked read when opened.
+
+Talents displays native recorded selections and ranks when supported, alongside
+the original native export and observation date. Reinspect to add readable
+choices to an older export-only profile. This is a historical selection list;
+it does not invent an offline tree or reconstruct a build from specialization ID.
+Automatic important-player inspection is limited to a five-minute per-player
+backoff; deliberate manual Inspect remains responsive.
+
+Inspected PvP totals and other-player reputation remain unavailable: a shared
+honor cache without a reliable player/readiness identifier is not attached to a
+dossier. Existing personal credit, match and Olympus sources stay distinct.
+
+The Warden interface includes IntelWarden Appearance & Gear.
+View dated equipment sets and original evidence, or a native model when the exact
+player is visible. Home has separate system states; search uses familiar names,
+places and dates. Private notes and watchlists work while recording is paused.
+Saved gear is historical. Offline 3D appearance is not reconstructed.
+See [the 1.1 guide](BRAND-1.1.md) for the new navigation and compatibility details.
+ChatWarden contains Messages, Capture, Rules, Packs and Reports. SignalWarden,
+ShieldWarden, IntelWarden and ChronicleWarden each have their own sidebar section.
+Open with `/warden` or `/ow`; `/ocw` and `/chatwarden` continue to work.
+
+The first personal journal and player profiles use your existing recorded history.
+Data & Backups holds the full event browser and backup controls. The installed
+folder and saved file remain `OlympusChatWarden` so existing history, privacy
+approval, signed imports and the Windows backup tool continue to work.
+
+The recording details below describe the foundation shipped in 1.0.3.
 
 **Version 1.0.3** adds optional recording for Chronicle and Player Intelligence.
 Recording starts off until you choose to enable it. Reopen the explanation with
@@ -101,3 +181,24 @@ Hidden-message alerts start on; redaction alerts start off. Word filtering and c
 
 Existing explicit feature choices, captures, watch phrases, dictionaries, imports and history are preserved. The retired context opt-out is the exception: context handling is always active.
 
+
+### Preview 7: duel history and historical configurations
+
+Enable **Optional: record duel history** in **Settings > Chronicle & Intel**,
+after enabling Chronicle. The separate prompt explains the private local data.
+ChronicleWarden > Activities includes duel/victory/defeat/unknown filters and
+side-by-side analysis. IntelWarden > Shared activities opens a recorded rival’s
+history. Before/after captures preserve actual observation dates and unknown
+fields; received amounts are not attributed to an attacker. Unchanged content
+is reused across distinct observations and sessions. Appearance & Gear browses
+unique configurations and their observation dates, with an identity-card fallback
+when a correct native live model is unavailable. No historical 3D reconstruction
+is claimed. See RELEASE-NOTES.md for beta checks and limitations.
+
+## RC3 historical evidence
+
+Changed in-progress BG observations, conditional structured quest rewards, boss end-status and compact known-gap records are retained. Encounter loot has an unknown recipient. Existing data, consent and RC2 performance work remain. See RELEASE-NOTES.md. Native acceptance remains pending.
+
+## RC4 interface refinement
+
+Readable documents, UI-scale-aware automatic fit, personal dossiers, named duel history, original-evidence return and clearer consent/deletion UI. Historical collection and source meanings remain unchanged.

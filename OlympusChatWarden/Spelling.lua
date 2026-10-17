@@ -79,9 +79,11 @@ function S.LoadStep()
     if S.ready then return true end
     local data=ns.SpellingDictionary and ns.SpellingDictionary.data
     if not data then return false end
+    local P=ns.WardenPerformance;local deadline,start=P.Begin();local used=0
     for _=1,4000 do
+        if used%32==0 and P.Expired(deadline) then break end;used=used+1
         local stop=data:find('\n',position,true)
-        if not stop then S.ready=true;ns.SpellingDictionary.data=nil;return true end
+        if not stop then S.ready=true;ns.SpellingDictionary.data=nil;P.End('spelling load',start,used);return true end
         local word=data:sub(position,stop-1);position=stop+1
         if word~='' then
             S.words[word]=true
@@ -89,7 +91,7 @@ function S.LoadStep()
             S.buckets[key]=S.buckets[key] or {};S.buckets[key][#S.buckets[key]+1]=word
         end
     end
-    return false
+    P.End('spelling load',start,used);return false
 end
 function S.Known(word,names)
     return S.words[word] or common[word] or S.ignored[word] or DB() and DB().personal[word] or names and names[word]
@@ -313,10 +315,10 @@ local driver=CreateFrame('Frame');S.driver=driver
 driver:SetScript('OnUpdate',function(_,dt)
     elapsed=elapsed+dt;if elapsed<0.1 then return end;elapsed=0
     if not S.Active() then if S.target or S.Visible and S.Visible() then S.Reset() end;return end
-    if not S.ready then S.LoadStep();return end
     local edit=ns.SafeCall(GetCurrentKeyBoardFocus)
     if S.IsPopupFocus and S.IsPopupFocus(edit) then return end
     if not S.Eligible(edit) then S.Reset();return end
+    if not S.ready then S.LoadStep();return end
     local text=Call(edit,'GetText')
     if edit~=S.target or text~=S.pendingText then
         if S.Hide then S.Hide() end

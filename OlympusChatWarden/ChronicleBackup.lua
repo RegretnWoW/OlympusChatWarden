@@ -49,22 +49,26 @@ function B.PackSaved(db)
     if S.blocked or not db then return end
     local packed={};for key,value in pairs(db) do if key~='characters' then packed[key]=value end end
     packed.characters={}
-    local function chunks(records)
+    local function chunks(records,map)
         local out,rows,size={}, {},0
-        for _,v in ipairs(records) do
-            local n=#Encode(v)
-            if n>196580 then return end
-            if #rows>0 and size+n>20000 then out[#out+1]=Encode(rows);rows={};size=0 end
-            rows[#rows+1]=v;size=size+n
-            if size>20000 then out[#out+1]=Encode(rows);rows={};size=0 end
+        local function flush()
+            local encoded={'t'..#rows..':'}
+            for n,value in ipairs(rows) do encoded[#encoded+1]=Encode(n);encoded[#encoded+1]=value end
+            out[#out+1]=table.concat(encoded);rows={};size=0
         end
-        if #rows>0 then out[#out+1]=Encode(rows) end
+        for _,v in (map and pairs or ipairs)(records) do
+            local encoded=Encode(v);local n=#encoded
+            if n>196580 then return end
+            if #rows>0 and size+n>20000 then flush() end
+            rows[#rows+1]=encoded;size=size+n
+            if size>20000 then flush() end
+        end
+        if #rows>0 then flush() end
         return out
     end
     for owner,c in pairs(db.characters) do
         local copy={};for key,value in pairs(c) do if key~='events' and key~='profiles' then copy[key]=value end end
-        local profiles={};for _,p in pairs(c.profiles) do profiles[#profiles+1]=p end
-        copy.eventChunks=chunks(c.events);copy.profileChunks=chunks(profiles);copy.storageFormat=1
+        copy.eventChunks=chunks(c.events);copy.profileChunks=chunks(c.profiles,true);copy.storageFormat=1
         if not copy.eventChunks or not copy.profileChunks then return end
         packed.characters[owner]=copy
     end

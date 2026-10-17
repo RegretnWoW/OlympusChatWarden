@@ -13,6 +13,9 @@ for i=1,40 do unitRoots[#unitRoots+1]="CompactRaidFrame"..i end
 for group=1,8 do for member=1,5 do unitRoots[#unitRoots+1]="CompactRaidGroup"..group.."Member"..member end end
 local targetRevision = 0
 local plateGeneration = {}
+local plateBindings,bindingsCount={},0
+N.bindingStats={bound=0,reused=0}
+function N.BindingCount() return bindingsCount end
 local function TargetScope(unit)
     if type(UnitIsPlayer) ~= "function" then return end
     local ok, player = pcall(UnitIsPlayer, unit)
@@ -304,9 +307,14 @@ function N.Scan()
                         if Enabled(scope) and (ns.Active('nameplates') or player and languageNames) and Visible(unitFrame.name) then
                             local generation = plateGeneration[unit] or 0
                             local guid = ns.SafeString(ns.SafeCall(UnitGUID, unit), 128)
+                            local binding=plateBindings[unit]
+                            local reuse=guid and binding and binding.plate==plate and binding.frame==unitFrame and binding.region==unitFrame.name
+                                and binding.guid==guid and binding.generation==generation and binding.scope==scope
+                                and binding.revision==ns.PolicyRevision and ns.RegionBindingCurrent(unitFrame.name)
                             -- Nameplate targeting uses its unit token, never the
                             -- displayed FontString. Render in place so native
                             -- names-only alpha/scale rules remain in force.
+                            if not reuse then
                             ns.TrackRegion(unitFrame.name, scope, function()
                                 return {kind = player and "playerName" or "npcName", panel = "Nameplate"}
                             end, nil, {keepLabel = true, passive = true, nativeNameplate = true, controlHost = plate, unit = unit,
@@ -316,6 +324,13 @@ function N.Scan()
                                 if guid and ns.SafeString(ns.SafeCall(UnitGUID, token), 128) ~= guid then return false end
                                 return (ns.Active('nameplates') or player and ns.Language.NamesActive()) and TargetScope(token) == scope
                             end})
+                            if not binding then
+                                if bindingsCount>=100 then plateBindings={};bindingsCount=0 end
+                                bindingsCount=bindingsCount+1
+                            end
+                            plateBindings[unit]={plate=plate,frame=unitFrame,region=unitFrame.name,guid=guid,generation=generation,scope=scope,revision=ns.PolicyRevision}
+                            N.bindingStats.bound=N.bindingStats.bound+1
+                            else N.bindingStats.reused=N.bindingStats.reused+1 end
                             local action = ns.RegionDisplayStatus(unitFrame.name)
                             if action == "Redacted" or action == "Revealed" or action == "Replaced" then N.plateCounts.filtered = N.plateCounts.filtered + 1
                             elseif action == "Restricted" or action == "Unavailable" or action == "Untracked" then
@@ -344,7 +359,10 @@ end
 events:SetScript("OnEvent", function(_, event, unit)
     if event == "NAME_PLATE_UNIT_ADDED" or event == "NAME_PLATE_UNIT_REMOVED" then
         local token = ns.SafeString(unit, 64)
-        if token and token:match("^nameplate%d+$") then plateGeneration[token] = (plateGeneration[token] or 0) + 1 end
+        if token and token:match("^nameplate%d+$") then
+            plateGeneration[token] = (plateGeneration[token] or 0) + 1
+            if plateBindings[token] then plateBindings[token]=nil;bindingsCount=bindingsCount-1 end
+        end
     end
     if event == "PLAYER_TARGET_CHANGED" or event == "PLAYER_FOCUS_CHANGED"
         or event == "UNIT_TARGET" and (unit == "target" or unit == "focus") then targetRevision = targetRevision + 1 end

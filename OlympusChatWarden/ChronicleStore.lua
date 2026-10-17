@@ -23,11 +23,12 @@ local sources={control=true,PLAYER_ENTERING_WORLD=true,PLAYER_LOGIN=true,PLAYER_
     WANTED_CHANGED=true,RANKINGS_CHANGED=true,PROFILE_CHANGED=true,BAG_UPDATE_DELAYED=true,SPELLS_CHANGED=true,
     LEARNED_SPELL_IN_SKILL_LINE=true,ACHIEVEMENT_EARNED=true,UPDATE_EXHAUSTION=true,HONOR_XP_UPDATE=true,PARTY_KILL=true,PLAYER_PVP_KILLS_CHANGED=true,ENCOUNTER_START=true,ENCOUNTER_END=true,BOSS_KILL=true,
     PVP_MATCH_COMPLETE=true,PVP_MATCH_ACTIVE=true,UPDATE_BATTLEFIELD_SCORE=true,UNIT_SPELLCAST_SUCCEEDED=true,DUEL_REQUESTED=true,DUEL_FINISHED=true,
-    DUEL_INBOUNDS=true,DUEL_OUTOFBOUNDS=true,FACTION_STANDING_CHANGED=true,NEW_RECIPE_LEARNED=true,TRADE_SKILL_ITEM_CRAFTED_RESULT=true,
+    DUEL_INBOUNDS=true,DUEL_OUTOFBOUNDS=true,DUEL_COUNTDOWN=true,CHAT_MSG_SYSTEM=true,UNIT_COMBAT=true,CRITERIA_UPDATE=true,FACTION_STANDING_CHANGED=true,NEW_RECIPE_LEARNED=true,TRADE_SKILL_ITEM_CRAFTED_RESULT=true,
     INSPECT_READY=true,UNIT_NAME_UPDATE=true,FRIENDLIST_UPDATE=true,DAMAGE_METER_COMBAT_SESSION_UPDATED=true,DAMAGE_METER_CURRENT_SESSION_UPDATED=true,
     DAMAGE_METER_RESET=true,TRAIT_CONFIG_UPDATED=true,TRAIT_CONFIG_LIST_UPDATED=true,ACTIVE_COMBAT_CONFIG_CHANGED=true,EQUIPMENT_SETS_CHANGED=true,
-    ITEM_DATA_LOAD_RESULT=true,BARBER_SHOP_APPEARANCE_APPLIED=true,BARBER_SHOP_RESULT=true,PLAYER_DIFFICULTY_CHANGED=true,UPDATE_INVENTORY_DURABILITY=true,UNIT_STATS=true,CURRENCY_DISPLAY_UPDATE=true,UPDATE_INSTANCE_INFO=true,NEW_MOUNT_ADDED=true,NEW_PET_ADDED=true,NEW_TOY_ADDED=true,TOYS_UPDATED=true,PET_JOURNAL_LIST_UPDATE=true}
-local fields={loginConfirmed=true,seconds=true,afk=true,before=true,after=true,delta=true,
+    ITEM_DATA_LOAD_RESULT=true,BARBER_SHOP_APPEARANCE_APPLIED=true,BARBER_SHOP_RESULT=true,PLAYER_DIFFICULTY_CHANGED=true,UPDATE_INVENTORY_DURABILITY=true,UNIT_STATS=true,CURRENCY_DISPLAY_UPDATE=true,UPDATE_INSTANCE_INFO=true,NEW_MOUNT_ADDED=true,NEW_PET_ADDED=true,NEW_TOY_ADDED=true,TOYS_UPDATED=true,PET_JOURNAL_LIST_UPDATE=true,
+    QUEST_LOOT_RECEIVED=true,QUEST_CURRENCY_LOOT_RECEIVED=true,ENCOUNTER_LOOT_RECEIVED=true}
+local fields={remainingHealthPercent=true,encounterRef=true,bossStatusTotal=true,bossStatusReadCount=true,bossStatusComplete=true,triggerGUID=true,triggerElapsed=true,observedElapsed=true,statisticID=true,categoryID=true,displayValue=true,numericValue=true,nativeScope=true,accountFlag=true,achievementFlags=true,valueDecreased=true,scoreReportID=true,attempts=true,readableRows=true,creatureID=true,creatureName=true,classification=true,duelID=true,opponentGUID=true,phase=true,requestedPhase=true,result=true,resultMethod=true,accepted=true,damageReceived=true,healingReceived=true,windowSeconds=true,coverage=true,droppedSpells=true,loginConfirmed=true,seconds=true,afk=true,before=true,after=true,delta=true,
     beforeLevel=true,afterLevel=true,beforeMax=true,afterMax=true,questID=true,rewardXP=true,rewardCopper=true,
     skill=true,maximum=true,name=true,realm=true,class=true,race=true,faction=true,level=true,guild=true,
     via=true,localSighting=true,encounter=true,subevent=true,direction=true,hostile=true,spellID=true,
@@ -53,7 +54,10 @@ function S.Number(v,min,max)
         and v>=(min or -1000000000000) and v<=(max or 1000000000000) and v or nil
 end
 function S.Text(v,max)
-    return ns.CanRead(v) and #v>0 and #v<=(max or 144) and not v:find('[|%c]') and v or nil
+    -- %c follows the host locale: some clients classify UTF-8 continuation
+    -- bytes (for example 0x90) as controls. Only actual ASCII controls and WoW
+    -- markup delimiters are forbidden; historical Unicode names stay intact.
+    return ns.CanRead(v) and #v>0 and #v<=(max or 144) and not v:find('[|%z\001-\031\127]') and v or nil
 end
 function S.GUID(v) return S.Text(v,64) and v:match('^Player%-%w[%w%-]*$') and v or nil end
 function S.Integer(v,min,max) return S.Number(v,min,max) and v%1==0 and v or nil end
@@ -122,7 +126,8 @@ function S.EncounterPosition(t,guid)
     if not out.observer and not out.subject then return end
     return out
 end
-function S.Event(t,owner)
+function S.Event(t,owner,checkpoint)
+    checkpoint=type(checkpoint)=='function' and checkpoint or nil -- Preserve callers whose final expression returns an extra GUID.
     if type(t)~='table' or getmetatable(t) or not kinds[t.kind] or not sources[t.source]
         or (t.schema~=1 and t.schema~=2 and t.schema~=3 and t.schema~=4 and t.schema~=5 and t.schema~=S.VERSION) or not S.Text(t.id,256) or not S.Text(t.session,256) or t.character~=owner
         or not S.Number(t.at,1) or not S.Number(t.elapsed,0) or (t.timeSource~='server' and t.timeSource~='local-clock')
@@ -193,7 +198,7 @@ function S.Event(t,owner)
     local capture
     if t.kind=='native_snapshot' then
         capture=ns.ChronicleCapture and ns.ChronicleCapture.Validate(t.capture)
-        if not capture or details.family~=capture.family or details.contentID~=ns.ChronicleCapture.Hash(capture) then return end
+        if not capture or details.family~=capture.family or details.contentID~=ns.ChronicleCapture.Hash(capture,checkpoint and function() checkpoint('checksum blocks',1) end) then return end
     elseif t.capture~=nil then return end
     for _,key in ipairs({'gearRef','traitRef','appearanceRef','contentID'}) do
         if details[key]~=nil and (not S.Text(details[key],64) or #details[key]~=64 or details[key]:find('[^a-f0-9]')) then return end
@@ -307,7 +312,8 @@ S.Size=Size
 local function Empty()
     return {events={},profiles={},sequence=0,sessionSequence=0,bytes=0,pruned=0,dropped=0,retainedSince=nil}
 end
-function S.Normalize(db)
+function S.Normalize(db,checkpoint)
+    checkpoint=type(checkpoint)=='function' and checkpoint or nil
     if type(db)~='table' or getmetatable(db) then db={} end
     if db.schema~=nil and db.schema~=1 and db.schema~=2 and db.schema~=3 and db.schema~=4 and db.schema~=5 and db.schema~=S.VERSION then
         -- Never downgrade or overwrite an unrecognized schema, including its consent.
@@ -317,14 +323,17 @@ function S.Normalize(db)
         enabled=db.enabled==true and db.consentVersion==S.CONSENT,
         retention='forever',promptSeen=S.Integer(db.promptSeen,1,S.CONSENT),characters={},
         needsConsentUpgrade=(db.enabled==true or db.needsConsentUpgrade==true) and db.consentVersion~=S.CONSENT or nil}
+    if db.duelConsent==1 and db.duels==true then clean.duelConsent=1;clean.duels=true end
     clean.olympusState={}
     if type(db.olympusState)=='table' and not getmetatable(db.olympusState) then
         for key,state in pairs(db.olympusState) do
             if S.Text(key,384) and type(state)=='table' and snapshotKeys[state.kind] and type(state.rows)=='table' and not getmetatable(state.rows) then
                 local rows={};local valid=true
+                local visited=0
                 for id,row in pairs(state.rows) do
                     local value=S.PublicRow(state.kind,row)
                     if not S.Text(id,200) or not value then valid=false;break end;rows[id]=value
+                    visited=visited+1;if checkpoint and visited%32==0 then checkpoint('source rows',32) end
                 end
                 if valid then clean.olympusState[key]={kind=state.kind,rows=rows,unavailable=state.unavailable==true,
                     checkedAt=S.Integer(state.checkedAt,1),snapshotID=S.Text(state.snapshotID,256)} end
@@ -353,20 +362,17 @@ function S.Normalize(db)
         if old.storageFormat~=nil then
             if old.storageFormat~=1 or not ns.ChronicleBackup or not S.Array(old.eventChunks,1000000000)
                 or not S.Array(old.profileChunks,1000000000) then return nil end
-            local expanded={};for k,v in pairs(old) do expanded[k]=v end
-            expanded.events={};expanded.profiles={}
-            for _,text in ipairs(old.eventChunks) do
-                local records=ns.ChronicleBackup.DecodeChunk(text);if not records then return nil end
-                for _,record in ipairs(records) do expanded.events[#expanded.events+1]=record end
+        end
+        -- Decode one bounded chunk into the private candidate, then release it.
+        -- The original saved representation is untouched until all characters
+        -- validate, so a corrupt later chunk still leaves recovery data intact.
+        local function chunks(texts,accept)
+            for _,text in ipairs(texts) do
+                local records=ns.ChronicleBackup.DecodeChunk(text);if not records then return false end
+                for _,record in ipairs(records) do if accept(record)==false then return false end end
+                if checkpoint then checkpoint('saved chunks',1) end
             end
-            for _,text in ipairs(old.profileChunks) do
-                local records=ns.ChronicleBackup.DecodeChunk(text);if not records then return nil end
-                for _,profile in ipairs(records) do
-                    if type(profile)~='table' or not S.GUID(profile.guid) or expanded.profiles[profile.guid] then return nil end
-                    expanded.profiles[profile.guid]=profile
-                end
-            end
-            old=expanded
+            return true
         end
         c.sequence=S.Integer(old.sequence,0,1000000000) or 0;c.sessionSequence=S.Integer(old.sessionSequence,0,1000000000) or 0
         c.pruned=S.Number(old.pruned,0,1000000000) or 0;c.dropped=S.Number(old.dropped,0,1000000000) or 0
@@ -375,20 +381,23 @@ function S.Normalize(db)
             or not S.Integer(tonumber(c.currentSession:sub(#key+3)),1,1000000000)) then c.currentSession=nil end
         if c.currentSession then c.sessionSequence=math.max(c.sessionSequence,tonumber(c.currentSession:sub(#key+3))) end
         local seen={}
-        if type(old.events)=='table' and not getmetatable(old.events) then
-            for j=1,#old.events do
-                local event=S.Event(old.events[j],key)
-                if old.storageFormat==1 and (not event or seen[event.id]) then return nil end
+        local function acceptEvent(raw)
+                local event=S.Event(raw,key,checkpoint)
+                if old.storageFormat==1 and (not event or seen[event.id]) then return false end
                 if event and not seen[event.id] then
                     seen[event.id]=true;local bytes=Size(event)
                     if bytes<=((event.kind=='route_segment' or event.kind=='player_route' or event.kind=='native_snapshot') and 131072 or 12000) then c.events[#c.events+1]=event;c.bytes=c.bytes+bytes end
                     local sequence=tonumber(event.id:match(':(%d+)$'));if sequence then c.sequence=math.max(c.sequence,sequence) end
                 end
-            end
+                return true
+        end
+        if old.storageFormat==1 then
+            if not chunks(old.eventChunks,acceptEvent) then return nil end
+        elseif type(old.events)=='table' and not getmetatable(old.events) then
+            for j=1,#old.events do acceptEvent(old.events[j]);if checkpoint and j%32==0 then checkpoint('events',32) end end
         end
         -- Keep all valid profiles, regardless of age or number of characters.
-        if type(old.profiles)=='table' and not getmetatable(old.profiles) then
-            for guid,p in pairs(old.profiles) do
+        local function acceptProfile(guid,p)
                 if S.GUID(guid) and type(p)=='table' and not getmetatable(p) and S.Number(p.firstObserved,1)
                     and S.Number(p.lastObserved,p.firstObserved) and type(p.facts)=='table' and not getmetatable(p.facts) then
                     local facts={};for _,k in ipairs({'name','realm','class','race','faction','level','guild'}) do
@@ -417,17 +426,83 @@ function S.Normalize(db)
                     end
                     c.profiles[guid]=profile;c.bytes=c.bytes+Size(profile)
                 end
-            end
+        end
+        if old.storageFormat==1 then
+            local profilesSeen={}
+            if not chunks(old.profileChunks,function(p)
+                if type(p)~='table' or not S.GUID(p.guid) or profilesSeen[p.guid] then return false end
+                profilesSeen[p.guid]=true;acceptProfile(p.guid,p);return true
+            end) then return nil end
+        elseif type(old.profiles)=='table' and not getmetatable(old.profiles) then
+            local visited=0
+            for guid,p in pairs(old.profiles) do acceptProfile(guid,p);visited=visited+1;if checkpoint and visited%32==0 then checkpoint('profiles',32) end end
         end
         clean.characters[key]=c
     end
     for _,c in pairs(clean.characters) do c.retainedSince=c.events[1] and c.events[1].at or nil end
     return clean
 end
-function S.Initialize()
-    local clean=S.Normalize(ns.DB.chronicle)
-    if not clean then S.db=nil;S.blocked=true;S.revision=S.revision+1;return end
-    ns.DB.chronicle=clean;S.db=clean;S.blocked=false;S.revision=S.revision+1
+local loadFrame=CreateFrame('Frame')
+local loadJob,loadSource,loadEpoch=nil,nil,0
+local function Complete(clean,reason)
+    loadFrame:SetScript('OnUpdate',nil);loadJob=nil;loadSource=nil;S.loading=false
+    S.loadError=reason;S.revision=S.revision+1
+    if not clean then S.db=nil;S.blocked=true;if ns.ChronicleStartup then ns.ChronicleStartup.Cancel() end;return false end
+    ns.DB.chronicle=clean;S.db=clean;S.blocked=false
+    return true
+end
+function S.Initialize(cooperative)
+    if ns.ChronicleStartup then ns.ChronicleStartup.Cancel() end
+    loadEpoch=loadEpoch+1;loadFrame:SetScript('OnUpdate',nil);loadJob=nil;loadSource=nil
+    S.loading=false;S.loadError=nil;S.loadProgress={chunks=0,totalChunks=0,records=0,checksumBlocks=0,pumps=0};S.db=nil;S.blocked=true
+    local source=ns.DB.chronicle
+    if cooperative and type(source)=='table' and type(source.characters)=='table' and next(source.characters) then
+        for _,character in pairs(source.characters) do if type(character)=='table' and character.storageFormat==1 then
+            S.loadProgress.totalChunks=S.loadProgress.totalChunks+(type(character.eventChunks)=='table' and #character.eventChunks or 0)+(type(character.profileChunks)=='table' and #character.profileChunks or 0)
+        end end
+        S.loading=true;loadSource=source;local token=loadEpoch
+        if ns.ChronicleStartup then ns.ChronicleStartup.Begin(source) end
+        loadJob=coroutine.create(function()
+            local checksumSteps=0
+            return S.Normalize(source,function(kind,n)
+                if token~=loadEpoch then error('History loading was superseded.') end
+                if kind=='checksum blocks' then
+                    S.loadProgress.checksumBlocks=S.loadProgress.checksumBlocks+n;checksumSteps=checksumSteps+n
+                    if checksumSteps<8 then return end
+                elseif kind=='saved chunks' then S.loadProgress.chunks=S.loadProgress.chunks+n else S.loadProgress.records=S.loadProgress.records+n end
+                checksumSteps=0
+                coroutine.yield()
+            end)
+        end)
+        loadFrame:SetScript('OnUpdate',function() S.PumpLoad() end)
+        return
+    end
+    local ok,clean=pcall(S.Normalize,source)
+    return Complete(ok and clean or nil,not ok and 'History validation raised an error; original saved data is preserved.' or not clean and 'History validation failed; original saved data is preserved.' or nil)
+end
+function S.PumpLoad()
+    if not loadJob then return end
+    if not ns.DB or ns.DB.chronicle~=loadSource then Complete(nil,'Saved history changed during loading; original data was not replaced.');return end
+    local timer=type(debugprofilestop)=='function' and debugprofilestop
+    local start=timer and timer()
+    S.loadProgress.pumps=S.loadProgress.pumps+1
+    -- Startup validation gets a small extra budget outside combat. Keep the
+    -- tighter budget in combat and a bounded fallback without a native clock.
+    local budget=type(InCombatLockdown)=='function' and InCombatLockdown() and 2 or 4
+    for _=1,(start and 128 or 8) do
+        local ok,clean=coroutine.resume(loadJob)
+        if not ok or coroutine.status(loadJob)=='dead' then
+            local loaded=Complete(ok and clean or nil,not ok and 'History validation raised an error; original saved data is preserved.' or not clean and 'History validation failed; original saved data is preserved.' or nil)
+            if loaded and ns.Chronicle and ns.Chronicle.Loaded then ns.Chronicle.Loaded() end
+            local panel=ns.ChronicleOptionsPanel;if panel and panel.Refresh then pcall(panel.Refresh,panel) end
+            if ns.Workspace then ns.Workspace.Queue() end
+            return
+        end
+        if start and timer()-start>=budget then break end
+    end
+end
+function S.CancelLoad()
+    if S.loading then loadEpoch=loadEpoch+1;Complete(nil,'Client exit interrupted history loading; original saved data is preserved.') end
 end
 function S.PrepareLogout()
     if S.blocked or not S.db or not ns.ChronicleBackup then return end
@@ -510,10 +585,36 @@ function S.Append(owner,t)
     end
     return event
 end
+local profileFacts={'name','realm','class','race','faction','level','guild'}
+local profileLocation={'zone','subzone','instanceType','instanceName','instanceID','inInstance'}
+local function SameProfileLocation(old,now)
+    if type(old)~='table' or not ns.Readable(now) or type(now)~='table' or getmetatable(now) then return false end
+    for _,key in ipairs(profileLocation) do if not ns.Readable(now[key]) or old[key]~=now[key] then return false end end
+    return true
+end
 function S.Observe(owner,guid,details,at,source,location,position)
     local c=S.Character(owner,false);if not c or not S.GUID(guid) then return end
     local p=c.profiles[guid];local existed=p~=nil;local cached=statsCache[c]
     if cached and cached.revision~=c.revision then cached=nil end
+    -- Updating numeric timestamps does not change Size(). Reuse identical fact
+    -- objects, retaining the same latest times and source as the full path.
+    local metadataOnly=p and type(p.lastObserved)=='number' and type(at)=='number' and type(p.lastSource)=='string'
+        and type(source)=='string' and #p.lastSource==#source and not details.encounter
+    if metadataOnly and details.localSighting then
+        metadataOnly=p.lastSighting and type(p.lastSighting.at)=='number' and type(p.lastSighting.source)=='string' and #p.lastSighting.source==#source
+            and SameProfileLocation(p.lastSighting.observerLocation,location)
+    end
+    if metadataOnly then for _,key in ipairs(profileFacts) do if details[key]~=nil then
+        local fact=p.facts[key]
+        if not fact or fact.value~=details[key] or type(fact.at)~='number' or type(fact.source)~='string' or #fact.source~=#source then metadataOnly=false;break end
+    end end end
+    if metadataOnly then
+        local changed=p.lastObserved~=at or p.lastSource~=source;p.lastObserved=at;p.lastSource=source
+        if details.localSighting then changed=changed or p.lastSighting.at~=at or p.lastSighting.source~=source;p.lastSighting.at=at;p.lastSighting.source=source end
+        for _,key in ipairs(profileFacts) do if details[key]~=nil then local fact=p.facts[key];changed=changed or fact.at~=at or fact.source~=source;fact.at=at;fact.source=source end end
+        if changed then c.updated=at;S.Prune(c,at);if cached then cached.revision=c.revision end end
+        return
+    end
     local before=p and Size(p) or 0
     if p then c.bytes=c.bytes-before else p={guid=guid,firstObserved=at,facts={}};c.profiles[guid]=p end
     p.lastObserved=at;p.lastSource=source
@@ -521,13 +622,13 @@ function S.Observe(owner,guid,details,at,source,location,position)
     if details.localSighting and details.encounter then
         p.lastEncounter={at=at,source=source,observerLocation=Location(location) or {},position=position and S.EncounterPosition(position,guid)}
     end
-    for _,key in ipairs({'name','realm','class','race','faction','level','guild'}) do
+    for _,key in ipairs(profileFacts) do
         if details[key]~=nil then p.facts[key]={value=details[key],at=at,source=source} end
     end
-    c.bytes=c.bytes+Size(p);c.updated=at;S.Prune(c,at)
+    local after=Size(p);c.bytes=c.bytes+after;c.updated=at;S.Prune(c,at)
     if cached then
         if not existed then cached.value.profiles=cached.value.profiles+1 end
-        cached.value.playerIntelBytes=cached.value.playerIntelBytes+Size(p)-before
+        cached.value.playerIntelBytes=cached.value.playerIntelBytes+after-before
         cached.value.bytes=c.bytes;cached.value.since=c.retainedSince;cached.revision=c.revision
     end
 end

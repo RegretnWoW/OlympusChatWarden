@@ -40,7 +40,7 @@ local function TimeDetail(i,m,label)
     end
     return b
 end
-function U.Rows(st,mode)
+function U.Rows(st,mode,guidFilter)
     local i=st.intelligence;local rows={};if not i then return rows end
     local function Add(id,title,sub,data,refs) rows[#rows+1]={id=id,title=title,sub=sub,data=data,refs=refs or {}} end
     if mode=='players' then
@@ -52,7 +52,7 @@ function U.Rows(st,mode)
         end
     elseif mode=='scoreboards' then
         for n=#i.scoreboards,1,-1 do local e=i.events[i.scoreboards[n]];local v=e.capture.values
-            Add(e.id,v.name or v.guid or 'Scoreboard observation',Stamp(e.at)..' | Match assignment unknown',e,{e.id})
+            if not guidFilter or v.guid==guidFilter then Add(e.id,v.name or v.guid or 'Scoreboard observation',Stamp(e.at)..' | Match assignment unknown',e,{e.id}) end
         end
     elseif mode=='progress' then
         for _,key in ipairs({'levels','xp','quests','skills','equipment','collections','achievements'}) do
@@ -112,10 +112,17 @@ function U.Detail(st,mode,row)
         if #data.pvpReports==0 then Put('body','No linked completion report. No result was invented.') end
         for _,id in ipairs(data.pvpReports) do local e=st.events[id];Put('body',Stamp(e.at)..' / winner code: '..tostring(e.details.winner or 'Unknown')..' / native reported duration: '..tostring(e.details.duration or 'Unknown')..' seconds. This is not observed duration or a personal win/loss.') end
     elseif mode=='scoreboards' then
-        local v=data.capture.values;Put('body',Stamp(data.at)..'\nGUID: '..(v.guid or 'Unknown')..'\nCollector run: '..tostring(v.runID or 'Unknown')..'\nSaved sequence: '..tostring(v.matchSequence or 'Unknown')..' / row '..tostring(v.rowIndex or 'Unknown'))
-        for _,key in ipairs({'killingBlows','honorableKills','deaths','honorGained','damageDone','healingDone','faction','classToken'}) do
+        local v=data.capture.values;Put('accent',v.instanceName or 'Battleground observation');Put('meta',Stamp(data.at)..' • '..(v.phase or 'Observation phase not recorded'))
+        Put('body','Observed scores • final-result freshness is unverified. Original source retains player GUID, local report identity and native fields.')
+        if v.objectives then
+            Put('heading','Battleground objectives')
+            for _,objective in ipairs(v.objectives) do Put('body',(objective[4]~=false and objective[4] or objective[9]~=false and objective[9] or 'Native objective '..objective[1])..': '..(objective[2]~=false and tostring(objective[2]) or 'Unknown')) end
+            Put('meta',(v.objectivesComplete and 'All reported objective rows were readable.' or 'Partial objective coverage.')..' Values belong to this dated scoreboard observation. They are separate from native cumulative statistics and are not summed across refreshes.')
+        end
+        local labels={killingBlows='Killing blows',honorableKills='Honorable kills',deaths='Deaths',honorGained='Honor gained',damageDone='Damage done',healingDone='Healing done',faction='Native faction code',classToken='Class'}
+        for _,key in ipairs({'killingBlows','honorableKills','deaths','honorGained','damageDone','healingDone','classToken'}) do
             local value=key=='classToken' and ns.ChronicleStore.Text(v[key],64) or ns.ChronicleStore.Integer(v[key],0)
-            Put('body',key..': '..tostring(value~=nil and value or 'Not recorded'))
+            Put('body',labels[key]..': '..tostring(value~=nil and value or 'Not recorded'))
         end
         Put('body','One dated scoreboard observation. Sequence values can be reused, so unique match identity and final-result status remain unknown. Updates are not summed into lifetime totals. Honor kills are distinct from killing blows. A listed GUID is not proof of physical contact.')
     elseif mode=='progress' then
@@ -168,7 +175,7 @@ function U.Build(parent,host)
         local e=p.state and (p.state.intelligence.events[p.sourceID] or p.state.events[p.sourceID])
         if e then ns.RecordingUI.OpenSource(host,e) end
     end,'neutral')
-    p.rebuild=V.Button(p,'Rebuild views',722,-568,250,28,function() A.Clear();p.state=nil;p:Refresh(true) end,'neutral')
+    p.rebuild=V.Button(p,'Advanced: rebuild summaries',722,-568,250,28,function() A.Clear();p.state=nil;p:Refresh(true) end,'neutral')
     p.newer=V.Button(p,'Newer 50',0,-621,170,32,function() p.page=math.max(0,p.page-1);p.selected=nil;p:Refresh(true) end,'neutral')
     p.older=V.Button(p,'Older 50',182,-621,170,32,function() p.page=p.page+1;p.selected=nil;p:Refresh(true) end,'neutral')
     p.count=V.Text(p,'',369,-628,760,13,V.muted);p.count:SetHeight(20)
@@ -192,7 +199,7 @@ function U.Build(parent,host)
         end
         if not force and not self.dirty and self.state==st and self.revision==st.revision then return end
         self.state=st;self.revision=st.revision;self.dirty=nil;self.modeMenu:Refresh();self.ownerMenu:Refresh()
-        self.rows=U.Rows(st,self.mode)
+        self.rows=U.Rows(st,self.mode,self.guidFilter)
         if self.searchText and self.searchText~='' then
             local matching={};for _,row in ipairs(self.rows) do if (row.title..' '..row.sub..' '..row.id):lower():find(self.searchText:lower(),1,true) then matching[#matching+1]=row end end;self.rows=matching
         end
@@ -203,7 +210,7 @@ function U.Build(parent,host)
         if not selected then self.selected=nil end
         self.list:SetItems(shown,true);self.newer:SetEnabled(self.page>0);self.older:SetEnabled(first+49<#self.rows)
         self.count:SetText('Page '..(self.page+1)..' | '..#shown..' shown | '..#self.rows..' summaries')
-        self.status:SetText('Recorded evidence only. Unknown outcomes and unmatched scoreboards remain explicit. No new collection or sharing.')
+        self.status:SetText(self.guidFilter and ('Scoreboard observations for '..A.Name(st,self.guidFilter)..' • '..self.guidFilter..'. Updates are not summed into unique matches.') or 'Recorded evidence only. Unknown outcomes and unmatched scoreboards remain explicit. No new collection or sharing.')
         self:ShowItem(selected)
     end
     return p

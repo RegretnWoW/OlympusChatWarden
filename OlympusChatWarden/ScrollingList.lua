@@ -12,14 +12,16 @@ function V.ScrollingList(parent,x,y,width,height,step,create,bind)
         local capacity=math.max(1,math.ceil(self.scroll:GetHeight()/self.step)+1)
         local first=math.floor(self.offset/self.step)+1
         for i=1,capacity do
-            local row=self.rows[i]
-            if not row then row=self.create(self.content);self.rows[i]=row end
             local index=first+i-1;local item=self.items[index]
-            row:ClearAllPoints();row:SetPoint('TOPLEFT',0,-(index-1)*self.step)
-            row:SetWidth(self.scroll:GetWidth());row:SetShown(item~=nil)
-            if item then self.bind(row,item,index) end
+            local row=self.rows[i]
+            if not row and item then row=self.create(self.content);self.rows[i]=row end
+            if row then
+                row:ClearAllPoints();row:SetPoint('TOPLEFT',0,-(index-1)*self.step)
+                row:SetWidth(self.scroll:GetWidth());row:SetShown(item~=nil)
+                if item then self.bind(row,item,index) else row.item=nil end
+            end
         end
-        for i=capacity+1,#self.rows do self.rows[i]:Hide() end
+        for i=capacity+1,#self.rows do self.rows[i].item=nil;self.rows[i]:Hide() end
         self.first=first
         if self.Changed then self.Changed(first,math.min(#self.items,math.ceil((self.offset+self.scroll:GetHeight())/self.step)),#self.items) end
         self.rendering=false

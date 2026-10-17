@@ -32,6 +32,7 @@ local function Schedule(key,fn)
     if jobs[key] then jobs[key].again=fn;return end
     jobs[key]={thread=coroutine.create(fn)};queue[#queue+1]=key
 end
+function E.Pending() return #queue end
 function E.Pump()
     if not C.InWorld() or owner~=C.Owner() then return end
     if InCombatLockdown and InCombatLockdown() then return end
@@ -39,7 +40,7 @@ function E.Pump()
     for _=1,4 do
         local key=queue[1];if not key then break end
         local job=jobs[key];local ok=coroutine.resume(job.thread)
-        if not ok then E.diagnostics.errors=E.diagnostics.errors+1 end
+        if not ok then E.diagnostics.errors=E.diagnostics.errors+1;if ns.ChronicleCoverage then ns.ChronicleCoverage.Note('Own-character detail','failed','An asynchronous observation failed; no inferred replacement') end end
         if not ok or coroutine.status(job.thread)=='dead' then
             table.remove(queue,1);jobs[key]=nil
             if job.again then Schedule(key,job.again) end
@@ -202,7 +203,7 @@ function E.Start()
     if owner~=C.Owner() then E.Stop();owner=C.Owner() end
     E.Character('control');E.State('control');E.Bind('control');Equipment('control');E.Quests('control');E.Reputation('control');E.Bags('control');E.Spells('control')
     local elapsed=0;frame:SetScript('OnUpdate',function(_,delta)
-        E.Pump();elapsed=elapsed+(S.Number(delta,0) or 0)
+        if #queue>0 then E.Pump() end;elapsed=elapsed+(S.Number(delta,0) or 0)
         if elapsed>=10 then elapsed=0;local ok=pcall(E.State,'checkpoint');if not ok then E.diagnostics.errors=E.diagnostics.errors+1 end end
     end)
 end

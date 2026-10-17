@@ -1,8 +1,44 @@
 -- Important friendly and hostile players; no passerby inspect sweep.
 local _,ns=...
 local C,S,X,L=ns.Chronicle,ns.ChronicleStore,ns.ChronicleCapture,ns.ChronicleLoadout
-local I={};ns.ChronicleEncounters=I
+local I={AUTO_BACKOFF=300};ns.ChronicleEncounters=I
 local important,pending,requests,reputation,lastRequest,epoch,hooked={},nil,{}, {},-100,0,false
+local priorities={}
+local Reply
+local externalRequest,nativeShowHooked,nativeChangedHooked,nativeFrameHooked
+local function NativeUnit()
+    local f=InspectFrame;if not ns.Readable(f) or not f then return end
+    local unit=type(f.GetInspectUnit)=='function' and ns.SafeCall(f.GetInspectUnit,f) or f.unit
+    return S.Text(unit,32)
+end
+local function NativeStable(p)
+    return NativeUnit()==p.unit and S.GUID(X.Call('UnitGUID',p.unit))==p.guid
+        and X.Bool(X.Call('UnitIsPlayer',p.unit))==true and X.Bool(X.Call('UnitIsVisible',p.unit))==true
+end
+function I.NativeInspect(unit)
+    local r=externalRequest
+    if not X.Ready() or X.Busy() or not r or r.epoch~=epoch or not ns.CanRead(unit) or r.unit~=unit then return end
+    if not NativeStable(r) or r.guid==S.GUID(X.Call('UnitGUID','player')) then return end
+    local now=C.Tick();if not now or now-r.at>8 then return end
+    -- The native Show/UnitChanged post-hook confirms intent. NotifyInspect alone
+    -- from an unrelated addon never qualifies for saved player intelligence.
+    pending={guid=r.guid,unit=unit,at=r.at,epoch=epoch,reason='manual inspection',native=true}
+    local old=important[r.guid]
+    important[r.guid]={unit=unit,reason='manual inspection',tick=now,source='INSPECT_READY',lastAttempt=old and old.lastAttempt,queued=old and old.queued}
+    X.Mark('Inspection','Manual inspection requested; waiting for matching native response')
+end
+local function InstallNativeHooks()
+    if type(hooksecurefunc)~='function' then return end
+    if not nativeShowHooked and type(InspectFrame_Show)=='function' then
+        hooksecurefunc('InspectFrame_Show',function(unit) I.NativeInspect(unit) end);nativeShowHooked=true
+    end
+    if not nativeChangedHooked and type(InspectFrame_UnitChanged)=='function' then
+        hooksecurefunc('InspectFrame_UnitChanged',function() I.NativeInspect(NativeUnit()) end);nativeChangedHooked=true
+    end
+    if InspectFrame and InspectFrame~=nativeFrameHooked and type(InspectFrame.UnitChanged)=='function' then
+        hooksecurefunc(InspectFrame,'UnitChanged',function() I.NativeInspect(NativeUnit()) end);nativeFrameHooked=InspectFrame
+    end
+end
 local function Units()
     local units={'target','focus','mouseover'}
     for i=1,4 do units[#units+1]='party'..i end
@@ -21,8 +57,9 @@ function I.Important(unit,source,reason)
     local appearance=L.Appearance(unit,guid,source);local at=C.Stamp()
     local event=Record(source,{name=name,relationship=reason,unitVisible=X.Bool(X.Call('UnitIsVisible',unit)),
         appearanceRef=appearance,appearanceObservedAt=appearance and at,inspection='not yet available'},guid)
-    important[guid]={unit=unit,reason=reason,tick=now,source=source,attempts=0,event=event and event.id}
-    requests[#requests+1]=guid
+    local v={unit=unit,reason=reason,tick=now,source=source,event=event and event.id,lastAttempt=old and old.lastAttempt,queued=old and old.queued}
+    important[guid]=v
+    if not v.queued and (not v.lastAttempt or now-v.lastAttempt>=I.AUTO_BACKOFF) then v.queued=true;requests[#requests+1]=guid end
     return guid
 end
 function I.ImportantGUID(guid,source,reason)
@@ -31,6 +68,12 @@ function I.ImportantGUID(guid,source,reason)
     X.Mark('Important players','Encounter saved; no current unit for detailed inspection')
 end
 function I.IsImportant(guid) return important[guid]~=nil end
+function I.RememberDuel(guid,unit)
+    if not X.Ready() or not S.GUID(guid) or guid==S.GUID(X.Call('UnitGUID','player')) then return end
+    local old=important[guid] or {}
+    important[guid]={unit=unit and S.GUID(X.Call('UnitGUID',unit))==guid and unit or old.unit,
+        reason='verified duel opponent',tick=C.Tick(),source='DUEL_COUNTDOWN',lastAttempt=old.lastAttempt,queued=old.queued}
+end
 function I.Group(source)
     if not X.Ready() or X.Busy() then return end
     local raid=ns.Checked(X.Call('IsInRaid'));local count=S.Integer(X.Call('GetNumGroupMembers'),0,40)
@@ -55,52 +98,168 @@ function I.Observe(unit,source)
     if wanted and wanted[guid] then return I.Important(unit,source,'Wanted encounter') end
 end
 local function InstallHooks()
-    if hooked or type(hooksecurefunc)~='function' or not X.API('NotifyInspect') then return end
+    if type(hooksecurefunc)~='function' or not X.API('NotifyInspect') then return end
+    InstallNativeHooks()
+    if hooked then return end
     -- Observe global inspect ownership without replacing any client function.
-    hooksecurefunc('NotifyInspect',function()
+    hooksecurefunc('NotifyInspect',function(unit)
         epoch=epoch+1
-        if pending and I.requesting then pending.epoch=epoch else pending=nil;lastRequest=C.Tick() or lastRequest end
+        externalRequest=nil
+        if pending and I.requesting then pending.epoch=epoch else
+            Reply(pending,nil,nil,nil,'another native inspection took ownership');pending=nil;lastRequest=C.Tick() or lastRequest
+            local guid=ns.CanRead(unit) and S.GUID(X.Call('UnitGUID',unit));local now=C.Tick()
+            if X.Ready() and not X.Busy() and guid and now then externalRequest={guid=guid,unit=unit,at=now,epoch=epoch} end
+        end
     end)
-    if X.API('ClearInspectPlayer') then hooksecurefunc('ClearInspectPlayer',function() epoch=epoch+1;pending=nil end) end
+    if X.API('ClearInspectPlayer') then hooksecurefunc('ClearInspectPlayer',function() epoch=epoch+1;Reply(pending,nil,nil,nil,'native inspection cleared');pending=nil;externalRequest=nil end) end
     hooked=true
 end
+-- One bounded priority request per explicit duel/phase token. The ordinary
+-- 300-second policy, native UI ownership and five-second global spacing remain.
+function I.Priority(guid,token,valid,callback)
+    if not X.Ready() or not S.GUID(guid) or type(valid)~='function' or not valid() then return false end
+    local now=C.Tick();if not now then return false end
+    for n=#priorities,1,-1 do
+        local p=priorities[n]
+        if not p.valid() or now-p.at>15 then
+            table.remove(priorities,n);if p.callback then p.callback(nil,nil,nil,'capture opportunity expired') end
+        end
+    end
+    for _,p in ipairs(priorities) do if p.token==token then return true end end
+    if #priorities>=4 then return false end
+    priorities[#priorities+1]={guid=guid,token=token,valid=valid,callback=callback,at=now};return true
+end
+Reply=function(p,gear,traits,appearance,reason)
+    if p and p.priority and p.priority.callback then p.priority.callback(gear,traits,appearance,reason) end
+end
+function I.Pending() return pending~=nil or #requests>0 or #priorities>0 end
 function I.InspectPump()
     if not X.Ready() or X.Busy() then return end
     local now=C.Tick();if not now then return end
     if pending then
         if now-pending.at<8 then return end
-        X.Mark('Inspection','Timed out; encounter retained with partial details');pending=nil
+        Reply(pending,nil,nil,nil,'inspection timed out');X.Mark('Inspection','Timed out; encounter retained with partial details');pending=nil
     end
     if not hooked or now-lastRequest<5 then return end
     if InspectFrame and InspectFrame.IsShown and InspectFrame:IsShown() then return end
-    local guid=table.remove(requests,1);local v=guid and important[guid];if not v then return end
-    if S.GUID(X.Call('UnitGUID',v.unit))~=guid or X.Bool(X.Call('CanInspect',v.unit,true))~=true then
+    local priority
+    while #priorities>0 do
+        local p=table.remove(priorities,1)
+        if p.valid() and now-p.at<=15 then priority=p;break
+        elseif p.callback then p.callback(nil,nil,nil,'capture opportunity expired') end
+    end
+    local guid=priority and priority.guid or table.remove(requests,1);local v=guid and important[guid]
+    if priority then
+        local unit
+        for _,candidate in ipairs(Units()) do if S.GUID(X.Call('UnitGUID',candidate))==guid then unit=candidate;break end end
+        v={unit=unit,reason='verified duel opponent'}
+    end
+    if not v then return end
+    v.queued=nil
+    if not priority and v.lastAttempt and now-v.lastAttempt<I.AUTO_BACKOFF then return end
+    if not v.unit or S.GUID(X.Call('UnitGUID',v.unit))~=guid or X.Bool(X.Call('CanInspect',v.unit,true))~=true then
+        if priority and priority.callback then priority.callback(nil,nil,nil,'player unavailable or not inspectable') end
         X.Mark('Inspection','Important player currently unavailable; no substitute identity');return
     end
     local fn=X.API('NotifyInspect');if not fn then return end
-    pending={guid=guid,unit=v.unit,at=now,epoch=epoch,reason=v.reason}
-    I.requesting=true;local ok=pcall(fn,v.unit);I.requesting=false;lastRequest=now
-    if not ok then pending=nil;X.Mark('Inspection','Normal inspection unavailable') end
+    pending={guid=guid,unit=v.unit,at=now,epoch=epoch,reason=v.reason,priority=priority}
+    I.requesting=true;local ok=pcall(fn,v.unit);I.requesting=false;lastRequest=now;v.lastAttempt=now
+    if important[guid] then important[guid].lastAttempt=now end
+    if not ok then Reply(pending,nil,nil,nil,'native inspection unavailable');pending=nil;X.Mark('Inspection','Normal inspection unavailable') end
+end
+function I.TalentChoices(owned,ownConfig)
+    -- This is the native Inspect configuration, never the recorder's active
+    -- config. The targetless cache is valid only inside our owned response.
+    local constants=X.Table(Constants);local traitConsts=constants and X.Table(constants.TraitConsts)
+    local config=ownConfig or traitConsts and S.Integer(traitConsts.INSPECT_TRAIT_CONFIG_ID,-1000000000,1000000000)
+    if not config or not owned() or not ownConfig and X.Bool(X.Call('C_Traits.HasValidInspectData'))~=true then return end
+    local info=X.Table(X.Call('C_Traits.GetConfigInfo',config));if not owned() then return end
+    local trees=info and X.Table(info.treeIDs)
+    if not trees or S.Integer(info.ID)~=config or #trees==0 then return end
+    local rows,seen,read,total,complete={}, {},0,0,#trees<=4
+    for t=1,math.min(4,#trees) do
+        local tree=S.Integer(trees[t],1,1000000000)
+        local nodes=tree and X.Table(X.Call('C_Traits.GetTreeNodes',tree))
+        if not owned() then return end
+        if not nodes then complete=false else
+            total=total+#nodes
+            for n=1,math.min(#nodes,math.max(0,256-read)) do
+                local id=S.Integer(nodes[n],1,1000000000)
+                local node=id and X.Table(X.Call('C_Traits.GetNodeInfo',config,id));read=read+1
+                if not owned() then return end
+                if not node or S.Integer(node.ID)~=id then complete=false else
+                    local active=X.Table(node.activeEntry);local rank=active and S.Integer(active.rank,0,1000)
+                    local entry=active and S.Integer(active.entryID,1,1000000000)
+                    if rank and rank>0 and entry then
+                        if not seen[id] and #rows<80 then
+                            local e=X.Table(X.Call('C_Traits.GetEntryInfo',config,entry));if not owned() then return end
+                            local definition=e and S.Integer(e.definitionID,1,1000000000)
+                            local d=definition and X.Table(X.Call('C_Traits.GetDefinitionInfo',definition));if not owned() then return end
+                            rows[#rows+1]={tree,id,entry,rank,definition or false,d and S.Integer(d.spellID,1,1000000000) or false}
+                            seen[id]=true
+                        elseif not seen[id] then complete=false end
+                    elseif S.Integer(node.currentRank,0,1000)~=0 then complete=false end
+                end
+            end
+            if read<total then complete=false end
+        end
+    end
+    if not owned() or not ownConfig and X.Bool(X.Call('C_Traits.HasValidInspectData'))~=true then return end
+    return rows,complete,read,total
 end
 function I.InspectReady(guid)
-    guid=S.GUID(guid);if not guid then return end
+    guid=S.GUID(guid);if not guid or not X.Ready() then return end
     local p=pending
     if not p or p.guid~=guid or p.epoch~=epoch or S.GUID(X.Call('UnitGUID',p.unit))~=guid or X.Busy() then return end
-    local function owned() return pending==p and p.epoch==epoch end
-    local gear=L.Gear(p.unit,guid,'INSPECT_READY',owned);local appearance=L.Appearance(p.unit,guid,'INSPECT_READY')
-    local traits
+    if p.priority and not p.priority.valid() then Reply(p,nil,nil,nil,'capture phase ended');pending=nil;externalRequest=nil;return end
+    local now=C.Tick();if not now or now-p.at>=8 then Reply(p,nil,nil,nil,'late inspection response');pending=nil;externalRequest=nil;X.Mark('Inspection','Late inspect response ignored');return end
+    if p.native and not NativeStable(p) then return end
+    local function owned() return X.Ready() and not X.Busy() and pending==p and p.epoch==epoch
+        and S.GUID(X.Call('UnitGUID',p.unit))==guid and (not p.native or NativeStable(p)) end
+    if p.native then
+        C.ObserveUnit(p.unit,'INSPECT_READY',true)
+        if not owned() then return end
+    end
+    local gear=L.Gear(p.unit,guid,'INSPECT_READY',owned);if not owned() then return end
+    local appearance=L.Appearance(p.unit,guid,'INSPECT_READY')
+    local traits,export,specialization
     -- Shared targetless trait cache is read only while this owned response and
     -- target GUID remain stable. Never request another identity by display name.
     if X.Bool(X.Call('C_Traits.HasValidInspectData'))==true then
-        local export=S.Text(X.Call('C_Traits.GenerateInspectImportString',p.unit),5000)
-        if export then traits=X.Store('traits',{guid=guid,exportString=export},'INSPECT_READY') end
+        export=S.Text(X.Call('C_Traits.GenerateInspectImportString',p.unit),5000)
     end
-    if pending~=p or p.epoch~=epoch or S.GUID(X.Call('UnitGUID',p.unit))~=guid then return end
+    if not owned() then return end
+    specialization=S.Integer(X.Call('C_SpecializationInfo.GetInspectSpecialization',p.unit),1,1000000)
+    if not owned() then return end
+    local choices,complete,read,total=I.TalentChoices(owned);if not owned() then return end
+    if export or specialization or choices then
+        local values={guid=guid,exportString=export,specializationID=specialization,choices=choices,
+            choicesComplete=complete,nodesRead=read,nodesTotal=total}
+        -- Preserve the original export even if a large readable projection does
+        -- not fit the existing snapshot size limit. Never silently call it complete.
+        while choices and not X.Validate({format=1,family='traits',values=values}) and #choices>0 do
+            table.remove(choices);values.choicesComplete=false
+        end
+        if not X.Validate({format=1,family='traits',values=values}) then values={guid=guid,exportString=export,specializationID=specialization} end
+        traits=X.Store('traits',values,'INSPECT_READY')
+    end
+    if not owned() then return end
+    X.Mark('traits',export and 'GUID-matched native talent export saved' or specialization and 'Inspected specialization saved; talent export unavailable' or 'Inspected talents unavailable; no local-player substitute')
+    -- The pinned native honor UI uses a targetless getter and an update with no
+    -- GUID/readiness token. Do not attach that shared cache to this response.
+    X.Mark('Inspected PvP','Unavailable: native honor cache cannot be independently tied to this inspected GUID')
+    X.Mark('Inspected reputation','Unavailable: no supported other-player reputation API')
     local at=C.Stamp()
-    Record('INSPECT_READY',{relationship=p.reason,inspection=gear and 'partial readable inspection' or 'gear unavailable',
+    if not p.priority then Record('INSPECT_READY',{relationship=p.reason,inspection=gear and 'partial readable inspection' or 'gear unavailable',
         gearRef=gear,gearObservedAt=gear and at,traitRef=traits,traitObservedAt=traits and at,
-        appearanceRef=appearance,appearanceObservedAt=appearance and at,observedAt=at,partial=true},guid)
-    pending=nil;X.Mark('Inspection','GUID-matched normal inspect response saved; appearance may be incomplete')
+        appearanceRef=appearance,appearanceObservedAt=appearance and at,observedAt=at,partial=true},guid) end
+    if p.native then
+        for n=#requests,1,-1 do if requests[n]==guid then table.remove(requests,n) end end
+        if important[guid] then important[guid].queued=nil;important[guid].lastAttempt=now end
+    end
+    Reply(p,gear,traits,appearance)
+    if p.native and ns.ChronicleDuels then ns.ChronicleDuels.ManualCapture(guid,gear,traits,appearance) end
+    pending=nil;externalRequest=nil;X.Mark('Inspection',p.native and 'Manual inspection saved for this player; appearance may be incomplete' or 'GUID-matched normal inspect response saved; appearance may be incomplete')
 end
 function I.Reputation(source,id)
     if not X.Ready() or X.Busy() then return end
@@ -126,14 +285,15 @@ function I.ReputationBaseline()
     end
 end
 function I.Start()
-    important={};pending=nil;requests={};reputation={};InstallHooks()
+    important={};pending=nil;externalRequest=nil;requests={};priorities={};reputation={};InstallHooks()
     X.Queue('important-group',function() I.Group('GROUP_ROSTER_UPDATE') end)
     X.Queue('reputation-baseline',I.ReputationBaseline)
-    X.Mark('Inspection',hooked and 'Normal inspection enabled only for important players' or 'Passive mode: inspect ownership hooks unavailable')
+    X.Mark('Inspection',hooked and 'Important-player inspections and deliberate native inspections enabled' or 'Passive mode: inspect ownership hooks unavailable')
 end
-function I.Stop() important={};pending=nil;requests={};reputation={} end
+function I.Stop() important={};pending=nil;externalRequest=nil;requests={};priorities={};reputation={} end
 function I.Handle(event,a,b)
-    if event=='GROUP_ROSTER_UPDATE' or event=='PARTY_MEMBERS_CHANGED' then X.Queue('important-group',function() I.Group(event) end)
+    if event=='ADDON_LOADED' then InstallHooks()
+    elseif event=='GROUP_ROSTER_UPDATE' or event=='PARTY_MEMBERS_CHANGED' then X.Queue('important-group',function() I.Group(event) end)
     elseif event=='PLAYER_TARGET_CHANGED' then I.Observe('target',event)
     elseif event=='UPDATE_MOUSEOVER_UNIT' then I.Observe('mouseover',event)
     elseif event=='PLAYER_FOCUS_CHANGED' then I.Observe('focus',event)
@@ -149,5 +309,5 @@ function I.Handle(event,a,b)
             itemString=ns.ChronicleEvidence.ItemString(row.hyperlink,id)}) end
     end
 end
-X.Register(I,{'GROUP_ROSTER_UPDATE','PARTY_MEMBERS_CHANGED','PLAYER_TARGET_CHANGED','UPDATE_MOUSEOVER_UNIT','PLAYER_FOCUS_CHANGED',
+X.Register(I,{'ADDON_LOADED','GROUP_ROSTER_UPDATE','PARTY_MEMBERS_CHANGED','PLAYER_TARGET_CHANGED','UPDATE_MOUSEOVER_UNIT','PLAYER_FOCUS_CHANGED',
     'INSPECT_READY','UNIT_NAME_UPDATE','FACTION_STANDING_CHANGED','UPDATE_FACTION','NEW_RECIPE_LEARNED','TRADE_SKILL_ITEM_CRAFTED_RESULT'})

@@ -3,7 +3,7 @@ local _,ns=...
 local A={entries={},byID={},MAX_ENTRIES=300,MAX_BYTES=1048576,bytes=0,listeners={}}
 ns.Activity=A
 local function Category(key,category)
-    return not category or key==category or category=='alerts' and (key=='mentions' or key=='wanted')
+    return not category or key==category or category=='alerts' and (key=='mentions' or key=='wanted' or key=='olympusmute')
 end
 function A.Initialize() A.entries={};A.byID={};A.bytes=0 end
 function A.Subscribe(fn) A.listeners[#A.listeners+1]=fn end
@@ -95,6 +95,7 @@ function A.DisplayName(name)
     return ns.Engine.Render(name,matches,function(original,match) return ns.IsRedacted(match) and '[redacted]' or match.replacement or original end)
 end
 function A.EventLabel(item)
+    if item.categories and item.categories.olympusmute then return 'OlympusMute sharing observed' end
     if item.wanted and ns.Wanted.ValidRecord(item.wanted) then
         return item.wanted.kind=='encounter' and 'Wanted Encounter' or 'Wanted Mention'
     end

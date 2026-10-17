@@ -6,9 +6,23 @@ local function Time(at)
     if not at then return 'unknown' end
     local ok,value=pcall(date or os.date,'%Y-%m-%d %H:%M:%S',at);return ok and value or tostring(at)
 end
-local labels={dungeon='Dungeon segment',raid='Raid segment',group='Group observations',boss='Boss result without instance entry',battleground='Battleground visit',arena='Arena visit'}
-function U.Title(a) return (labels[a.kind] or a.kind)..' - '..(a.context.instanceName or a.context.zone or 'Unknown instance') end
+local labels={dungeon='Dungeon segment',raid='Raid segment',group='Group observations',boss='Boss result without instance entry',battleground='Battleground visit',arena='Arena visit',duel='Duel'}
+function U.DuelLabel(a)
+    if not a.duel.accepted then return a.endAt and 'Duel challenge ended' or 'Duel challenge' end
+    if a.duel.result=='win' then return 'Duel victory' elseif a.duel.result=='loss' then return 'Duel defeat' end
+    return a.endAt and 'Duel completed • Result unknown' or 'Duel outcome not recorded'
+end
+function U.Title(a,st)
+    if a.kind=='duel' then
+        if not st then return U.DuelLabel(a)..' • '..(a.context.zone or 'Unknown zone') end
+        local name=a.opponentGUID and A.Name(st,a.opponentGUID,a.lastAt or a.startAt)
+        if name==a.opponentGUID then name=nil end
+        return U.DuelLabel(a)..' • '..(name or 'Opponent not recorded')
+    end
+    return (labels[a.kind] or a.kind)..' - '..(a.context.instanceName or a.context.zone or 'Unknown instance')
+end
 function U.Detail(st,a,guid)
+    if a and a.kind=='duel' and ns.DuelUI then return ns.DuelUI.Blocks(st,a) end
     local b={};local function Put(kind,text) b[#b+1]={kind=kind,text=text} end
     if guid then
         local p=A.Player(st,guid)
@@ -25,7 +39,7 @@ function U.Detail(st,a,guid)
         Put('body','Activity summaries are rebuilt locally from the original records. No new sharing or collectors are enabled. Old records without enough context remain unlinked or partial.')
         return b
     end
-    Put('title',U.Title(a))
+    Put('title',U.Title(a,st))
     Put('body','First observed: '..Time(a.startAt)..'\n'..(a.endAt and 'Observed end: '..Time(a.endAt) or 'Last linked evidence: '..Time(a.lastAt))..'\nStatus: '..a.status..' | Whole-instance completion: unknown')
     Put('meta','Activity: '..a.id..'\nRecording character: '..a.owner..'\nBoundary: '..a.startReason..(a.endReason and ' / '..a.endReason or ''))
     local measured=ns.ChronicleIntelligence.ActivityTime(st,a)
@@ -56,7 +70,7 @@ function U.Build(parent,host)
     local p=CreateFrame('Frame',nil,parent);p:SetAllPoints(parent);p.filter={page=0};p.owner=ns.Chronicle.Owner()
     local status=V.Text(p,'Activities use existing history. Recording and your privacy choice stay unchanged.',4,-5,1120,14,V.blue);status:SetHeight(38);p.status=status
     V.Edit(p,0,-52,400,32,'Search activities, bosses or players...',function(value) p.filter.search=value;p.filter.page=0;p.dirty=true end)
-    V.Dropdown(p,412,-52,272,{{false,'All activities'},{'dungeon','Dungeons'},{'raid','Raids'},{'group','Group observations'},{'battleground','Battleground visits'},{'arena','Arena visits'},{'boss','Unmatched boss context'}},function() return p.filter.kind or false end,function(value) p.filter.kind=value or nil;p.filter.page=0;p.dirty=true end)
+    V.Dropdown(p,412,-52,272,{{false,'All activities'},{'duel','Duels & challenges'},{'duel_win','Verified victories'},{'duel_loss','Verified defeats'},{'duel_unknown','Duels with unknown results'},{'dungeon','Dungeons'},{'raid','Raids'},{'group','Group observations'},{'battleground','Battleground visits'},{'arena','Arena visits'},{'boss','Unmatched boss context'}},function() return p.filter.kind or false end,function(value) p.filter.kind=value or nil;p.filter.page=0;p.dirty=true end)
     local characters={{false,'This character'}}
     for owner in pairs(ns.ChronicleStore.db and ns.ChronicleStore.db.characters or {}) do
         if owner~=p.owner then characters[#characters+1]={owner,owner} end
@@ -65,20 +79,27 @@ function U.Build(parent,host)
         p.owner=value or ns.Chronicle.Owner();p.selected=nil;p.state=nil;p.filter.guid=nil;p.filter.page=0;p.dirty=true
         p.list:SetItems({});p:ShowActivity(nil);p:Refresh(true)
     end,{maxRows=8})
+    p.analysis=ns.DuelUI.Build(p,p)
     p.people={{false,'Player in selected activity'}}
     p.peopleMenu=V.Dropdown(p,0,-96,400,p.people,function()
-        if p.selected then for _,choice in ipairs(p.people) do if choice[1]==p.filter.guid then return p.filter.guid end end end
+        if p.selected then for _,choice in ipairs(p.people) do if choice[1]==p.personGUID then return p.personGUID end end end
         return false
-    end,function(value) p.filter.guid=value or nil;p.filter.page=0;p.selected=nil;p.dirty=true end,{maxRows=8})
+    end,function(value) p.personGUID=value or nil;p.dossier:SetEnabled(p.personGUID~=nil) end,{maxRows=8})
     p.target=V.Button(p,'Target history',412,-96,190,28,function()
         local guid=ns.ChronicleStore.GUID(ns.SafeCall(UnitGUID,'target'))
         if guid then p.filter.guid=guid;p.filter.page=0;p.selected=nil;p.dirty=true
         else status:SetText('Target an identifiable player first. No player was guessed from a name.') end
     end,'neutral')
     p.allPlayers=V.Button(p,'All players',614,-96,180,28,function() p.filter.guid=nil;p.selected=nil;p.filter.page=0;p.dirty=true end,'neutral')
-    p.rebuild=V.Button(p,'Rebuild views',806,-96,190,28,function() A.Clear();p.dirty=true end,'neutral')
+    p.rebuild=V.Button(p,'Advanced: rebuild',946,-621,190,32,function() A.Clear();p.dirty=true end,'neutral')
+    p.dossier=V.Button(p,'Player dossier',806,-96,330,28,function()
+        local a=p.state and p.state.byID[p.selected];local guid=p.personGUID
+        if a and guid and a.members[guid] then ns.WardenUI.Navigate('player',p.owner,guid,nil,{kind='activity',owner=p.owner,id=a.id,event=p.state.events[a.anchor]}) end
+    end,'neutral');p.dossier:SetEnabled(false)
+    T.Tooltip(p.dossier,'Open associated player','Choose a GUID-bound player from the selected activity’s roster. Open their dossier, then use Back to return to this activity. Roster membership does not confirm individual boss attendance.')
     T.Tooltip(p.rebuild,'Rebuild activities','Rebuild local summaries from original evidence. No saved records, consent, notes or settings change.')
     local listPanel=V.Panel(p,0,-139,430,468,'dark');local detailPanel=V.Panel(p,444,-139,692,468,'paper')
+    p.analysis:SetFrameLevel(detailPanel:GetFrameLevel()+10)
     p.document,p.detailScroll=V.Document(detailPanel,16,-16,642,360);p.document:SetBlocks(U.Detail())
     p.list=V.ScrollingList(listPanel,12,-13,383,440,65,function(parentRow)
         local row=V.Button(parentRow,'',0,0,380,59,function(self) p.selected=self.activity.id;p.sourcePage=0;p:ShowActivity(self.activity);p.list:Render() end,'row')
@@ -86,23 +107,22 @@ function U.Build(parent,host)
         row.title=V.Text(row,'',51,-10,310,14,V.gold);row.title:SetHeight(18);row.title:SetWordWrap(false)
         row.sub=V.Text(row,'',51,-32,310,12,V.muted);row.sub:SetHeight(18);row.sub:SetWordWrap(false);return row
     end,function(row,a)
-        row.activity=a;row.selectedArt:SetShown(p.selected==a.id);row.title:SetText(U.Title(a));row.sub:SetText(Time(a.startAt)..' | '..#a.attempts..' boss records | '..a.status)
+        row.activity=a;row.selectedArt:SetShown(p.selected==a.id);row.title:SetText(U.Title(a,p.state));row.sub:SetText(Time(a.startAt)..(a.kind=='duel' and ' • '..(a.context.zone or 'Location unavailable') or ' | '..#a.attempts..' boss records | '..a.status))
+        T.Tooltip(row,U.Title(a,p.state),Time(a.startAt)..' • '..(a.context.instanceName or a.context.zone or 'Location unavailable'))
     end)
     p.sources={{false,'Choose original evidence'}}
     p.sourceMenu=V.Dropdown(p,460,-526,660,p.sources,function() return p.sourceID or false end,function(value) p.sourceID=value or nil end,{maxRows=8})
     p.openSource=V.Button(p,'Open source record',460,-568,220,28,function()
         local e=p.state and p.state.events[p.sourceID]
         if e then
-            host.filter={page=0,mode='all',search=e.id,kinds={[e.kind]=true},raw=true};host.rawCheck:SetChecked(true)
-            host.search:SetText(e.id);host.debounce=nil;host.filter.eventID=e.id
-            host:SetView('events');host.selected=e.id;host.detailDocument:SetBlocks(ns.RecordingUI.Detail(e));host.list:Render()
+            ns.RecordingUI.OpenSource(host,e)
         end
     end,'neutral')
     p.previousSources=V.Button(p,'Earlier sources',692,-568,202,28,function() p.sourcePage=math.max(0,(p.sourcePage or 0)-1);p:Sources() end,'neutral')
     p.nextSources=V.Button(p,'More sources',906,-568,214,28,function() p.sourcePage=(p.sourcePage or 0)+1;p:Sources() end,'neutral')
     p.newer=V.Button(p,'Newer 50',0,-621,170,32,function() p.filter.page=math.max(0,p.filter.page-1);p.dirty=true end,'neutral')
     p.older=V.Button(p,'Older 50',182,-621,170,32,function() p.filter.page=p.filter.page+1;p.dirty=true end,'neutral')
-    p.count=V.Text(p,'',369,-628,760,13,V.muted);p.count:SetHeight(20)
+    p.count=V.Text(p,'',369,-628,563,13,V.muted);p.count:SetHeight(20)
     function p:Sources()
         for i=#self.sources,2,-1 do self.sources[i]=nil end
         local a=self.state and self.state.byID[self.selected];local refs=a and a.evidence or {};local first=(self.sourcePage or 0)*50+1
@@ -114,17 +134,23 @@ function U.Build(parent,host)
         self.previousSources:SetEnabled((self.sourcePage or 0)>0);self.nextSources:SetEnabled(first+49<#refs);self.openSource:SetEnabled(self.sourceID~=nil)
     end
     function p:ShowActivity(a)
+        self.analysis:SetActivity(self.state,a and a.kind=='duel' and a or nil)
+        local ordinary=not a or a.kind~='duel'
+        detailPanel:SetShown(ordinary)
+        for _,control in ipairs({self.sourceMenu,self.openSource,self.previousSources,self.nextSources}) do control:SetShown(ordinary) end
         self.document:SetBlocks(U.Detail(self.state,a,self.state and self.filter.guid));self.detailScroll:SetVerticalScroll(0)
         for i=#self.people,2,-1 do self.people[i]=nil end
         if a then
             local sorted={};for guid in pairs(a.members) do sorted[#sorted+1]=guid end;table.sort(sorted)
             for _,guid in ipairs(sorted) do self.people[#self.people+1]={guid,A.Name(self.state,guid,a.lastAt)} end
+            if self.personGUID and not a.members[self.personGUID] then self.personGUID=nil end
+            if not self.personGUID and #sorted==1 then self.personGUID=sorted[1] end
         else
-            self.selected=nil;self.sourceID=nil;self.sourcePage=0
+            self.selected=nil;self.sourceID=nil;self.sourcePage=0;self.personGUID=nil
             if self.peopleMenu.Menu then self.peopleMenu.Menu:Hide() end
             if self.sourceMenu.Menu then self.sourceMenu.Menu:Hide() end
         end
-        self.peopleMenu:Refresh();self:Sources()
+        self.dossier:SetEnabled(a~=nil and self.personGUID~=nil);self.peopleMenu:Refresh();self:Sources()
     end
     function p:Refresh(force)
         if InCombatLockdown and InCombatLockdown() then self.status:SetText('Activity views update after combat. Supported recording continues.');return end
@@ -140,8 +166,13 @@ function U.Build(parent,host)
         local f={kind=self.filter.kind,guid=self.filter.guid,search=self.filter.search,limit=(self.filter.page+1)*50+1}
         local found=A.Query(st,f);local shown={};local first=self.filter.page*50+1
         for i=first,math.min(first+49,#found) do shown[#shown+1]=found[i] end
+        if self.linkedActivity and self.selected==self.linkedActivity then
+            local a=st.byID[self.linkedActivity];local present=false;for _,row in ipairs(shown) do if row.id==self.linkedActivity then present=true end end
+            if a and not present then shown[#shown+1]=a end
+        end
         self.list:SetItems(shown,true);self.newer:SetEnabled(self.filter.page>0);self.older:SetEnabled(#found>=first+50)
-        self.count:SetText('Page '..(self.filter.page+1)..' | '..#shown..' shown | '..#st.activities..' activity segments | '..st.processed..' source records indexed')
+        self.count:SetText('Page '..(self.filter.page+1)..' • '..#shown..' shown • '..#st.activities..' activities')
+        T.Tooltip(self.rebuild,'Rebuild activities',st.processed..' original source records indexed. Rebuild local summaries from this evidence; saved records, consent, notes and settings stay unchanged.')
         self.status:SetText(self.filter.guid and 'Player: '..A.Name(st,self.filter.guid)..'. Roster associations are separate from confirmed boss attendance.' or 'Existing local evidence only. Segments may be interrupted; instance exit never means completion.')
         local selected
         for _,a in ipairs(shown) do if a.id==self.selected then selected=a;break end end

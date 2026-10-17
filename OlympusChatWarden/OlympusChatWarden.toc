@@ -1,11 +1,11 @@
 ## Interface: 16001
-## Title: Olympus ChatWarden
-## Notes: Chat protection, Olympus alerts, and optional local Chronicle and Player Intelligence recording.
+## Title: Olympus Warden
+## Notes: ChatWarden, SignalWarden, ShieldWarden, IntelWarden and ChronicleWarden for Olympus.
 ## Author: Regretn
-## Version: 1.0.3
+## Version: 1.1.0
 ## SavedVariables: OlympusChatWardenDB
 ## OptionalDeps: Olympus
-## IconTexture: Interface\AddOns\OlympusChatWarden\Media\V5\Logo.tga
+## IconTexture: Interface\AddOns\OlympusChatWarden\Media\Warden\Warden.tga
 ## Category: Miscellaneous
 
 Fonts.xml
@@ -37,6 +37,7 @@ ChatReveal.lua
 ChatFonts.lua
 LanguageDisplay.lua
 Theme.lua
+WardenBrand.lua
 Art.lua
 ScrollingList.lua
 Notifications.lua
@@ -53,6 +54,7 @@ PersonalUI.lua
 ReportUI.lua
 ChatCapture.lua
 History.lua
+WardenPerformance.lua
 ChronicleStore.lua
 ChronicleCodec.lua
 ChronicleBackup.lua
@@ -61,10 +63,15 @@ ChronicleRoute.lua
 ChronicleOlympus.lua
 ChronicleEvidence.lua
 ChronicleCapture.lua
+ChronicleCoverage.lua
+ChronicleTransitions.lua
 ChronicleLoadout.lua
 ChronicleCombat.lua
 ChronicleEncounters.lua
+ChronicleDuels.lua
 ChronicleProgress.lua
+ChronicleStatistics.lua
+ChronicleStartup.lua
 ChronicleActivities.lua
 ChronicleIntelligence.lua
 CollectionGuide.lua
@@ -99,7 +106,13 @@ SpellingOptions.lua
 PhraseTester.lua
 Options.lua
 Workspace.lua
+DuelUI.lua
 ChronicleActivitiesUI.lua
 ChronicleIntelligenceUI.lua
 RecordingUI.lua
+WardenDossier.lua
+WardenUI.lua
+WardenSearch.lua
+WardenHomeUI.lua
 OlympusPanel.lua
+WardenDiagnostics.lua

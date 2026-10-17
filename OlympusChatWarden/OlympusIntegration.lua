@@ -298,7 +298,7 @@ function I.HookNativeTabRoot(root)
                 end) end
             end)
             tab:HookScript('OnEnter',function()
-                if GameTooltip then GameTooltip:AddLine('Right-click: Open the full ChatWarden UI.',.9,.9,.85,true);GameTooltip:Show() end
+                if GameTooltip then GameTooltip:AddLine('Right-click: Open the full Warden UI.',.9,.9,.85,true);GameTooltip:Show() end
             end)
         end
     end
@@ -424,7 +424,7 @@ function I.AttachLauncher(parent, anchor, point, relativePoint, x, y)
     if manual and manualHost ~= parent then return false, "Detach the previous launcher first." end
     if not manual then
         manual = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate"); manual:Hide()
-        manualHost = parent; manual:SetSize(110, 24); manual:SetText("ChatWarden")
+        manualHost = parent; manual:SetSize(110, 24); manual:SetText("Warden")
         manual:SetScript("OnClick", function() I.AcknowledgeAlerts(); OpenHome() end)
         ns.Theme.Tooltip(manual, ns.NAME, "Open Overview. Settings: /ocw settings.")
     end

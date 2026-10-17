@@ -6,17 +6,18 @@ local pageID, loginReady, queued, deferFrame = "basics", false, false
 local pages = {
     {id = "basics", title = "Overview", text = [[GETTING STARTED
 
-Open ChatWarden from Olympus or type /ocw. Overview brings your filtering, mentions, Shield and Wanted alerts together.
+Open Olympus Warden from Olympus or type /warden. /ocw still works.
 
-Messages: Read filtered messages and see why they matched.
-Alerts: Find personal mentions and Olympus Wanted encounters. Choose a type with the tabs.
-Shield: Manage unwanted contact and players you have shielded.
-Capture: Record chat when you want to keep a conversation.
-Recording: Inspect your optional Chronicle and Player Intelligence history, and back it up.
-Rules: Add your own phrases and replacements.
-Packs: Choose which optional topics to filter.
-Reports: Save examples of missed or incorrect filtering.
-Updates: Read patch highlights, browse older updates, take the tour or open this guide.
+Warden: Your home page, data overview and search across the suite. Recent activity keeps chat and protection events together.
+ChatWarden: Messages, Capture, Rules, Packs and Reports share their own tabs. Filtering still explains why a message matched.
+SignalWarden: Personal mentions, Wanted encounters and observed OlympusMute sharing. A sharing observation does not prove someone muted you.
+ShieldWarden: Unwanted contact, active shields and allowed players.
+IntelWarden: Recently met players, searchable saved profiles and your private notes/watchlist. Roster observations are labeled separately from local encounters.
+ChronicleWarden: Your recorded highlights, time summaries, progression and shared adventures.
+Data & Backups: The full event browser, original evidence, collection explanations and backup/restore.
+Updates & Help: Patch highlights, update history, tour and this guide.
+
+Recording starts only after you opt in. The new pages reuse saved evidence; opening a page does not enable collection.
 
 READING FILTERED CHAT
 
@@ -34,9 +35,11 @@ Older Olympus versions use the local guild-name check. Protection pauses when ac
 
 USEFUL COMMANDS
 
-/ocw: Open ChatWarden.
-/ocw alerts: Open Alerts. /ocw mentions also works.
-/ocw capture: Open Capture.
+/warden: Open Warden. /ocw and /chatwarden remain supported.
+/warden signal: Open SignalWarden.
+/warden intel: Open IntelWarden. /warden chronicle: Open ChronicleWarden.
+/warden search <words>: Search the suite.
+/ocw capture: Open ChatWarden > Capture.
 /ocw test <phrase>: Check how your word filters handle a phrase, without posting it.
 /ocw updates: Read patch highlights.
 /ocw help: Open this guide.]]},
@@ -331,43 +334,9 @@ function ns.OpenTutorial(requestedPage)
     SetPage(type(requestedPage) == "string" and requestedPage or pageID)
     Fit(tutorial); T.ShowWindow(tutorial)
 end
+-- The suite tour owns welcome navigation. Never fit a legacy child as a window.
 function ns.OpenWelcome()
-    if not ns.DB then return end
-    if InCombatLockdown and InCombatLockdown() then
-        ns.Print("Open the introduction after combat with /ocw welcome."); return
-    end
-    if not welcome then
-        welcome = T.Window("OlympusChatWardenWelcome", UIParent, 680, 530)
-        ns.WelcomeWindow = welcome; T.Title(welcome, ns.NAME); T.Crest(welcome)
-        T.Gold(Label(welcome, "Olympus ChatWarden overview", 78, -30, 570, "GameFontNormalLarge"))
-        T.Muted(Label(welcome, "Local filtering, contact protection and optional chat recording.", 78, -50, 570))
-        local cards = {
-            {"Filtering and review", "Configure sensitivity and coverage in Settings. Messages retains filtered originals. Select hidden messages to clear their unread badges."},
-            {"Contact protection", "Shield starts on with Balanced protection. It detects strong wording, repeated whispers and repeated requests. Manage players in Review > Shield."},
-            {"Chat capture and exports", "Recording starts off. Start it in Chat capture, save incident bookmarks, and select entries and privacy options before copying an export."},
-        }
-        for i, card in ipairs(cards) do
-            local panel = T.Panel(welcome, 18, -84 - (i - 1) * 98, 644, 88, true)
-            T.Heading(Label(panel, card[1], 14, -12, 616, "GameFontNormal", true))
-            Label(panel, card[2], 14, -34, 616, nil, true)
-        end
-        welcome.Status = T.Muted(Label(welcome, "", 20, -398, 640))
-        T.Muted(Label(welcome, "Open this overview with /ocw welcome. Full reference: /ocw help.", 20, -432, 640))
-        Button(welcome, "Close", 20, -470, 110, function() welcome:Hide() end)
-        Button(welcome, "Settings", 142, -470, 140, function()
-            SlashCmdList.OLYMPUSCHATWARDEN("options")
-        end)
-        Button(welcome, "How filtering works", 294, -470, 200, function()
-            ns.OpenTutorial("basics")
-        end)
-        T.Muted(Label(welcome, "Data stays local. Reports are shared only when you copy and submit them.", 20, -507, 640))
-    end
-    local preset = ({aggressive = "Strict", balanced = "Balanced", strict = "Mild"})[ns.DB.preset] or 'Balanced'
-    welcome.Status:SetHeight(34)
-    welcome.Status:SetText("Filter: " .. (ns.Active() and "active" or "paused") .. "  |  Current sensitivity: " .. preset
-        .. (ns.Membership and ("\n" .. ns.Membership.Status()) or ""))
-    Fit(welcome); T.ShowWindow(welcome)
-    if welcome:IsShown() then ns.DB.welcomeSeen = 1 end
+    if ns.Workspace and ns.Workspace.Welcome then return ns.Workspace.Welcome() end
 end
 function ns.CheckWelcome(event)
     if event == "PLAYER_LOGIN" then loginReady = true end

@@ -23,26 +23,34 @@ local nativeTitles={encounter_started='Boss encounter started',encounter_ended='
     boss_kill_event='Boss kill reported',native_kill_credit='Native kill credit',
     pvp_match_complete='Battleground match ended',duel_requested='Duel requested',duel_finished='Duel ended',
     recipe_learned='Recipe learned',native_craft_result='Item crafted',barber_choices_applied='Appearance changed',
-    collection_added='Collection added',reputation_standing_changed='Reputation changed'}
+    quest_item_received='Quest item reward delivered',quest_currency_received='Quest currency reward delivered',encounter_loot_delivery='Encounter loot delivery (recipient unknown)',
+    collection_added='Collection added',reputation_standing_changed='Reputation changed',duel_session_request='Duel challenge',duel_session_start='Duel accepted',duel_session_end='Duel boundary',duel_session_result='Verified duel result'}
 function R.IsEvent(e)
     if e.kind=='native_event' then return nativeTitles[e.details.recordType]~=nil end
     if e.kind=='bind_observed' then return e.source=='HEARTHSTONE_BOUND' end
     if e.kind=='important_player' then
         local localSource=e.source=='PLAYER_TARGET_CHANGED' or e.source=='UPDATE_MOUSEOVER_UNIT' or e.source=='PLAYER_FOCUS_CHANGED'
-        return e.details.relationship=='personal bookmark' or e.details.relationship=='Wanted encounter'
+        return e.details.relationship=='manual inspection' and e.source=='INSPECT_READY' and S.GUID(e.subject)~=nil
+            or e.details.relationship=='personal bookmark' or e.details.relationship=='Wanted encounter'
             and e.details.unitVisible==true and S.GUID(e.subject)~=nil and localSource
     end
     return eventKinds[e.kind]==true
 end
 function R.Title(e)
+    if e.details.recordType=='statistic_observed' then return 'Native statistic observed' end
+    if e.details.recordType=='score_capture_status' then return 'Scoreboard capture status' end
+    if e.details.recordType=='boss_status_observed' then return 'Boss health at encounter end' end
+    if e.kind=='important_player' and e.details.relationship=='manual inspection' and e.source=='INSPECT_READY' then return 'Player inspected' end
     if e.kind=='important_player' and e.details.relationship=='Wanted encounter' and R.IsEvent(e) then return 'Wanted encounter' end
     return e.kind=='native_event' and nativeTitles[e.details.recordType] or names[e.kind] or e.kind
 end
 function R.ClearCachedView()
     R.ClearIndex()
+    if ns.WardenUI then ns.WardenUI.Clear() end
     local p=ns.Workspace and ns.Workspace.pages.recording
     if not p then return end
     p.selected=nil;p.snapshot=nil;p.restoreArmed=nil;p.filter.page=0;p.dirty=true;p.waiting=nil;p.wasWaiting=nil
+    p.sourceOrigin=nil;if p.sourceBack then p.sourceBack:Hide() end;if p.sourceStatus then p.sourceStatus:SetWidth(850) end
     p.list:SetItems({});p.detailDocument:SetBlocks(R.Detail())
     p.backupBox:SetText('');p.backupResult:SetText('Recorded history cleared. Recording is off. Backups you saved outside the addon are separate copies.')
     if p.activities then
@@ -52,8 +60,26 @@ function R.ClearCachedView()
     if p.intelligence then p.intelligence:Clear() end
 end
 function R.OpenSource(host,e)
-    host.filter={page=0,mode='all',search=e.id,kinds={[e.kind]=true},raw=true}
+    local W=ns.Workspace;local origin=W.current~='recording' and W.pages[W.current] and {page=W.current} or nil
+    if origin then local page=W.pages[W.current];origin.duelPhase=page.activities and page.activities.analysis and page.activities.analysis.phase end
+    if not host or not host.rawCheck then
+        ns.Workspace.Open('recording');host=ns.Workspace.pages.recording
+        if not host then return end
+    end
+    host.filter={page=0,mode='all',search=e.id,kinds={[e.kind]=true},raw=true,owner=e.character}
     host.rawCheck:SetChecked(true);host.search:SetText(e.id);host.debounce=nil;host.filter.eventID=e.id
+    if origin then
+        host.sourceOrigin=origin
+        if not host.sourceBack then host.sourceBack=V.Button(host,'Back to previous view',716,0,216,30,function()
+            local dest=host.sourceOrigin;host.sourceOrigin=nil;host.sourceBack:Hide();if host.sourceStatus then host.sourceStatus:SetWidth(850) end
+            if dest then
+                W.Open(dest.page)
+                local page=W.pages[dest.page];local analysis=page and page.activities and page.activities.analysis
+                if dest.duelPhase and analysis and analysis.activity then analysis.phase=dest.duelPhase;analysis:Render() end
+            end
+        end,'neutral') end
+        host.sourceBack:SetFrameLevel(host:GetFrameLevel()+8);host.sourceBack:Show();if host.sourceStatus then host.sourceStatus:SetWidth(700) end
+    end
     host:SetView('events');host.selected=e.id;host.detailDocument:SetBlocks(R.Detail(e));host.list:Render()
 end
 local function Time(at)
@@ -73,6 +99,10 @@ local function Summary(e)
     end
     if e.kind=='native_snapshot' then return e.details.family..' / '..e.details.contentID:sub(1,12) end
     if e.kind=='native_event' then
+        if d.recordType=='encounter_loot_delivery' then return 'Item '..d.itemID..' / '..d.quantity..' / recipient unknown' end
+        if d.recordType=='quest_item_received' then return 'Quest '..d.questID..' / Item '..d.itemID..' / '..d.quantity end
+        if d.recordType=='quest_currency_received' then return 'Quest '..d.questID..' / Currency '..d.currencyID..' / '..d.quantity end
+        if d.recordType=='boss_status_observed' then return (d.creatureName or d.creatureID and 'Creature '..d.creatureID or 'Boss')..(d.remainingHealthPercent~=nil and ' / '..d.remainingHealthPercent..'% health' or ' / health unavailable') end
         if d.encounterID then return (d.name or 'Encounter '..d.encounterID)..(d.recordType=='encounter_ended' and (d.success==1 and ' / Success' or d.success==0 and ' / Unsuccessful' or ' / Outcome unknown') or '') end
         if d.recordType=='native_craft_result' then return 'Item '..d.itemID..' / '..d.quantity..' crafted' end
         if d.recordType=='recipe_learned' then return 'Recipe '..d.recipeID end
@@ -382,7 +412,7 @@ function R.Build(parent)
         self.coverageList:Render()
     end
     local e=p.events
-    local status=V.Text(e,'',4,-5,850,14,V.blue);status:SetHeight(42)
+    local status=V.Text(e,'',4,-5,850,14,V.blue);status:SetHeight(42);p.sourceStatus=status
     p.statusHelp=T.StatTooltip(status,'Recording and measured time','Measured world time covers observed recording-active intervals; marked AFK is included, offline/loading gaps are excluded. Estimated history describes this character, not measured file size or memory. Pending route runs are your own not-yet-flushed samples. Click for collection details and all-character storage.',function() p:SetView('coverage');p:SelectCollection('time') end)
     V.Button(e,'Recording settings',920,-3,216,32,function() ns.OpenChronicleOptions() end,'neutral')
     local search=V.Edit(e,0,-54,390,32,'Search recorded events...',function(value) p.filter.search=value;p.filter.eventID=nil;p.dirty=true;p.debounce=.35 end);p.search=search
@@ -495,7 +525,7 @@ function R.Build(parent)
     V.Button(b,'Select all text',510,-621,220,32,function() box:SetFocus();box:HighlightText() end,'neutral')
     V.Button(b,'Cancel backup',746,-621,220,32,function() ns.ChronicleBackup.Cancel();result:SetText('Backup creation cancelled. Existing history is kept.') end,'neutral')
     local f=CreateFrame('Frame',nil,p.backup);f:SetAllPoints(p.backup);p.fileBackup=f
-    V.Text(f,'One file holds your complete ChatWarden data',8,-64,1100,23,V.gold)
+    V.Text(f,'One file holds your complete Warden history and settings',8,-64,1100,23,V.gold)
     local intro=V.Text(f,'WoW already saves your history and settings in the file below. Keep a backup copy outside the addon folder. You do not need numbered text parts for a complete backup.',8,-105,1100,15,V.muted);intro:SetHeight(48)
     p.savedFilePath=V.Edit(f,8,-166,1100,32,'',nil)
     p.savedFilePath:SetText('WTF/Account/<your account>/SavedVariables/OlympusChatWarden.lua')
@@ -526,8 +556,8 @@ function R.Build(parent)
     function p:SetView(view)
         self.view=view;if view=='backup' then self:SetBackupMode(self.backupMode or 'file') end;self.events:SetShown(view=='events');self.backup:SetShown(view=='backup');self.coverage:SetShown(view=='coverage');self.activities:SetShown(view=='activities');self.intelligence:SetShown(view=='intelligence')
         W.Tabs({{'events','Recorded Events',function() p:SetView('events') end,200},
-            {'activities','Activities',function() p:SetView('activities') end,180},
-            {'intelligence','Intelligence',function() p:SetView('intelligence') end,180},
+            {'activities','Activity evidence',function() p:SetView('activities') end,180},
+            {'intelligence','Summary evidence',function() p:SetView('intelligence') end,180},
             {'backup','Backup & Restore',function() p:SetView('backup') end,220},
             {'coverage','Collection Status',function() p:SetView('coverage') end,220}},view)
         self:Refresh(true)
@@ -540,7 +570,7 @@ function R.Build(parent)
         -- Aggregate statistics can scan a cold ledger. Keep opening the event
         -- browser cheap; full measured-time/storage figures live in Collection Status.
         local character=S.Character(C.Owner(),false)
-        status:SetText(C.Status()..'\nThis character: '..(character and #character.events or 0)..' records | ~'..string.format('%.2f',(character and character.bytes or 0)/1048576)..' MiB | Pending runs: '..ns.ChronicleRoute.Pending()..' | Click for collection details.')
+        status:SetText(C.Status()..(S.loading and '\nRecord counts appear after history validation finishes.' or '\nThis character: '..(character and #character.events or 0)..' records | ~'..string.format('%.2f',(character and character.bytes or 0)/1048576)..' MiB | Pending runs: '..ns.ChronicleRoute.Pending()..' | Click for collection details.'))
         if self.view=='coverage' then
             local s=C.Statistics();local storage=S.Storage()
             local topics=R.CollectionItems(s,storage)

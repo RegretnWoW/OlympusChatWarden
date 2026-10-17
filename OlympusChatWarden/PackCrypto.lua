@@ -28,12 +28,19 @@ local function Xor2(a, b)
     end
     return value
 end
-local function Xor(a, b, c) local x = Xor2(a, b); return c and Xor2(x, c) or x end
+local function Xor(a, b, c)
+    if native then return (c and native.bxor(a,b,c) or native.bxor(a,b)) % MOD end
+    local x = Xor2(a, b); return c and Xor2(x, c) or x
+end
 local function And(a, b)
     if native then return native.band(a, b) % MOD end
     return (a + b - Xor2(a, b)) / 2
 end
-local function Ror(x, n) return floor(x / 2^n) + (x % 2^n) * 2^(32 - n) end
+local rotate = native and (native.ror or native.rrotate)
+local function Ror(x, n)
+    if rotate then return rotate(x,n) % MOD end
+    return floor(x / 2^n) + (x % 2^n) * 2^(32 - n)
+end
 local function U32(x) return char(floor(x / 16777216) % 256, floor(x / 65536) % 256, floor(x / 256) % 256, x % 256) end
 local K = {1116352408,1899447441,3049323471,3921009573,961987163,1508970993,2453635748,2870763221,
     3624381080,310598401,607225278,1426881987,1925078388,2162078206,2614888103,3248222580,

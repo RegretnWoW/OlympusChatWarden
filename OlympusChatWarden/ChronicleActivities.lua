@@ -1,9 +1,18 @@
 -- Rebuildable local views over the preserved ledger. Never a second saved history.
 local _,ns=...
 local S=ns.ChronicleStore
-local A={VERSION=3,BUDGET=128,caches=setmetatable({},{__mode='k'})}
+local A={VERSION=4,BUDGET=128,CACHE_LIMIT=2,caches=setmetatable({},{__mode='k'})}
 ns.ChronicleActivities=A
 local frame=CreateFrame('Frame');local job
+local clock=0
+local function Touch(cache)
+    clock=clock+1;cache.used=clock
+    local count,oldest,key=0
+    for c,row in pairs(A.caches) do
+        count=count+1;if row~=cache and (not oldest or (row.used or 0)<oldest) then oldest=row.used or 0;key=c end
+    end
+    if count>A.CACHE_LIMIT and key then A.caches[key]=nil end
+end
 local function Add(list,set,id) if not set[id] then set[id]=true;list[#list+1]=id end end
 local function Own(owner) return owner:match('/(Player%-.+)$') end
 function A.Provenance(e)
@@ -22,7 +31,7 @@ function A.Provenance(e)
 end
 function A.New(owner)
     return {owner=owner,activities={},byID={},players={},events={},identities={},links={},processed=0,
-        duplicateDeliveries=0,unmatchedPerformance=0,revision=0}
+        duplicateDeliveries=0,unmatchedPerformance=0,revision=0,duels={},duelPlayers={}}
 end
 local function Player(st,guid)
     if not S.GUID(guid) or guid==Own(st.owner) then return end
@@ -73,6 +82,7 @@ end
 local function Break(st,e,reason)
     Close(st,e,reason,false)
     if st.group then st.group.status='interrupted';st.group.endReason=reason;st.group=nil end
+    if st.openDuel then st.openDuel.status='interrupted';st.openDuel.endReason=reason;st.openDuel.closedBoundary=true;st.openDuel=nil end
     st.roster=nil;st.startup=nil
 end
 local function InstanceKey(e)
@@ -138,6 +148,12 @@ end
 local meaningful={instance_enter=true,instance_exit=true,group_roster=true,player_observed=true,important_player=true,
     level_change=true,quest_turnin=true,achievement_earned=true,equipment_change=true,loot_offered=true,
     loadout_observed=true,collection_gap=true,player_death=true}
+local function Alias(st,guid,name,realm,at)
+    if not S.GUID(guid) or not S.Text(name,144) then return end
+    local aliases=st.identities[guid] or {};st.identities[guid]=aliases
+    local last=aliases[#aliases]
+    if not last or last.name~=name or last.realm~=realm then aliases[#aliases+1]={name=name,realm=realm,at=at} end
+end
 function A.Feed(st,e)
     local d=e.details
     if st.session and (st.session~=e.session or e.elapsed<(st.elapsed or 0) or e.at<(st.at or 0)) then Break(st,e,'recording or clock boundary') end
@@ -155,16 +171,14 @@ function A.Feed(st,e)
     if e.subject then PlayerEvidence(st,e.subject,e) end
     for _,key in ipairs({'attackerGUID','targetGUID'}) do if S.GUID(d[key]) then PlayerEvidence(st,d[key],e) end end
     if e.kind=='player_observed' and e.subject then
-        local aliases=st.identities[e.subject] or {};st.identities[e.subject]=aliases
-        local last=aliases[#aliases]
-        if not last or last.name~=d.name or last.realm~=d.realm then aliases[#aliases+1]={name=d.name,realm=d.realm,at=e.at,eventID=e.id} end
+        Alias(st,e.subject,d.name,d.realm,e.at)
     end
     if e.kind=='olympus_snapshot' then
         for _,row in ipairs(e.snapshot.rows) do local guid=row.values and row.values.guid;if S.GUID(guid) then PlayerEvidence(st,guid,e) end end
     end
     if e.kind=='native_snapshot' and e.capture then
         local v=e.capture.values
-        if e.capture.family=='scoreboard' and S.GUID(v.guid) then st.events[e.id]=e;PlayerEvidence(st,v.guid,e) end
+        if e.capture.family=='scoreboard' and S.GUID(v.guid) then st.events[e.id]=e;PlayerEvidence(st,v.guid,e);Alias(st,v.guid,v.name,nil,e.at) end
         if e.capture.family=='meter' then
             for _,row in ipairs(v.sources or {}) do if S.GUID(row[1]) then st.events[e.id]=e;PlayerEvidence(st,row[1],e) end end
             if S.GUID(v.sourceGUID) then st.events[e.id]=e;PlayerEvidence(st,v.sourceGUID,e) end
@@ -211,7 +225,39 @@ function A.Feed(st,e)
         st.roster=e
     end
     if e.kind=='native_event' then
-        if d.recordType=='encounter_started' or d.recordType=='encounter_ended' or d.recordType=='boss_kill_event' then Encounter(st,e)
+        if d.duelID then
+            local a=st.duels[d.duelID]
+            if d.recordType=='duel_session_request' and not a then
+                a=Activity(st,'duel',e,'native challenge observation');a.duel={id=d.duelID,result='unknown',accepted=false,captures={},combat={}}
+                a.status='requested';a.opponentGUID=d.opponentGUID;st.duels[d.duelID]=a;st.openDuel=a
+            end
+            -- Cross-session or different-opponent records never silently attach.
+            if a and not a.closedBoundary and a.session==e.session and (not a.opponentGUID or not d.opponentGUID or a.opponentGUID==d.opponentGUID) then
+                if d.opponentGUID then a.opponentGUID=d.opponentGUID;Associate(st,a,d.opponentGUID) end
+                Link(st,a,e)
+                local duel=a.duel
+                if d.recordType=='duel_session_start' and e.source=='DUEL_COUNTDOWN' and d.accepted==true then
+                    duel.accepted=true;duel.acceptedAt=e.at;a.status='accepted';duel.startEvidence=e.id
+                elseif d.recordType=='duel_session_result' and e.source=='CHAT_MSG_SYSTEM' and duel.accepted and d.resultKnown==true then
+                    if duel.result~='unknown' and duel.result~=d.result then duel.result='conflicting' else duel.result=d.result end
+                    duel.resultEvidence=e.id
+                elseif d.recordType=='duel_session_end' then
+                    a.status=duel.accepted and (e.source=='control' and 'interrupted' or 'ended') or 'challenge ended';a.endAt=e.at;a.endReason=d.reason;if st.openDuel==a then st.openDuel=nil end
+                elseif d.recordType=='duel_capture' then
+                    local guid=d.targetGUID
+                    if guid==Own(st.owner) or guid==a.opponentGUID then
+                        local rows=duel.captures[guid] or {};duel.captures[guid]=rows;rows[#rows+1]=e
+                    end
+                elseif d.recordType=='duel_combat_summary' then
+                    local guid=d.targetGUID
+                    if guid==Own(st.owner) or guid==a.opponentGUID then
+                        local rows=duel.combat[guid] or {};duel.combat[guid]=rows;rows[#rows+1]=e
+                    end
+                end
+                if ns.ChronicleDuels then ns.ChronicleDuels.UpdateHistory(st,a) end
+            end
+        end
+        if d.recordType=='encounter_started'  or d.recordType=='encounter_ended' or d.recordType=='boss_kill_event' then Encounter(st,e)
         elseif d.recordType=='pvp_match_complete' and e.source=='PVP_MATCH_COMPLETE' and st.active
             and st.active.pvpReports and InstanceKey(e)==st.active.instanceKey then
             -- A visit is not a unique match. Keep native completion reports but
@@ -284,7 +330,7 @@ function A.Query(st,filter)
     local p=filter.guid and st.players[filter.guid];local ids=p and p.activitySet
     if filter.guid and not ids then return result end
     for i=#st.activities,1,-1 do
-        local a=st.activities[i];local ok=(not filter.kind or filter.kind==a.kind) and (not ids or ids[a.id])
+        local a=st.activities[i];local ok=(not filter.kind or filter.kind==a.kind or a.kind=='duel' and a.duel.accepted and filter.kind=='duel_'..a.duel.result) and (not ids or ids[a.id])
         if ok and filter.search and filter.search~='' then
             local text=(a.context.instanceName or a.context.zone or '')..' '..a.kind..' '..a.id
             for guid in pairs(a.members) do text=text..' '..guid..' '..A.Name(st,guid,a.lastAt) end
@@ -302,11 +348,11 @@ function A.Request(owner)
     local c=S.Character(owner,false)
     if not c then return A.New(owner),'empty' end
     local cache=A.caches[c]
-    if cache and cache.count==#c.events and cache.tail==c.events[#c.events] then cache.revision=c.revision;return cache.state,'ready' end
+    if cache and cache.raw==c.events and cache.count==#c.events and cache.tail==c.events[#c.events] then cache.revision=c.revision;Touch(cache);return cache.state,'ready' end
     if job then return nil,'building' end
-    local extend=cache and cache.count<=#c.events and cache.tail==c.events[cache.count]
+    local extend=cache and cache.raw==c.events and cache.count<=#c.events and cache.tail==c.events[cache.count]
     local st=extend and cache.state or A.New(owner)
-    job={owner=owner,character=c,state=st,index=extend and cache.count+1 or 1,
+    job={owner=owner,character=c,raw=c.events,state=st,index=extend and cache.count+1 or 1,
         count=#c.events,tail=c.events[#c.events],revision=c.revision}
     frame:SetScript('OnUpdate',function() A.Pump() end)
     return nil,'building'
@@ -314,17 +360,21 @@ end
 function A.Pump(budget)
     if not job or InCombatLockdown and InCombatLockdown() then return end
     local j=job
-    if S.Character(j.owner,false)~=j.character or j.character.events[j.count]~=j.tail then A.caches[j.character]=nil;job=nil;frame:SetScript('OnUpdate',nil);return end
+    if S.Character(j.owner,false)~=j.character or j.character.events~=j.raw or j.character.events[j.count]~=j.tail then A.caches[j.character]=nil;job=nil;frame:SetScript('OnUpdate',nil);return end
+    local P=ns.WardenPerformance;local deadline,start=P.Begin();local first=j.index
     for _=1,math.min(budget or A.BUDGET,A.BUDGET) do
+        if P.Expired(deadline) then break end
         local e=j.character.events[j.index]
         if j.index>j.count then break end
         A.Feed(j.state,e);j.state.processed=j.index;j.index=j.index+1
     end
     if j.index>j.count then
-        if ns.ChronicleIntelligence and not ns.ChronicleIntelligence.Finish(j.state,A.BUDGET) then j.finishing=true;return end
-        A.caches[j.character]={state=j.state,count=j.count,tail=j.tail,revision=j.revision}
+        if P.Expired(deadline) or ns.ChronicleIntelligence and not ns.ChronicleIntelligence.Finish(j.state,A.BUDGET,deadline) then j.finishing=true;P.End('history index',start,j.index-first);return end
+        A.caches[j.character]={state=j.state,raw=j.raw,count=j.count,tail=j.tail,revision=j.revision}
+        Touch(A.caches[j.character])
         job=nil;frame:SetScript('OnUpdate',nil)
     end
+    P.End('history index',start,j.index-first)
 end
 function A.Clear() job=nil;A.caches=setmetatable({},{__mode='k'});frame:SetScript('OnUpdate',nil) end
 function A.Progress() return job and job.index-1 or 0,job and job.count or 0,job and job.finishing and 'summaries' or 'records' end

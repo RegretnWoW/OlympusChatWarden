@@ -1,6 +1,18 @@
 local _, ns = ...
 local T = {}
 ns.Theme = T
+function T.WindowScale(width,height)
+    local parentScale=UIParent.GetEffectiveScale and UIParent:GetEffectiveScale() or 1
+    if type(parentScale)~='number' or parentScale~=parentScale or parentScale<=0 then parentScale=1 end
+    local fit=math.min((UIParent:GetWidth()-26)/width,(UIParent:GetHeight()-26)/height)
+    return math.max(.1,math.min(1.5,1/parentScale,fit)),math.max(.1,fit)
+end
+function T.FitWindow(frame,width,height)
+    local scale=T.WindowScale(width,height)
+    local current=frame.GetScale and frame:GetScale() or frame.ChatWardenWindowScale
+    if not current or math.abs(current-scale)>.0001 then frame:SetScale(scale);frame.ChatWardenWindowScale=scale end
+    return scale
+end
 function T.CaptureBadge(host)
     local badge = CreateFrame("Frame", nil, host)
     badge:SetSize(14, 14); badge:EnableMouse(false)
@@ -42,7 +54,7 @@ end
 -- text. Independent sections keep that fallback local to the original.
 local readerColors={
     paper={body={.20,.14,.09},quote={.15,.11,.07},title={.31,.15,.055},heading={.37,.20,.08},meta={.39,.32,.25},accent={.10,.29,.40},warning={.48,.25,.025},danger={.58,.12,.09},success={.17,.34,.13}},
-    dark={body={.91,.88,.80},quote={.96,.93,.85},title={.91,.77,.58},heading={.91,.77,.58},meta={.68,.68,.68},accent={.4,.75,1},warning={1,.72,.28},danger={1,.4,.34},success={.42,.82,.39}},
+    dark={body={.93,.92,.88},quote={.96,.93,.85},title={.96,.82,.62},heading={.96,.82,.62},meta={.77,.80,.83},accent={.4,.75,1},warning={1,.72,.28},danger={1,.4,.34},success={.42,.82,.39}},
 }
 local function DocumentPlain(value)
     return (value or ''):gsub('|H.-|h(.-)|h','%1'):gsub('|c%x%x%x%x%x%x%x%x',''):gsub('|r',''):gsub('|T.-|t',''):gsub('|A.-|a',''):gsub('|','||')
@@ -72,7 +84,7 @@ function T.ReadOnlyDocument(scroll)
     local fitting=false
     local function Apply(box)
         T.Body(box);local path=box:GetFont()
-        local kind=box.blockKind or 'body';local size=kind=='title' and 22 or kind=='heading' and 18 or kind=='quote' and 15 or kind=='meta' and 12 or 14
+        local kind=box.blockKind or 'body';local size=kind=='title' and 24 or kind=='heading' and 20 or kind=='quote' and 17 or kind=='meta' and 14 or 16
         if not T.DocumentFont(box,size) then box:SetFont(path,size,'') end;if box.SetSpacing then box:SetSpacing(3) end
         box:SetTextColor(unpack((readerColors[doc.style] or readerColors.dark)[box.blockTone or kind] or readerColors.dark.body))
     end
@@ -86,10 +98,13 @@ function T.ReadOnlyDocument(scroll)
             if box.measure.SetSpacing then box.measure:SetSpacing(3) end
             box.measure:SetWidth(width);box.measure:SetText(text)
             local _,newlines=text:gsub('\n','')
-            local height=math.max((newlines+1)*(size+3),(box.measure:GetStringHeight() or 0)+6)
+            -- Native EditBox layout can differ slightly from its FontString
+            -- measurer. Allow a line of slack instead of clipping the last wrap.
+            local height=math.max((newlines+1)*(size+3),(box.measure:GetStringHeight() or 0)+size+8)
             box:SetHeight(height);y=y+height+(block.gap or (block.kind=='heading' and 9 or 14))
         end
         doc:SetHeight(math.max(scroll:GetHeight(),y))
+        if scroll.ChatWardenUpdateScrollRange then scroll.ChatWardenUpdateScrollRange(math.max(0,doc:GetHeight()-scroll:GetHeight())) end
         local offset=scroll:GetVerticalScroll() or 0
         if offset>math.max(0,doc:GetHeight()-scroll:GetHeight()) then scroll:SetVerticalScroll(math.max(0,doc:GetHeight()-scroll:GetHeight())) end
         fitting=false
@@ -107,7 +122,7 @@ function T.ReadOnlyDocument(scroll)
             if not box then
                 box=CreateFrame('EditBox',nil,self);self.boxes[i]=box;box.ChatWardenNoSpelling=true;box.ChatWardenArtStyled=true
                 box:SetMultiLine(true);box:SetAutoFocus(false);T.TextField(box)
-                box.measure=box:CreateFontString(nil,'OVERLAY');box.measure:SetWordWrap(true);box.measure:Hide()
+                box.measure=box:CreateFontString(nil,'OVERLAY');box.measure:SetWordWrap(true);if box.measure.SetNonSpaceWrap then box.measure:SetNonSpaceWrap(true) end;box.measure:Hide()
                 box:SetScript('OnEscapePressed',function(b) b:ClearFocus() end)
                 box:HookScript('OnTextChanged',function(b,user) if user then b:SetText(b.original or '');Apply(b) end end)
             end

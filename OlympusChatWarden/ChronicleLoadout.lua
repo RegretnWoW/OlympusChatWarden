@@ -97,9 +97,9 @@ function L.Traits(source)
 end
 function L.Milestone(source,reason)
     if not X.Ready() then return end
-    local trigger=C.Stamp();local token=generation
+    local trigger=C.Stamp();local triggerTick=C.Tick();local expected=S.GUID(X.Call('UnitGUID','player'));local token=generation
     X.Queue('own-loadout',function()
-        local guid=S.GUID(X.Call('UnitGUID','player'));if not guid or token~=generation then return end
+        local guid=S.GUID(X.Call('UnitGUID','player'));if not guid or guid~=expected or token~=generation then return end
         local gear=L.Gear('player',guid,source);local appearance=L.Appearance('player',guid,source);local at=C.Stamp()
         if gear then X.refs.gear={hash=gear,at=at} end
         if appearance then X.refs.appearance={hash=appearance,at=at} end
@@ -107,7 +107,8 @@ function L.Milestone(source,reason)
             -- Repeated unchanged checkpoints are coalesced; milestones keep their
             -- own dates even when they share immutable content.
             if reason~='equipment' or gear~=lastGear then
-                X.Record('loadout_observed',source,{reason=reason,triggerAt=trigger,observedAt=at})
+                X.Record('loadout_observed',source,{reason=reason,triggerAt=trigger,observedAt=at,triggerGUID=expected,
+                    triggerElapsed=triggerTick,observedElapsed=C.Tick(),coverage='Observed at read time; not proof of trigger-time configuration'})
             end
             lastGear=gear
         end

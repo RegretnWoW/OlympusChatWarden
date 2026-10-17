@@ -2,8 +2,8 @@
 -- No probes, replies, imported lists or inference from declined interactions.
 local addon, ns = ...
 local S = {}; ns.OlympusMuteSignal = S
-local PREFIX, TITLE = "OMuteShare", "ChatWarden: OlympusMute Signal Detected"
-local pending, observed = {}, {}
+local PREFIX, TITLE = "OMuteShare", "SignalWarden: OlympusMute sharing observed"
+local pending, observed, notified = {}, {}, {}
 -- No age expiry. Bound storage to the 10,000 most recently observed characters.
 local LIMIT = 10000
 local function Clock()
@@ -25,7 +25,7 @@ local function Key(name, realm)
     return ns.Engine.Lower(name) .. "-" .. realm
 end
 function S.Initialize()
-    pending, observed = {}, {}
+    pending, observed, notified = {}, {}, {}
     local now=Clock()
     local saved=ns.DB and ns.DB.olympusMuteSeen
     if now and type(saved)=="table" then
@@ -104,6 +104,13 @@ function S.Observe(prefix, text, channel, sender)
     end
     observed[who] = timestamp
     ns.DB.olympusMuteSeen=observed
+    -- Once per character per login. The shared list is discarded, never imported.
+    if not notified[who] and ns.Activity then
+        notified[who]=true
+        ns.Activity.Add('olympusmute:'..who..':'..timestamp,'olympusmute',{
+            sender=sender,event='OLYMPUSMUTE_OBSERVED',channel=channel,timestamp=timestamp,
+            preview='Compatible OlympusMute sharing was observed. This does not prove the player has muted anyone.'},ns.DB.alertsEnabled==false)
+    end
     if ns.ScanTooltips then ns.ScanTooltips() end
 end
 function S.ClearTooltip(tip) tips[tip] = nil end

@@ -93,7 +93,8 @@ local function ReviewValid(item)
 end
 local function ActivityValid(item)
     if type(item.id)~='string' or #item.id>512 or type(item.categories)~='table' then return false end
-    if not (item.categories.messages==true or item.categories.mentions==true or item.categories.shield==true or item.categories.activity==true or item.categories.wanted==true) then return false end
+    if not (item.categories.messages==true or item.categories.mentions==true or item.categories.shield==true or item.categories.activity==true or item.categories.wanted==true or item.categories.olympusmute==true) then return false end
+    if item.categories.olympusmute and (item.event~='OLYMPUSMUTE_OBSERVED' or type(item.sender)~='string' or type(item.preview)~='string') then return false end
     if item.categories.wanted and (not ns.Wanted or not ns.Wanted.ValidRecord(item.wanted)) then return false end
     for _,key in ipairs({'text','preview','sender','event','channel','action'}) do
         if item[key]~=nil and type(item[key])~='string' then return false end
@@ -202,8 +203,8 @@ function H.Initialize()
             local id=alert and 'shield:'..alert.id or 'saved-activity:'..i
             if entry then entry.activityID=id;entry.activityEvicted=false end
             if alert then alert.activityEvicted=false end
-            for _,category in ipairs({'messages','mentions','shield','activity','wanted'}) do
-                if item.categories[category] and ((category=='messages' or category=='activity') and entry or category=='shield' and (alert or entry) or category=='mentions' or category=='wanted' and ns.Wanted.ValidRecord(item.wanted)) then
+            for _,category in ipairs({'messages','mentions','shield','activity','wanted','olympusmute'}) do
+                if item.categories[category] and ((category=='messages' or category=='activity') and entry or category=='shield' and (alert or entry) or category=='mentions' or category=='wanted' and ns.Wanted.ValidRecord(item.wanted) or category=='olympusmute') then
                     local restored=ns.Activity.Add(id,category,{reviewID=entry and entry.id,shieldAlert=alert,
                         sender=item.sender,event=item.event,channel=item.channel,preview=item.preview,text=item.text,
                         mentionMatches=item.mentionMatches,timestamp=item.timestamp,action=item.action,wanted=item.wanted},item.quiet[category]==true)

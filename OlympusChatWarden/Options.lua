@@ -269,11 +269,19 @@ end
 
 SLASH_OLYMPUSCHATWARDEN1 = "/chatwarden"
 SLASH_OLYMPUSCHATWARDEN2 = "/ocw"
+SLASH_OLYMPUSCHATWARDEN3 = "/warden"
+SLASH_OLYMPUSCHATWARDEN4 = "/ow"
 SlashCmdList.OLYMPUSCHATWARDEN = function(message)
     if not ns.DB then return end
     local command, argument = (message or ""):match("^%s*(%S*)%s*(.-)%s*$")
     command = (command or ""):lower()
-    if command=='chronicle' then ns.Chronicle.Slash(argument)
+    if command=='perf' then ns.WardenPerformance.Slash(argument)
+    elseif command=='chronicle' and argument=='' then ns.Workspace.Open('chronicle')
+    elseif command=='intel' and argument=='' then ns.Workspace.Open('intel')
+    elseif command=='signal' or command=='signalwarden' then ns.Workspace.Open('mentions')
+    elseif command=='chat' or command=='chatwarden' then ns.Workspace.Open('messages')
+    elseif command=='search' then ns.Workspace.Open('overview');local p=ns.Workspace.pages.overview;if p then p.search:SetText(argument);p:Search() end
+    elseif command=='chronicle' then ns.Chronicle.Slash(argument)
     elseif command=='intel' then ns.Chronicle.IntelSlash(argument)
     elseif command=='test' then ns.PhraseTester.Run(argument)
     elseif command == "shieldoptions" then ns.OpenShieldOptions()

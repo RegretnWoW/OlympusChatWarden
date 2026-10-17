@@ -1,5 +1,5 @@
 local ADDON_NAME, ns = ...
-ns.NAME, ns.VERSION = "Olympus ChatWarden", "1.0.3"
+ns.NAME, ns.VERSION = "Olympus Warden", "1.1.0"
 ns.TAGLINE = "CHUDS WITHOUT BORDERS"
 ns.REPORT_URL = "https://github.com/RegretnWoW/OlympusChatWarden/issues"
 ns.PROJECT_URL = "https://github.com/RegretnWoW/OlympusChatWarden"
@@ -22,7 +22,7 @@ function ns.Checked(value)
 end
 
 function ns.Print(message)
-    if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cffdd3333OCW:|r " .. message) end
+    if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cff56b9e8Warden:|r " .. message) end
 end
 
 function ns.Active(scope)
@@ -145,7 +145,7 @@ end
 
 function ns.Initialize()
     if ns.History then ns.History.Flush() end
-    ns.Initializing = true
+    ns.Initializing = true;ns.InitializationStage='settings';ns.StartupErrors={}
     ns.Membership.InstallAccessGuards()
     if type(OlympusChatWardenDB) ~= "table" then OlympusChatWardenDB = {} end
     ns.DB = OlympusChatWardenDB
@@ -197,20 +197,21 @@ function ns.Initialize()
     if not ns.SetExceptions(type(ns.DB.exceptions) == "table" and ns.DB.exceptions or {}) then ns.SetExceptions({}) end
     ns.RulePacks.Initialize()
     ns.DB.schema = 11
-    if ns.OlympusMuteSignal then ns.OlympusMuteSignal.Initialize() end
-    if ns.Shield then ns.Shield.Initialize() end
-    if ns.Notifications then ns.Notifications.Initialize() end
-    if ns.Activity then ns.Activity.Initialize() end
-    if ns.Mentions then ns.Mentions.Initialize() end
-    if ns.Language then ns.Language.Initialize() end
-    if ns.Personal then ns.Personal.Initialize() end
-    if ns.ChatCapture then ns.ChatCapture.Initialize() end
-    if ns.Spelling then ns.Spelling.Initialize() end
-    if ns.History then ns.History.Initialize() end
-    if ns.Wanted then ns.Wanted.Initialize() end
-    if ns.Chronicle then ns.Chronicle.Initialize() end
+    local function InitializeModule(name,...)
+        local module=ns[name];if not module or not module.Initialize then return end
+        ns.InitializationStage=name
+        local ok,reason=pcall(module.Initialize,...)
+        if not ok then
+            -- Session-only diagnostics. A failed optional initializer must not
+            -- leave the whole suite permanently in its initialization state.
+            ns.StartupErrors[#ns.StartupErrors+1]=name..' initialization failed.'
+            local handler=geterrorhandler and geterrorhandler();if type(handler)=='function' then pcall(handler,reason) end
+        end
+    end
+    InitializeModule('Chronicle',true)
+    for _,name in ipairs({'OlympusMuteSignal','Shield','Notifications','Activity','Mentions','Language','Personal','ChatCapture','Spelling','History','Wanted'}) do InitializeModule(name) end
     ns.DB.playerCover = nil -- retired body-cover experiment; ordinary name filtering remains
-    ns.Initializing = false
+    ns.Initializing = false;ns.InitializationStage=#ns.StartupErrors>0 and 'finished with errors' or 'ready'
     if ns.Membership.Allowed() then ns.RulePacks.Restore() else ns.PacksSuspended = true end
     if ns.Wanted then ns.Wanted.Refresh() end
 end

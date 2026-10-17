@@ -1,6 +1,6 @@
 local _,ns=...
 local C,S=ns.Chronicle,ns.ChronicleStore
-local disclosure='Save your own route, player encounters and their locations, plus progress, gear and supported activity. Other players are not continuously tracked. This builds future Chronicle and Player Intelligence tools. Olympus boards are source snapshots; missing details stay unknown. History stays on this computer until you clear it. ChatWarden does not upload it or send messages.'
+local disclosure='ChronicleWarden and IntelWarden (Player Intelligence) save your route, encounters and locations, progress, gear and supported activity. No continuous tracking of other players. Permitted Olympus data stays dated; missing facts stay unknown. Kept locally until you clear it. Warden does not upload history or send messages.'
 C.Disclosure=disclosure
 C.CollectionHelp={
     Character='Your client/build, class/race/body identifiers, rested XP and readable honor values. These describe an observed state, not a newly earned milestone.',
@@ -17,15 +17,15 @@ C.CollectionHelp={
     Mounts='Owned mount ID/spell descriptors and separate explicit new-mount events. An initial catalog is not unlock history.',
     Pets='Owned pet GUID, species and readable basic descriptors. Private pet custom names and notes are excluded. Initial ownership is not a new unlock.',
     Toys='Owned toys from the current filtered native view and explicit new-toy events. Filters are not changed; omitted toys do not imply loss.',
-    ['Important players']='Friendly group companions, encountered friends, bookmarked players and important opponents. Group membership alone does not prove proximity or boss participation.',
-    Inspection='Ordinary GUID-matched inspection of important players, with ownership checks, timeout and backoff. Missing gear, talents or appearance remain unknown.',
+    ['Important players']='Friendly group companions, manually inspected players, encountered friends, bookmarked players and important opponents. A deliberate Inspect is a manual interaction, not evidence of combat participation.',
+    Inspection='Ordinary GUID-matched inspection of important players, including your native Inspect window while recording. Saves readable gear, appearance, readable selected talents/ranks, native export and inspected specialization. Stale or competing requests are rejected. Missing fields stay unknown; no other-player reputation or unverified honor cache is saved.',
     ['PvP counters']='Readable lifetime/session/yesterday totals. Totals do not identify victims or prove individual victories.',
     ['Forever rank']='Readable rank-faction values only on verified client-build mappings. An unverified build does not receive a guessed rank.',
     ['Native kill credit']='Readable PARTY_KILL actor/target payloads, separated into self, current pet, group or unattributed credit. Live credit semantics remain unverified; these are not declared PvP wins.',
     ['Damage meter']='Supported post-combat session, source and spell totals. These are native summaries, not a raw chronological combat log or complete victim ledger.',
     ['PvP scores']='Readable final native scoreboard rows and match fields. Team totals do not establish per-player victim identities.',
     gear='Dated slot states, item payloads and readable item-instance IDs. Reused snapshots retain separate observation dates; later inspection is not fight-time gear.',
-    traits='Committed native trait node/configuration chunks or a subject-bound inspect export when readable. Partial chunks are not a guaranteed atomic full talent build.',
+    traits='Committed native trait node/configuration chunks, or a GUID-matched inspected talent export and specialization ID when readable. IntelWarden > Talents shows dated selections, ranks, exports and older builds. Old export-only records need another inspection for readable choices. Partial chunks and specialization alone do not establish a full talent build.',
     appearance='Readable body/race/class/display descriptors. Opponent face/hair/transmog and portrait pixels may be unavailable; missing appearance is not reconstructed as fact.',
     barber='Readable option and choice IDs after an applied native barber change. Previewed or cancelled choices do not become history.',
     meter='Post-combat native source/spell aggregates with session/reset identifiers. Amounts are source summaries, not raw combat events.',
@@ -48,6 +48,9 @@ function C.PrintStatus(diagnostics)
     ns.Print(string.format('Storage estimates: own routes %.2f MiB; Player Intelligence %.2f MiB; historical player tracks/gaps %.2f MiB; other events %.2f MiB.',storage.ownRouteBytes/1048576,storage.playerIntelBytes/1048576,storage.playerRouteBytes/1048576,storage.otherBytes/1048576))
     ns.Print('No inferred victories, assists, dungeon completions or transaction causes. /ocw chronicle opens recording settings.')
     if diagnostics then
+        ns.Print('History initialization: '..(S.loading and 'loading' or S.db and 'ready' or S.blocked and 'blocked' or 'unfinished')..'; addon startup stage: '..tostring(ns.InitializationStage or 'not recorded')..'.')
+        if S.loadError then ns.Print(S.loadError) end
+        for _,failure in ipairs(ns.StartupErrors or {}) do ns.Print('Startup: '..failure) end
         ns.Print('Recording scope '..S.CONSENT..'; saved consent '..tostring(S.db and S.db.consentVersion or 'none')..'; prompt shown for scope '..tostring(S.db and S.db.promptSeen or 'none')..'. /ocw chronicle prompt reopens the explanation.')
         if ns.ChronicleRoute then ns.Print('Route: '..ns.ChronicleRoute.diagnostics.samples..' native samples this session; '..ns.ChronicleRoute.Pending()..' pending runs; '..ns.ChronicleRoute.diagnostics.unavailable..' unavailable attempts.') end
         if ns.ChronicleCapture then
@@ -72,7 +75,11 @@ function C.PrintStatus(diagnostics)
 end
 function C.Slash(argument)
     argument=(argument or ''):lower()
-    if argument=='on' then ns.Print(disclosure);C.SetEnabled(true);C.PrintStatus()
+    if argument=='statistics' then ns.ChronicleStatistics.Print()
+    elseif argument:match('^statistics ids') then ns.ChronicleStatistics.PrintIDs(tonumber(argument:match('^statistics ids%s+(%d+)$')))
+    elseif argument=='duels on' or argument=='duels off' then
+        ns.ChronicleDuels.SetEnabled(argument=='duels on');ns.Print('Optional duel recording '..(S.db and S.db.duels and 'enabled' or 'off')..'. Local only; before/after captures are dated observations; received amounts have no attacker attribution. Main Chronicle consent is still required.')
+    elseif argument=='on' then ns.Print(disclosure);C.SetEnabled(true);C.PrintStatus()
     elseif argument=='off' then C.SetEnabled(false);ns.Print(C.Status())
     elseif argument=='clear confirm' then
         ns.Print(C.Clear() and 'Chronicle and Player Intelligence history cleared. Recording is off.' or 'Unknown saved-data format preserved; this build is not recording it.')
@@ -106,19 +113,19 @@ end
 function ns.BuildChronicleOptions(parent)
     if ns.ChronicleOptionsPanel then return end
     local T,V=ns.Theme,ns.Art
-    local panel=CreateFrame('Frame',nil,nil,'BackdropTemplate');panel:SetSize(640,640);T.SkinWindow(panel)
+    local panel=CreateFrame('Frame',nil,nil,'BackdropTemplate');panel:SetSize(640,676);T.SkinWindow(panel)
     local body=CreateFrame('Frame',nil,panel);body:SetAllPoints(panel)
     local function Text(value,x,y,width,size,color) return V.Text(body,value,x,y,width,size or 14,color or V.gold) end
     local intro=Text('Your journey. Your player history.',22,-24,590,24)
-    local purpose=Text('Start a useful history now for the Chronicle timeline and Player Intelligence tools we are building next. Recording is optional and starts off.',24,-65,590,15,V.muted);purpose:SetHeight(54)
+    local purpose=Text('Explore your adventure in ChronicleWarden and remember players in IntelWarden. Recording starts off for new users; pausing keeps your existing history.',24,-65,590,15,V.muted);purpose:SetHeight(54)
     local check=V.Check(body,'Record Chronicle & Player Intelligence',22,-139,false,function(value)
-        C.SetEnabled(value);panel:Refresh()
+        if not C.SetEnabled(value) then ns.Print(C.Status()) end;panel:Refresh()
     end,570)
     T.Tooltip(check,'Optional recording',disclosure..' Chat Capture and alert sounds can remain off. Turning this off keeps existing records; Clear history removes them.')
     local privacy=Text('Where the information comes from',24,-196,590,18)
     local privacyBody=Text(disclosure,24,-226,590,14,V.muted);privacyBody:SetHeight(96)
-    local scope=Text('What ChatWarden records',24,-330,590,18)
-    local scopeBody=Text('Your route: every 2 seconds. Player encounters keep one location snapshot, with your position separate from theirs. No continuous other-player tracking. Also saves progress, gear, supported combat evidence, currencies, lockouts and collections. Missing details stay unknown.',24,-360,590,14,V.muted);scopeBody:SetHeight(96)
+    local scope=Text('What Warden records',24,-330,590,18)
+    local scopeBody=Text('Your route: every 2 seconds. Encounters keep available positions separately for you and the other player. Also records progress, gear, supported combat, native statistics, currencies, lockouts and collections. Missing details stay unknown.',24,-360,590,14,V.muted);scopeBody:SetHeight(96)
     local status=Text('',24,-468,590,14,V.blue);status:SetHeight(42)
     local stats=Text('',24,-515,590,13,V.muted);stats:SetHeight(58)
     panel.statusHelp=T.StatTooltip(status,'Recording status','Click for recording details. Recording requires your current consent and Olympus access. Pausing keeps history. Missing fields stay unknown.',function() ns.RecordingUI.OpenCollection('time') end)
@@ -130,13 +137,45 @@ function ns.BuildChronicleOptions(parent)
         else panel.clearArmed=true;clear:SetText('Click again to clear all') end
         panel:Refresh()
     end,'danger')
+    local danger=V.Panel(body,16,-576,608,48,'minimal');panel.dangerZone=danger
+    V.Text(danger,'Delete recorded history',14,-5,290,16,{1,.55,.4})
+    V.Text(danger,'Back up first. Permanent removal.',14,-27,290,12,V.muted)
+    local line=danger:CreateTexture(nil,'BORDER');line:SetPoint('TOPLEFT');line:SetPoint('BOTTOMLEFT');line:SetWidth(3);line:SetColorTexture(.72,.18,.12,1)
+    clear:SetParent(danger);clear:ClearAllPoints();clear:SetPoint('TOPRIGHT',-8,-8);clear:SetWidth(290)
     local explanation=V.Button(body,'Show recording explanation',24,-544,290,26,function() C.MaybePrompt(true) end,'neutral')
+    local duel=V.Check(body,'Optional: record duel history',322,-544,false,function(value)
+        if not value then ns.ChronicleDuels.SetEnabled(false);panel:Refresh();return end
+        local popup=panel.duelConsent
+        if not popup then
+            popup=V.Panel(UIParent,0,0,580,340,'dark');popup:ClearAllPoints();popup:SetPoint('CENTER');popup:SetFrameStrata('DIALOG');popup:SetClampedToScreen(true);popup:EnableMouse(true)
+            V.Text(popup,'Remember your duels',24,-22,530,23,V.gold)
+            local text=V.Text(popup,'Keep individual duels, verified results, and both players’ available gear and talents before and after each fight. Unchanged configurations share content while each duel keeps its own dated observations.',24,-72,530,15,V.muted);text:SetHeight(76)
+            local limits=V.Text(popup,'Also saves bounded successful casts and damage/healing received during the duel window. Received amounts have no attacker attribution. Missing inspections and unknown outcomes stay unknown. This history stays on this computer until you clear it; nothing is uploaded.',24,-160,530,14,V.blue);limits:SetHeight(92)
+            V.Button(popup,'Not now',24,-286,244,32,function() popup:Hide();panel:Refresh() end,'neutral')
+            V.Button(popup,'Enable duel recording',284,-286,272,32,function()
+                if ns.ChronicleDuels.SetEnabled(true) then
+                    popup:Hide();ns.Print(S.db and S.db.enabled and 'Optional duel recording enabled.' or 'Duel recording selected. Enable Chronicle recording to begin collecting duels.')
+                else ns.Print(C.Status()) end
+                panel:Refresh()
+            end)
+            panel.duelConsent=popup
+        end
+        popup:Show();T.FocusWindow(popup);panel:Refresh()
+    end,290)
+    panel.duelCheck=duel
+    T.Tooltip(duel,'Your duel history','Separate opt-in. Saves accepted challenges, verified results, both players’ available gear/talents before and after, successful casts and received damage/healing during the duel window. Received amounts have no attacker attribution. Local only; no raw combat log or scanning. Failed captures and unknown results stay visible. History is kept until you clear it.')
     local footer=Text('Kept until you clear it. Back up from Recording. Future sharing needs a separate opt-in.',24,-626,590,12,V.muted)
     function panel:Refresh()
-        check:SetChecked(S.db and S.db.enabled==true);check:SetEnabled(not S.blocked)
-        status:SetText(C.Status())
-        if not (InCombatLockdown and InCombatLockdown()) then
-            local s=C.Statistics();stats:SetText(s.events..' retained events  |  '..s.profiles..' observed player profiles  |  '..math.floor(s.seconds/60)..' tracked minutes\n'..s.encounters..' direct-unit encounters  |  '..s.wantedEncounters..' listed Wanted encounters\nClick these figures for an explanation. No history is backfilled.')
+        intro:SetText(S.loading and 'Your history is loading' or not S.db and 'Your history is unavailable' or C.Active() and 'Your adventure is recording' or 'Recording is paused • history kept')
+        duel:SetChecked(S.db and S.db.duels==true and S.db.duelConsent==1);duel:SetEnabled(S.db~=nil and not S.blocked)
+        check:SetChecked(S.db and S.db.enabled==true);check:SetEnabled(S.db~=nil and not S.blocked)
+        local text=C.Status()
+        if S.db and S.db.duels and not ns.ChronicleDuels.Enabled() then text=text..' Duel recording is selected but currently inactive.' end
+        status:SetText(text)
+        if S.loading then stats:SetText('Checking retained history. Record and player counts appear when validation finishes.')
+        elseif not S.db then stats:SetText('Saved history is unavailable. The original saved file is preserved; no empty history has replaced it.')
+        elseif not (InCombatLockdown and InCombatLockdown()) then
+            local s=C.Statistics();stats:SetText(s.events..' retained events  |  '..s.profiles..' observed profiles  |  '..math.floor(s.seconds/60)..' measured minutes\n'..s.encounters..' local encounters  |  '..s.wantedEncounters..' Wanted encounters')
         end
     end
     function panel:ChatWardenLayout(w,h)
@@ -146,25 +185,34 @@ function ns.BuildChronicleOptions(parent)
         ns.Workspace.Place(check,22,-124,width,28)
         ns.Workspace.Place(privacy,24,-183,width,24);ns.Workspace.Place(privacyBody,24,-219,width,68)
         ns.Workspace.Place(scope,24,-302,width,24);ns.Workspace.Place(scopeBody,24,-338,width,68)
-        ns.Workspace.Place(status,24,-428,width,42);ns.Workspace.Place(stats,24,-477,width,58)
-        ns.Workspace.Place(retention,24,-565,270,32);ns.Workspace.Place(clear,320,-565,290,32)
-        ns.Workspace.Place(explanation,24,-535,290,24)
-        ns.Workspace.Place(footer,24,-623,width,26)
+        ns.Workspace.Place(status,24,-418,width,36);ns.Workspace.Place(stats,24,-458,width,42)
+        ns.Workspace.Place(retention,24,-540,270,32)
+        ns.Workspace.Place(danger,24,-578,width,48)
+        clear:ClearAllPoints();clear:SetPoint('TOPRIGHT',-12,-8);clear:SetSize(290,32)
+        ns.Workspace.Place(explanation,24,-507,290,24)
+        ns.Workspace.Place(duel,322,-507,width-322,28)
+        ns.Workspace.Place(footer,24,-642,width,26)
     end
     panel:SetScript('OnShow',function() panel:Refresh() end)
     panel:SetScript('OnHide',function() panel.clearArmed=nil;clear:SetText('Clear recorded history') end)
     local elapsed=0;panel:SetScript('OnUpdate',function(_,delta) elapsed=elapsed+delta;if elapsed>=5 then elapsed=0;panel:Refresh() end end)
     T.BindSettings(panel);ns.ChronicleOptionsPanel=panel
     if parent and Settings and Settings.RegisterCanvasLayoutSubcategory then
-        local category=Settings.RegisterCanvasLayoutSubcategory(ns.Workspace and ns.Workspace.SettingsCanvas(panel,'chronicle') or panel,parent,'Chronicle & Intel')
+        local category=Settings.RegisterCanvasLayoutSubcategory(parent,ns.Workspace and ns.Workspace.SettingsCanvas(panel,'chronicle') or panel,'Chronicle & Intel')
         if Settings.RegisterAddOnCategory then Settings.RegisterAddOnCategory(category) end
     end
 end
 -- Separate from release notes and the launch tour: hiding either never consents.
 local queued=false
 function C.MaybePrompt(force)
+    if S.loading then
+        if force then C.promptAfterLoad=true;ns.Print('Your saved history is still loading. The recording explanation will open when validation finishes. '..C.Status()) end
+        return
+    end
     if queued or not C.promptReady or not S.db or S.blocked or not ns.Membership.Allowed() then
-        if force then ns.Print('The recording explanation is available after world entry with Olympus access. '..C.Status()) end
+        if force then
+            ns.Print((not S.db or S.blocked) and C.Status() or not ns.Membership.Allowed() and ns.Membership.Status() or 'The recording explanation is available after world entry. '..C.Status())
+        end
         return
     end
     if not force and (S.db.promptSeen==S.CONSENT or S.db.consentVersion==S.CONSENT) then return end
@@ -191,11 +239,11 @@ function C.MaybePrompt(force)
             popup.ChatWardenOwned=true;T.RegisterWindow(popup);ns.RecordingConsentWindow=popup
             V.Button(popup,'X',579,-13,27,27,function() popup:Hide() end,'danger')
             V.Icon(popup,'recording',46,24,-36)
-            V.Text(popup,'Start your history with ChatWarden',83,-46,500,21,V.gold)
-            local text=V.Text(popup,'Build a personal Chronicle, a future map replay of your travels, and Player Intelligence from your own history. Recording saves precise in-game positions and dated public Olympus information.',26,-110,565,16,V.gold);text:SetHeight(88)
-            local scope=V.Text(popup,'Save your own route, progress, gear and supported activity for future Chronicle and Player Intelligence tools. Player encounters keep a single location snapshot when readable. Other players are not continuously tracked. Historical tracks stay saved; unavailable details remain unknown.',26,-215,565,14,V.muted);scope:SetHeight(80)
-            local privacy=V.Text(popup,'Your new recorded history stays on this computer. Olympus supplies its existing permitted information; ChatWarden does not upload your route or history. Sharing in a future release would need a separate choice.',26,-311,565,14,V.muted);privacy:SetHeight(76)
-            local control=V.Text(popup,'Optional. Covers eligible characters on this installation. Kept until you clear it. Pause, inspect events and back up from Recording. This does not turn on Chat Capture or alert sounds.',26,-403,565,13,V.blue);control:SetHeight(52)
+            V.Text(popup,'Remember your adventure with Olympus Warden',83,-46,500,21,V.gold)
+            local text=V.Text(popup,'Explore personal milestones in ChronicleWarden and players you remember in IntelWarden. Recording is optional and starts off.',26,-110,565,16,V.gold);text:SetHeight(88)
+            local scope=V.Text(popup,'Saves your precise route every two seconds, progress, gear and supported activities. Player encounters keep available locations, not continuous tracks. Dated permitted Olympus data is included. Missing facts stay unknown; duel recording needs a separate choice.',26,-215,565,14,V.muted);scope:SetHeight(80)
+            local privacy=V.Text(popup,'History stays on this computer until you clear it. Warden does not upload it or send messages. You control deliberate exports and backups; future sharing needs separate consent. Existing historical tracks remain saved.',26,-311,565,14,V.muted);privacy:SetHeight(76)
+            local control=V.Text(popup,'Applies to eligible characters on this installation. Pausing keeps history. Review and back up from Data & Backups. This does not enable Chat Capture or alert sounds.',26,-403,565,13,V.blue);control:SetHeight(52)
             V.Button(popup,'Not now',26,-470,264,32,function() popup:Hide() end,'neutral')
             V.Button(popup,'Enable recording',307,-470,287,32,function()
                 if C.SetEnabled(true) then popup:Hide();ns.Print('Recording enabled. Browse saved events and backups from Recording.') end
@@ -203,7 +251,7 @@ function C.MaybePrompt(force)
             popup:SetScript('OnHide',function() if S.db and S.db.consentVersion~=S.CONSENT then C.SetEnabled(false) end end)
         end
         S.db.promptSeen=S.CONSENT -- Dismiss, Escape and Not now never enable a new scope.
-        popup:SetScale(math.min(1,(UIParent:GetWidth()-24)/620,(UIParent:GetHeight()-24)/520))
+        T.FitWindow(popup,620,520)
         popup:Show();T.FocusWindow(popup)
     end
     if C_Timer and C_Timer.After then C_Timer.After(3,show) else show() end

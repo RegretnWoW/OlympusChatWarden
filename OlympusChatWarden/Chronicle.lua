@@ -190,20 +190,22 @@ local function Player(guid,data,source,localSighting,unit)
         -- A failed append must not turn an unsaved event into a profile encounter.
         if not saved then data.encounter=false end
         S.Observe(r.owner,guid,data,saved and saved.at or at,source,place,position)
-        r.seen[guid]={signature=signature,recorded=saved and now or previous.recorded,
-            localAt=localSighting and now or previous and previous.localAt}
+        local entry=previous or {};if not previous then r.seenCount=(r.seenCount or 0)+1 end
+        entry.signature=signature;entry.recorded=saved and now or previous.recorded
+        entry.localAt=localSighting and now or previous and previous.localAt;r.seen[guid]=entry
     end
     -- Runtime deduplication is bounded independently of SavedVariables.
-    local count=0;for _ in pairs(r.seen) do count=count+1 end
-    if count>600 then local old,stamp;for id,v in pairs(r.seen) do if not stamp or v.recorded<stamp then old,stamp=id,v.recorded end end;r.seen[old]=nil end
+    if (r.seenCount or 0)>600 then local old,stamp;for id,v in pairs(r.seen) do if not stamp or v.recorded<stamp then old,stamp=id,v.recorded end end;r.seen[old]=nil;r.seenCount=r.seenCount-1 end
 end
+function C.RuntimeCounts() return r.seenCount or 0,600 end
 function C.ObserveUnit(unit,source,localSighting)
     if not C.InWorld() or not ns.Checked(Call('UnitIsPlayer',unit)) then return end
     local guid=S.GUID(Call('UnitGUID',unit));if not guid or guid==r.guid then return end
     local name,realm=Call(type(UnitFullName)=='function' and 'UnitFullName' or 'UnitName',unit)
     name=S.Text(name);if not name then return end
-    local _,class=Call('UnitClass',unit);local _,race=Call('UnitRace',unit)
+    local _,class,classID=Call('UnitClass',unit);local _,race,raceID=Call('UnitRace',unit)
     local data={name=name,realm=S.Text(realm,128),class=S.Text(class,64),race=S.Text(race,64),
+        classID=S.Integer(classID,1,1000),raceID=S.Integer(raceID,1,1000),sex=S.Integer(Call('UnitSex',unit),1,3),
         faction=S.Text(Call('UnitFactionGroup',unit),64),level=S.Integer(Call('UnitLevel',unit),1,1000),
         guild=S.Text(Call('GetGuildInfo',unit),128),via=unit}
     -- A unit token can be recycled while its fields are being read.
@@ -384,7 +386,9 @@ function C.Profile(guid)
 end
 function C.SetPersonal(guid,note,watch)
     local c=S.Character(C.Owner(),false);local p=c and c.profiles[S.GUID(guid) or '']
-    if not p or not Allowed() or note~=nil and note~='' and not S.Text(note,512) or watch~=nil and type(watch)~='boolean' then return false end
+    -- A private annotation of retained evidence is separate from recording consent.
+    if not p or S.blocked or not ns.DB or not ns.Membership or not ns.Membership.Allowed()
+        or note~=nil and note~='' and not S.Text(note,512) or watch~=nil and type(watch)~='boolean' then return false end
     c.bytes=c.bytes-S.Size(p);p.personal=p.personal or {}
     if note~=nil then p.personal.note=note~='' and note or nil end
     if watch~=nil then p.personal.watch=watch end
@@ -393,20 +397,32 @@ end
 function C.PlayerStatistics(guid) return S.PlayerStatistics(C.Owner(),guid) end
 
 function C.Status()
+    if S.loading then
+        local p=S.loadProgress or {};local total=p.totalChunks or 0
+        local progress=total>0 and (p.chunks..' / '..total..' chunks ('..math.min(100,math.floor(p.chunks*100/total))..'%)') or ((p.records or 0)..' records checked')
+        return 'Loading saved history: '..progress..'. Recording controls unlock when complete.'
+    end
     if S.blocked then return 'Recording unavailable: saved history could not be loaded. Original data is preserved.' end
+    if not S.db then return 'Recording unavailable: history initialization did not finish. /warden chronicle diagnostics shows startup details.' end
     if S.db and S.db.needsConsentUpgrade then return 'Recording paused until you review Chronicle and Player Intelligence recording. /ocw chronicle prompt'
     end
     if not S.db or not S.db.enabled then return 'Recording off. No new Chronicle or Player Intelligence history is saved.' end
     if not Allowed() then return 'Recording paused. ChatWarden must be enabled and Olympus membership available.' end
     return C.Active() and 'Recording Chronicle and Player Intelligence on this computer.' or 'Recording enabled; waiting for a supported character identity and world entry.'
 end
-function C.Initialize()
-    Reset();worldReady=false;C.promptReady=false;S.Initialize()
+function C.Initialize(cooperative)
+    Reset();worldReady=false;C.promptReady=false;C.promptAfterLoad=nil;S.Initialize(cooperative)
+end
+function C.Loaded()
+    local force=C.promptAfterLoad;C.promptAfterLoad=nil
+    if ns.ChronicleStartup then ns.ChronicleStartup.Merge() end
+    C.RefreshGate()
+    if C.MaybePrompt then C.MaybePrompt(force) end
 end
 function C.Handle(event,...)
-    if not S.db then return end
     if event=='PLAYER_ENTERING_WORLD' then worldReady=true;C.promptReady=true;if C.MaybePrompt then C.MaybePrompt() end
     elseif event=='PLAYER_LOGOUT' then worldReady=false end
+    if not S.db then if event=='PLAYER_LOGOUT' then S.CancelLoad() end;return end
     if not Allowed() then Reset();if event=='PLAYER_LOGOUT' then S.PrepareLogout() end;return end
     if r.running and Identity()~=r.owner then Reset() end
     C.diagnostics.events[event]=(C.diagnostics.events[event] or 0)+1

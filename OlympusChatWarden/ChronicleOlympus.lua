@@ -94,6 +94,6 @@ function O.Start()
     -- Three initial reads, throttled across rapid toggles. Later updates are pushed.
     Read()
     frame:SetScript('OnUpdate',function()
-        if pending and Eligible() and (not lastRead or C.Tick()>=lastRead+10) then Read() end
+        if pending and (not lastRead or C.Tick()>=lastRead+10) and Eligible() then Read() end
     end)
 end

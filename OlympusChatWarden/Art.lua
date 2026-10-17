@@ -20,6 +20,11 @@ for name,rect in pairs(status) do icons[name]=rect end
 icons.recording=icons.copy
 V.IconRects=icons
 function V.SetIcon(texture,name)
+    local brand=ns.WardenBrand and ns.WardenBrand.Icon(name)
+    if brand then
+        V.Region(texture,brand,{0,0,512,512})
+        texture:SetTexture(ns.WardenBrand.path..brand..'Small.tga');texture.ChatWardenArt={atlas=brand..'Small',rect={0,0,128,128}};return
+    end
     V.Region(texture,status[name] and 'Status' or 'Icons',icons[name] or icons.messages)
 end
 local frames={dark={'Panels',{677,47,1018,420},18},paper={'Panels',{21,46,367,420},28},
@@ -48,8 +53,9 @@ function V.Texture(parent,atlas,rect,layer,sublevel)
     V.Region(t,atlas,rect);return t
 end
 function V.Region(texture,atlas,rect)
-    texture:SetTexture(base..atlas..'.tga')
-    local f=factors[atlas];texture:SetTexCoord(rect[1]*f,rect[3]*f,rect[2]*f,rect[4]*f)
+    local brand=atlas=='Logo' and 'Warden' or ns.WardenBrand and ns.WardenBrand.path and (atlas:match('Warden$') and atlas)
+    texture:SetTexture(brand and ns.WardenBrand.Path(brand) or base..atlas..'.tga')
+    local f=brand and 1/512 or factors[atlas];texture:SetTexCoord(rect[1]*f,rect[3]*f,rect[2]*f,rect[4]*f)
     texture.ChatWardenArt={atlas=atlas,rect=rect}
     if texture.ChatWardenIconBox then V.FitIcon(texture,rect) end
 end
@@ -65,11 +71,20 @@ function V.Icon(parent,name,size,x,y)
     t.ChatWardenIconBox={size=size,x=x or 0,y=y or 0};V.FitIcon(t);return t
 end
 function V.Nine(parent,kind)
+    -- Quiet surfaces sit below the original ornate banners and sapphire selection.
+    if kind=='row' or kind=='minimal' then
+        local group={}
+        local fill=parent:CreateTexture(nil,'BACKGROUND');fill:SetAllPoints();fill:SetColorTexture(.055,.09,.125,.94);group[1]=fill
+        local line=parent:CreateTexture(nil,'BORDER');line:SetPoint('BOTTOMLEFT',8,0);line:SetPoint('BOTTOMRIGHT',-8,0);line:SetHeight(1);line:SetColorTexture(.38,.29,.18,.65);group[2]=line
+        function group:SetShown(value) for _,t in ipairs(self) do t:SetShown(value) end end
+        return group
+    end
     local spec=frames[kind] or frames.dark;local atlas,r,b=spec[1],spec[2],spec[3]
     local group={};local w,h=r[3]-r[1],r[4]-r[2]
     local rim=rimWidths[kind] or b
     local edge=kind=='paper' and 14 or kind=='header' and 18 or (kind=='button' or kind=='danger' or kind=='neutral' or kind=='disabled' or kind=='hover' or kind=='pressed' or kind=='dangerHover' or kind=='dangerPressed' or kind=='search' or kind=='searchFocus') and 7 or 10
     if kind:find('^tab') or kind=='neutralHover' or kind=='neutralPressed' then edge=7 end
+    if kind=='dark' then edge=5;rim=4 end
     if edge==7 and parent:GetHeight()<30 and not kind:find('^tab') then edge=5 end
     -- Button center strips exclude the baked example text in the source sheet.
     local centerY=(kind=='button' or kind=='danger' or kind=='neutral' or kind=='disabled' or kind=='tab' or kind=='tabOff' or kind=='search' or kind=='searchFocus') and r[2]+b+2 or (r[2]+r[4])/2
@@ -89,6 +104,10 @@ function V.Nine(parent,kind)
         {{r[3]-rim,r[2]+b,r[3],r[4]-b},'TOPRIGHT',0,-edge,'BOTTOMRIGHT',0,edge,'width'},
     }
     for _,p in ipairs(strips) do local t=V.Texture(parent,atlas,p[1],'BORDER');t:SetPoint(p[2],p[3],p[4]);t:SetPoint(p[5],p[6],p[7]);if p[8]=='height' then t:SetHeight(edge) else t:SetWidth(edge) end;group[#group+1]=t end
+    if kind=='dark' then
+        for _,t in ipairs(group) do t:SetVertexColor(.61,.57,.49,1) end
+        center:SetVertexColor(.23,.32,.43,1)
+    end
     function group:SetShown(value) for _,t in ipairs(self) do t:SetShown(value) end end
     return group
 end
@@ -102,6 +121,15 @@ function V.Panel(parent,x,y,w,h,kind,name)
     f.ArtFrame=V.Nine(f,kind or 'dark');f.ChatWardenPaper=kind=='paper';return f
 end
 function V.Text(parent,text,x,y,width,size,color)
+    size=math.max(12,size or 13)
+    -- Full-suite labels need a readable floor when the window fits a laptop.
+    -- Compact Olympus surfaces and native chat keep their existing typography.
+    local host=parent;local workspace=ns.Workspace and ns.Workspace.window
+    for _=1,16 do
+        if not host then break end
+        if host==workspace then size=size<=13 and 14 or size==14 and 16 or size;break end
+        host=host.GetParent and host:GetParent()
+    end
     local t=parent:CreateFontString(nil,'OVERLAY','GameFontHighlight')
     t.ChatWardenFontSize=size or 13
     local path=GameFontHighlight and GameFontHighlight.GetFont and GameFontHighlight:GetFont()
@@ -109,7 +137,7 @@ function V.Text(parent,text,x,y,width,size,color)
     t:SetPoint('TOPLEFT',x,y);t:SetWidth(width);t:SetJustifyH('LEFT');t:SetWordWrap(true);t:SetText(text or '')
     local c=color or { .91,.88,.80 };t:SetTextColor(unpack(c));return t
 end
-V.gold={.91,.77,.58};V.ink={.15,.10,.055};V.muted={.68,.68,.68};V.blue={.27,.70,1}
+V.gold={.96,.82,.62};V.ink={.15,.10,.055};V.muted={.77,.80,.83};V.blue={.42,.77,1}
 -- Blue commits an action or selects a view; gray navigates/copies; red removes.
 function V.ButtonKind(text)
     local label=(text or ''):lower()
@@ -248,11 +276,12 @@ function V.Row(parent,y,click)
     row.ArtNormal=V.Nine(row,'row');row.ArtSelected=V.Nine(row,'selected');row.ArtSelected:SetShown(false)
     row.icon=V.Icon(row,'messages',34,12,-19)
     row.title=V.Text(row,'',56,-11,212,14);row.title:SetWordWrap(false);row.title:SetHeight(18);row.title:SetJustifyV('MIDDLE')
-    row.preview=V.Text(row,'',56,-31,212,12,V.muted);row.preview:SetWordWrap(false);row.preview:SetHeight(16);row.preview:SetJustifyV('MIDDLE')
-    row.meta=V.Text(row,'',56,-48,212,11,V.gold);row.meta:SetWordWrap(false);row.meta:SetHeight(14);row.meta:SetJustifyV('MIDDLE')
+    row.preview=V.Text(row,'',56,-31,212,12,V.muted);row.preview:SetWordWrap(false);row.preview:SetHeight(18);row.preview:SetJustifyV('MIDDLE')
+    row.meta=V.Text(row,'',56,-50,212,11,V.gold);row.meta:SetWordWrap(false);row.meta:SetHeight(18);row.meta:SetJustifyV('MIDDLE')
     row.unread=CreateFrame('Frame',nil,row);row.unread:SetAllPoints();row.unread:EnableMouse(false)
     row.unread:SetFrameLevel(row:GetFrameLevel())
-    local wash=row.unread:CreateTexture(nil,'BACKGROUND',nil,2);wash:SetColorTexture(.08,.35,.62,.24)
+    -- Unread uses a small crest marker; the full sapphire frame means selection.
+    local wash=row.unread:CreateTexture(nil,'BACKGROUND',nil,2);wash:SetColorTexture(.08,.35,.62,0)
     wash:SetPoint('TOPLEFT',10,-9);wash:SetPoint('BOTTOMRIGHT',-10,9)
     row.unread.Wash=wash
     local gem=V.Texture(row.unread,'Logo',{236,22,278,72},'OVERLAY');gem:SetSize(14,17);gem:SetPoint('TOPRIGHT',-12,-10)
@@ -266,9 +295,24 @@ end
 function V.IconButton(parent,name,size,x,y,click,title,help)
     local b=CreateFrame('Button',nil,parent);b:SetSize(size,size);b:SetPoint('TOPLEFT',x,y)
     b.Icon=V.Icon(b,name,size,0,0);b:SetScript('OnClick',click)
-    b:SetScript('OnEnter',function(self) self.Icon:SetAlpha(.75) end)
-    b:SetScript('OnLeave',function(self) self.Icon:SetAlpha(1) end)
+    b:SetScript('OnEnter',function(self) self.Icon:SetAlpha(self.ChatWardenFeatureState==false and .55 or .8) end)
+    b:SetScript('OnLeave',function(self) self.Icon:SetAlpha(self.ChatWardenFeatureState==false and .35 or 1) end)
     ns.Theme.Tooltip(b,title,help);return b
+end
+function V.FeatureState(button,on)
+    on=on==true;button.ChatWardenFeatureState=on
+    button.Icon:SetAlpha(on and 1 or .35)
+    if button.Icon.SetDesaturated then button.Icon:SetDesaturated(not on) end
+    if not button.StateMark then
+        local mark=CreateFrame('Frame',nil,button);mark:SetSize(27,14);mark:SetPoint('BOTTOMRIGHT',5,-3)
+        mark.fill=mark:CreateTexture(nil,'BACKGROUND');mark.fill:SetAllPoints()
+        mark.label=V.Text(mark,'',0,0,27,9,{1,1,1});mark.label.ChatWardenFontSize=9
+        local path=mark.label:GetFont();if not ns.Theme.DocumentFont(mark.label,9) then mark.label:SetFont(path,9,'') end
+        mark.label:ClearAllPoints();mark.label:SetAllPoints();mark.label:SetJustifyH('CENTER');mark.label:SetJustifyV('MIDDLE');mark.label:SetWordWrap(false)
+        button.StateMark=mark
+    end
+    button.StateMark.label:SetText(on and 'ON' or 'OFF')
+    button.StateMark.fill:SetColorTexture(on and .08 or .22,on and .31 or .13,on and .21 or .08,1)
 end
 function V.Divider(parent,y)
     local t=V.Texture(parent,'Tabs',{69,1043,1186,1163},'ARTWORK')

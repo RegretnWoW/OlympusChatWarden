@@ -11,7 +11,7 @@ local previous={version='1.0.2',subtitle='Archived release notes',cards={
     {'Quiet Wanted icons in chat','Full listed names get an icon with bounty details on hover. Chat icons never trigger Wanted alerts.','reports'},
     {'Activity and update history','Click recent entries to mark them read. Zeus matches the trim, and Previous/Next opens older update notes.','updates'},
 }}
-ns.InstalledUpdate={version=release,subtitle='Your history, preserved',cards={
+local v103={version='1.0.3',subtitle='Your history, preserved',cards={
     {'Optional Chronicle recording','Choose whether to save your travels, progress, gear, important encounters and permitted Olympus records.','recording'},
     {'Shared adventures','Browse recorded dungeon, raid and group history, with supported boss attempts and original sources.','overview'},
     {'Player histories','Review local encounters, native credit evidence, roster relationships and your personal notes.','mentions'},
@@ -21,7 +21,16 @@ ns.InstalledUpdate={version=release,subtitle='Your history, preserved',cards={
 }}
 -- Keep published notes here when adding a new release. Older cards retain the
 -- wording shipped in those versions; browsing them does not change settings.
-ns.UpdateHistory={ns.InstalledUpdate,previous,
+ns.InstalledUpdate={version=release,subtitle='Your whole adventure, one Warden suite',cards={
+    {'Welcome to Olympus Warden','Six connected modules bring your Chronicle, player dossiers, chat, signals and contact protection into one Olympus workspace.','overview'},
+    {'ChronicleWarden comes first','Browse recorded milestones, shared activities, dungeon visits and optional duels. Dates, companions and original evidence stay connected.','chronicle'},
+    {'Meet IntelWarden','Revisit remembered players, private notes and historical gear or talents. A live model appears only for the exact available player.','intel'},
+    {'Duels with their own history','Separate opt-in keeps individual duel encounters and supported before/after observations. Unchanged gear and talents reuse saved configurations.','chronicle'},
+    {'Artwork with clearer controls','Larger crests and sidebar buttons showcase the suite. ON/OFF badges stay readable, and window-size changes wait for Apply.','settings'},
+    {'Your history stays yours','Recording remains optional, saved history does not expire, and complete-file backups keep working. No sharing is enabled automatically.','export'},
+}}
+
+ns.UpdateHistory={ns.InstalledUpdate,v103,previous,
     {version='1.0.1',subtitle='Archived release notes',cards={
         {'Smarter filtering','Better context handling means fewer false matches in questions, criticism and ordinary discussion.','messages'},
         {'First-name Mentions','Your first name or full name can trigger Mentions. No @ needed, and Capture can stay off.','mentions'},

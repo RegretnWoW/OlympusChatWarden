@@ -1,7 +1,7 @@
 -- Rebuildable projections of existing evidence. No collectors or saved database.
 local _,ns=...
 local S=ns.ChronicleStore
-local I={VERSION=1,BUDGET=128};ns.ChronicleIntelligence=I
+local I={VERSION=2,BUDGET=128,RECENT_LIMIT=120};ns.ChronicleIntelligence=I
 local EPS=.001
 local function Own(owner) return owner:match('/(Player%-.+)$') end
 local function Add(list,set,id) if not set[id] then set[id]=true;list[#list+1]=id end end
@@ -52,15 +52,45 @@ local function Player(i,guid)
     if not S.GUID(guid) or guid==Own(i.owner) then return end
     local p=i.players[guid]
     if not p then
-        p={guid=guid,evidence={},evidenceSet={},encounters={},zones={},facts={},credits={own=0,pet=0,group=0,unattributed=0,incoming=0},scoreboards={},publicReports={}}
+        p={guid=guid,evidence={},evidenceSet={},encounters={},zones={},facts={},credits={own=0,pet=0,group=0,unattributed=0,incoming=0},scoreboards={},scoreGroups={},scoreOrder={},reasons={},publicReports={}}
         i.players[guid]=p
     end
     return p
 end
 local function Reference(i,e,guid)
     i.events[e.id]=e;Add(i.references,i.referenceSet,e.id)
-    local p=Player(i,guid);if p then Add(p.evidence,p.evidenceSet,e.id) end
+    local p=Player(i,guid);if p then Add(p.evidence,p.evidenceSet,e.id);p.lastEvidenceAt=math.max(p.lastEvidenceAt or e.at,e.at) end
     return p
+end
+local tierReasons={['party teammate']='Recorded party teammate',['raid teammate']='Recorded raid teammate',
+    ['encountered friend']='GUID-matched friend',['personal bookmark']='Personal bookmark',
+    ['manual inspection']='Deliberately inspected',['Wanted encounter']='Direct Wanted observation',['verified duel opponent']='Verified duel opponent',
+    ['native opponent']='Personal native credit evidence',roster='Recorded group roster',scoreboard='GUID-bearing scoreboard',localUnit='Direct local observation'}
+local function Reason(p,tier,key,e)
+    if not p or not tierReasons[key] then return end
+    p.tier=math.min(p.tier or tier,tier)
+    p.reasons[key]={label=tierReasons[key],tier=tier,eventID=e.id,at=e.at}
+end
+local function Recent(i,kind,e,guid)
+    local list=i.recent[kind];local row={event=e,guid=guid,at=e.at,id=e.id}
+    -- Only bounded references, rebuilt alongside the existing index. Routine
+    -- observations cannot displace milestones, even in very large raw ledgers.
+    for n=#list,1,-1 do if list[n].id==row.id then return end end
+    local n=#list+1
+    while n>1 and (list[n-1].at>row.at or list[n-1].at==row.at and list[n-1].id>row.id) do list[n]=list[n-1];n=n-1 end
+    list[n]=row;if #list>I.RECENT_LIMIT then table.remove(list,1) end
+end
+local function Score(st,e,object)
+    local i=st.intelligence;local v=object.capture.values;local p=Reference(i,e,v.guid);if not p then return end
+    Reason(p,2,'scoreboard',e)
+    p.firstScoreAt=math.min(p.firstScoreAt or e.at,e.at);p.lastScoreAt=math.max(p.lastScoreAt or e.at,e.at)
+    local key=v.runID and v.matchSequence and (v.runID..'/'..v.matchSequence) or object.id
+    local group=p.scoreGroups[key]
+    if not group then group={key=key,firstAt=e.at,lastAt=e.at,event=e,object=object};p.scoreGroups[key]=group;p.scoreOrder[#p.scoreOrder+1]=group end
+    group.firstAt=math.min(group.firstAt,e.at)
+    if e.at>=group.lastAt then group.lastAt=e.at;group.event=e;group.object=object end
+    -- These are cache/report groups, never unique matches. No cross-report sum.
+    if not p.scoreIdentity or e.at>=p.scoreIdentity.at then p.scoreIdentity={at=e.at,name=v.name,class=v.classToken,race=v.raceName,event=e} end
 end
 local function Boundary(i,e,reason)
     local scope=i.scope
@@ -81,7 +111,7 @@ function I.New(owner)
         excludedReportedSeconds=0,overlapSeconds=0,zeroTimeRecords=0,timeEvidence={},
         progression={levels={},xp={},quests={},skills={},equipment={},collections={},achievements={},xpObserved=0,rateXP=0,rateSeconds=0},
         cases={},dirtyCase=1,deaths={},deathZones={},visits={},zoneOrder={},scoreboards={},scoreHashes={},
-        matchReports={},duplicateCredits=0,creditKeys={},unknownCombatEnds=0,ready=false}
+        matchReports={},scoreObjects={},recent={intel={},chronicle={}},duplicateCredits=0,creditKeys={},unknownCombatEnds=0,ready=false}
 end
 local function DirtyCases(i,e,lo)
     local left,right=1,#i.cases+1
@@ -128,12 +158,14 @@ local function Credit(i,e)
             or d.credit=='current pet native credit' and d.attackerGUID:match('^Pet%-') and 'pet'
             or d.credit=='group native credit' and d.attackerGUID~=own and 'group' or 'unattributed'
         p.credits[kind]=p.credits[kind]+1;p.creditFirst=p.creditFirst or e.at;p.creditLast=e.at
+        if kind=='own' or kind=='pet' then Reason(p,1,'native opponent',e);Recent(i,'intel',e,p.guid) end
     elseif S.GUID(d.attackerGUID) and d.attackerGUID~=own then
         local p=Reference(i,e,d.attackerGUID);p.credits.incoming=p.credits.incoming+1;p.creditFirst=p.creditFirst or e.at;p.creditLast=e.at
+        Reason(p,1,'native opponent',e);Recent(i,'intel',e,p.guid)
     end
 end
 function I.Feed(st,e)
-    local i=st.intelligence;if not i then i=I.New(st.owner);st.intelligence=i end
+    local i=st.intelligence;if not i then i=I.New(st.owner);i.events=st.events;st.intelligence=i end
     i.ready=false;local d=e.details
     local newClock=i.session~=e.session or i.lastElapsed and e.elapsed<i.lastElapsed or i.timeSource~=e.timeSource
     if newClock then
@@ -151,26 +183,37 @@ function I.Feed(st,e)
             p.facts[#p.facts+1]=e
             local localSource=e.source=='PLAYER_TARGET_CHANGED' or e.source=='UPDATE_MOUSEOVER_UNIT' or e.source=='PLAYER_FOCUS_CHANGED'
             if d.localSighting==true and localSource then
+                Reason(p,3,'localUnit',e)
                 local previous=i.lastLocal[e.subject]
                 local separated=not previous or previous.domain==i.domain and e.elapsed-previous.elapsed>=ns.Chronicle.ENCOUNTER_GAP
                     or previous and previous.domain~=i.domain and previous.timeSource=='server' and e.timeSource=='server' and e.at-previous.at>=ns.Chronicle.ENCOUNTER_GAP
                 if d.encounter==true and separated then
                     p.encounters[#p.encounters+1]=e.id;p.firstEncounter=p.firstEncounter or e.at;p.lastEncounter=e.at
                     local zone=e.location.zone or 'unknown';p.zones[zone]=(p.zones[zone] or 0)+1
+                    if p.tier==1 or d.wantedListed==true then Recent(i,'intel',e,p.guid) end
                 end
+                if d.wantedListed==true then Reason(p,1,'Wanted encounter',e) end
                 i.lastLocal[e.subject]={domain=i.domain,elapsed=e.elapsed,at=e.at,timeSource=e.timeSource}
                 p.lastLocalAt=e.at
             end
         end
-    elseif e.kind=='important_player' then Reference(i,e,e.subject)
+    elseif e.kind=='important_player' then
+        local p=Reference(i,e,e.subject)
+        if p and e.source=='INSPECT_READY' and d.relationship=='manual inspection' then p.lastInspection=e.at end
+        if p and ({['party teammate']=true,['raid teammate']=true,['encountered friend']=true,['personal bookmark']=true,['manual inspection']=true,['Wanted encounter']=true,['verified duel opponent']=true})[d.relationship]
+            and (d.relationship~='manual inspection' or e.source=='INSPECT_READY') then
+            Reason(p,1,d.relationship,e)
+            if e.source=='INSPECT_READY' or d.unitVisible==true then Recent(i,'intel',e,p.guid) end
+        end
     elseif e.kind=='player_combat' or e.kind=='player_kill_credit' then
         local p=Reference(i,e,e.subject);if p then p.legacyRecords=(p.legacyRecords or 0)+1 end
     elseif e.kind=='group_roster' then
-        for _,guid in ipairs(d.members) do local p=Reference(i,e,guid);if p then p.rosterFirst=p.rosterFirst or e.at;p.rosterLast=e.at end end
+        for _,guid in ipairs(d.members) do local p=Reference(i,e,guid);if p then p.rosterFirst=p.rosterFirst or e.at;p.rosterLast=e.at;Reason(p,1,'roster',e) end end
         if #d.members>0 and not i.group then i.group={low=e.elapsed}
         elseif #d.members==0 and i.group then Range(i,scope,i.group.low,e.elapsed,'group');i.group=nil end
     elseif e.kind=='native_snapshot' and e.capture.family=='scoreboard' then
         local v=e.capture.values;local p=Reference(i,e,v.guid)
+        i.scoreObjects[d.contentID]=e;Score(st,e,e)
         if not i.scoreHashes[d.contentID] then
             i.scoreHashes[d.contentID]=e.id;i.scoreboards[#i.scoreboards+1]=e.id;if p then p.scoreboards[#p.scoreboards+1]=e.id end
         end
@@ -182,7 +225,11 @@ function I.Feed(st,e)
     end
     if e.kind=='native_event' then
         Reference(i,e)
-        if d.recordType=='native_kill_credit' then Credit(i,e)
+        if d.recordType=='pvp_score_row' and i.scoreObjects[d.contentID] then Score(st,e,i.scoreObjects[d.contentID]) end
+        if d.recordType=='duel_session_start' and e.source=='DUEL_COUNTDOWN' and d.accepted==true and S.GUID(d.opponentGUID) then
+            local p=Reference(i,e,d.opponentGUID);if p then Reason(p,1,'verified duel opponent',e);Recent(i,'intel',e,p.guid);Recent(i,'chronicle',e,p.guid) end
+        elseif d.recordType=='duel_session_end' and d.accepted==true then Recent(i,'chronicle',e,d.opponentGUID)
+        elseif d.recordType=='native_kill_credit' then Credit(i,e)
         elseif d.recordType=='combat_started' and e.source=='PLAYER_REGEN_DISABLED' then
             if not i.combat or i.combat.low~=e.elapsed then i.combat={low=e.elapsed,scope=scope.id} end
         elseif d.recordType=='combat_ended' and e.source=='PLAYER_REGEN_ENABLED' then
@@ -212,6 +259,10 @@ function I.Feed(st,e)
             scope[category]=case;i.cases[#i.cases+1]=case;i.dirtyCase=math.min(i.dirtyCase or #i.cases,#i.cases)
             if category=='xp' then i.progression.xpObserved=i.progression.xpObserved+d.delta end
         end
+    end
+    if ({level_change=true,quest_turnin=true,skill_change=true,achievement_earned=true,equipment_change=true,player_death=true,spell_learned=true})[e.kind]
+        or e.kind=='native_event' and ({encounter_ended=true,boss_kill_event=true,pvp_match_complete=true,collection_added=true})[d.recordType] then
+        Reference(i,e);Recent(i,'chronicle',e)
     end
     if e.kind=='recording_stop' then Boundary(i,e,'recording stopped') end
     i.lastElapsed=e.elapsed;i.lastAt=e.at;i.revision=st.revision
@@ -280,8 +331,9 @@ local function ProjectCase(st,c)
 end
 -- Endpoint heap/sweep unions overlapping intervals and reconciles contradictory
 -- dimensions as unknown. No full-history sort or unbounded finalization step.
-function I.Finish(st,budget)
+function I.Finish(st,budget,deadline)
     local i=st.intelligence;if not i then return true end
+    local P=ns.WardenPerformance;deadline=deadline or P.Begin()
     if i.needsRebuild and not i.rebuild then
         i.rebuild={phase='scopes',index=1};i.heap={};i.active=nil;i.time=Metric()
         i.periods={day={},week={},month={}};i.calendarUnknown={day=0,week=0,month=0}
@@ -290,6 +342,7 @@ function I.Finish(st,budget)
     if i.rebuild then
         local r=i.rebuild
         for _=1,(budget or I.BUDGET) do
+            if P.Expired(deadline) then return false end
             if r.phase=='scopes' then
                 local scope=i.scopes[r.index]
                 if scope then scope.time=Metric();scope.pieces={};scope.places={};r.index=r.index+1
@@ -305,6 +358,7 @@ function I.Finish(st,budget)
     end
     local used=0
     while #i.heap>0 and used<(budget or I.BUDGET) do
+        if P.Expired(deadline) then return false end
         local node=Pop(i);local a=i.active
         if not a or a.domain~=node.domain then
             a={domain=node.domain,at=node.t,time=0,category={},place={},zone={},afk={},scope={},day={},week={},month={},combat={},group={}};i.active=a
@@ -321,7 +375,7 @@ function I.Finish(st,budget)
     if #i.heap>0 then return false end
     i.swept=true
     local index=i.dirtyCase or #i.cases+1
-    while index<=#i.cases and used<(budget or I.BUDGET) do ProjectCase(st,i.cases[index]);index=index+1;used=used+1 end
+    while index<=#i.cases and used<(budget or I.BUDGET) and not P.Expired(deadline) do ProjectCase(st,i.cases[index]);index=index+1;used=used+1 end
     i.dirtyCase=index;if index<=#i.cases then return false end
     i.ready=true;return true
 end
@@ -333,15 +387,23 @@ function I.Player(st,guid)
         confirmedKillingBlows=nil,confirmedDeathsByPlayer=nil,headToHeadRatio=nil,exactGroupedSeconds=nil,performance=nil}
     if p then
         out.recordedEncounters=#p.encounters;out.firstEncounter=p.firstEncounter;out.lastEncounter=p.lastEncounter;out.lastLocalAt=p.lastLocalAt
-        out.firstRoster=p.rosterFirst;out.lastRoster=p.rosterLast;out.credits=p.credits;out.zones=p.zones
+        out.firstRoster=p.rosterFirst;out.lastRoster=p.rosterLast;out.lastInspection=p.lastInspection;out.credits=p.credits;out.zones=p.zones
         out.evidence=p.evidence;out.scoreboards=p.scoreboards;out.publicReports=p.publicReports;out.facts=p.facts;out.legacyRecords=p.legacyRecords
+        out.lastEvidenceAt=p.lastEvidenceAt;out.scoreIdentity=p.scoreIdentity;out.scoreReports=p.scoreOrder
+        out.firstScoreAt=p.firstScoreAt;out.lastScoreAt=p.lastScoreAt
     end
     local personal=c and c.profiles[guid] and c.profiles[guid].personal
     out.note=personal and personal.note;out.watch=personal and personal.watch==true or false
+    out.tier=out.watch and 1 or p and p.tier
+    out.tierLabel=({[1]='Important player',[2]='Activity participant',[3]='Casual encounter'})[out.tier] or (#out.publicReports>0 and 'Olympus source only' or 'Unclassified evidence')
+    out.tierReasons={}
+    if out.watch then out.tierReasons[#out.tierReasons+1]={label='On your current watchlist',tier=1} end
+    if p then for _,r in pairs(p.reasons or {}) do if r.tier==out.tier then out.tierReasons[#out.tierReasons+1]=r end end end
+    table.sort(out.tierReasons,function(a,b) return a.label<b.label end)
     local direct=out.credits.own+out.credits.pet+out.credits.incoming
     out.description=out.watch and 'Personal watchlist' or direct>0 and 'Recorded native PvP credit history'
         or out.recordedEncounters>1 and 'Repeated local encounters' or out.recordedEncounters==1 and 'Previously encountered'
-        or out.firstRoster and 'Recorded roster history' or #out.publicReports>0 and 'Public Olympus records' or 'Recorded source observations'
+        or out.lastInspection and 'Manually inspected' or out.firstRoster and 'Recorded roster history' or #out.publicReports>0 and 'Public Olympus records' or 'Recorded source observations'
     if p then p.summary=out;p.summaryRevision=i.revision;p.profileRevision=revision end
     return out
 end

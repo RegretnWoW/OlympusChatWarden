@@ -348,6 +348,11 @@ function ns.RegionOriginal(region)
     local state = states[region]
     return state and state.raw or region:GetText()
 end
+function ns.RegionBindingCurrent(region)
+    local state=states[region];if not state or not SafeRegion(region) then return false end
+    local text=region:GetText()
+    return ns.CanRead(text) and (text==state.raw or text==state.display)
+end
 
 function ns.TrackRegion(region, scope, sourceProvider, bubble, options)
     if not SafeRegion(region) then return end

@@ -1,0 +1,1062 @@
+{
+  "version": "1.1.0",
+  "addon": {
+    "file": "OlympusWarden-v1.1.0.zip",
+    "bytes": 13929138,
+    "files": 149,
+    "sha256": "29a5c528131e679951046d82aabcb17e5151e383741978d7891a927428ca32a4",
+    "lua51Modules": 107,
+    "luaSourceSha256": "fcee17b95899b881b0a8d6fc1b0f340f993c216691340f9e871cb65f23588049"
+  },
+  "baseline": {
+    "file": "OlympusWarden-v1.1.0-rc5.zip",
+    "sha256": "8b1bb307f7d3590f47cd0620a7d543e02001373429a687da438c440f345a5511"
+  },
+  "suites": [
+    {
+      "suite": "test-chronicle.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-recording-ui-backup.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-preservation.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-wanted.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-native-capture.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-collection-accuracy.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-recording-filters-save.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-history-stress.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-player-route.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-player-route-stress.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "run-functional-baseline.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "run-signed-pack-regression.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-collection-guide.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-backup-tool.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-activities.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-activity-stress.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-preview9.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-preview10.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-intelligence.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-intelligence-stress.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-rebrand.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-search-stress.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-dossier.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-small-pass.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-inspection-expansion.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-compact-panel.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-preview5-policy.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-preview5-navigation.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-preview5-stress.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-preview5-scheduling.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-preview5-talents.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-optimization.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-duels.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-duel-stress.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-unicode-preservation.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-native-statistics.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-objectives-creatures.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-statistics-stress.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "collector-growth.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-native-startup.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-rc-loading.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-crypto-parity.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-logout-scale.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-render-scroll.cjs",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-city.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-city-safety.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-name-bindings.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-startup-coverage.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-attribution.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-evidence-completeness.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-coverage-aggregation.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-startup-evidence.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-ui-refinement.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-scale-welcome.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-document-reader.py",
+      "exitCode": 0
+    },
+    {
+      "suite": "test-release-polish.py",
+      "exitCode": 0
+    }
+  ],
+  "summaries": {
+    "release-polish-summary": {
+      "version": "1.1.0",
+      "failed": 0,
+      "assertions": 84,
+      "actualForeverTest": false,
+      "seconds": 7.702361000003293
+    },
+    "scale-welcome-summary": {
+      "version": "1.1.0",
+      "failed": 0,
+      "assertions": 118,
+      "displayScaleCases": 12,
+      "actualForeverTest": false,
+      "seconds": 119.85237390000839
+    },
+    "document-reader-summary": {
+      "version": "1.1.0",
+      "failed": 0,
+      "assertions": 10,
+      "nativeGlyphMeasurement": false,
+      "actualForeverTest": false,
+      "seconds": 0.7991157000069506
+    },
+    "ui-refinement-summary": {
+      "version": "1.1.0",
+      "failed": 0,
+      "assertions": 39,
+      "scaleCases": 12,
+      "minimumDocumentBodyPhysicalPixels": 13.07488986784141,
+      "protectedFilesUnchanged": [
+        "Chronicle.lua",
+        "ChronicleStore.lua",
+        "ChronicleCapture.lua",
+        "ChronicleCombat.lua",
+        "ChronicleCoverage.lua",
+        "ChronicleTransitions.lua",
+        "ChronicleLoadout.lua",
+        "ChronicleStartup.lua",
+        "ChronicleEvidence.lua",
+        "ChronicleDuels.lua",
+        "ChronicleEncounters.lua",
+        "ChronicleProgress.lua",
+        "ChronicleStatistics.lua",
+        "ChronicleBackup.lua",
+        "ChronicleCodec.lua",
+        "ChronicleRoute.lua",
+        "Names.lua",
+        "Adapters.lua",
+        "Engine.lua",
+        "RulePacks.lua",
+        "PackCrypto.lua",
+        "PackData.lua",
+        "TrustedPackKeys.lua",
+        "OlympusPanel.lua",
+        "OlympusIntegration.lua",
+        "Spelling.lua"
+      ],
+      "actualForeverTest": false,
+      "seconds": 4.713846800004831
+    },
+    "evidence-completeness-summary": {
+      "version": "1.1.0",
+      "assertions": 25,
+      "failed": 0,
+      "actualForeverTest": false,
+      "seconds": 0.11249250001856126
+    },
+    "coverage-aggregation-summary": {
+      "version": "1.1.0",
+      "assertions": 9,
+      "failed": 0,
+      "categoryLimit": 32,
+      "aggregateIntervalSeconds": 30,
+      "actualForeverTest": false,
+      "seconds": 0.009967799996957183
+    },
+    "startup-evidence-summary": {
+      "version": "1.1.0",
+      "assertions": 7,
+      "failed": 0,
+      "actualForeverTest": false,
+      "seconds": 0.00944530000560917
+    },
+    "city-summary": {
+      "rc5": [
+        {
+          "observeBatchSeconds": 0.2678107999963686,
+          "observeBatchAllocatedKiB": 31092.5888671875,
+          "profilesBatchSeconds": 0.06317769997986034,
+          "profilesBatchAllocatedKiB": 2816.53125,
+          "plateBatchSeconds": 0.020304900011979043,
+          "plateBatchAllocatedKiB": 955.6513671875,
+          "events": 3787,
+          "profiles": 501,
+          "estimatedBytes": 7286770,
+          "canonicalSha256": "0a79df7f8a072207ac7ed950e6f6b5798035cc6dae79872b8876136296e8c786",
+          "cleanedHostHeapKiB": 35167.9345703125
+        },
+        {
+          "observeBatchSeconds": 0.2737736999988556,
+          "observeBatchAllocatedKiB": 31092.5888671875,
+          "profilesBatchSeconds": 0.06498830000055023,
+          "profilesBatchAllocatedKiB": 2816.53125,
+          "plateBatchSeconds": 0.01943550002761185,
+          "plateBatchAllocatedKiB": 955.6513671875,
+          "events": 3787,
+          "profiles": 501,
+          "estimatedBytes": 7286770,
+          "canonicalSha256": "0a79df7f8a072207ac7ed950e6f6b5798035cc6dae79872b8876136296e8c786",
+          "cleanedHostHeapKiB": 35167.9345703125
+        },
+        {
+          "observeBatchSeconds": 0.27198330001556315,
+          "observeBatchAllocatedKiB": 31092.5888671875,
+          "profilesBatchSeconds": 0.06269359998987056,
+          "profilesBatchAllocatedKiB": 2816.53125,
+          "plateBatchSeconds": 0.019547100004274398,
+          "plateBatchAllocatedKiB": 955.6513671875,
+          "events": 3787,
+          "profiles": 501,
+          "estimatedBytes": 7286770,
+          "canonicalSha256": "0a79df7f8a072207ac7ed950e6f6b5798035cc6dae79872b8876136296e8c786",
+          "cleanedHostHeapKiB": 35167.9345703125
+        }
+      ],
+      "release": [
+        {
+          "observeBatchSeconds": 0.26827400000183843,
+          "observeBatchAllocatedKiB": 31092.5888671875,
+          "profilesBatchSeconds": 0.061891999997897074,
+          "profilesBatchAllocatedKiB": 2816.53125,
+          "plateBatchSeconds": 0.019484199990984052,
+          "plateBatchAllocatedKiB": 955.6513671875,
+          "events": 3787,
+          "profiles": 501,
+          "estimatedBytes": 7286770,
+          "canonicalSha256": "0a79df7f8a072207ac7ed950e6f6b5798035cc6dae79872b8876136296e8c786",
+          "cleanedHostHeapKiB": 35171.294921875,
+          "bindings": 60,
+          "reusedBindings": 5940,
+          "seenPlayers": 500
+        },
+        {
+          "observeBatchSeconds": 0.2885501999990083,
+          "observeBatchAllocatedKiB": 31092.5888671875,
+          "profilesBatchSeconds": 0.06468480001785792,
+          "profilesBatchAllocatedKiB": 2816.53125,
+          "plateBatchSeconds": 0.022075000015320256,
+          "plateBatchAllocatedKiB": 955.6513671875,
+          "events": 3787,
+          "profiles": 501,
+          "estimatedBytes": 7286770,
+          "canonicalSha256": "0a79df7f8a072207ac7ed950e6f6b5798035cc6dae79872b8876136296e8c786",
+          "cleanedHostHeapKiB": 35171.294921875,
+          "bindings": 60,
+          "reusedBindings": 5940,
+          "seenPlayers": 500
+        },
+        {
+          "observeBatchSeconds": 0.281926099996781,
+          "observeBatchAllocatedKiB": 31092.5888671875,
+          "profilesBatchSeconds": 0.06363079999573529,
+          "profilesBatchAllocatedKiB": 2816.53125,
+          "plateBatchSeconds": 0.022250200010603294,
+          "plateBatchAllocatedKiB": 955.6513671875,
+          "events": 3787,
+          "profiles": 501,
+          "estimatedBytes": 7286770,
+          "canonicalSha256": "0a79df7f8a072207ac7ed950e6f6b5798035cc6dae79872b8876136296e8c786",
+          "cleanedHostHeapKiB": 35171.294921875,
+          "bindings": 60,
+          "reusedBindings": 5940,
+          "seenPlayers": 500
+        }
+      ],
+      "version": "1.1.0",
+      "failed": 0,
+      "repetitions": 3,
+      "synthetic": true,
+      "actualForeverTest": false,
+      "luaSourceSha256": "fcee17b95899b881b0a8d6fc1b0f340f993c216691340f9e871cb65f23588049",
+      "notes": "Explicit GC boundaries; allocation samples stop GC. Host timings and memory are not native addon attribution. Identical event/profile digest required."
+    },
+    "city-safety-summary": {
+      "version": "1.1.0",
+      "failed": 0,
+      "assertions": 16,
+      "capturePumpCallsPer600IdleFrames": 85,
+      "uniqueEncountersPreserved": 1100,
+      "actualForeverTest": false,
+      "seconds": 0.13612329997704364
+    },
+    "name-bindings-summary": {
+      "version": "1.1.0",
+      "failed": 0,
+      "guidRecycling": true,
+      "unhookedNativeTextChanges": true,
+      "generationRemoval": true,
+      "policyChanges": true,
+      "restrictedValues": true,
+      "boundedBindings": true,
+      "actualForeverTest": false
+    },
+    "startup-coverage-summary": {
+      "version": "1.1.0",
+      "failed": 0,
+      "assertions": 13,
+      "boundedRecords": 256,
+      "boundedStructuralBytes": 131072,
+      "fullStartupCoverage": false,
+      "partialCoverageReported": true,
+      "actualForeverTest": false,
+      "seconds": 0.02918000001227483
+    },
+    "attribution-summary": {
+      "version": "1.1.0",
+      "failed": 0,
+      "synthetic": true,
+      "actualForeverTest": false,
+      "timingsInclusive": true,
+      "rawMessagesOrIdentitiesLogged": false,
+      "rows": {
+        "workspace refresh queue / UI closed": {
+          "total": 0,
+          "calls": 1,
+          "max": 0,
+          "heapGrowth": 0.375,
+          "heapNet": 0.375,
+          "units": 1
+        },
+        "profile update / UI closed": {
+          "total": 14,
+          "calls": 2000,
+          "max": 1,
+          "heapGrowth": 1905.6259765625,
+          "heapNet": 1051.5205078125,
+          "units": 2000
+        },
+        "name labels / UI closed": {
+          "total": 14,
+          "calls": 50,
+          "max": 5,
+          "heapGrowth": 29.14453125,
+          "heapNet": -3544.4931640625,
+          "units": 50
+        },
+        "player observation / UI open": {
+          "total": 5,
+          "calls": 200,
+          "max": 1,
+          "heapGrowth": 440.67578125,
+          "heapNet": 440.67578125,
+          "units": 200
+        },
+        "chat processing / UI closed": {
+          "total": 197,
+          "calls": 100,
+          "max": 5,
+          "heapGrowth": 16252.931640625,
+          "heapNet": 5881.37890625,
+          "units": 100
+        },
+        "capture pump / UI closed / scheduler only": {
+          "total": 1,
+          "calls": 90,
+          "max": 1,
+          "heapGrowth": 0.53125,
+          "heapNet": 0.53125,
+          "units": 90
+        },
+        "evidence pump / UI closed / scheduler only": {
+          "total": 0,
+          "calls": 95,
+          "max": 0,
+          "heapGrowth": 0.21875,
+          "heapNet": 0.21875,
+          "units": 95
+        },
+        "capture pump / UI closed / queued": {
+          "total": 0,
+          "calls": 10,
+          "max": 0,
+          "heapGrowth": 17.84375,
+          "heapNet": 17.84375,
+          "units": 10
+        },
+        "evidence pump / UI closed / queued": {
+          "total": 0,
+          "calls": 5,
+          "max": 0,
+          "heapGrowth": 1.015625,
+          "heapNet": 1.015625,
+          "units": 5
+        },
+        "player observation / UI closed": {
+          "total": 73,
+          "calls": 2000,
+          "max": 1,
+          "heapGrowth": 7656.08203125,
+          "heapNet": 4927.5751953125,
+          "units": 2000
+        },
+        "profile update / UI open": {
+          "total": 0,
+          "calls": 200,
+          "max": 0,
+          "heapGrowth": 33.71875,
+          "heapNet": 33.71875,
+          "units": 200
+        }
+      },
+      "dictionary": {
+        "rawBytes": 876914,
+        "expandedWords": 90987,
+        "buckets": 436,
+        "hostHeapDeltaKiB": 10036.6650390625
+      }
+    },
+    "native-startup-summary": {
+      "version": "1.1.0",
+      "assertions": 20,
+      "failed": 0,
+      "loadPumpCalls": 21,
+      "nativeWatchdogFailureReported": true,
+      "nativeSettingsFailureReported": true,
+      "liveFixVerified": false,
+      "seconds": 3.746
+    },
+    "rc-loading-summary": {
+      "version": "1.1.0",
+      "assertions": 12,
+      "failed": 0,
+      "seconds": 0.629,
+      "liveClientTest": false
+    },
+    "crypto-parity-summary": {
+      "native-baseline": {
+        "vectors": 17,
+        "bytes": 1010149,
+        "seconds": 0.3878086000040639
+      },
+      "native-candidate": {
+        "vectors": 17,
+        "bytes": 1010149,
+        "seconds": 0.39590750000206754
+      },
+      "fallback-candidate": {
+        "vectors": 16,
+        "bytes": 10149,
+        "seconds": 0.07639329999801703
+      },
+      "failed": 0,
+      "version": "1.1.0",
+      "liveClientTest": false,
+      "seconds": 1.008944800007157
+    },
+    "render-scroll-summary": {
+      "version": "1.1.0",
+      "failed": 0,
+      "nonzeroScrollFrames": 1,
+      "visibleActivityRows": 7,
+      "productionListChanged": false,
+      "nativeRenderingVerified": false
+    },
+    "logout-scale-summary": {
+      "version": "1.1.0",
+      "failed": 0,
+      "events": 200000,
+      "profiles": 2000,
+      "canonicalEventsAndProfilesEqual": true,
+      "packCpuSeconds": 2.3130000000000006,
+      "restoreCpuSeconds": 2.8449999999999998,
+      "preSaveHostHeapKiB": 230770.6865234375,
+      "chunks": 3674,
+      "runtime": "LuaJIT interpreter with native bit operations; not actual WoW",
+      "nativeWatchdogTest": false,
+      "seconds": 11.155970399995567
+    },
+    "unicode-preservation-summary": {
+      "version": "1.1.0",
+      "assertions": 17,
+      "failed": 0,
+      "syntheticUnicodeRegression": true,
+      "currentRealHistoryProof": "See aggregate startup history proof: 49,253 events / four characters, canonically unchanged",
+      "liveGameFilesModified": false,
+      "seconds": 0.004
+    },
+    "native-statistics-summary": {
+      "version": "1.1.0",
+      "assertions": 24,
+      "failed": 0,
+      "reads": 43,
+      "catalogCalls": 3,
+      "liveWoWTested": false,
+      "seconds": 0.019
+    },
+    "objectives-creatures-summary": {
+      "version": "1.1.0",
+      "assertions": 22,
+      "failed": 0,
+      "objectiveRowsLimit": 12,
+      "finalScoreAttempts": 3,
+      "liveWoWTested": false,
+      "seconds": 0.106
+    },
+    "statistics-stress-summary": {
+      "version": "1.1.0",
+      "assertions": 8,
+      "failed": 0,
+      "ids": 4096,
+      "maxStatisticReadsPerPump": 8,
+      "pumpCalls": 1033,
+      "syntheticFullHistoryBytes": 2598722,
+      "liveWoWTested": false,
+      "seconds": 0.8
+    },
+    "collector-growth-summary": {
+      "baselineRC5": {
+        "creatureRecords": 1000,
+        "hundredMeterObservationsCpuSeconds": 1.123,
+        "savedRepresentationBytes": 1453620,
+        "spellRecords": 1000,
+        "counterBaselinesAfterSixStarts": 1,
+        "evolvingMeterSources": 100,
+        "events": 2444,
+        "canonicalAfterReload": true,
+        "estimatedRecordBytes": 3458096,
+        "evolvingMeterSpells": 100,
+        "thousandCreditsCpuSeconds": 0.03999999999999998,
+        "thousandCastsCpuSeconds": 0.02800000000000001
+      },
+      "candidateRelease": {
+        "creatureRecords": 1000,
+        "hundredMeterObservationsCpuSeconds": 1.1709999999999998,
+        "savedRepresentationBytes": 1453620,
+        "spellRecords": 1000,
+        "counterBaselinesAfterSixStarts": 1,
+        "evolvingMeterSources": 100,
+        "events": 2444,
+        "canonicalAfterReload": true,
+        "estimatedRecordBytes": 3458096,
+        "evolvingMeterSpells": 100,
+        "thousandCreditsCpuSeconds": 0.039000000000000146,
+        "thousandCastsCpuSeconds": 0.028000000000000025
+      },
+      "version": "1.1.0",
+      "failed": 0,
+      "seconds": 4.371,
+      "liveWoWTested": false
+    },
+    "duel-summary": {
+      "version": "1.1.0",
+      "assertions": 86,
+      "failed": 0,
+      "tenDuelCaptures": 40,
+      "tenDuelSessions": 10,
+      "gearConfigurationsFirstTen": 2,
+      "talentConfigurationsFirstTen": 2,
+      "galleryConfigurationsAfterAdversarialCases": 4,
+      "syntheticStorageBytesAfterAdversarialCases": 502402,
+      "liveWoWTested": false,
+      "seconds": 5.094,
+      "luaSourceSha256": "fcee17b95899b881b0a8d6fc1b0f340f993c216691340f9e871cb65f23588049"
+    },
+    "duel-stress-summary": {
+      "version": "1.1.0",
+      "assertions": 10,
+      "sessions": 5000,
+      "recentDuelLimit": 50,
+      "maxRecordsPerBatch": 128,
+      "batches": 144,
+      "failed": 0,
+      "seconds": 2.445,
+      "liveWoWTested": false
+    },
+    "optimization-summary": {
+      "version": "1.1.0",
+      "assertions": 80,
+      "failed": 0,
+      "packedBytesMatchPreview5": true,
+      "canonicalNormalizationMatchesPreview5": true,
+      "decodedChunks": 31,
+      "maxPriorDecodedRecordsAlive": 0,
+      "liveWoWTested": false,
+      "seconds": 19.718
+    },
+    "manual-inspect-summary": {
+      "version": "1.1.0",
+      "assertions": 43,
+      "failed": 0,
+      "nativeInspectSource": "Forever 70425 Camelot UI functions",
+      "liveWoWTested": false,
+      "seconds": 0.541
+    },
+    "inspection-expansion-summary": {
+      "version": "1.1.0",
+      "assertions": 42,
+      "failed": 0,
+      "manualAndAutomatic": true,
+      "pvpInspection": "deferred: targetless freshness/identity not verified",
+      "otherPlayerReputation": "no supported API found",
+      "liveWoWTested": false,
+      "seconds": 1.076
+    },
+    "preview5-policy-summary": {
+      "version": "1.1.0",
+      "assertions": 29,
+      "failed": 0,
+      "savedTierDatabase": false,
+      "uniqueMatchTotalsEnabled": false,
+      "liveWoWTested": false,
+      "seconds": 0.365
+    },
+    "preview5-navigation-summary": {
+      "version": "1.1.0",
+      "assertions": 36,
+      "failed": 0,
+      "liveWoWTested": false,
+      "seconds": 14.741
+    },
+    "preview5-scheduling-summary": {
+      "version": "1.1.0",
+      "assertions": 14,
+      "failed": 0,
+      "automaticPerPlayerBackoffSeconds": 300,
+      "globalRequestSpacingSeconds": 5,
+      "liveWoWTested": false,
+      "seconds": 0.092
+    },
+    "preview5-talents-summary": {
+      "version": "1.1.0",
+      "assertions": 23,
+      "failed": 0,
+      "nodeReadBudget": 256,
+      "selectedEntryLimit": 80,
+      "liveWoWTested": false,
+      "seconds": 1.544
+    },
+    "preview5-stress-summary": {
+      "version": "1.1.0",
+      "assertions": 1578,
+      "failed": 0,
+      "rawBackgroundRecords": 200000,
+      "indexFrames": 1563,
+      "maxRawRecordsPerFrame": 128,
+      "maxMeasuredFrameSeconds": 0.069,
+      "liveWoWTested": false,
+      "seconds": 3.131
+    },
+    "dossier-summary": {
+      "version": "1.1.0",
+      "assertions": 70,
+      "gearIndexSteps": 8,
+      "failed": 0,
+      "liveWoWTested": false,
+      "seconds": 4.075
+    },
+    "rebrand-summary": {
+      "version": "1.1.0",
+      "newAssertions": 52,
+      "baselineChronicleAssertions": 100,
+      "failed": 0,
+      "liveWoWTested": false,
+      "seconds": 10.863
+    },
+    "search-stress-summary": {
+      "version": "1.1.0",
+      "assertions": 1568,
+      "records": 200000,
+      "steps": 1563,
+      "seconds": 3.269,
+      "failed": 0,
+      "liveWoWTested": false
+    },
+    "native-capture-summary": {
+      "version": "1.0.3",
+      "assertions": 108,
+      "failed": 0,
+      "nativeContracts": "pinned Forever 70425 fixtures; synthetic host",
+      "liveWoWTested": false
+    },
+    "collection-accuracy-summary": {
+      "version": "1.0.3",
+      "assertions": 48,
+      "failed": 0,
+      "liveWoWTested": false,
+      "nativeContracts": "pinned Forever 70425 references; simulated payloads"
+    },
+    "recording-ui-backup-summary": {
+      "version": "1.0.3",
+      "assertions": 381,
+      "failed": 0,
+      "backupFormat": "non-executable, SHA256 checked, multipart, transactional merge",
+      "automaticHistoryExpiry": false,
+      "restrictedCombatRegistrationAttempts": 0,
+      "liveWoWTested": false
+    },
+    "backup-tool-summary": {
+      "version": "1.0.3",
+      "assertions": 126,
+      "failed": 0,
+      "runtimes": [
+        {
+          "version": "1.0.3",
+          "assertions": 63,
+          "failed": 0,
+          "powershell": "5.1.26100.8521",
+          "fixtureBytes": 8388693,
+          "largeFileHash": "324c534139e56c16d99c3c0a9fdfa2c406f75454312a567dcb432c4e4a0d30ba",
+          "longPathChars": 419,
+          "nativeWinFormsBuilt": true,
+          "personalFilesRead": false,
+          "gameLaunched": false
+        },
+        {
+          "version": "1.0.3",
+          "assertions": 63,
+          "failed": 0,
+          "powershell": "7.6.5",
+          "fixtureBytes": 8388693,
+          "largeFileHash": "324c534139e56c16d99c3c0a9fdfa2c406f75454312a567dcb432c4e4a0d30ba",
+          "longPathChars": 419,
+          "nativeWinFormsBuilt": true,
+          "personalFilesRead": false,
+          "gameLaunched": false
+        }
+      ],
+      "personalFilesRead": false,
+      "liveWoWTested": false
+    },
+    "functional-comparison": [
+      {
+        "version": "published-1.0.1",
+        "runtime": "Lua 5.1 (Lupa)",
+        "executed": 129,
+        "passed": 129,
+        "failed": 0,
+        "missingBaselineCases": [],
+        "testCasesUnchanged": true,
+        "host": "Existing trusted WoW mocks; readonly virtual TOC read. External Python/boot/mocks not executed.",
+        "failures": [],
+        "liveWoWTested": false
+      },
+      {
+        "version": "1.0.3",
+        "runtime": "Lua 5.1 (Lupa)",
+        "executed": 129,
+        "passed": 129,
+        "failed": 0,
+        "missingBaselineCases": [],
+        "testCasesUnchanged": true,
+        "host": "Existing trusted WoW mocks; readonly virtual TOC read. External Python/boot/mocks not executed.",
+        "failures": [],
+        "liveWoWTested": false
+      }
+    ],
+    "external-signed-summary": {
+      "version": "1.1.0",
+      "normalSignedImports": 8,
+      "evaluations": 1896,
+      "firmModelExpectations": 1518,
+      "regressionComparisons": 1896,
+      "passed": 1896,
+      "failed": 0,
+      "changedFromPreview3": 6,
+      "externalCodeExecuted": false,
+      "luaVersion": "5.1",
+      "liveWoWTested": false
+    },
+    "private-preservation-summary": {
+      "canonicalEventsEqual": true,
+      "canonicalProfilesEqual": true,
+      "consentVersion": 5,
+      "events": 51840,
+      "profiles": 225,
+      "loadedHostHeapKiB": 116673.90625,
+      "indexedHostHeapKiB": 130155.53125,
+      "openUIHostHeapKiB": 141091.1875,
+      "closedUIHostHeapKiB": 141035.41796875,
+      "characters": 4,
+      "packCpuSeconds": 1.0750000000000028,
+      "logoutPacked": true,
+      "reopenHeapKiB": {
+        "1": 141035.51953125,
+        "10": 141035.51953125,
+        "30": 141035.14453125
+      },
+      "version": "1.1.0",
+      "originalFilesModified": false,
+      "privateRecoveryCopyOnly": true,
+      "actualForeverTest": false,
+      "luaSourceSha256": "fcee17b95899b881b0a8d6fc1b0f340f993c216691340f9e871cb65f23588049"
+    },
+    "memory-private-summary": {
+      "rc5": {
+        "canonicalProfilesEqual": true,
+        "events": 51840,
+        "consentVersion": 5,
+        "openUIHostHeapKiB": 141078.4013671875,
+        "loadedHostHeapKiB": 116671.7333984375,
+        "indexedHostHeapKiB": 130148.9443359375,
+        "profiles": 225,
+        "closedUIHostHeapKiB": 141022.6318359375,
+        "reopenHeapKiB": {
+          "1": 141022.7333984375,
+          "10": 141022.7333984375,
+          "30": 141022.3818359375
+        },
+        "packCpuSeconds": 1.105999999999998,
+        "logoutPacked": true,
+        "characters": 4,
+        "canonicalEventsEqual": true
+      },
+      "release": {
+        "canonicalEventsEqual": true,
+        "canonicalProfilesEqual": true,
+        "consentVersion": 5,
+        "events": 51840,
+        "profiles": 225,
+        "loadedHostHeapKiB": 116673.90625,
+        "indexedHostHeapKiB": 130155.53125,
+        "openUIHostHeapKiB": 141091.1875,
+        "closedUIHostHeapKiB": 141035.41796875,
+        "characters": 4,
+        "packCpuSeconds": 1.0750000000000028,
+        "logoutPacked": true,
+        "reopenHeapKiB": {
+          "1": 141035.51953125,
+          "10": 141035.51953125,
+          "30": 141035.14453125
+        }
+      },
+      "version": "1.1.0",
+      "originalFilesModified": false,
+      "privateRecoveryCopyOnly": true,
+      "actualForeverTest": false,
+      "runtime": "Matched LuaJIT interpreter hosts; native bit operations; heap includes mock UI",
+      "luaSourceSha256": "fcee17b95899b881b0a8d6fc1b0f340f993c216691340f9e871cb65f23588049"
+    }
+  },
+  "changedSinceRC5": [
+    "OlympusChatWarden/Art.lua",
+    "OlympusChatWarden/BRAND-1.1.md",
+    "OlympusChatWarden/CHANGELOG.md",
+    "OlympusChatWarden/Core.lua",
+    "OlympusChatWarden/OlympusChatWarden.toc",
+    "OlympusChatWarden/README.md",
+    "OlympusChatWarden/RELEASE-NOTES.md",
+    "OlympusChatWarden/UpdateUI.lua",
+    "OlympusChatWarden/WardenBrand.lua",
+    "OlympusChatWarden/WardenDossier.lua",
+    "OlympusChatWarden/WardenHomeUI.lua",
+    "OlympusChatWarden/Workspace.lua"
+  ],
+  "unchangedFiles": [
+    "Chronicle.lua",
+    "ChronicleStore.lua",
+    "ChronicleCapture.lua",
+    "ChronicleCombat.lua",
+    "ChronicleCoverage.lua",
+    "ChronicleTransitions.lua",
+    "ChronicleLoadout.lua",
+    "ChronicleStartup.lua",
+    "ChronicleEvidence.lua",
+    "ChronicleDuels.lua",
+    "ChronicleEncounters.lua",
+    "ChronicleProgress.lua",
+    "ChronicleStatistics.lua",
+    "ChronicleBackup.lua",
+    "ChronicleCodec.lua",
+    "ChronicleRoute.lua",
+    "Names.lua",
+    "Adapters.lua",
+    "Engine.lua",
+    "RulePacks.lua",
+    "PackCrypto.lua",
+    "PackData.lua",
+    "TrustedPackKeys.lua",
+    "OlympusPanel.lua",
+    "OlympusIntegration.lua",
+    "Spelling.lua",
+    "ScrollingList.lua",
+    "WardenPerformance.lua",
+    "WardenDiagnostics.lua",
+    "SpellingDictionary.lua",
+    "SpellingVocabulary.lua",
+    "Media/V5/Guardian.tga"
+  ],
+  "databaseSchema": 6,
+  "mainConsentScope": 5,
+  "duelConsentScope": 1,
+  "addonIdentity": "OlympusChatWarden",
+  "savedVariable": "OlympusChatWardenDB",
+  "signedPacksChanged": false,
+  "guardianChanged": false,
+  "routeIntervalSeconds": 2,
+  "snapshotDedupPreserved": true,
+  "rawCombatLogAdded": false,
+  "outgoingSharingAdded": false,
+  "continuousPlayerTrackingAdded": false,
+  "newPollingAdded": false,
+  "savedChunkFormatUnchanged": true,
+  "canonicalPreservationVerified": true,
+  "collectionCategoriesRemoved": false,
+  "privateRecoveryFilesExcluded": true,
+  "startupBufferRecords": 256,
+  "startupBufferRowStructuralBytes": 131072,
+  "startupCoverageComplete": false,
+  "bossStatusRowsLimit": 40,
+  "coverageRuntimeCategoriesLimit": 32,
+  "coverageAggregateSeconds": 30,
+  "candidateLiveWoWTested": false,
+  "nativeBossPayloadDeliveryVerified": false,
+  "nativeRewardDeliveryVerified": false,
+  "nativeFinalScoreFreshnessVerified": false,
+  "packagedForRelease": true,
+  "published": false,
+  "releaseCandidateApproved": false,
+  "releaseDecision": "Release package prepared at user request; native acceptance remains unverified",
+  "stable103Unmodified": true
+}
