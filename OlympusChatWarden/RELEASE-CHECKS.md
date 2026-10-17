@@ -1,34 +1,88 @@
-# 1.0.2 — release checks
+# 1.0.3 release-candidate live checks
 
-Fully exit WoW, replace the OlympusChatWarden folder and keep WTF/SavedVariables. Use Olympus 1.2.4 and grant Yes for Olympus ChatWarden in `/oly privacy`. Current packs need no reimport. This package is prepared locally for release.
+This is the clean 1.0.3 package. Nothing has been published automatically.
+Back up the full SavedVariables file with WoW closed before testing.
 
-## Olympus panels
+- Review current 1.0.3 notes: the cards cover all changes since 1.0.2. Previous
+  continues to1.0.2/1.0.1/1.0.0. Check header wrapping and every Recording tab.
+- Start/decline recording, reload and verify that the saved choice is respected.
+  Browsing with recording off must not enable collection.
+- Open Intelligence. Check measured time, UTC periods, recording segments,
+  players/relationships, PvP visits, scoreboard observations and progression.
+  Search, target history, paging and original-source navigation must work.
+- Record AFK/non-AFK periods, zones, combat, groups, loading and logout/reload.
+  Check that overlapping dimensions are labelled and gaps remain unmeasured.
+  Compacted/unplaceable records stay inspectable as unallocated reported time.
+- Group, change rosters and run/leave/re-enter a dungeon or PvP instance.
+  Verify partial segments and unknown individual attendance/outcomes remain.
+  Repeated local target/mouseover checks must not manufacture new rivalries.
+- Test native completion/scoreboard availability. Reports and observations must
+  stay separate when unique match identity is missing; no guessed win/loss.
+- Verify original history, notes and packed-file/text restore remain intact.
+  Check an imported record's backup warning. Clear must cancel derived work.
+- Check normal filtering, Olympus access, Alerts, Shield, spelling and Capture.
 
-- Check the fixed stock panel at its normal size: a short padded header, one row of Filtering/Shield/Alerts/Capture icons, three complete recent entries and a pinned Open ChatWarden button. Only the recent list scrolls. The toggle row has tighter gaps above and below. Activity icons should stay centered for filtering, Shield and Wanted rows.
-- New entries should preserve your place while reading older activity. Hover shows full action/channel/time; click opens the selected record in the full UI and marks that entry read across its categories. Other entries remain unread. Check the HD layout too.
-- Right-click ChatWarden's Olympus tab for the full UI. The full UI's Olympus button opens and focuses Olympus.
-- The full sidebar shows guild and actual guild rank without an added role. An empty title has no row. A selected title supplied by Olympus appears normally. Zeus's straight gold edges align with the panel's left and bottom trim. Guild/rank and any selected title stay clear. Check automatic screen fitting and dragging near screen edges. Connection status stays in the top bar.
+The remaining historical checklists below are retained as research/test context;
+preview version labels there describe earlier internal builds.
 
-## Updates
+# 1.0.3 preview 10 live checks
 
-- Patch Notes shows six short highlights since 1.0.1, with no cut-off text or overlapping buttons. Previous update and Next update browse the original 1.0.1 and 1.0.0 pages, with disabled buttons at each end. Launch Tour and User Guide keep their own tabs.
+- Back up the complete saved file with WoW closed before testing.
+- Open Recorded Events: Events should hide background observations. Check All
+  recorded data, custom type selection, search and return to Events. Recording
+  and retained totals must remain unchanged.
+- With recording enabled, target/mouse over a listed visible player. Confirm a
+  Wanted encounter event and its dated source. A remote board update, nonvisible
+  focus or chat name mention must not produce a local encounter event.
+- Test Native actions, Native background summaries and Native activity (all),
+  including adding an observation to the quiet preset.
+- Open a large history, change filters while loading and search for absent text.
+  Confirm responsive progress, combat deferral and source selection after loading.
+  Check Collection Status for full measured-time/storage figures.
+- Enable recording inside a dungeon, /reload inside a raid and leave/re-enter
+  the same map. Each startup pair should share one partial segment; separate
+  recording boundaries and real re-entry should remain distinct.
+- Select an activity, then exclude it using search, type, player and page changes.
+  Confirm details and player/source controls clear. Open a source record hidden by
+  Events and confirm it is deliberately shown in All recorded data.
+- Verify current version1.0.3-preview10 and published update history1.0.2/1.0.1/1.0.0.
 
-## Alerts
+# Shared-activity live checks
 
-- All alerts combines personal mentions and Wanted encounters. The other tabs show each type separately. Both also appear in Overview and the compact recent list.
-- First or full character names trigger personal mentions without @. Own messages remain excluded from personal mentions. Names and nicknames are exact; watch phrase typo matching remains optional.
-- Pause Alerts from the header or compact icon: both alert types pause while their individual settings are kept. Resume restores those settings. Capture can stay off.
-- Selecting an entry reads that alert. Mark all read affects only the selected subtype, or both in All alerts. It must not read unrelated Messages or Shield activity.
+- Keep a complete saved-file backup with WoW closed before testing.
+- Open Recording > Activities with recording off and browse earlier history.
+- Start an opted-in dungeon/group session; verify its observed roster and boss
+  result records appear when the client supplies those events. Test with the
+  native meter unavailable; activities must still work.
+- Change rosters, reload, leave/re-enter the same instance and pause recording.
+  Verify partial segments and unknown outcomes are visible, with no guessed run
+  completion or player attendance. Check two characters and repeated runs.
+- Select an activity/player, scroll details, page activities/source records and
+  open a source record. Check narrow/full scaling and text wrapping.
+- Confirm original history and notes survive normal reload and backup/restore.
+- Confirm Olympus access, filtering, Alerts, Shield, spelling and Capture.
 
-## Wanted encounters and chat icons
+Offline fixtures are not a live-client compatibility claim. This build adds no
+new native API reads or communication. DPS/HPS/interrupt and individual attendance
+matching remain unimplemented rather than guessed.
 
-- Target or mouse over an attackable player whose GUID appears on Olympus's Wanted board. Expect an encounter in Alerts > Wanted and Overview, with time, source, your zone and a saved bounty snapshot.
-- Target and mouseover share a five-minute per-player cooldown. Encounter sound and toast are optional and start off. Test opting in, burst limiting, toast navigation after combat, and silent history restoration after reload.
-- Say an exact full listed name, or whisper it to yourself, to test the chat icon. Hover for current listed bounty, kills and cycle. Your own visible chat and outgoing whispers work.
-- Chat icons never create Wanted feed entries, unread badges, sounds or popups, even with encounter notifications enabled. Clicking an icon has no action. First names alone, ambiguous names, wrong realms, item/spell links, hidden messages and covered names do not match.
-- Disable chat icons separately in Alerts > Wanted settings. Filtered originals, reports and saved capture stay intact; the icon decorates only visible chat.
-- Permission loss clears live data and active hover/popups while retaining saved activity. Restoring permission resumes matching. Olympus list changes update hover details; saved encounters keep their historical bounty.
+# 1.0.3 release validation
 
-Olympus owns its board and bounties. ChatWarden reads the supported consented API and does not submit sightings or automatically shield/report Wanted players.
+Offline tests use a synthetic WoW host. Keep a complete saved-file backup before
+upgrading. Native Forever behavior still needs a live pass.
 
-Offline verification uses production Lua 5.1 and the supplied Olympus API in a simulated host. Native WoW rendering, tooltip input, unit events and combat still need an in-game pass. Filtering policy, signed packs and artwork are unchanged.
+- Verify first-login opt-in, saved scope5 consent, pause/clear and Olympus permission loss.
+- Click Collection Status entries and scroll their explanations. Click recording
+  metrics and settings statistics; no hover should be required.
+- Check your routes and encounter positions, with missing values kept unknown.
+  Repeated target/mouseover events must not become continuous movement sampling.
+- Backup & Restore opens File backup first. Use the Windows tool with WoW closed.
+  Confirm a full restored file retains all addon settings/history.
+- Check history-only text merging, including reverse and idempotent imports.
+- Verify old tracks, notes, profiles and linked snapshots survive reload.
+- Check filtering, Shield, spelling, capture, Alerts and Olympus controls.
+
+The Windows tool is tested on synthetic files under PowerShell5.1 and7: byte-exact
+restore, safety copies, corrupt/truncated archives, new-PC destinations, locks,
+running-game guards and concurrent-file changes. No personal files are opened,
+and no game is launched.

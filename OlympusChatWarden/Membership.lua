@@ -16,6 +16,15 @@ function M.InstallAccessGuards()
         if type(original) ~= 'function' then return end
         owner[key] = function(...)
             if not M.Allowed() and not ns.Initializing then
+                -- Local privacy controls remain reachable after membership or consent is lost.
+                if owner==SlashCmdList and key=='OLYMPUSCHATWARDEN' then
+                    local message=(...)
+                    if type(message)=='string' then
+                        local command=message:lower():gsub('^%s+',''):gsub('%s+$',''):gsub('%s+',' ')
+                        if command=='chronicle off' or command=='chronicle clear' or command=='chronicle clear confirm'
+                            or command=='chronicle status' then return original(message) end
+                    end
+                end
                 if announce then ns.Print(M.Status()) end
                 return nil, M.Status()
             end

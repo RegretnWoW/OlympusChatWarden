@@ -1,6 +1,40 @@
 # Olympus ChatWarden
 
-Version **1.0.2** — release. The fixed Olympus panel has a shorter header, four clickable feature icons and three complete recent entries at the standard size. The full UI shows guild rank beside Zeus and hides the Title row until a selected title is available. Zeus artwork meets the full panel's bottom-left trim. Updates keeps prior release pages with Previous/Next navigation. Recent icons stay centered, and selecting a compact entry marks it read. Connection status is in the top bar. Right-click ChatWarden's tab in Olympus to open the full UI. Grant access through `/oly privacy` with Olympus 1.2.4 installed.
+**Version 1.0.3** adds optional recording for Chronicle and Player Intelligence.
+Recording starts off until you choose to enable it. Reopen the explanation with
+`/ocw chronicle prompt`, or use Settings > Chronicle & Intel. History stays on this
+computer; ChatWarden does not upload it.
+
+Recording preserves your own routes, progress, equipment, supported native activity,
+important player encounters and permitted Olympus records. Other players are not
+continuously tracked. Unknown information stays unknown.
+
+- **Recording > Recorded Events:** Milestones and meaningful changes first. Use
+  All recorded data and multiple filters for background observations and routes.
+- **Recording > Activities:** Dungeon, raid, group and PvP visit segments with
+  supported boss evidence and original source navigation.
+- **Recording > Intelligence:** Measured time and UTC periods, player encounter/
+  roster histories, native credit evidence, PvP visits, scoreboard observations,
+  progression, deaths and observed zone entries. These are read-only projections.
+- **Recording > Collection Status:** Click an item for what it saves and its limits.
+- **Recording > Backup & Restore:** Keep a complete-file backup for a new PC.
+
+Roster association does not prove individual boss attendance, native credit is not
+necessarily a solo victory, and scoreboard identity may not establish a unique
+match. Matched performance and the polished Chronicle/dossier UI remain future work.
+See [INTELLIGENCE.md](INTELLIGENCE.md) and [ACTIVITIES.md](ACTIVITIES.md).
+
+For a complete backup, fully exit WoW and copy
+WTF/Account/<account>/SavedVariables/OlympusChatWarden.lua to a safe location
+outside WoW. The separate optional **ChatWarden Backup Tool for Windows**
+creates one verified ZIP and keeps a before-restore safety copy. File restore
+replaces all saved addon choices and history. History-only text merging remains
+available for combining records without replacing settings.
+
+History has no automatic expiry. Schema6 preserves earlier schemas1-5; scope5
+consent remains valid from the later previews. Earlier scopes require a fresh
+choice. Read [CHRONICLE-INTEL.md](CHRONICLE-INTEL.md) and
+[BACKUP-GUIDE.md](BACKUP-GUIDE.md) for details.
 
 Personal local filtering, contact protection, mentions, saved review and optional chat capture for World of Warcraft. Olympus 1.2.4's membership decision takes priority and requires its per-addon data permission. Older Olympus versions retain the local guild-name check. Missing permission or membership pauses protection and keeps saved data. The native page stays available for connection help.
 
@@ -34,11 +68,16 @@ Messages is the filtering feed for warnings, replacements, redactions and hides 
 
 History/read states persist per character with bounded storage and silent restoration. Settings > Activity history > Clear all clears character activity while keeping packs, settings, reports, captures and bookmarks. Covered names require Ctrl + left-click; originals are retained. Previous masked-icon, badge and multilingual-name fixes remain.
 
-Why filtered? and reports retain topic/target, stance, expression strength, evidence certainty and actual action. Original text and offsets remain intact. User reports require Save Report; exports send nothing automatically. Player Intelligence collection, Relay and the Olympus Warden rebrand remain future work.
+Why filtered? and reports retain topic/target, stance, expression strength, evidence certainty and actual action. Original text and offsets remain intact. User reports require Save Report; exports send nothing automatically. Player Intelligence browsing, event correlation, Relay and the Olympus Warden rebrand remain future work; optional history collection is available now.
 
 Incoming spelling/evasion matching is independent of optional typing assistance. Capture is opt-in. Shield combines configured request/repetition/spam limits with eligible strong directed wording; topic preferences and literal masks cannot trigger it. See SPELLING-LICENSE.txt and RELEASE-NOTES.md.
 
 The unchanged English base is supplemented by 1,078 curated WoW/Olympus tokens and your existing personal dictionary. Valid game terms avoid spelling marks, automatic correction and mistaken Balanced typo guesses. Exact rules and evasion matching still apply. See SPELLING-VOCABULARY.md for scope and inventory guidance.
+
+Visible local Wanted encounters appear in Events. Custom types separate native
+actions from background summaries. Large event histories load in small steps and
+reuse an in-memory index. Full statistics are in Collection Status. These views
+preserve the original ledger and add no collection or sharing.
 
 ## Install
 

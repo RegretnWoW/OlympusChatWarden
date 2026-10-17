@@ -12,6 +12,7 @@ Messages: Read filtered messages and see why they matched.
 Alerts: Find personal mentions and Olympus Wanted encounters. Choose a type with the tabs.
 Shield: Manage unwanted contact and players you have shielded.
 Capture: Record chat when you want to keep a conversation.
+Recording: Inspect your optional Chronicle and Player Intelligence history, and back it up.
 Rules: Add your own phrases and replacements.
 Packs: Choose which optional topics to filter.
 Reports: Save examples of missed or incorrect filtering.
@@ -50,6 +51,33 @@ An exact full listed name in visible chat gets a small Wanted icon. Hover for th
 Open Alerts > Wanted settings to choose encounter sounds, popups and badges, or change the cooldown. Sound and toast start off. The default encounter cooldown is five minutes per player. Chat icons have their own switch and never send notifications.
 
 Olympus supplies and manages the Wanted board. ChatWarden saves your personal alerts and their historical bounty details. Grant access in /oly privacy; permission loss pauses alerts and clears the live list. Saved alerts follow your Activity history setting.]]},
+    {id = "recording", title = "Recording", text = [[YOUR WARDEN HISTORY
+
+Recording > Activities connects your saved dungeon, raid, group and PvP visit records. Choose a player to see associated history, inspect boss results and open original evidence. A damage meter is not required. The complete Chronicle timeline and player dossiers will build on this foundation.
+
+The first-login explanation asks whether to start. Older recording scopes need a fresh choice; valid scope5 consent stays and old history is kept. Choose Enable recording or Not now. Reopen the explanation with /ocw chronicle prompt. Change your choice under Settings > Chronicle & Intel.
+
+WHAT IS SAVED
+
+Save supported progress, equipment, bags, quests, spells, reputation, character states and identifiable player observations. Precise samples of your own travels support future map playback. Save permitted Olympus Wanted lists, your profile and public rankings. Each record keeps its source and time. Unknown stays unknown. Raw combat logs are disabled; Capture and alert sounds stay independent.
+
+Some facts come from Olympus's shared information, such as Wanted listings. Your recorded history stays on this computer. ChatWarden does not upload it. Future sharing would need a separate choice.
+
+READ YOUR HISTORY
+
+Open Recording > Activities for your first shared-activity history. Roster association is not confirmed boss attendance; an exit is not dungeon completion. Reloads and recording gaps remain separate segments. Performance matching stays unavailable until validated.
+
+Open Recording > Intelligence for measured time, recorded days/weeks/months, player encounters and roster relationships, native credit evidence, battleground visits, progression, deaths and exploration. Scoreboard observations stay separate when match identity is uncertain. A native credit is not a solo victory, and an enemy nearby when you died does not identify a killer.
+
+Open Recorded Events for the original evidence. Events is the quiet default, showing milestones, boss results and meaningful changes. Choose All recorded data for observations and background collection, or select your own event types. These filters never delete history or change recording.
+
+Time spans, stationary route runs and multipart Olympus updates keep the list compact. Select a record for original details; Show raw Olympus parts exposes separate saved parts. Refresh saves pending route/time buffers. Collection Status has a scrollable list: click an item for what it saves, when it records, an example and its limits. Recording statistics also open these explanations. Search, filter and Newer/Older reach older history. Browsing works with recording off; history stays until you clear it.
+
+BACK UP BEFORE CHANGING PCs
+
+Open Recording > Backup & Restore. File backup is the default. Exit WoW normally and keep it closed. Copy WTF/Account/<account>/SavedVariables/OlympusChatWarden.lua to another drive, or use the optional Windows Backup Tool for one verified ZIP. It keeps a safety copy before restoring. Full-file restore replaces all saved ChatWarden settings and history.
+
+Choose History-only text merge to combine records without replacing settings. Pause recording, create a snapshot and copy every numbered part to a text file. Creation runs in small steps. Resume recording when the snapshot is ready. To restore, pause recording and paste each part separately. Click Restore this part twice. Imports merge history, keep existing notes and leave recording off. Keep backups private.]]},
     {id = "mentions", title = "Mentions", text = [[WATCH YOUR NAME
 
 Mentions watches your first name and full character name. For Rune Escape, both "Rune, ready?" and "Rune Escape, ready?" work. No @ is needed. A surname alone does not match automatically.

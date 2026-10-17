@@ -264,7 +264,7 @@ function ns.BuildOptions()
     panel:SetScript("OnShow", Sync)
     T.BindSettings(panel)
     ns.OptionsPanel = panel
-    category = Settings.RegisterCanvasLayoutCategory(ns.Workspace and ns.Workspace.SettingsCanvas(panel,'general') or panel, ns.NAME); Settings.RegisterAddOnCategory(category); ns.BuildShieldOptions(category); ns.BuildLanguageOptions(category); ns.BuildNotificationsOptions(category); ns.BuildSpellingOptions(category); Sync()
+    category = Settings.RegisterCanvasLayoutCategory(ns.Workspace and ns.Workspace.SettingsCanvas(panel,'general') or panel, ns.NAME); Settings.RegisterAddOnCategory(category); ns.BuildShieldOptions(category); ns.BuildLanguageOptions(category); ns.BuildNotificationsOptions(category); ns.BuildSpellingOptions(category); ns.BuildChronicleOptions(category); Sync()
 end
 
 SLASH_OLYMPUSCHATWARDEN1 = "/chatwarden"
@@ -273,7 +273,9 @@ SlashCmdList.OLYMPUSCHATWARDEN = function(message)
     if not ns.DB then return end
     local command, argument = (message or ""):match("^%s*(%S*)%s*(.-)%s*$")
     command = (command or ""):lower()
-    if command=='test' then ns.PhraseTester.Run(argument)
+    if command=='chronicle' then ns.Chronicle.Slash(argument)
+    elseif command=='intel' then ns.Chronicle.IntelSlash(argument)
+    elseif command=='test' then ns.PhraseTester.Run(argument)
     elseif command == "shieldoptions" then ns.OpenShieldOptions()
     elseif command == "inbox" or command == "review" then ns.OpenReview()
     elseif command == "shield" then ns.OpenShield()

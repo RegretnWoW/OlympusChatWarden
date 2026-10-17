@@ -3,7 +3,7 @@ local _,ns=...
 local T=ns.Theme
 local window,queued,loginReady
 local release=ns.VERSION
-ns.InstalledUpdate={version=release,cards={
+local previous={version='1.0.2',subtitle='Archived release notes',cards={
     {'ChatWarden inside Olympus','Use the compact panel for quick controls and recent activity. Right-click its tab to open the full UI.','overview'},
     {'Olympus membership and profile','Olympus 1.2.4 confirms membership after /oly privacy approval. Guild rank and connection status appear in the full UI.','olympus'},
     {'Mentions is now Alerts','Personal mentions and Wanted encounters share one page, with separate views, settings and unread counts.','mentions'},
@@ -11,9 +11,17 @@ ns.InstalledUpdate={version=release,cards={
     {'Quiet Wanted icons in chat','Full listed names get an icon with bounty details on hover. Chat icons never trigger Wanted alerts.','reports'},
     {'Activity and update history','Click recent entries to mark them read. Zeus matches the trim, and Previous/Next opens older update notes.','updates'},
 }}
+ns.InstalledUpdate={version=release,subtitle='Your history, preserved',cards={
+    {'Optional Chronicle recording','Choose whether to save your travels, progress, gear, important encounters and permitted Olympus records.','recording'},
+    {'Shared adventures','Browse recorded dungeon, raid and group history, with supported boss attempts and original sources.','overview'},
+    {'Player histories','Review local encounters, native credit evidence, roster relationships and your personal notes.','mentions'},
+    {'Time, progress and PvP visits','Inspect measured time, levels, quests, deaths, exploration and battleground visit history.','shield'},
+    {'A quieter history browser','Events highlights meaningful changes. Custom filters and All recorded data keep the details available.','copy'},
+    {'Keep it for the long run','History stays until you clear it. Complete-file backups protect it when you move or replace your PC.','export'},
+}}
 -- Keep published notes here when adding a new release. Older cards retain the
 -- wording shipped in those versions; browsing them does not change settings.
-ns.UpdateHistory={ns.InstalledUpdate,
+ns.UpdateHistory={ns.InstalledUpdate,previous,
     {version='1.0.1',subtitle='Archived release notes',cards={
         {'Smarter filtering','Better context handling means fewer false matches in questions, criticism and ordinary discussion.','messages'},
         {'First-name Mentions','Your first name or full name can trigger Mentions. No @ needed, and Capture can stay off.','mentions'},

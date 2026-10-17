@@ -102,7 +102,7 @@ function T.ReadOnlyDocument(scroll)
         self.blocks={};self.parts={};self.sourceText=sourceText and DocumentPlain(sourceText)
         for i,block in ipairs(blocks) do
             if type(block)=='string' then block={text=block} end
-            local text=DocumentPlain(block.text);self.blocks[i]={text=text,kind=block.kind or 'body',gap=block.gap}
+            local text=DocumentPlain(block.text);self.blocks[i]={text=text,kind=block.kind or 'body',gap=block.gap,tooltip=block.tooltip,tooltipTitle=block.tooltipTitle}
             local box=self.boxes[i]
             if not box then
                 box=CreateFrame('EditBox',nil,self);self.boxes[i]=box;box.ChatWardenNoSpelling=true;box.ChatWardenArtStyled=true
@@ -112,6 +112,8 @@ function T.ReadOnlyDocument(scroll)
                 box:HookScript('OnTextChanged',function(b,user) if user then b:SetText(b.original or '');Apply(b) end end)
             end
             self.parts[i]=text;box.original=text;box.blockKind=block.kind or 'body';box.blockTone=block.tone
+            if block.tooltip then T.Tooltip(box,block.tooltipTitle or text,block.tooltip)
+            else box:SetScript('OnEnter',nil);box:SetScript('OnLeave',nil) end
             if box:GetText()~=text then box:SetText(text);box:ClearFocus() end
             Apply(box);box:Show()
         end
@@ -526,6 +528,14 @@ function T.Tooltip(owner, title, description)
         GameTooltip:AddLine(description, 0.9, 0.9, 0.85, true); GameTooltip:Show()
     end)
     owner:SetScript("OnLeave", function() if GameTooltip then GameTooltip:Hide() end end)
+end
+function T.StatTooltip(region,title,description,onClick)
+    local hover=CreateFrame(onClick and 'Button' or 'Frame',nil,region:GetParent());hover:SetAllPoints(region);hover:EnableMouse(true)
+    if hover.SetFrameLevel then hover:SetFrameLevel(region:GetParent():GetFrameLevel()+1) end
+    if hover.SetMouseMotionEnabled then hover:SetMouseMotionEnabled(true) end
+    if onClick then hover:SetScript('OnClick',onClick)
+    elseif hover.SetMouseClickEnabled then hover:SetMouseClickEnabled(false) end
+    T.Tooltip(hover,title,description);return hover
 end
 
 -- Native radio dropdown, with a list fallback for clients lacking DropdownButton.

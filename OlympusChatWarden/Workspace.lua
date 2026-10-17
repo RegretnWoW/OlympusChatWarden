@@ -8,6 +8,7 @@ local definitions={
     {'mentions','Alerts','Personal mentions and Olympus Wanted alerts.'},
     {'shield','Contact Protection','Manage local shields, allowed players and contact alerts.'},
     {'capture','Chat Capture','Search, bookmark and revisit locally recorded conversations.'},
+    {'recording','Recording','Inspect recorded Chronicle and Player Intelligence events and back up your history.'},
     {'rules','My Rules','Your personal phrase actions and exceptions.'},
     {'packs','Rule Packs','Author-signed categories with independent controls.'},
     {'reports','My Reports','Read saved feedback and review exactly what you share.'},
@@ -199,10 +200,10 @@ function W.Ensure()
     W.totalBadge=V.Badge(header,-48,-48)
     local sidebar=V.Panel(root,12,-101,196,778,'sidebar')
     for i,d in ipairs(definitions) do
-        local id=d[1];local b=V.Button(sidebar,d[2]=='Contact Protection' and 'Shield' or d[2]=='Chat Capture' and 'Capture' or d[2]=='Rule Packs' and 'Packs' or d[2]=='My Rules' and 'Rules' or d[2]=='My Reports' and 'Reports' or d[2]=='Updates & Help' and 'Updates' or d[2],8,-12-(i-1)*51,180,49,function() W.Open(id) end,'row')
+        local id=d[1];local b=V.Button(sidebar,d[2]=='Contact Protection' and 'Shield' or d[2]=='Chat Capture' and 'Capture' or d[2]=='Rule Packs' and 'Packs' or d[2]=='My Rules' and 'Rules' or d[2]=='My Reports' and 'Reports' or d[2]=='Updates & Help' and 'Updates' or d[2],8,-12-(i-1)*46,180,44,function() W.Open(id) end,'row')
         local fontPath=b.Caption:GetFont();b.Caption:SetFont(fontPath,16,'')
         b.Caption:ClearAllPoints();b.Caption:SetPoint('LEFT',49,0);b.Caption:SetWidth(104);b.Caption:SetJustifyH('LEFT')
-        V.Icon(b,id,34,10,-7);b.SelectedArt=V.Nine(b,'selected');b.SelectedArt:SetShown(false)
+        V.Icon(b,id,34,10,-5);b.SelectedArt=V.Nine(b,'selected');b.SelectedArt:SetShown(false)
         b.Badge=V.Badge(b,-4,-11);W.navigation[id]=b
     end
     W.profile=CreateFrame('Frame',nil,sidebar);W.profile:SetPoint('TOPLEFT',10,-532);W.profile:SetSize(178,102)
@@ -319,6 +320,7 @@ function W.SetScale(percent)
     W.Ensure();Fit();return true
 end
 local builders={}
+builders.recording=function() return ns.RecordingUI.Build(W.canvas) end
 local Bookmark
 function W.Open(id)
     if not ns.DB or not ns.Membership.Allowed() then ns.Print(ns.Membership.Status());return end
@@ -330,6 +332,7 @@ function W.Open(id)
         W.pending='reports';original.OpenExport('reports',nil,nil,'review');W.pending=nil
     end
     W.Refresh();T.FocusWindow(W.window)
+    if id~='updates' and ns.Chronicle then ns.Chronicle.MaybePrompt() end
 end
 local function Page()
     local f=CreateFrame('Frame',nil,W.canvas);f:SetAllPoints();f:Hide();return f
@@ -1057,6 +1060,7 @@ builders.settings=function()
     end
     V.Button(p,'Mention settings',0,-564,360,38,W.MentionSettings)
     V.Button(p,'Capture settings',390,-564,360,38,W.CaptureSettings,'neutral')
+    V.Button(p,'Chronicle & Player Intelligence',780,-564,360,38,function() ns.OpenChronicleOptions() end,'neutral')
 
     function p:Activate() W.Tabs({{'settings','Settings',function() end},{'scale','Window size',W.ScaleSettings},{'history','Activity history',W.HistorySettings}},'settings') end
     return p
@@ -1197,11 +1201,11 @@ function W.Embed(frame,id,trim)
     end
 end
 function W.SettingsSub(key)
-    ns.BuildOptions();local panels={general=ns.OptionsPanel,languages=ns.LanguageOptionsPanel,shield=ns.ShieldOptionsPanel,spam=ns.SpamOptionsPanel,notifications=ns.NotificationOptionsPanel,spelling=ns.SpellingOptionsPanel}
+    ns.BuildOptions();local panels={general=ns.OptionsPanel,languages=ns.LanguageOptionsPanel,shield=ns.ShieldOptionsPanel,spam=ns.SpamOptionsPanel,notifications=ns.NotificationOptionsPanel,spelling=ns.SpellingOptionsPanel,chronicle=ns.ChronicleOptionsPanel}
     local panel=panels[key];if not panel then W.Open('settings');ShowStatus('This settings page is unavailable in the current client.');return end
     W.activeSetting=key;W.pending='settings';W.Embed(panel,'settings',true);W.pending=nil
-    local names={{'general','Filtering'},{'languages','Languages'},{'shield','Shield'},{'spam','Spam'},{'notifications','Notifications'},{'spelling','Spelling'}};local tabs={}
-    for _,spec in ipairs(names) do local id=spec[1];tabs[#tabs+1]={id,spec[2],function() W.SettingsSub(id) end,182} end
+    local names={{'general','Filtering'},{'languages','Languages'},{'shield','Shield'},{'spam','Spam'},{'notifications','Notifications'},{'spelling','Spelling'},{'chronicle','Chronicle & Intel'}};local tabs={}
+    for _,spec in ipairs(names) do local id=spec[1];tabs[#tabs+1]={id,spec[2],function() W.SettingsSub(id) end,154} end
     W.Tabs(tabs,key)
 end
 -- Secondary editors use the same workspace host, never scattered addon windows.
@@ -1320,7 +1324,7 @@ function W.SettingsCanvas(panel,key)
     canvas:HookScript('OnShow',function() W.nativeMaster:SetChecked(ns.DB.enabled) end)
     V.Button(art,'Open ChatWarden settings',60,-350,504,44,function()
         if SettingsPanel and not (SettingsPanel.IsProtected and SettingsPanel:IsProtected()) then SettingsPanel:Hide() end
-        W.Open('settings')
+        W.SettingsSub(key or 'general')
     end)
     T.BindSettings(canvas);return canvas
 end

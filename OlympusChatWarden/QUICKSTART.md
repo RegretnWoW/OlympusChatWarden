@@ -1,4 +1,22 @@
+# Recording in this preview
+
+Precise own-character travel samples and permitted Olympus public history now
+join the Chronicle and Player Intelligence recorder. Earlier preview consent
+pauses for review of this expanded scope; your old history stays. Reopen the
+explanation with `/ocw chronicle prompt`.
+
+Open **Recording** to inspect grouped events, **Collection Status** to see which
+getters returned valid values, and **Backup & Restore** to keep a private copy.
+Refresh saves pending route/time buffers. Recording stays optional and local.
+
 # Olympus ChatWarden quickstart
+
+**1.0.3-preview3:** The first-login popup asks whether to record history for
+Chronicle and Player Intelligence. Enable recording opts in; Not now keeps it
+off. Change your choice under Settings > Chronicle & Intel. Open **Recording**
+for saved events and **Backup & Restore**. History does not expire automatically.
+Back it up before changing PCs. Some facts come from Olympus; new history stays
+on this computer. Capture and Alerts can remain off. See CHRONICLE-INTEL.md.
 
 Olympus 1.2.4 has a compact ChatWarden panel with four feature icons and a scrolling Recent Activity list. Right-click its ChatWarden tab or use Open ChatWarden for the full UI. Guild and guild rank sit above Zeus in the sidebar; a selected title appears only when available. Connection status is in the top bar.
 
@@ -12,7 +30,7 @@ Click the Overview feature icons to enable or pause Filtering, Shield, Capture a
 
 Open **Updates** for patch highlights. Previous update and Next update browse older release pages; Launch Tour and User Guide have separate tabs. Blue buttons perform primary actions or select a view; gray buttons navigate or offer utilities; red buttons remove data or protection. Details and Actions are separate framed boxes, and inactive list/document scrollbars stay visible.
 
-Detailed **Settings** use six tabs: Filtering, Languages, Shield, Spam, Notifications and Spelling. Filtering has direct dropdowns for installed pack sensitivity. Mention preferences live at **Alerts > Mention settings**. Spelling has a scrolling personal dictionary. **Updates > User guide** has a topic list and a wide reader.
+Detailed **Settings** include Filtering, Languages, Shield, Spam, Notifications, Spelling and Chronicle & Intel. Filtering has direct dropdowns for installed pack sensitivity. Mention preferences live at **Alerts > Mention settings**. Spelling has a scrolling personal dictionary. **Updates > User guide** has a topic list and a wide reader.
 
 ## Messages, rules and reports
 

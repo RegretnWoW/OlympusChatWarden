@@ -17,6 +17,7 @@ local status={enabled={37,199,282,438},enabledOff={36,512,290,753},
     reports={25,799,296,1081},updates={336,804,587,1077},
     olympus={655,825,917,1082},olympusOff={969,825,1227,1080}}
 for name,rect in pairs(status) do icons[name]=rect end
+icons.recording=icons.copy
 V.IconRects=icons
 function V.SetIcon(texture,name)
     V.Region(texture,status[name] and 'Status' or 'Icons',icons[name] or icons.messages)
@@ -91,8 +92,8 @@ function V.Nine(parent,kind)
     function group:SetShown(value) for _,t in ipairs(self) do t:SetShown(value) end end
     return group
 end
-function V.Panel(parent,x,y,w,h,kind)
-    local f=CreateFrame('Frame',nil,parent);f:SetPoint('TOPLEFT',x,y);f:SetSize(w,h)
+function V.Panel(parent,x,y,w,h,kind,name)
+    local f=CreateFrame('Frame',name,parent);f:SetPoint('TOPLEFT',x,y);f:SetSize(w,h)
     -- Keep the backing inside the trim; the atlas corners are transparent.
     local fill=f:CreateTexture(nil,'BACKGROUND',nil,-1)
     local inset=kind=='header' and 18 or kind=='paper' and 14 or kind=='search' and 7 or 10
@@ -147,30 +148,84 @@ function V.Edit(parent,x,y,w,h,placeholder,changed,multiline)
 end
 local menus={}
 function V.CloseMenus() for _,menu in ipairs(menus) do menu:Hide() end end
-function V.Dropdown(parent,x,y,w,choices,get,set)
+function V.Dropdown(parent,x,y,w,choices,get,set,options)
+    options=options or {}
+    local multiple=options.multiple==true
+    local function Selected(id,value)
+        if not multiple then return id==value end
+        if id==false then return value==nil or value==false end
+        if id==options.clearValue then return type(value)=='table' and next(value)==nil end
+        if value==nil or value==false then return not (options.defaultExcluded and options.defaultExcluded[id]) end
+        return value[id]==true
+    end
     local b=V.Button(parent,'',x,y,w,34,function(self)
         local shown=self.Menu and self.Menu:IsShown();V.CloseMenus();if shown then return end
         local width=self:GetWidth()
+        local available=math.max(30,UIParent:GetHeight()*UIParent:GetEffectiveScale()/self:GetEffectiveScale()-24)
+        local height=math.min(#choices*30,math.max(30,math.floor(math.min(available,(options.maxRows or 9)*30)/30)*30))
+        local scrolling=height<#choices*30
+        local rowWidth=width-(scrolling and 38 or 12)
         if not self.Menu then
-            self.Menu=V.Panel(UIParent,0,0,width,#choices*30+12,'dark');self.Menu:SetFrameStrata('TOOLTIP');self.Menu:SetFrameLevel(200)
+            self.Menu=V.Panel(UIParent,0,0,width,height+12,'dark');self.Menu:SetFrameStrata('TOOLTIP');self.Menu:SetFrameLevel(200)
+            self.Menu:SetClampedToScreen(true)
+            self.MenuScroll=CreateFrame('ScrollFrame',nil,self.Menu);self.MenuScroll:SetPoint('TOPLEFT',6,-6)
+            self.MenuScroll.ChatWardenHideWhenFit=true
+            self.MenuContent=CreateFrame('Frame',nil,self.MenuScroll);self.MenuScroll:SetScrollChild(self.MenuContent)
+            V.SkinScroll(self.MenuScroll)
             self.MenuRows={}
             menus[#menus+1]=self.Menu
             ns.Theme.RegisterPopup(self,function() self.Menu:Hide() end)
         end
-        self.Menu:SetSize(width,#choices*30+12)
+        self.Menu:SetSize(width,height+12);self.MenuScroll:SetSize(rowWidth,height);self.MenuContent:SetSize(rowWidth,#choices*30)
         for i,choice in ipairs(choices) do
             local row=self.MenuRows[i]
-            if not row then row=V.Button(self.Menu,'',6,-6-(i-1)*30,width-12,29,function(button) self.Menu:Hide();set(button.choice[1]);self:Refresh() end,'neutral');self.MenuRows[i]=row end
-            row.choice=choice;row:SetWidth(width-12);row.Caption:SetWidth(width-36);row:SetText(choice[2]);row:Show()
+            if not row then
+                row=V.Button(self.MenuContent,'',0,-(i-1)*30,rowWidth,29,function(button)
+                    if not multiple then self.Menu:Hide() end
+                    self.MenuFocus=button.choice[1];set(button.choice[1]);self:Refresh()
+                end,'neutral');self.MenuRows[i]=row
+                row:EnableMouseWheel(true);row:SetScript('OnMouseWheel',function(_,delta)
+                    self.MenuScroll.ChatWardenGoldScroll:SetValue((self.MenuScroll:GetVerticalScroll() or 0)-delta*36)
+                end)
+                if multiple then
+                    local empty=V.Texture(row,'Controls',{934,533,1009,614});empty:SetSize(20,20);empty:SetPoint('LEFT',8,0)
+                    row.Check=V.Texture(row,'Controls',{807,533,890,614});row.Check:SetSize(20,20);row.Check:SetPoint('LEFT',8,0)
+                    row.Caption:ClearAllPoints();row.Caption:SetPoint('LEFT',34,0);row.Caption:SetJustifyH('LEFT')
+                end
+            end
+            row.choice=choice;row:SetWidth(rowWidth);row.Caption:SetWidth(rowWidth-(multiple and 46 or 24));row:SetText(choice[2]);row:Show()
         end
         for i=#choices+1,#self.MenuRows do self.MenuRows[i]:Hide() end
         self.Menu:ClearAllPoints();self.Menu:SetScale(self:GetEffectiveScale()/UIParent:GetEffectiveScale())
         local bottom=self.GetBottom and self:GetBottom()
-        if bottom and bottom<(#choices*30+12)*self:GetEffectiveScale() then self.Menu:SetPoint('BOTTOMLEFT',self,'TOPLEFT',0,2)
+        if bottom and bottom<(height+12)*self:GetEffectiveScale() then self.Menu:SetPoint('BOTTOMLEFT',self,'TOPLEFT',0,2)
         else self.Menu:SetPoint('TOPLEFT',self,'BOTTOMLEFT',0,-2) end
-        self.Menu:Show()
+        self.Menu:Show();self.MenuScroll.ChatWardenUpdateScrollRange(math.max(0,#choices*30-height))
+        self.MenuScroll.ChatWardenGoldScroll:SetShown(scrolling)
+        -- Reopen around the last chosen item, or the first selected item.
+        local selected=get();local focus
+        for i,choice in ipairs(choices) do
+            if choice[1]==self.MenuFocus and Selected(choice[1],selected) then focus=i;break end
+            if not focus and Selected(choice[1],selected) then focus=i end
+        end
+        self.MenuScroll.ChatWardenGoldScroll:SetValue(math.max(0,((focus or 1)-1)*30-math.floor(height/60)*30))
+        self:Refresh()
     end,'neutral')
-    function b:Refresh() local value=get();self.value=value;for _,c in ipairs(choices) do if c[1]==value then self:SetText(c[2]..'  v');return end end;self:SetText(tostring(value)) end
+    function b:Refresh()
+        local value=get();self.value=value
+        if multiple then
+            local count,label=0
+            for _,choice in ipairs(choices) do
+                if choice[1]~=false and choice[1]~=options.clearValue and Selected(choice[1],value) then count=count+1;label=choice[2] end
+            end
+            self:SetText((not value and choices[1][2] or count==0 and (options.emptyText or 'No event types')
+                or count==1 and label or count..(options.countText or ' event types'))..'  v')
+            for _,row in ipairs(self.MenuRows or {}) do row.Check:SetShown(Selected(row.choice[1],value)) end
+            return
+        end
+        for _,c in ipairs(choices) do if c[1]==value then self:SetText(c[2]..'  v');return end end
+        self:SetText(tostring(value))
+    end
     b:Refresh();return b
 end
 function V.Badge(parent,x,y)
@@ -270,7 +325,7 @@ function V.SkinScroll(scroll)
         if math.abs(offset-clamped)>epsilon then scroll:SetVerticalScroll(clamped) end
         maximum=vertical
         local h=math.max(1,scroll:GetHeight());thumb:SetHeight(math.max(24,math.min(h-42,(h-42)*h/(h+vertical))))
-        local visible=scroll:IsShown();local enabled=vertical>epsilon
+        local enabled=vertical>epsilon;local visible=scroll:IsShown() and (not scroll.ChatWardenHideWhenFit or enabled)
         slider:SetShown(visible);up:SetShown(visible);down:SetShown(visible)
         slider:SetEnabled(enabled);up:SetEnabled(enabled);down:SetEnabled(enabled)
         slider:SetAlpha(enabled and 1 or .45);up:SetAlpha(enabled and 1 or .45);down:SetAlpha(enabled and 1 or .45)

@@ -1,8 +1,8 @@
 ## Interface: 16001
 ## Title: Olympus ChatWarden
-## Notes: Personal text filtering and wording replacements with inline reveal, review and user reports.
+## Notes: Chat protection, Olympus alerts, and optional local Chronicle and Player Intelligence recording.
 ## Author: Regretn
-## Version: 1.0.2
+## Version: 1.0.3
 ## SavedVariables: OlympusChatWardenDB
 ## OptionalDeps: Olympus
 ## IconTexture: Interface\AddOns\OlympusChatWarden\Media\V5\Logo.tga
@@ -53,6 +53,22 @@ PersonalUI.lua
 ReportUI.lua
 ChatCapture.lua
 History.lua
+ChronicleStore.lua
+ChronicleCodec.lua
+ChronicleBackup.lua
+Chronicle.lua
+ChronicleRoute.lua
+ChronicleOlympus.lua
+ChronicleEvidence.lua
+ChronicleCapture.lua
+ChronicleLoadout.lua
+ChronicleCombat.lua
+ChronicleEncounters.lua
+ChronicleProgress.lua
+ChronicleActivities.lua
+ChronicleIntelligence.lua
+CollectionGuide.lua
+ChronicleOptions.lua
 SpellingDictionary.lua
 SpellingVocabulary.lua
 Spelling.lua
@@ -83,4 +99,7 @@ SpellingOptions.lua
 PhraseTester.lua
 Options.lua
 Workspace.lua
+ChronicleActivitiesUI.lua
+ChronicleIntelligenceUI.lua
+RecordingUI.lua
 OlympusPanel.lua

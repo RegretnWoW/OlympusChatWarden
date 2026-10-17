@@ -1,5 +1,5 @@
 local ADDON_NAME, ns = ...
-ns.NAME, ns.VERSION = "Olympus ChatWarden", "1.0.2"
+ns.NAME, ns.VERSION = "Olympus ChatWarden", "1.0.3"
 ns.TAGLINE = "CHUDS WITHOUT BORDERS"
 ns.REPORT_URL = "https://github.com/RegretnWoW/OlympusChatWarden/issues"
 ns.PROJECT_URL = "https://github.com/RegretnWoW/OlympusChatWarden"
@@ -67,6 +67,7 @@ function ns.PolicyChanged()
     if ns.Spelling then ns.Spelling.Reset() end
     if ns.ChatFonts then ns.ChatFonts.Refresh() end
     if ns.Initializing then return end
+    if ns.Chronicle then ns.Chronicle.RefreshGate() end
     if ns.Matcher and ns.RefreshUI then ns.RefreshUI(true) end
     if ns.ScanTooltips then ns.ScanTooltips() end
     if ns.RefreshBubbles then ns.RefreshBubbles() end
@@ -207,6 +208,7 @@ function ns.Initialize()
     if ns.Spelling then ns.Spelling.Initialize() end
     if ns.History then ns.History.Initialize() end
     if ns.Wanted then ns.Wanted.Initialize() end
+    if ns.Chronicle then ns.Chronicle.Initialize() end
     ns.DB.playerCover = nil -- retired body-cover experiment; ordinary name filtering remains
     ns.Initializing = false
     if ns.Membership.Allowed() then ns.RulePacks.Restore() else ns.PacksSuspended = true end
