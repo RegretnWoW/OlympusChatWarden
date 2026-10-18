@@ -1,0 +1,178 @@
+{
+  "version": "1.1.1",
+  "status": "release build prepared; final native acceptance results separated",
+  "baseline": {
+    "file": "OlympusWarden-v1.1.1-preview8.zip",
+    "sha256": "0941b6b8303f12cbc9a8929d139c1a8e3f5e82aeea076e3f036c6c4712a745a1",
+    "offlineSuitesPassed": 70,
+    "sourceSha256": "3d3b131474179f8e92e085a646c7d252c4223755f1c7892a0ade4adbddbc56c6"
+  },
+  "addon": {
+    "file": "OlympusWarden-v1.1.1.zip",
+    "sha256": "c6b9d405b83a8915f2b9e1da73be26622d6618ed524419a57fcc6080211e7edb",
+    "files": 167,
+    "bytes": 15433662,
+    "lua51Modules": 118,
+    "luaSourceSha256": "35576ececc8d62ec5d95aed5a8025e0791806dfbf7c80091df249b35c75a5ce7"
+  },
+  "releaseSuites": [
+    {
+      "suite": "test-release.py",
+      "exitCode": 0,
+      "seconds": 4.057426300016232
+    },
+    {
+      "suite": "test-preview7.py",
+      "exitCode": 0,
+      "seconds": 8.055508999997983
+    },
+    {
+      "suite": "test-modules.py",
+      "exitCode": 0,
+      "seconds": 9.284450400009518
+    },
+    {
+      "suite": "test-module-isolation.py",
+      "exitCode": 0,
+      "seconds": 0.3048072000092361
+    },
+    {
+      "suite": "test-activities.py",
+      "exitCode": 0,
+      "seconds": 0.3711278999981005
+    },
+    {
+      "suite": "test-intelligence.py",
+      "exitCode": 0,
+      "seconds": 0.35076730002765544
+    },
+    {
+      "suite": "test-small-pass.py",
+      "exitCode": 0,
+      "seconds": 5.918787599977804
+    },
+    {
+      "suite": "test-closed-loading.py",
+      "exitCode": 0,
+      "seconds": 0.25647910000407137
+    },
+    {
+      "suite": "test-startup-journal.py",
+      "exitCode": 0,
+      "seconds": 2.827406600001268
+    },
+    {
+      "suite": "test-archives.py",
+      "exitCode": 0,
+      "seconds": 4.51167279999936
+    },
+    {
+      "suite": "test-backup-tool.py",
+      "exitCode": 0,
+      "seconds": 4.936039699998219
+    }
+  ],
+  "releaseSuitesPassed": 11,
+  "releaseSummary": {
+    "version": "1.1.1",
+    "failed": 0,
+    "assertions": 27,
+    "protectedFilesUnchanged": [
+      "Chronicle.lua",
+      "ChronicleStore.lua",
+      "ChronicleArchives.lua",
+      "ChronicleBackup.lua",
+      "ChronicleStartup.lua",
+      "ChronicleStartupJournal.lua",
+      "ChronicleCodec.lua",
+      "ChronicleCapture.lua",
+      "ChronicleLoadout.lua",
+      "ChronicleDuels.lua",
+      "ChronicleCombat.lua",
+      "ChronicleStatistics.lua",
+      "ChronicleCoverage.lua",
+      "ChronicleTransitions.lua",
+      "RelayStore.lua",
+      "RelayTransport.lua",
+      "RelayDiagnostics.lua",
+      "WardenModules.lua",
+      "SignalCore.lua",
+      "Engine.lua",
+      "PackCrypto.lua",
+      "PackData.lua",
+      "TrustedPackKeys.lua"
+    ],
+    "nativeReleaseTested": false,
+    "seconds": 3.993484000005992
+  },
+  "moduleConfigurationsTested": 32,
+  "changedSincePreview8": [
+    "OlympusChatWarden/CHANGELOG.md",
+    "OlympusChatWarden/ChronicleActivities.lua",
+    "OlympusChatWarden/ChronicleIntelligence.lua",
+    "OlympusChatWarden/Core.lua",
+    "OlympusChatWarden/OlympusChatWarden.toc",
+    "OlympusChatWarden/PlayerMenus.lua",
+    "OlympusChatWarden/README.md",
+    "OlympusChatWarden/RELAY.md",
+    "OlympusChatWarden/RELEASE-NOTES.md",
+    "OlympusChatWarden/UpdateUI.lua",
+    "OlympusChatWarden/WardenSearch.lua"
+  ],
+  "protectedFilesUnchanged": [
+    "Chronicle.lua",
+    "ChronicleStore.lua",
+    "ChronicleArchives.lua",
+    "ChronicleBackup.lua",
+    "ChronicleStartup.lua",
+    "ChronicleStartupJournal.lua",
+    "ChronicleCodec.lua",
+    "ChronicleCapture.lua",
+    "ChronicleLoadout.lua",
+    "ChronicleDuels.lua",
+    "ChronicleCombat.lua",
+    "ChronicleStatistics.lua",
+    "ChronicleCoverage.lua",
+    "ChronicleTransitions.lua",
+    "RelayStore.lua",
+    "RelayTransport.lua",
+    "RelayDiagnostics.lua",
+    "WardenModules.lua",
+    "SignalCore.lua",
+    "Engine.lua",
+    "PackCrypto.lua",
+    "PackData.lua",
+    "TrustedPackKeys.lua"
+  ],
+  "mainHistorySchema": 6,
+  "consentVersion": 5,
+  "duelConsentVersion": 1,
+  "relaySchema": 1,
+  "moduleSelectionVersion": 1,
+  "savedVariables": [
+    "OlympusChatWardenDB",
+    "OlympusWardenRelayDB",
+    "OlympusWardenStartupDB"
+  ],
+  "historyStorageAndCollectorsUnchangedFromPreview8": true,
+  "relayTransportUnchangedFromPreview8": true,
+  "existingArtworkUnchanged": true,
+  "signedPacksAndTrustUnchanged": true,
+  "backupToolUnchanged": true,
+  "dependency": {
+    "metadata": "OptionalDeps: Olympus",
+    "intentional": true,
+    "reason": "Allow missing-addon/access guidance; existing runtime access checks still apply"
+  },
+  "nativeEvidence": {
+    "performedByBuildEnvironment": false,
+    "priorUserConfirmedLogoutReload": true,
+    "priorUserConfirmedSelfDelivery": true,
+    "reviewReportsImprovedNativePerformance": true,
+    "currentReleaseTwoClientDeliveryVerified": false,
+    "allCharacterNativeIntegrityVerified": false,
+    "finalNativeChecklistIncluded": true
+  },
+  "public110PackageUnchanged": true,
+  "publicationPerformed": false
+}
