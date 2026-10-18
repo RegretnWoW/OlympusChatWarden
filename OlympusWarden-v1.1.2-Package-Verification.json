@@ -1,0 +1,14 @@
+{
+  "version": "1.1.2",
+  "file": "OlympusWarden-v1.1.2.zip",
+  "sha256": "2e586ce34a1afbd08070678003113b6e8fc4d4078be29d8f19ca0f483362849b",
+  "files": 167,
+  "bytes": 15434969,
+  "lua51Modules": 118,
+  "luaSourceSha256": "14f58d6c6756ee924e102c6912a67ce11a06e7723d0e5c0518c6c3fa01bd9db6",
+  "archiveCRC": "passed",
+  "packagedSourceParity": "passed",
+  "allLua51Compile": "passed",
+  "offlineSuitesPassed": 13,
+  "nativePatchedLoginTested": false
+}
