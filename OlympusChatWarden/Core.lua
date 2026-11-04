@@ -1,5 +1,5 @@
 local ADDON_NAME, ns = ...
-ns.NAME, ns.VERSION = "Olympus Warden", "1.1.4-rc3"
+ns.NAME, ns.VERSION = "Fireside", "1.1.4-unified-2.11.8-integrated77-media1"
 ns.TAGLINE = "CHUDS WITHOUT BORDERS"
 ns.REPORT_URL = "https://github.com/RegretnWoW/OlympusChatWarden/issues"
 ns.PROJECT_URL = "https://github.com/RegretnWoW/OlympusChatWarden"
@@ -22,13 +22,14 @@ function ns.Checked(value)
 end
 
 function ns.Print(message)
-    if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cff56b9e8Warden:|r " .. message) end
+    if DEFAULT_CHAT_FRAME then DEFAULT_CHAT_FRAME:AddMessage("|cff56b9e8Fireside:|r " .. message) end
 end
 
 function ns.Active(scope)
-    if not ns.DB or not ns.Membership or not ns.Membership.Allowed() then return false end
+    if not ns.DB or not ns.Membership or not ns.Membership.BackgroundAllowed(scope=='shield' and 'shield' or (scope=='alerts' or scope=='olympusMuteObserve' or scope=='olympusMuteSignal') and 'alerts' or 'chat') then return false end
     if scope=='shield' then return ns.Modules.Enabled('shield') and ns.DB.shield and ns.DB.shield.enabled~=false end
-    if scope=='olympusMuteSignal' or scope=='alerts' then return ns.Modules.Enabled('alerts') and ns.DB[scope]~=false end
+    if scope=='olympusMuteSignal' then return ns.Modules.Enabled('alerts') and ns.DB[scope]==true end
+    if scope=='olympusMuteObserve' or scope=='alerts' then return ns.Modules.Enabled('alerts') and ns.DB[scope]~=false end
     return ns.Modules.Enabled('chat') and ns.DB.enabled and (scope==nil or ns.DB[scope]~=false)
 end
 
@@ -149,11 +150,17 @@ function ns.Initialize()
     if ns.History then ns.History.Flush() end
     ns.Initializing = true;ns.InitializationStage='settings';ns.StartupErrors={}
     ns.Membership.InstallAccessGuards()
-    local existing=type(OlympusChatWardenDB)=='table' and next(OlympusChatWardenDB)~=nil
-    if type(OlympusChatWardenDB) ~= "table" then OlympusChatWardenDB = {} end
-    ns.DB = OlympusChatWardenDB
+    local existing=type(ns.Storage.OlympusChatWardenDB)=='table' and next(ns.Storage.OlympusChatWardenDB)~=nil
+    if ns.Storage.OlympusChatWardenDB==nil then ns.Storage.OlympusChatWardenDB={} end
+    local main=ns.Storage.OlympusChatWardenDB
+    if type(main)~='table' or getmetatable(main)or main.schema~=nil and(type(main.schema)~='number'or main.schema%1~=0 or main.schema<1 or main.schema>11)then
+        ns.MainStorageBlocked='Unsupported main SavedVariables retained; runtime settings are temporary.';ns.DB={}
+    else ns.MainStorageBlocked=nil;ns.DB=ns.Storage.OlympusChatWardenDB end
     ns.Modules.Initialize(existing)
-    local defaults={enabled=true,alertsEnabled=true,chat=true,npc=false,barber=true,bubbles=true,captureAlerts=true,olympusMuteSignal=true,languageEnabled=false,typoFiltering=false,
+    -- Preserve prior opt-out and explicit tooltip choices. Older saves do not
+    -- distinguish a stored default true from a user-enabled true; keep either.
+    if ns.DB.olympusMuteObserve==nil and (ns.DB.olympusMuteSignal==false or ns.DB.olympusMuteSignal==0) then ns.DB.olympusMuteObserve=false end
+    local defaults={enabled=true,alertsEnabled=true,chat=true,npc=false,barber=true,bubbles=true,captureAlerts=true,olympusMuteSignal=false,olympusMuteObserve=true,languageEnabled=false,typoFiltering=false,
         dialogue=false,vendor=false,nameplates=false,targetNames=false,tooltips=false,
         playerNames=false,npcNames=false,talkingHead=false,history=true,context=true,shopLauncher=false,inspectLauncher=false,wardenMinimap=false}
     for key,default in pairs(defaults) do
@@ -226,7 +233,9 @@ function ns.Initialize()
     ns.Modules.PrimeScope()
     ns.DB.playerCover = nil -- retired body-cover experiment; ordinary name filtering remains
     ns.Initializing = false;ns.InitializationStage=#ns.StartupErrors>0 and 'finished with errors' or 'ready'
-    if ns.Membership.Allowed() and ns.Modules.Enabled('chat') then ns.RulePacks.Restore() else ns.PacksSuspended = true end
+    if ns.MainStorageBlocked then ns.Print('Athena’s Safeguard is protecting an unreadable save. Existing data was not replaced. Use /fireside recovery to review recovery copies.')end
+    if ns.FiresideSavedData and next(ns.FiresideSavedData.restored)then ns.Print('Athena’s Safeguard recovered your last available saved state. Review Settings → Data & backups. Damaged originals, when present, are retained.')end
+    if ns.Permissions.Decide('ChatFilter') then ns.RulePacks.Restore() else ns.PacksSuspended = true end
     if ns.Modules.Enabled('alerts') and ns.Wanted then ns.Wanted.Refresh() end
 end
 

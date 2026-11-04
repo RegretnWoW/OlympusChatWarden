@@ -9,14 +9,19 @@ local function Call(fn,...)
     if type(fn)~='function' then return end
     local ok,a,b,c,d=pcall(fn,...);if ok then return a,b,c,d end
 end
+-- API namespace iteration may be forbidden while specific public functions
+-- remain callable. Read only the named member inside pcall; validate its result.
+function R.MapCall(name,...)
+    local ok,fn=pcall(function()return C_Map and C_Map[name]end)
+    if ok then return Call(fn,...)end
+end
 function R.Position()
     local owner=C.Owner();if not owner then return nil,'identity-unavailable' end
     local at,clock=C.Stamp();local elapsed=C.Tick();if not at or not elapsed then return nil,'clock-unavailable' end
-    local api=ns.Readable(C_Map) and type(C_Map)=='table' and C_Map or nil
-    local map=S.Integer(api and Call(api.GetBestMapForUnit,'player'),1,10000000)
+    local map=S.Integer(R.MapCall('GetBestMapForUnit','player'),1,10000000)
     local x,y
-    if map and api and type(api.GetPlayerMapPosition)=='function' then
-        local pos=Call(api.GetPlayerMapPosition,map,'player')
+    if map then
+        local pos=R.MapCall('GetPlayerMapPosition',map,'player')
         if ns.Readable(pos) and (type(pos)=='table' or type(pos)=='userdata') and type(pos.GetXY)=='function' then x,y=Call(pos.GetXY,pos) end
         x,y=S.Number(x,0,1),S.Number(y,0,1)
         if not x or not y then x,y=nil,nil end
@@ -26,7 +31,7 @@ function R.Position()
     a,b,z,world=S.Number(a,-1000000000,1000000000),S.Number(b,-1000000000,1000000000),
         S.Number(z,-1000000000,1000000000),S.Integer(world,0,10000000)
     if not a or not b or not world then a,b,z,world=nil,nil,nil,nil end
-    local afterMap=S.Integer(api and Call(api.GetBestMapForUnit,'player'),1,10000000)
+    local afterMap=S.Integer(R.MapCall('GetBestMapForUnit','player'),1,10000000)
     if C.Owner()~=owner or map~=afterMap then return nil,'context-changed-during-read' end
     if not x and not a then return nil,'coordinates-unavailable' end
     local facing=S.Number(Call(GetPlayerFacing),0,math.pi*2+.001)
@@ -52,17 +57,24 @@ local function Gap(reason)
     end
     r.missing=reason
 end
+-- Zone/subzone names can change repeatedly along one flight. A name is not a
+-- coordinate-system boundary. Keep real map, instance and missing-data gaps.
+function R.SameCoordinateContext(a,b,oldPlace,newPlace)
+    return a.mapID==b.mapID and a.worldMapID==b.worldMapID
+        and (not oldPlace or oldPlace.instanceID==newPlace.instanceID
+            and oldPlace.inInstance==newPlace.inInstance and oldPlace.instanceType==newPlace.instanceType)
+end
 function R.Sample()
     if not C.Active() or r.suspended or r.owner~=C.Owner() then return end
     R.diagnostics.attempts=R.diagnostics.attempts+1
     local p,why=R.Position()
     if not p then R.diagnostics.unavailable=R.diagnostics.unavailable+1;Gap(why);return end
     local point=p.point;local elapsed=point[2]
+    if ns.ChronicleTravel then ns.ChronicleTravel.Taxi(p,'checkpoint')end
     if r.lastTick and (elapsed<r.lastTick or elapsed-r.lastTick>R.INTERVAL*3) then Gap('unmeasured-sampling-gap') end
     if r.lastAt and point[1]<r.lastAt then Gap('wall-clock-regression');return end
     local place=C.Place()
-    if r.hasPosition and (r.mapID~=p.mapID or r.worldMapID~=p.worldMapID
-        or (r.location and (r.location.instanceID~=place.instanceID or r.location.zone~=place.zone or r.location.subzone~=place.subzone))) then Gap('map-or-instance-transition') end
+    if r.hasPosition and not R.SameCoordinateContext(r,p,r.location,place) then Gap('map-or-instance-transition') end
     r.hasPosition=true;r.mapID=p.mapID;r.worldMapID=p.worldMapID
     r.missing=nil;r.lastTick=elapsed;r.lastAt=point[1];r.timeSource=p.timeSource
     if not r.segment then local c=S.WriterCharacter(r.owner,false);r.segment=r.session..'/route'..((c and c.sequence or 0)+1) end
@@ -76,14 +88,18 @@ function R.Sample()
     if #points>=R.MAX_POINTS or elapsed-points[1][2]>=(#points==1 and R.STILL_SPAN or R.MAX_SPAN) then Flush() end
 end
 function R.Suspend(reason)
+    if ns.ChronicleTravel then ns.ChronicleTravel.Gap()end
     Gap(reason or 'suspended');r.suspended=true;r.lastTick=nil;r.lastAt=nil
 end
 function R.Resume(reason)
     if not C.Active() then return end
+    -- A world-entry notification can arrive without a leaving-world event.
+    -- Publish the old batch under its original segment before replacing it.
+    Flush()
     r.suspended=false;r.gapBefore=true;r.segment=nil;r.continued=false;r.lastTick=nil
     R.Sample()
 end
-function R.Stop() Flush();r={};frame:SetScript('OnUpdate',nil) end
+function R.Stop() Flush();r={};frame:SetScript('OnUpdate',nil);if ns.ChronicleTravel then ns.ChronicleTravel.Gap()end end
 function R.Start()
     R.Stop();if not C.Active() then return end
     local owner=C.Owner();local c=S.WriterCharacter(owner,false);if not c then return end

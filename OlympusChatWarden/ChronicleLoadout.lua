@@ -72,13 +72,25 @@ function L.Traits(source)
         local tree=S.Integer(legacy[key],1);local config=tree and S.Integer(X.Call('C_Traits.GetConfigIDByTreeID',tree),1)
         if config then configs[config]=true end
     end end
+    local function CaptureActiveTree()
+    if active and ns.ChronicleEncounters and ns.ChronicleEncounters.TalentChoices then
+        local function owned()return Stable('player',guid)and revision==traitRevision and X.Bool(X.Call('C_Traits.ConfigHasStagedChanges',active))==false end
+        local choices,complete,read,total,layouts=ns.ChronicleEncounters.TalentChoices(owned,active)
+        if choices and owned()then
+            local refs=ns.WardenTalents.Store(layouts,owned);local si=S.Integer(X.Call('C_SpecializationInfo.GetSpecialization'),1,100);local spec=si and S.Integer(X.Call('C_SpecializationInfo.GetSpecializationInfo',si),1,1000000)
+            local values={guid=guid,configID=active,committed=true,choices=choices,choicesComplete=complete,nodesRead=read,nodesTotal=total,layoutRefs=refs,specializationID=spec}
+            if owned()and X.Validate({format=1,family='traits',values=values})then local hash=X.Store('traits',values,source);if hash then X.Record('native_event',source,{recordType='trait_tree_nodes',traitRef=hash,traitObservedAt=C.Stamp(),partial=not complete},nil,false)end end
+        end
+    end
+    end
     for config in pairs(configs) do
         -- Do not record staged choices as committed. Missing staged-state support
         -- remains unavailable rather than trusting UI preview values.
         if X.Bool(X.Call('C_Traits.ConfigHasStagedChanges',config))==false then
             local info=X.Table(X.Call('C_Traits.GetConfigInfo',config));local trees=info and X.Table(info.treeIDs)
-            if trees and S.Array(trees,20) then for _,tree in ipairs(trees) do
-                tree=S.Integer(tree,1);local ids=tree and X.Table(X.Call('C_Traits.GetTreeNodes',tree))
+            if trees and S.Array(trees,20) then for treeIndex=1,#trees do
+                if not X.Table(trees) then X.Mark('traits','Tree list became restricted; read stopped');return end
+                local tree=S.Integer(trees[treeIndex],1);local ids=tree and X.Table(X.Call('C_Traits.GetTreeNodes',tree))
                 if ids and S.Array(ids,1500) then
                     local rows={};local part=0;local parts=math.max(1,math.ceil(#ids/30))
                     local function flush()
@@ -89,23 +101,36 @@ function L.Traits(source)
                             part=part,parts=parts,partial=parts>1},nil,false) end
                         rows={}
                     end
-                    for _,id in ipairs(ids) do
+                    for nodeIndex=1,#ids do
+                        if not X.Table(ids) then X.Mark('traits','Node list became restricted; read stopped');return end
                         if revision~=traitRevision or X.Bool(X.Call('C_Traits.ConfigHasStagedChanges',config))~=false then return end
-                        id=S.Integer(id,1);local node=id and X.Table(X.Call('C_Traits.GetNodeInfo',config,id))
+                        local id=S.Integer(ids[nodeIndex],1);local node=id and X.Table(X.Call('C_Traits.GetNodeInfo',config,id))
                         local entry=node and X.Table(node.activeEntry)
                         local entryID=entry and S.Integer(entry.entryID,1);local rank=node and S.Integer(node.currentRank,0,1000)
                         if id and rank then rows[#rows+1]={id,entryID or false,rank} end
                         if #rows>=30 then flush() end;X.Yield()
                     end
+                    if not X.Table(ids) then X.Mark('traits','Node list became restricted; read stopped');return end
                     if #rows>0 then flush() end
                 end
             end end
         else X.Mark('traits','Unavailable or staged configuration; committed snapshot deferred') end
     end
+    CaptureActiveTree()
 end
 function L.Milestone(source,reason)
     if not X.Ready() then return end
     local trigger=C.Stamp();local triggerTick=C.Tick();local expected=S.GUID(X.Call('UnitGUID','player'));local token=generation
+    if reason=='character condition' then
+        -- Durability/stat notifications carry no equipment-change payload.
+        -- Keep every changed stats/condition snapshot through the same reader;
+        -- avoid a full gear/appearance read and a new loadout milestone when
+        -- only an unchanged condition notification was delivered.
+        X.Queue('own-condition',function()
+            if token==generation and Stable('player',expected) then L.Stats(source,expected) end
+        end)
+        return
+    end
     X.Queue('own-loadout',function()
         local guid=S.GUID(X.Call('UnitGUID','player'));if not guid or guid~=expected or token~=generation then return end
         local gear=L.Gear('player',guid,source);local appearance=L.Appearance('player',guid,source);local at=C.Stamp()
@@ -151,8 +176,9 @@ function L.Sets(source)
     if not X.Ready() or X.Busy() or X.Bool(X.Call('C_EquipmentSet.CanUseEquipmentSets'))~=true then return end
     local guid=S.GUID(X.Call('UnitGUID','player'));local ids=X.Table(X.Call('C_EquipmentSet.GetEquipmentSetIDs'))
     if not guid or not ids or not S.Array(ids,100) then return end
-    for _,id in ipairs(ids) do
-        id=S.Integer(id,0);local name,_,setID,isEquipped
+    for index=1,#ids do
+        if not X.Table(ids) then X.Mark('equipment sets','Set list became restricted; read stopped');return end
+        local id=S.Integer(ids[index],0);local name,_,setID,isEquipped
         if id then name,_,setID,isEquipped=X.Call('C_EquipmentSet.GetEquipmentSetInfo',id) end
         local items=id and X.Table(X.Call('C_EquipmentSet.GetItemIDs',id));local ignored=id and X.Table(X.Call('C_EquipmentSet.GetIgnoredSlots',id))
         if S.Text(name,144) and S.Integer(setID,0)==id and items and ignored then

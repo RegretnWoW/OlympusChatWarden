@@ -7,6 +7,88 @@ local P={PREFIX='OWRelay1',PROTOCOL='1',CHUNK=80,MAX_CHUNKS=103,INTERVAL=.35,TIM
     incoming={},outgoing={},rate={},receivers={'Olympus Wardn','Rune Escape'}};ns.RelayTransport=P
 local pump=CreateFrame('Frame');local events=CreateFrame('Frame');local retry=CreateFrame('Frame')
 local stages={H='readiness request',D='report data',F='receipt request',R='readiness reply',A='delivery receipt',E='receiver refusal'}
+-- Separate public-protocol framing under Relay's transport boundary. Report
+-- packets/prefix/receiver permissions are never reused to authorize Aether.
+local NetWire={PREFIX='OWAether5',CHUNK=180,PARTS=180,MAX_WIRE=24000,INTERVAL=.35};P.Aether=NetWire
+function NetWire.Capabilities()
+ local function available(fn) return ns.Readable(fn) and type(fn)=='function' end
+ local function read(object,key) local ok,value=pcall(function() return object and object[key] end);if ok and ns.Readable(value) then return value end end
+ local api=ns.Readable(C_ChatInfo) and C_ChatInfo or {};local restrict=read(api,'AreOutgoingAddonChatMessagesRestricted')
+ local restricted,restrictionState=nil,'UNAVAILABLE'
+ if available(restrict) then local ok,value=pcall(restrict);restrictionState='INACCESSIBLE';if ok and ns.Readable(value) and type(value)=='boolean' then restricted=value;restrictionState=value and 'RESTRICTED' or 'API_REPORTS_UNRESTRICTED' end end
+ local interface;if type(GetBuildInfo)=='function' then local ok,_,_,_,value=pcall(GetBuildInfo);if ok and ns.Readable(value) then interface=value end end
+ local olympus=ns.Readable(OlympusAPI) and OlympusAPI or nil
+ local publicVersion=read(olympus,'VERSION');if type(publicVersion)~='number' then publicVersion=nil end
+ return {status='LIVE_SERVICE_BLOCKED',interface=interface,
+  environment=WARDEN_SIMULATOR_ISOLATED==true and 'ISOLATED_SIMULATION' or 'NATIVE_UNVERIFIED',nativeStatus='NATIVE_PENDING',
+  registerAvailable=available(read(api,'RegisterAddonMessagePrefix')),sendAvailable=available(read(api,'SendAddonMessage')),outgoingRestricted=restricted,restrictionState=restrictionState,
+  olympusAPIVersion=publicVersion,olympusHasAvailable=available(read(olympus,'Has')),olympusRegisterAvailable=available(read(olympus,'Register')),
+  identityModel='WARDEN_NATIVE_V1',olympusRequiredForAether=false,olympusGuildIntegrationOnly=true,
+  approvedPrincipalProvider=false,approvedOwnerProvider=false,approvedGuildProvider=false,nativeDeliveryVerified=false,
+  prefixRegisteredByProbe=false,messagesSentByProbe=0,consentChangedByProbe=false,
+  reason='Fireside-native contributor keys, exact sender/character bindings, signed-record verification and native delivery are not verified. Olympus Bridge is optional guild integration, not general Aether authentication. Local membership is not peer authentication.'}
+end
+function NetWire.ReadinessText()
+ local c=NetWire.Capabilities();local lines={'Aether readiness: '..c.status,'Environment: '..c.environment,'Delivery: '..c.nativeStatus}
+ for _,key in ipairs({'identityModel','olympusRequiredForAether','olympusGuildIntegrationOnly','interface','registerAvailable','sendAvailable','restrictionState','olympusAPIVersion','olympusHasAvailable','olympusRegisterAvailable','approvedPrincipalProvider','approvedOwnerProvider','approvedGuildProvider','nativeDeliveryVerified'}) do
+  lines[#lines+1]=key..': '..tostring(c[key]==nil and 'UNAVAILABLE' or c[key])
+ end
+ lines[#lines+1]=c.reason;lines[#lines+1]='Read-only probe. No prefix registration, messages, identity claims, consent changes or account data.'
+ return table.concat(lines,'\n')
+end
+-- Capability contract, not an implementation or approval switch. Native
+-- character-session proof must remain distinct from installation principal,
+-- optional alt links, official guild rights and anonymous third-party subjects.
+NetWire.TRUST_MODEL={version=1,principal='Pinned Fireside contributor public-key fingerprint',
+ binding='Native sender challenge + independently verified exact character GUID/realm',
+ records='Per-record signatures verified against pinned contributor keys; replay/expiry/revocation',
+ alts='Explicit signed character links; no claim of Blizzard-account ownership',
+ guild='Separate official guild authority; optional Olympus integration',
+ keyGeneration='Cryptographic entropy/key storage provider required; math.random is not a key generator',
+ status='DESIGNED_NOT_NATIVE_VERIFIED'}
+function NetWire.NewNative()
+ -- Deliberate hard holdpoint. An options table cannot impersonate independent
+ -- Warden-native validation, and loading/testing Warden never registers or sends this prefix.
+ return nil,'LIVE_SERVICE_BLOCKED: approved identity and native transport validation required'
+end
+function NetWire.NewFixture(options)
+ if WARDEN_SIMULATOR_ISOLATED~=true or type(options)~='table' or options.fixture~=true or type(options.send)~='function'
+  or type(options.authorize)~='function' or type(options.receive)~='function' then return nil,'LIVE_SERVICE_BLOCKED' end
+ local now=options.clock or function() return ns.SafeCall(GetTime) or 0 end
+ local c={incoming={},outgoing={},sequence=0,lastSend=-100,seen={}}
+ function c:Queue(peer,wire)
+  if not options.authorize(peer) or type(wire)~='string' or #wire>NetWire.MAX_WIRE or #self.outgoing>=360 then return false,'PEER_OR_QUEUE_BOUND' end
+  local encoded=ns.PackCrypto.Base64Encode(wire);self.sequence=self.sequence+1;local id=tostring(self.sequence)..'-'..S.Checksum(wire)
+  local parts=math.ceil(#encoded/NetWire.CHUNK);if parts>NetWire.PARTS or #self.outgoing+parts>360 then return false,'FRAME_BOUND' end
+  for i=1,parts do self.outgoing[#self.outgoing+1]={peer=peer,text='N5:'..id..':'..i..':'..parts..':'..encoded:sub((i-1)*NetWire.CHUNK+1,i*NetWire.CHUNK)} end
+  return true
+ end
+ function c:Pump()
+  for id,row in pairs(self.incoming) do if row.expires<=now() then self.incoming[id]=nil end end
+  for id,at in pairs(self.seen) do if at<=now() then self.seen[id]=nil end end
+  if now()-self.lastSend<NetWire.INTERVAL or #self.outgoing==0 then return false end
+  local row=table.remove(self.outgoing,1);if not options.authorize(row.peer) then return false,'PEER_REVOKED' end
+  self.lastSend=now();return options.send(NetWire.PREFIX,row.peer,row.text)==true
+ end
+ function c:Receive(prefix,peer,text)
+  if prefix~=NetWire.PREFIX or not options.authorize(peer) or type(text)~='string' or #text>235 then return false,'FRAME_POLICY' end
+  local id,index,total,piece=text:match('^N5:([%w%-]+):(%d+):(%d+):([%w%+/=]+)$');index,total=tonumber(index),tonumber(total)
+  if not id or #id>40 or not index or not total or index<1 or index>total or total>NetWire.PARTS or #piece>NetWire.CHUNK then return false,'FRAME_FIELDS' end
+  local key=peer..'/'..id;if self.seen[key] then return true,'DUPLICATE' end
+  local row=self.incoming[key]
+  if not row then local n=0;for _ in pairs(self.incoming) do n=n+1 end;if n>=4 then return false,'REASSEMBLY_BOUND' end;row={parts={},total=total,bytes=0,expires=now()+120};self.incoming[key]=row end
+  if row.total~=total or row.parts[index] and row.parts[index]~=piece then self.incoming[key]=nil;return false,'FRAME_CONFLICT' end
+  if not row.parts[index] then row.parts[index]=piece;row.bytes=row.bytes+#piece end
+  if row.bytes>32000 then self.incoming[key]=nil;return false,'REASSEMBLY_BYTES' end
+  for i=1,total do if not row.parts[i] then return true,'PARTIAL' end end
+  local wire=ns.PackCrypto.Base64Decode(table.concat(row.parts),NetWire.MAX_WIRE);self.incoming[key]=nil
+  if not wire or #wire>NetWire.MAX_WIRE or S.Checksum(wire)~=id:match('%-(%w+)$') then return false,'FRAME_CHECKSUM' end
+  local n=0;for _ in pairs(self.seen) do n=n+1 end;if n>=128 then return false,'FRAME_REPLAY_BOUND' end
+  self.seen[key]=now()+120;return options.receive(peer,wire)==true
+ end
+ function c:Stop() self.incoming={};self.outgoing={};self.seen={};return true end
+ return c
+end
 local function Clock() return ns.SafeCall(GetTime) or 0 end
 local function Realm(v) return S.Text(v,128) and v:gsub('%s',''):lower() end
 function P.Identity(value,realm)
@@ -115,7 +197,7 @@ local function Unhex(s)
 end
 local function Contact(a)
     a.target=a.report.selfTestReceiver and P.LocalName() or P.receivers[a.receiver]
-    a.identity=P.Identity(a.target,'Classic Beta PvP');a.phase='hello';a.deadline=Clock()+12;a.next=0
+    a.identity=a.report.selfTestReceiver or P.Identity(a.target,'Classic Beta PvP');a.phase='hello';a.deadline=Clock()+12;a.next=0
     a.report.status='Contacting '..a.target..'. Awaiting receiver readiness.';Notify()
 end
 function P.Try(id)
@@ -137,7 +219,7 @@ function P.SetAutomatic(id,enabled)
     r.autoRetry=enabled==true
     if not r.autoRetry and P.Busy(id) then End('pending','Automatic delivery paused by you. The report is kept.') end
     r.nextAttempt=r.autoRetry and math.max(S.Now(),(r.lastAttempt or 0)+30) or nil
-    r.status=r.autoRetry and 'Automatic delivery enabled. Warden will retry while you are logged in.' or 'Automatic delivery paused. The report is kept locally.'
+    r.status=r.autoRetry and 'Automatic delivery enabled. Fireside will retry while you are logged in.' or 'Automatic delivery paused. The report is kept locally.'
     P.Schedule();Notify();return true
 end
 function P.Automatic()

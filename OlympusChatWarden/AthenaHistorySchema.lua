@@ -31,16 +31,17 @@ function V.Context(t,owner)
         elseif key=='difficultyID' then value=S.Integer(value,0,100000)
         elseif key=='rosterObservedAt' or key=='rosterVerifiedAt' then value=S.Number(value,1)
         elseif key=='sourceModule' then value=({chronicle=true,intel=true,combat=true,guild=true,shield=true,chat=true,alerts=true,command=true})[value] and value
-        elseif key=='accessScope' then value=({LOCAL_HISTORY=true,LOCAL_INTEL=true,PRIVATE_INCIDENT=true})[value] and value
+        elseif key=='accessScope' then value=({LOCAL_HISTORY=true,LOCAL_INTEL=true,PRIVATE_INCIDENT=true,OWNER_PRIVATE=true})[value] and value
         elseif key=='linkStatus' then value=({SOURCE_CONTEXT=true,LINK_PENDING=true})[value] and value end
         if value==nil then return end;out[key]=value
     end
     if not out.sourceModule or not out.accessScope or not out.linkStatus then return end
     return out
 end
-V.types={contact_observed=true,contact_inspection_attempt=true,historical_incident=true,incident_correction=true,match_observed=true,aura_partial=true}
+V.types={signal_sighting=true,contact_observed=true,contact_inspection_attempt=true,historical_incident=true,incident_correction=true,match_observed=true,aura_partial=true}
 local common='recordType evidenceClass outcome outcomeScope scope'
 local words={
+    signal_sighting='origin via sourceVersion',
     contact_observed='basisRef triggerAt contactKind',contact_inspection_attempt='basisRef triggerAt',
     historical_incident='sourceActionID cause1 cause2 cause3 count method firstAt lastAt ownerModule',incident_correction='incidentRef correctedSourceID method',
     match_observed='phase matchSequence runID',
@@ -51,7 +52,8 @@ local function Ref(value) return S.Text(value,256)~=nil end
 function V.Valid(d)
     local family=d.recordType;if not allowed[family] or not S.Text(d.scope,256) then return false end
     for key in pairs(d) do if not allowed[family][key] then return false end end
-    if family=='contact_observed' then return Ref(d.basisRef) and S.Number(d.triggerAt,1)~=nil and ({SMALL_PARTY=true,DIRECT_DUEL=true})[d.contactKind]==true
+    if family=='signal_sighting' then return d.origin=='OLYMPUS_BOARD_MATCH_AT_OBSERVATION' and (d.via=='target' or d.via=='mouseover') and d.sourceVersion==1
+    elseif family=='contact_observed' then return Ref(d.basisRef) and S.Number(d.triggerAt,1)~=nil and ({SMALL_PARTY=true,DIRECT_DUEL=true})[d.contactKind]==true
     elseif family=='contact_inspection_attempt' then return Ref(d.basisRef) and S.Number(d.triggerAt,1)~=nil
     elseif family=='historical_incident' then
         if not ns.Athena.OperationalSource(d.sourceActionID) or not S.Integer(d.count,1,3) or not S.Number(d.firstAt,1) or not S.Number(d.lastAt,d.firstAt)
@@ -70,9 +72,19 @@ function V.Valid(d)
         return true
     end
 end
+function V.Explain(d)
+    local r=d.recordType
+    if not allowed[r]then return 'UNSUPPORTED_TYPE_VERSION','native_event.recordType'end
+    for k in pairs(d)do if not allowed[r][k]then return 'INVALID_SCHEMA','native_event.unexpected_field'end end
+    if d.scope==nil then return 'MISSING_FIELD','history.scope'end
+    if r=='contact_observed'and(d.basisRef==nil or d.triggerAt==nil or d.contactKind==nil)then return 'MISSING_FIELD','history.contact_basis'end
+    if r=='match_observed'and(d.phase==nil or d.matchSequence==nil or d.runID==nil)then return 'MISSING_FIELD','history.match_identity'end
+    return 'INVALID_FIELD','native_event.'..r..'.values'
+end
 function V.Record(t,owner)
     local d=t.details;local own=owner:match('/(Player%-.+)$')
-    if d.recordType=='contact_observed' then
+    if d.recordType=='signal_sighting' then return S.GUID(t.subject)~=nil and t.subject~=own and ((t.source=='PLAYER_TARGET_CHANGED' and d.via=='target') or (t.source=='UPDATE_MOUSEOVER_UNIT' and d.via=='mouseover'))
+    elseif d.recordType=='contact_observed' then
         return S.GUID(t.subject)~=nil and t.subject~=own and ({GROUP_ROSTER_UPDATE=true,PARTY_MEMBERS_CHANGED=true,DUEL_COUNTDOWN=true,control=true})[t.source]==true
     elseif d.recordType=='contact_inspection_attempt' then return S.GUID(t.subject)~=nil and t.subject~=own and t.source=='control'
     elseif d.recordType=='historical_incident' or d.recordType=='incident_correction' then
@@ -87,6 +99,7 @@ function V.Record(t,owner)
 end
 function V.Title(e)
     local d=e.details
+    if d.recordType=='signal_sighting' then return 'Historical native sighting • contemporaneous Olympus list match' end
     if d.recordType=='contact_observed' then return 'Recorded direct contact • '..(d.contactKind=='SMALL_PARTY' and 'small party' or 'own duel') end
     if d.recordType=='contact_inspection_attempt' then return 'First-contact inspection requested' end
     if d.recordType=='historical_incident' then return 'Private local protection context • source-qualified' end

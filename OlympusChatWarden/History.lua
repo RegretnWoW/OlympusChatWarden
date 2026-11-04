@@ -141,7 +141,11 @@ local function Trim(store)
         bytes=bytes-store.characters[oldest].bytes;store.characters[oldest]=nil;count=count-1
     end
 end
+function H.ResetPrivacyRuntime()
+    restoring=true;ns.Review.Clear();ns.Activity.Initialize();ns.Shield.alerts={};dirty=false;restoring=false
+end
 function H.Flush()
+    if ns.Permissions.Denied('incidents') then return end
     if not ready or restoring or not owner or not ns.DB then return end
     local store=ns.DB.characterHistory
     if type(store)~='table' or type(store.characters)~='table' then return end
@@ -220,10 +224,13 @@ end
 function H.CaptureID(id) return 'review:'..tostring(ns.DB.historySequence or 0)..':'..id end
 function H.SetEnabled(value)
     if not ns.Membership.Allowed() then return false end
+    if value==true then local ok,why=ns.Permissions.Resume('incidents',true);if not ok then return false,why end end
+    if value~=true and ns.FiresideSavedData then ns.FiresideSavedData.PurgeRecovery()end
     ns.DB.persistHistory=value==true;H.Flush();return true
 end
 function H.Clear()
     if not ns.Membership.Allowed() then return false end
+    if ns.FiresideSavedData then ns.FiresideSavedData.PurgeRecovery()end
     restoring=true;ns.Review.Clear();ns.Activity.Initialize();ns.Shield.alerts={};restoring=false
     H.Flush();ns.Activity.Changed();return true
 end

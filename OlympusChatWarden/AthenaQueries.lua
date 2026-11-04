@@ -12,7 +12,7 @@ local function State(owner,request)
 end
 local function Envelope(e)
     return {id=e.id,observationID=A.ObservationID(e),activityID=e.details and (e.details.runID or e.details.duelID),observer=e.character,
-        subject=e.subject,occurredAt=e.at,receivedAt=e.at,source=e.source,kind=e.kind,
+        subject=e.subject,occurredAt=e.at,receivedAt=e.at,observedAt=e.at,eventAt=e.temporal and e.temporal.eventAt,sampledAt=e.temporal and e.temporal.sampledAt,recordedAt=e.temporal and e.temporal.recordedAt,temporal=A.Copy(e.temporal),source=e.source,kind=e.kind,
         recordType=e.details and e.details.recordType,originKind='source',scope=e.details and e.details.scope,
         localSighting=e.details and e.details.localSighting==true,retentionClass=ns.AthenaRetention.Classify(e).class,share='local-only',schema=1}
 end

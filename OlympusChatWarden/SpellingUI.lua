@@ -31,6 +31,27 @@ end
 local function Build()
     if popup then return end
     measure=UIParent:CreateFontString(nil,'OVERLAY');measure:Hide()
+    if ns.UI2Components then
+        local C=ns.UI2Components
+        popup=CreateFrame('Frame','OlympusUI2SpellingPopup',UIParent);popup:SetSize(390,354);popup:SetFrameStrata('TOOLTIP');popup:SetClampedToScreen(true);popup:EnableMouse(true)
+        local card=C.Card(popup,'Spelling suggestions',false);card:SetAllPoints(popup)
+        heading=C.Text(popup,'',14,C.colors.gold);heading:SetPoint('TOPLEFT',16,-42);heading:SetSize(358,26)
+        suggestionPanel=CreateFrame('Frame',nil,popup);suggestionPanel:SetPoint('TOPLEFT',16,-78);suggestionPanel:SetSize(358,164);S.suggestionPanel=suggestionPanel
+        buttons={}
+        for i=1,6 do buttons[i]=C.Button(suggestionPanel,'',function(self)
+            local item=S.results and S.results[selected];local ok,why=S.Correct(S.target,S.snapshot,item,self.replacement)
+            if ok then S.Hide();S.snapshot=nil elseif why then status:SetText(why) end
+        end,358);buttons[i]:SetPoint('TOPLEFT',0,-(i-1)*27);buttons[i]:SetHeight(25)
+        buttons[i].SetText=buttons[i].SetLabel end
+        previous=C.Button(popup,'Previous',function() S.OpenSuggestions(selected-1) end,108);previous:SetPoint('TOPLEFT',16,-250)
+        nextWord=C.Button(popup,'Next',function() S.OpenSuggestions(selected+1) end,108);nextWord:SetPoint('TOPLEFT',140,-250)
+        C.Button(popup,'Close',function() S.Hide();if S.Eligible(S.target) then S.target:SetFocus() end end,108):SetPoint('TOPLEFT',264,-250)
+        add=C.Button(popup,'Add word',function() local item=S.results and S.results[selected];if item then S.AddWord(item.word) end;S.Hide();S.snapshot=nil end,170);add:SetPoint('TOPLEFT',16,-284)
+        ignore=C.Button(popup,'Ignore this session',function() local item=S.results and S.results[selected];if item then S.Ignore(item.word) end;S.Hide();S.snapshot=nil end,174);ignore:SetPoint('TOPLEFT',200,-284)
+        status=C.Text(popup,'',11,C.colors.muted);status:SetPoint('TOPLEFT',16,-318);status:SetSize(358,30);status:SetWordWrap(true)
+        if UISpecialFrames then UISpecialFrames[#UISpecialFrames+1]='OlympusUI2SpellingPopup' end
+        S.popup=popup;popup:Hide();return
+    end
     local ok,frame=pcall(CreateFrame,'Frame','OlympusChatWardenSpellingPopup',UIParent,not ns.Workspace and 'BasicFrameTemplateWithInset' or nil)
     popup=ok and frame or CreateFrame('Frame','OlympusChatWardenSpellingPopupBasic',UIParent,'BackdropTemplate')
     popup:SetSize(370,350);popup:SetFrameStrata('TOOLTIP');popup:SetClampedToScreen(true);popup:EnableMouse(true)

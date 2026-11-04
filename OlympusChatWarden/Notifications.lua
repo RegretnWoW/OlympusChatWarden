@@ -1,7 +1,7 @@
 -- Notification preferences never change filtering or remove review originals.
 local _,ns=...
 local N={};ns.Notifications=N
-local defaults={athena=false,athenaWatched=false,athenaEarned=false,badges=true,hidden=true,redacted=false,filtered=true,language=false,shield=true,spam=false,advertising=false,recruitment=false,chat=true}
+local defaults={sanctuary=true,athena=false,athenaWatched=false,athenaEarned=false,badges=true,hidden=true,redacted=false,filtered=true,language=false,shield=true,spam=false,advertising=false,recruitment=false,chat=true}
 local categories={filtered=true,language=true,shield=true,spam=true,advertising=true,recruitment=true}
 function N.Initialize()
     local db=ns.DB.notifications

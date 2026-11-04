@@ -10,7 +10,7 @@ local kinds={recording_start=true,recording_stop=true,session_start=true,time_sl
     route_segment=true,player_route=true,player_route_gap=true,collection_gap=true,player_state=true,character_detail=true,equipment_observed=true,equipment_change=true,
     quest_accepted=true,quest_removed=true,quest_observed=true,quest_objective=true,loot_offered=true,spell_learned=true,reputation_observed=true,bind_observed=true,olympus_snapshot=true,
     inventory_observed=true,spell_observed=true,achievement_earned=true,native_snapshot=true,native_event=true,loadout_observed=true,important_player=true}
-local sources={CHAT_MSG_LOOT=true,control=true,PLAYER_ENTERING_WORLD=true,PLAYER_LOGIN=true,PLAYER_LOGOUT=true,
+local sources={CHAT_MSG_LOOT=true,LFG_COMPLETION_REWARD=true,control=true,PLAYER_ENTERING_WORLD=true,PLAYER_LOGIN=true,PLAYER_LOGOUT=true,
     CHAT_MSG_ACHIEVEMENT=true,CHAT_MSG_GUILD_ACHIEVEMENT=true,UNIT_TARGET=true,NAME_PLATE_UNIT_ADDED=true,UNIT_DIED=true,UNIT_FLAGS=true,UNIT_FACTION=true,UNIT_LEVEL=true,
     PLAYER_LEAVING_WORLD=true,ZONE_CHANGED=true,ZONE_CHANGED_INDOORS=true,ZONE_CHANGED_NEW_AREA=true,
     PLAYER_LEVEL_UP=true,PLAYER_XP_UPDATE=true,QUEST_TURNED_IN=true,SKILL_LINES_CHANGED=true,
@@ -29,7 +29,8 @@ local sources={CHAT_MSG_LOOT=true,control=true,PLAYER_ENTERING_WORLD=true,PLAYER
     DAMAGE_METER_RESET=true,TRAIT_CONFIG_UPDATED=true,TRAIT_CONFIG_LIST_UPDATED=true,ACTIVE_COMBAT_CONFIG_CHANGED=true,EQUIPMENT_SETS_CHANGED=true,
     ITEM_DATA_LOAD_RESULT=true,BARBER_SHOP_APPEARANCE_APPLIED=true,BARBER_SHOP_RESULT=true,PLAYER_DIFFICULTY_CHANGED=true,UPDATE_INVENTORY_DURABILITY=true,UNIT_STATS=true,CURRENCY_DISPLAY_UPDATE=true,UPDATE_INSTANCE_INFO=true,NEW_MOUNT_ADDED=true,NEW_PET_ADDED=true,NEW_TOY_ADDED=true,TOYS_UPDATED=true,PET_JOURNAL_LIST_UPDATE=true,
     QUEST_LOOT_RECEIVED=true,QUEST_CURRENCY_LOOT_RECEIVED=true,ENCOUNTER_LOOT_RECEIVED=true,GUILD_ROSTER_UPDATE=true,PLAYER_GUILD_UPDATE=true}
-local fields={guildBefore=true,guildBeforeRealm=true,guildBeforeRank=true,guildAssociated=true,guildMajority=true,guildGroupSize=true,guildContextMembers=true,guildContextGuildMembers=true,guildContextKnown=true,guildContextSame=true,guildContextUnknown=true,guildName=true,guildRealm=true,guildRank=true,guildMembers=true,orgAffiliation=true,groupEpoch=true,lineID=true,remainingHealthPercent=true,encounterRef=true,bossStatusTotal=true,bossStatusReadCount=true,bossStatusComplete=true,triggerGUID=true,triggerElapsed=true,observedElapsed=true,statisticID=true,categoryID=true,displayValue=true,numericValue=true,nativeScope=true,accountFlag=true,achievementFlags=true,valueDecreased=true,scoreReportID=true,attempts=true,readableRows=true,creatureID=true,creatureName=true,classification=true,duelID=true,opponentGUID=true,phase=true,requestedPhase=true,result=true,resultMethod=true,accepted=true,damageReceived=true,healingReceived=true,windowSeconds=true,coverage=true,droppedSpells=true,loginConfirmed=true,seconds=true,afk=true,before=true,after=true,delta=true,
+sources.ATHENA_MOMENT=true
+local fields={origin=true,guildBefore=true,guildBeforeRealm=true,guildBeforeRank=true,guildAssociated=true,guildMajority=true,guildGroupSize=true,guildContextMembers=true,guildContextGuildMembers=true,guildContextKnown=true,guildContextSame=true,guildContextUnknown=true,guildName=true,guildRealm=true,guildRank=true,guildMembers=true,orgAffiliation=true,groupEpoch=true,lineID=true,remainingHealthPercent=true,encounterRef=true,bossStatusTotal=true,bossStatusReadCount=true,bossStatusComplete=true,triggerGUID=true,triggerElapsed=true,observedElapsed=true,statisticID=true,categoryID=true,displayValue=true,numericValue=true,nativeScope=true,accountFlag=true,achievementFlags=true,valueDecreased=true,scoreReportID=true,attempts=true,readableRows=true,creatureID=true,creatureName=true,classification=true,duelID=true,opponentGUID=true,phase=true,requestedPhase=true,result=true,resultMethod=true,accepted=true,damageReceived=true,healingReceived=true,windowSeconds=true,coverage=true,droppedSpells=true,loginConfirmed=true,seconds=true,afk=true,before=true,after=true,delta=true,
     beforeLevel=true,afterLevel=true,beforeMax=true,afterMax=true,questID=true,rewardXP=true,rewardCopper=true,
     skill=true,maximum=true,name=true,realm=true,class=true,race=true,faction=true,level=true,guild=true,
     via=true,localSighting=true,encounter=true,subevent=true,direction=true,hostile=true,spellID=true,
@@ -51,6 +52,9 @@ local fields={guildBefore=true,guildBeforeRealm=true,guildBeforeRank=true,guildA
     sessionID=true,meterType=true,meterEpoch=true,amount=true,count=true,relationship=true,unitVisible=true,inspection=true,partial=true,
     lifetimeHK=true,lifetimeMaxRank=true,sessionHK=true,sessionDK=true,yesterdayHK=true,yesterdayDK=true,combatSeconds=true,evidenceClass=true,outcome=true,outcomeScope=true,currencyID=true,quantityChange=true,quantityGainSource=true,destroyReason=true,collectionType=true,collectionID=true,battlePetGUID=true,baseline=true,scope=true,resetAt=true,resetSeconds=true}
 sources.UNIT_AURA=true;sources.NAME_PLATE_UNIT_REMOVED=true
+fields.uiX=true;fields.uiY=true
+for _,key in ipairs({'momentRef','requestRef','sourceRef','activityRef','sessionRef','category','burstIndex','burstCount','intendedUI','actualUI','captureStatus'})do fields[key]=true end
+for _,key in ipairs({'cardRef','summaryVersion','windowRef','revision','startObserved','closed','healthReadability','minHealthPercent','deaths','selfCredits','petCredits','creditLowerBound','recoveryObserved','lowHealthObserved','endAlive'}) do fields[key]=true end
 for _,source in ipairs({'UNIT_PET','PARTY_LEADER_CHANGED','PLAYER_ROLES_ASSIGNED','GROUP_JOINED','GROUP_LEFT',
     'UNIT_SPELLCAST_START','UNIT_SPELLCAST_STOP','UNIT_SPELLCAST_INTERRUPTED','UNIT_SPELLCAST_CHANNEL_START','UNIT_SPELLCAST_CHANNEL_STOP',
     'MAIL_SEND_SUCCESS','MAIL_SUCCESS','AUCTION_HOUSE_AUCTION_CREATED','TRADE_SHOW','TRADE_ACCEPT_UPDATE','TRADE_CLOSED',
@@ -61,6 +65,7 @@ for _,key in ipairs({'basisRef','contactKind','sourceActionID','cause1','cause2'
     'rosterComplete','rosterSize','rosterRaid','rosterObservedAt','ownerModule'}) do fields[key]=true end
 for _,key in ipairs({'runID','auraInstanceID','effectTransition','auraEpoch','transitionKey','subjectScope','evidenceStrength',
     'actorCoverage','applications','expirationTime','helpful','harmful','bossAura','sourceGUID','aggregateVersion','combatContext','combatWindowID'}) do fields[key]=true end
+for _,k in ipairs({'AUCTION_HOUSE_SHOW','AUCTION_HOUSE_CLOSED','OWNED_AUCTIONS_UPDATED','AUCTION_CANCELED','MAIL_SHOW','MAIL_CLOSED','MAIL_INBOX_UPDATE','TRADE_PLAYER_ITEM_CHANGED','TRADE_TARGET_ITEM_CHANGED','TRADE_MONEY_CHANGED','UI_INFO_MESSAGE'}) do sources[k]=true end
 function S.Number(v,min,max)
     return ns.Readable(v) and type(v)=='number' and v==v and v~=math.huge and v~=-math.huge
         and v>=(min or -1000000000000) and v<=(max or 1000000000000) and v or nil
@@ -79,6 +84,43 @@ function S.Array(t,max)
     return count==#t
 end
 for _,key in ipairs({'aggregationVersion','contextRef','contextKind','windowRef','unknownCount','sourceEvidenceSummary','observerSession','castCountOwner'}) do fields[key]=true end
+
+-- Aggregate admission diagnostics are runtime-only. No GUIDs, coordinates,
+-- chat text or event payloads are retained. Enum keys and buffers are bounded.
+local admission={attempted=0,accepted=0,reused=0,rejected=0,families={},familyCount=0}
+local categories={ACCEPTED=true,REUSED=true,INVALID_SCHEMA=true,UNSUPPORTED_TYPE_VERSION=true,INVALID_PROVENANCE=true,MISSING_FIELD=true,INVALID_FIELD=true,OVERSIZED=true,PRIVACY_AUTHORIZATION=true,CAPACITY=true,IDENTITY_CONFLICT=true,INTERNAL_FAILURE=true}
+local function AdmissionFamily(t)
+ if not ns.Readable(t)or type(t)~='table'or getmetatable(t)then return'unsupported'end
+ local d=rawget(t,'details');local r=ns.Readable(d)and type(d)=='table'and not getmetatable(d)and rawget(d,'recordType')
+ local x=ns.ChronicleCapture
+ if ns.CanRead(r)and x and x.KnownActivity and x.KnownActivity(r)then return r end
+ local kind=rawget(t,'kind');return ns.CanRead(kind)and kinds[kind]and kind or'unsupported'
+end
+function S.AdmissionNote(t,code,path)
+ code=ns.CanRead(code)and categories[code]and code or'INTERNAL_FAILURE';local family=AdmissionFamily(t)
+ local row=admission.families[family]
+ if not row then
+  if admission.familyCount>=64 then family='other';row=admission.families[family]end
+  if not row then row={attempted=0,accepted=0,reused=0,rejected=0,reasons={},outcomes={},schema=S.VERSION};admission.families[family]=row;admission.familyCount=admission.familyCount+1 end
+ end
+ row.attempted=row.attempted+1;admission.attempted=admission.attempted+1
+ row.outcomes[code]=(row.outcomes[code]or 0)+1
+ if code=='REUSED'then row.reused=row.reused+1;admission.reused=admission.reused+1
+ else
+  local field=code=='ACCEPTED'and'accepted'or'rejected';row[field]=row[field]+1;admission[field]=admission[field]+1
+ end
+ path=ns.CanRead(path)and path:match('^[%w_%.%-]+$')and #path<=96 and path or'admission'
+ local key=code..'/'..path
+ if not row.reasons[key]and(row.reasonCount or 0)>=31 then key='OTHER/diagnostic_bound'end
+ if not row.reasons[key]then row.reasonCount=(row.reasonCount or 0)+1 end;row.reasons[key]=(row.reasons[key]or 0)+1
+end
+function S.AdmissionStatus()
+ local out={schema=S.VERSION,attempted=admission.attempted,accepted=admission.accepted,reused=admission.reused,rejected=admission.rejected,families={}}
+ if type(S.admissionFixture)=='number'and S.admissionFixture%1==0 and S.admissionFixture>=0 and S.admissionFixture<2147483648 then out.fixture='hephaestus-seed-'..S.admissionFixture end
+ for family,row in pairs(admission.families)do local r={attempted=row.attempted,accepted=row.accepted,reused=row.reused,rejected=row.rejected,schema=row.schema,reasons={},outcomes={}};out.families[family]=r;for k,n in pairs(row.reasons)do r.reasons[k]=n end;for k,n in pairs(row.outcomes)do r.outcomes[k]=n end end
+ return out
+end
+local function Invalid(code,path)return nil,code,path end
 local function Plain(v)
     if not ns.Readable(v) then return end
     if type(v)=='boolean' then return v end
@@ -86,28 +128,49 @@ local function Plain(v)
     return S.Text(v,256)
 end
 local function Detail(t)
-    if type(t)~='table' or getmetatable(t) then return end
+    if type(t)~='table'or getmetatable(t)then return Invalid(t==nil and'MISSING_FIELD'or'INVALID_FIELD','details.table')end
     local out={};local count=0
-    for k,v in pairs(t) do
-        count=count+1;if count>40 or not fields[k] then return end
-        if k=='members' or k=='guildMembers' or k=='guildContextMembers' or k=='guildContextGuildMembers' then
-            if type(v)~='table' or getmetatable(v) or #v>40 then return end
-            out[k]={};for i,guid in ipairs(v) do if not S.GUID(guid) then return end;out[k][i]=guid end
+    for k,v in pairs(t)do
+        count=count+1;if count>40 then return Invalid('OVERSIZED','details.field_count')end
+        if not fields[k]then return Invalid('INVALID_SCHEMA','details.unexpected_field')end
+        if k=='members'or k=='guildMembers'or k=='guildContextMembers'or k=='guildContextGuildMembers'then
+            if type(v)~='table'or getmetatable(v)or #v>40 then return Invalid('INVALID_FIELD','details.'..k)end
+            out[k]={};for i,guid in ipairs(v)do if not S.GUID(guid)then return Invalid('INVALID_PROVENANCE','details.'..k..'.guid')end;out[k][i]=guid end
         else
-            local ref=k=='sourceActionID' or k=='cause1' or k=='cause2' or k=='cause3' or k=='correctedSourceID'
-            out[k]=(k=='itemString' or ref) and S.Text(v,512) or Plain(v);if out[k]==nil then return end
+            local ref=k=='sourceActionID'or k=='cause1'or k=='cause2'or k=='cause3'or k=='correctedSourceID'
+            out[k]=(k=='itemString'or ref)and S.Text(v,512)or Plain(v)
+            if out[k]==nil then return Invalid('INVALID_FIELD','details.'..k)end
         end
     end
     return out
 end
-local function Location(t)
-    if type(t)~='table' or getmetatable(t) then return end
+local temporalKeys={version=true,eventAt=true,sampledAt=true,recordedAt=true,firstObservedAt=true,observedFrom=true,observedTo=true,triggerFrom=true,triggerTo=true,coalesced=true,precision=true,basis=true}
+function S.Temporal(t)
+    if not ns.Readable(t) or type(t)~='table' or getmetatable(t) or S.Integer(t.version,1,1)~=1 then return end
     local out={}
-    for _,k in ipairs({'zone','subzone','instanceType','instanceName'}) do
-        if t[k]~=nil then out[k]=S.Text(t[k],128);if not out[k] then return end end
+    for k,v in pairs(t) do
+        if not ns.CanRead(k) or not temporalKeys[k] then return end
+        if k=='version' then out[k]=1
+        elseif k=='precision' then if not S.Text(v,32) or not ({second=true,day=true,interval=true,unknown=true})[v] then return end;out[k]=v
+        elseif k=='basis' then if not S.Text(v,32) or not ({callback=true,sample=true,baseline=true,aggregate=true,official_date=true})[v] then return end;out[k]=v
+        elseif k=='coalesced' then out[k]=S.Integer(v,0,1000000)
+        else out[k]=S.Number(v,1) end
+        if out[k]==nil then return end
     end
-    if t.instanceID~=nil then out.instanceID=S.Number(t.instanceID,1,10000000);if not out.instanceID then return end end
-    if t.inInstance~=nil then if type(t.inInstance)~='boolean' then return end;out.inInstance=t.inInstance end
+    if not out.recordedAt or not out.precision or not out.basis or out.observedFrom and out.observedTo and out.observedFrom>out.observedTo then return end
+    if out.basis=='baseline' and out.eventAt or out.basis=='sample' and out.eventAt then return end
+    if out.basis=='callback' and (not out.eventAt or out.precision~='second') then return end
+    return out
+end
+for _,k in ipairs({'firstObservedAt','observedFrom','observedTo','calendarYear','calendarMonth','calendarDay','wasEarnedByMe','earnedBy','npcGUID','npcID','npcObservedAt','totalPlayed','levelPlayed','known','learned','sampledAt'}) do fields[k]=true end
+for _,k in ipairs({'TIME_PLAYED_MSG','TRADE_SKILL_SHOW','TRADE_SKILL_LIST_UPDATE','QUEST_DETAIL','QUEST_PROGRESS','QUEST_COMPLETE','QUEST_FINISHED'}) do sources[k]=true end
+local function Location(t)
+    if type(t)~='table'or getmetatable(t)then return Invalid(t==nil and'MISSING_FIELD'or'INVALID_FIELD','location.table')end
+    local out={}
+    for _,k in ipairs({'zone','subzone','instanceType','instanceName'})do if t[k]~=nil then out[k]=S.Text(t[k],128);if not out[k]then return Invalid('INVALID_FIELD','location.'..k)end end end
+    if t.instanceID~=nil then out.instanceID=S.Number(t.instanceID,1,10000000);if not out.instanceID then return Invalid('INVALID_FIELD','location.instanceID')end end
+    if t.inInstance~=nil then if type(t.inInstance)~='boolean'then return Invalid('INVALID_FIELD','location.inInstance')end;out.inInstance=t.inInstance end
+    if t.uiMapID~=nil then out.uiMapID=S.Integer(t.uiMapID,1,10000000);if not out.uiMapID then return Invalid('INVALID_FIELD','location.uiMapID') end end
     return out
 end
 -- One dated encounter snapshot, never a route or an inferred subject position.
@@ -144,158 +207,179 @@ function S.EncounterPosition(t,guid)
 end
 function S.Event(t,owner,checkpoint)
     checkpoint=type(checkpoint)=='function' and checkpoint or nil -- Preserve callers whose final expression returns an extra GUID.
-    if type(t)~='table' or getmetatable(t) or not kinds[t.kind] or not sources[t.source]
-        or (t.schema~=1 and t.schema~=2 and t.schema~=3 and t.schema~=4 and t.schema~=5 and t.schema~=S.VERSION) or not S.Text(t.id,256) or not S.Text(t.session,256) or t.character~=owner
-        or not S.Number(t.at,1) or not S.Number(t.elapsed,0) or (t.timeSource~='server' and t.timeSource~='local-clock')
-        or (t.evidence~='observed' and t.evidence~='confirmed') then return end
-    if t.subject~=nil and not S.GUID(t.subject) then return end
+    if type(t)~='table'or getmetatable(t)then return Invalid('INVALID_SCHEMA','event.table')end
+    if type(owner)~='string'or t.character~=owner then return Invalid('INVALID_PROVENANCE','event.owner')end
+    if not kinds[t.kind]then return Invalid('UNSUPPORTED_TYPE_VERSION','event.kind')end
+    if t.schema~=1 and t.schema~=2 and t.schema~=3 and t.schema~=4 and t.schema~=5 and t.schema~=S.VERSION then return Invalid('UNSUPPORTED_TYPE_VERSION','event.schema')end
+    if not sources[t.source]then return Invalid('INVALID_PROVENANCE','event.source')end
+    if not S.Text(t.id,256)or not S.Text(t.session,256)then return Invalid('MISSING_FIELD','event.identity')end
+    if not S.Number(t.at,1)or not S.Number(t.elapsed,0)or(t.timeSource~='server'and t.timeSource~='local-clock')then return Invalid('INVALID_FIELD','event.time')end
+    if t.evidence~='observed'and t.evidence~='confirmed'then return Invalid('INVALID_PROVENANCE','event.evidence')end
+    if t.subject~=nil and not S.GUID(t.subject) then return Invalid('INVALID_PROVENANCE','subject.guid') end
     if t.id:sub(1,#owner+1)~=owner..':' or not t.id:sub(#owner+2):match('^%d+$')
-        or not S.Integer(tonumber(t.id:sub(#owner+2)),1,1000000000) then return end
-    if t.session:sub(1,#owner+2)~=owner..'/s' or not t.session:sub(#owner+3):match('^%d+$') then return end
-    local details,location=Detail(t.details),Location(t.location)
-    if not details or not location then return end
-    if t.kind=='time_slice' and (not S.Number(details.seconds,0,60) or details.afk~=nil and type(details.afk)~='boolean') then return end
-    if t.kind=='session_start' and type(details.loginConfirmed)~='boolean' then return end
-    if t.kind=='quest_turnin' and not S.Integer(details.questID,1,10000000) then return end
+        or not S.Integer(tonumber(t.id:sub(#owner+2)),1,1000000000) then return Invalid('IDENTITY_CONFLICT','identity.id') end
+    if t.session:sub(1,#owner+2)~=owner..'/s' or not t.session:sub(#owner+3):match('^%d+$') then return Invalid('IDENTITY_CONFLICT','identity.session') end
+    local details,why,path=Detail(t.details);if not details then return Invalid(why,path)end
+    local location;location,why,path=Location(t.location);if not location then return Invalid(why,path)end
+    local temporal=t.temporal and S.Temporal(t.temporal);if t.temporal~=nil and not temporal then return Invalid('INVALID_FIELD','event.temporal') end
+    if t.kind=='time_slice' and (not S.Number(details.seconds,0,60) or details.afk~=nil and type(details.afk)~='boolean') then return Invalid('INVALID_FIELD','time_slice.duration') end
+    if t.kind=='session_start' and type(details.loginConfirmed)~='boolean' then return Invalid(details.loginConfirmed==nil and'MISSING_FIELD'or'INVALID_FIELD','session_start.login') end
+    if t.kind=='quest_turnin' and not S.Integer(details.questID,1,10000000) then return Invalid(details.questID==nil and'MISSING_FIELD'or'INVALID_FIELD','quest_turnin.questID') end
     if t.kind=='level_change' and (not S.Integer(details.before,1,1000) or not S.Integer(details.after,1,1000)
-        or details.before==details.after) then return end
-    if (t.kind=='skill_change' or t.kind=='skill_observed') and (not S.Text(details.skill) or not S.Integer(details.after,0,100000)) then return end
+        or details.before==details.after) then return Invalid('INVALID_FIELD','level_change.range') end
+    if (t.kind=='skill_change' or t.kind=='skill_observed') and (not S.Text(details.skill) or not S.Integer(details.after,0,100000)) then return Invalid('INVALID_FIELD','skill.range') end
     if t.kind=='money_change' or t.kind=='xp_change' then
-        if not S.Integer(details.before,0) or not S.Integer(details.after,0) or not S.Integer(details.delta) then return end
-        if t.kind=='money_change' and details.after-details.before~=details.delta then return end
+        if not S.Integer(details.before,0) or not S.Integer(details.after,0) or not S.Integer(details.delta) then return Invalid('INVALID_FIELD','progress.numbers') end
+        if t.kind=='money_change' and details.after-details.before~=details.delta then return Invalid('INVALID_FIELD','money.delta') end
         if t.kind=='xp_change' and (details.delta<=0 or not S.Integer(details.beforeLevel,1,1000)
             or not S.Integer(details.afterLevel,details.beforeLevel,details.beforeLevel+1)
             or not S.Integer(details.beforeMax,1) or not S.Integer(details.afterMax,1)
             or details.before>=details.beforeMax or details.after>=details.afterMax
             or details.delta~=(details.afterLevel==details.beforeLevel and details.after-details.before
-                or details.beforeMax-details.before+details.after)) then return end
+                or details.beforeMax-details.before+details.after)) then return Invalid('INVALID_FIELD','xp.delta') end
     end
-    if (t.kind=='player_observed' or t.kind=='player_combat' or t.kind=='player_kill_credit') and not S.GUID(t.subject) then return end
+    if (t.kind=='player_observed' or t.kind=='player_combat' or t.kind=='player_kill_credit') and not S.GUID(t.subject) then return Invalid('INVALID_PROVENANCE','player.subject') end
     if t.kind=='player_observed' and (not S.Text(details.name) or type(details.encounter)~='boolean'
-        or type(details.localSighting)~='boolean') then return end
+        or type(details.localSighting)~='boolean') then return Invalid('INVALID_FIELD','player.fields') end
     if t.kind=='group_roster' and (type(details.members)~='table' or not S.Integer(details.knownMembers,0,40)
-        or #details.members~=details.knownMembers or not S.Integer(details.sameGuildMembers,0,details.knownMembers)) then return end
+        or #details.members~=details.knownMembers or not S.Integer(details.sameGuildMembers,0,details.knownMembers)) then return Invalid('INVALID_FIELD','roster.members') end
     if t.kind=='group_roster' and details.rosterComplete~=nil and (type(details.rosterComplete)~='boolean' or type(details.rosterRaid)~='boolean'
-        or not S.Integer(details.rosterSize,0,40) or not S.Number(details.rosterObservedAt,1)) then return end
-    if details.wantedListed~=nil and type(details.wantedListed)~='boolean' then return end
+        or not S.Integer(details.rosterSize,0,40) or not S.Number(details.rosterObservedAt,1)) then return Invalid('INVALID_FIELD','roster.completeness') end
+    if details.wantedListed~=nil and type(details.wantedListed)~='boolean' then return Invalid('INVALID_FIELD','wanted.boolean') end
     for _,key in ipairs({'wantedBounty','wantedKills','wantedCycle','wantedCheckedAt','level'}) do
-        if details[key]~=nil and not S.Integer(details[key],0) then return end
+        if details[key]~=nil and not S.Integer(details[key],0) then return Invalid('INVALID_FIELD','counter.integer') end
     end
     if t.kind=='time_span' and (not S.Number(details.seconds,0) or not S.Integer(details.samples,1)
         or not S.Number(details.firstAt,1) or not S.Number(details.lastAt,details.firstAt)
         or not S.Number(details.firstElapsed,0) or not S.Number(details.lastElapsed,details.firstElapsed)
-        or details.seconds>details.lastElapsed-details.firstElapsed+.001 or details.afk~=nil and type(details.afk)~='boolean') then return end
+        or details.seconds>details.lastElapsed-details.firstElapsed+.001 or details.afk~=nil and type(details.afk)~='boolean') then return Invalid('INVALID_FIELD','time_span.range') end
     if t.kind=='quest_accepted' or t.kind=='quest_removed' or t.kind=='quest_observed' or t.kind=='quest_objective' then
-        if not S.Integer(details.questID,1,10000000) then return end
+        if not S.Integer(details.questID,1,10000000) then return Invalid(details.questID==nil and'MISSING_FIELD'or'INVALID_FIELD','quest.questID') end
     end
-    if (t.kind=='equipment_observed' or t.kind=='equipment_change') and not S.Integer(details.slot,1,19) then return end
-    if t.kind=='equipment_observed' and not S.Integer(details.itemID,1,1000000000) then return end
-    if t.kind=='loot_offered' and (not S.Integer(details.itemID,1,1000000000) or not S.Integer(details.quantity,1,1000000)) then return end
-    if t.kind=='spell_learned' and not S.Integer(details.spellID,1,10000000) then return end
-    if t.kind=='spell_observed' and not S.Integer(details.spellID,1,10000000) then return end
-    if t.kind=='achievement_earned' and not S.Integer(details.achievementID,1,10000000) then return end
+    if (t.kind=='equipment_observed' or t.kind=='equipment_change') and not S.Integer(details.slot,1,19) then return Invalid('INVALID_FIELD','equipment.slot') end
+    if t.kind=='equipment_observed' and not S.Integer(details.itemID,1,1000000000) then return Invalid(details.itemID==nil and'MISSING_FIELD'or'INVALID_FIELD','equipment.itemID') end
+    if t.kind=='loot_offered' and (not S.Integer(details.itemID,1,1000000000) or not S.Integer(details.quantity,1,1000000)) then return Invalid('INVALID_FIELD','loot.item_quantity') end
+    if t.kind=='spell_learned' and not S.Integer(details.spellID,1,10000000) then return Invalid(details.spellID==nil and'MISSING_FIELD'or'INVALID_FIELD','spell.learned') end
+    if t.kind=='spell_observed' and not S.Integer(details.spellID,1,10000000) then return Invalid(details.spellID==nil and'MISSING_FIELD'or'INVALID_FIELD','spell.observed') end
+    if t.kind=='achievement_earned' and not S.Integer(details.achievementID,1,10000000) then return Invalid(details.achievementID==nil and'MISSING_FIELD'or'INVALID_FIELD','achievement.id') end
     if t.kind=='inventory_observed' and (not S.Integer(details.bagID,0,4) or not S.Integer(details.slot,1,200)
         or type(details.hasCurrent)~='boolean' or details.hasCurrent and (not S.Integer(details.itemID,1,1000000000)
-        or not S.Integer(details.quantity,1,1000000)) or not details.hasCurrent and (details.itemID~=nil or details.quantity~=nil)) then return end
-    if t.kind=='reputation_observed' and not S.Integer(details.factionID,1,10000000) then return end
+        or not S.Integer(details.quantity,1,1000000)) or not details.hasCurrent and (details.itemID~=nil or details.quantity~=nil)) then return Invalid('INVALID_FIELD','inventory.fields') end
+    if t.kind=='reputation_observed' and not S.Integer(details.factionID,1,10000000) then return Invalid(details.factionID==nil and'MISSING_FIELD'or'INVALID_FIELD','reputation.id') end
     local route
     if t.kind=='route_segment' or t.kind=='player_route' then
         route=S.Route(t.route)
-        if not route or details.pointCount~=(route.count or #route.points) or not S.Text(details.segment,256) then return end
-    elseif t.route~=nil then return end
+        if not route then return Invalid('INVALID_SCHEMA','route.encoding')end
+        if details.pointCount~=(route.count or #route.points)then return Invalid('INVALID_FIELD','route.point_count')end
+        if not S.Text(details.segment,256)then return Invalid(details.segment==nil and'MISSING_FIELD'or'INVALID_FIELD','route.segment')end
+    elseif t.route~=nil then return Invalid('INVALID_SCHEMA','route.unexpected') end
     if t.kind=='player_route' or t.kind=='player_route_gap' then
         if not S.GUID(t.subject) or t.subject==owner:match('/(Player%-.+)$') or not S.Text(details.relationship,144)
-            or (details.interval~=5 and details.interval~=10) then return end
-        if t.kind=='player_route_gap' and not S.Text(details.reason,144) then return end
+            or (details.interval~=5 and details.interval~=10) then return Invalid('INVALID_FIELD','player_route.relationship') end
+        if t.kind=='player_route_gap' and not S.Text(details.reason,144) then return Invalid(details.reason==nil and'MISSING_FIELD'or'INVALID_FIELD','player_route_gap.reason') end
     end
     local snapshot
     if t.kind=='olympus_snapshot' then
         snapshot=S.Snapshot(t.snapshot)
-        if not snapshot or details.snapshotID~=snapshot.id or details.part~=snapshot.part or details.parts~=snapshot.parts then return end
-    elseif t.snapshot~=nil then return end
+        if not snapshot or details.snapshotID~=snapshot.id or details.part~=snapshot.part or details.parts~=snapshot.parts then return Invalid('INVALID_FIELD','snapshot.linkage') end
+    elseif t.snapshot~=nil then return Invalid('INVALID_SCHEMA','snapshot.unexpected') end
     local capture
     if t.kind=='native_snapshot' then
         capture=ns.ChronicleCapture and ns.ChronicleCapture.Validate(t.capture)
-        if not capture or details.family~=capture.family or not ns.ChronicleCapture.MatchesHash(capture,details.contentID,checkpoint and function() checkpoint('checksum blocks',1) end) then return end
-    elseif t.capture~=nil then return end
-    for _,key in ipairs({'gearRef','traitRef','appearanceRef','contentID'}) do
-        if details[key]~=nil and (not S.Text(details[key],64) or #details[key]~=64 or details[key]:find('[^a-f0-9]')) then return end
+        if not capture or details.family~=capture.family or not ns.ChronicleCapture.MatchesHash(capture,details.contentID,checkpoint and function() checkpoint('checksum blocks',1) end) then return Invalid('INVALID_FIELD','capture.content_hash') end
+    elseif t.capture~=nil then return Invalid('INVALID_SCHEMA','capture.unexpected') end
+    for _,key in ipairs({'gearRef','traitRef','appearanceRef','cardRef','contentID'}) do
+        if details[key]~=nil and (not S.Text(details[key],64) or #details[key]~=64 or details[key]:find('[^a-f0-9]')) then return Invalid('INVALID_FIELD','capture.reference_hash') end
     end
-    if t.kind=='native_event' and (not ns.ChronicleCapture or not ns.ChronicleCapture.ValidActivity(details)) then return end
+    if t.kind=='native_event'then
+        if not ns.ChronicleCapture or not ns.ChronicleCapture.KnownActivity(details.recordType)then return Invalid('UNSUPPORTED_TYPE_VERSION','native_event.recordType')end
+        if not ns.ChronicleCapture.ValidActivity(details)then
+            local schema=ns.AthenaObservationSchema.types[details.recordType]and ns.AthenaObservationSchema or ns.AthenaHistorySchema.types[details.recordType]and ns.AthenaHistorySchema
+            if schema and schema.Explain then local code,path=schema.Explain(details);return Invalid(code,path)end
+            return Invalid('INVALID_FIELD','native_event.validator')
+        end
+    end
     if details.evidenceState~=nil then
-        if not ns.AthenaObservationSchema.Metadata(details) then return end
+        if not ns.AthenaObservationSchema.Metadata(details) then return Invalid('INVALID_FIELD','observation.metadata') end
     end
+    if t.kind=='native_event' and ns.ChronicleMerchant and ns.ChronicleMerchant.types[details.recordType] and not ns.ChronicleMerchant.Provenance(t) then return Invalid('INVALID_PROVENANCE','merchant.owner_private') end
+    if t.kind=='native_event' and ns.ChronicleHistory and ns.ChronicleHistory.types[details.recordType] and not ns.ChronicleHistory.Provenance(t) then return Invalid('INVALID_PROVENANCE','history.baseline') end
     if t.kind=='native_event' and ns.AthenaObservationSchema.types[details.recordType]
-        and not ns.AthenaObservationSchema.Record(t,owner) then return end
+        and not ns.AthenaObservationSchema.Record(t,owner) then return Invalid('INVALID_PROVENANCE','observation.provenance') end
     local sourceContext
-    if not ns.Readable(t.sourceContext) then return end
+    if not ns.Readable(t.sourceContext) then return Invalid('INVALID_PROVENANCE','source_context.unreadable') end
     if t.sourceContext~=nil then
         sourceContext=ns.AthenaHistorySchema and ns.AthenaHistorySchema.Context(t.sourceContext,owner)
-        if not sourceContext then return end
+        if not sourceContext then return Invalid('INVALID_PROVENANCE','source_context.schema') end
     end
+    if capture and capture.family=='merchant' and (not sourceContext or sourceContext.accessScope~='OWNER_PRIVATE') then return Invalid('INVALID_PROVENANCE','merchant.snapshot_scope') end
     if t.kind=='native_event' and ns.AthenaHistorySchema and ns.AthenaHistorySchema.types[details.recordType]
-        and not ns.AthenaHistorySchema.Record({source=t.source,subject=t.subject,sourceContext=sourceContext,details=details},owner) then return end
+        and not ns.AthenaHistorySchema.Record({source=t.source,subject=t.subject,sourceContext=sourceContext,details=details},owner) then return Invalid('INVALID_PROVENANCE','history.provenance') end
     if t.kind=='native_event' and details.recordType=='aura_effect' then
-        if not ns.AthenaCombatEvidence.ValidRecord(t,owner) then return end
+        if not ns.AthenaCombatEvidence.ValidRecord(t,owner) then return Invalid('INVALID_PROVENANCE','aura.provenance') end
+    end
+    if t.kind=='native_event'and details.recordType=='travel_observation'and(not ns.ChronicleTravel or not ns.ChronicleTravel.ValidRecord({kind=t.kind,character=owner,subject=t.subject,source=t.source,details=details},owner))then return Invalid('INVALID_PROVENANCE','travel.owner_or_source')end
+    if t.kind=='native_event' and details.recordType=='adventure_combat_summary' then
+        if not ns.AthenaAdventureEvidence or not ns.AthenaAdventureEvidence.ValidRecord(t,owner) then return Invalid('INVALID_PROVENANCE','combat_summary.provenance') end
     end
     if t.kind=='native_event' and details.recordType=='own_spell_success_count' and details.aggregateVersion~=nil
         and (t.subject~=owner:match('/(Player%-.+)$') or not ({checkpoint=true,UNIT_SPELLCAST_SUCCEEDED=true,
-            PLAYER_REGEN_ENABLED=true,PLAYER_REGEN_DISABLED=true,PLAYER_LOGOUT=true,PLAYER_LEAVING_WORLD=true,control=true})[t.source]) then return end
+            PLAYER_REGEN_ENABLED=true,PLAYER_REGEN_DISABLED=true,PLAYER_LOGOUT=true,PLAYER_LEAVING_WORLD=true,control=true})[t.source]) then return Invalid('INVALID_PROVENANCE','cast_count.provenance') end
     if t.kind=='native_event' and (details.recordType=='guild_affiliation' or details.recordType=='guild_member_observed') then
-        if not ({control=true,GUILD_ROSTER_UPDATE=true,PLAYER_GUILD_UPDATE=true})[t.source] or not S.GUID(t.subject) then return end
-        if details.recordType=='guild_affiliation' and t.subject~=owner:match('/(Player%-.+)$') then return end
+        if not ({control=true,GUILD_ROSTER_UPDATE=true,PLAYER_GUILD_UPDATE=true})[t.source] or not S.GUID(t.subject) then return Invalid('INVALID_PROVENANCE','guild.source') end
+        if details.recordType=='guild_affiliation' and t.subject~=owner:match('/(Player%-.+)$') then return Invalid('INVALID_PROVENANCE','guild.owner') end
     end
     if details.guildAssociated~=nil then
-        if details.guildAssociated~=true or not S.Text(details.guildName,128) or not S.Text(details.guildRealm,128) then return end
+        if details.guildAssociated~=true or not S.Text(details.guildName,128) or not S.Text(details.guildRealm,128) then return Invalid('INVALID_FIELD','guild.identity') end
         if details.guildGroupSize~=nil then
             local total,known,same,unknown=details.guildGroupSize,details.guildContextKnown,details.guildContextSame,details.guildContextUnknown
             if not S.Integer(total,1,40) or not S.Integer(known,1,total) or not S.Integer(same,1,known)
                 or not S.Integer(unknown,0,total) or same+unknown>total
                 or type(details.guildMajority)~='boolean' or details.guildMajority~=(total>1 and same>total/2)
                 or not details.guildContextMembers or #details.guildContextMembers~=known
-                or not details.guildContextGuildMembers or #details.guildContextGuildMembers~=same then return end
+                or not details.guildContextGuildMembers or #details.guildContextGuildMembers~=same then return Invalid('INVALID_FIELD','guild.counts') end
             local all,matched={},{}
-            for _,guid in ipairs(details.guildContextMembers) do if all[guid] then return end;all[guid]=true end
-            for _,guid in ipairs(details.guildContextGuildMembers) do if not all[guid] or matched[guid] then return end;matched[guid]=true end
+            for _,guid in ipairs(details.guildContextMembers) do if all[guid] then return Invalid('IDENTITY_CONFLICT','guild.duplicate_member') end;all[guid]=true end
+            for _,guid in ipairs(details.guildContextGuildMembers) do if not all[guid] or matched[guid] then return Invalid('IDENTITY_CONFLICT','guild.member_subset') end;matched[guid]=true end
         end
     end
-    if t.kind=='native_event' and details.recordType=='item_received' and (t.source~='CHAT_MSG_LOOT' or t.subject~=owner:match('/(Player%-.+)$')) then return end
+    if t.kind=='native_event' and details.recordType=='item_received' and (t.source~='CHAT_MSG_LOOT' or t.subject~=owner:match('/(Player%-.+)$')) then return Invalid('INVALID_PROVENANCE','loot.provenance') end
     if t.kind=='native_event' and details.recordType=='friend_status' then
         if not S.GUID(t.subject) or not ({control=true,FRIENDLIST_UPDATE=true,PLAYER_TARGET_CHANGED=true,
             UPDATE_MOUSEOVER_UNIT=true,PLAYER_FOCUS_CHANGED=true,NAME_PLATE_UNIT_ADDED=true,UNIT_NAME_UPDATE=true,
             UNIT_FLAGS=true,UNIT_FACTION=true,UNIT_LEVEL=true,UNIT_INVENTORY_CHANGED=true})[t.source]
-            or details.baseline~=(details.before==nil) or details.before~=nil and details.before==details.after then return end
+            or details.baseline~=(details.before==nil) or details.before~=nil and details.before==details.after then return Invalid('INVALID_FIELD','friend.transition') end
     end
     if t.kind=='native_event' and details.recordType=='public_achievement' then
-        if not S.GUID(t.subject) or not ({CHAT_MSG_ACHIEVEMENT=true,CHAT_MSG_GUILD_ACHIEVEMENT=true})[t.source] then return end
-        if details.scope~=(t.source=='CHAT_MSG_GUILD_ACHIEVEMENT' and 'delivered guild-member announcement' or 'delivered vicinity announcement') then return end
+        if not S.GUID(t.subject) or not ({CHAT_MSG_ACHIEVEMENT=true,CHAT_MSG_GUILD_ACHIEVEMENT=true})[t.source] then return Invalid('INVALID_PROVENANCE','achievement.source') end
+        if details.scope~=(t.source=='CHAT_MSG_GUILD_ACHIEVEMENT' and 'delivered guild-member announcement' or 'delivered vicinity announcement') then return Invalid('INVALID_PROVENANCE','achievement.scope') end
     end
     if t.kind=='native_event' and details.recordType:find('witness_',1,true)==1 then
-        if not S.GUID(t.subject) or t.subject==owner:match('/(Player%-.+)$') then return end
+        if not S.GUID(t.subject) or t.subject==owner:match('/(Player%-.+)$') then return Invalid('INVALID_PROVENANCE','witness.subject') end
         local r=details.recordType
-        if r=='witness_ability' then if t.source~='UNIT_SPELLCAST_SUCCEEDED' then return end
-        elseif details.method=='native death' then if t.source~='UNIT_DIED' then return end
+        if r=='witness_ability' then if t.source~='UNIT_SPELLCAST_SUCCEEDED' then return Invalid('INVALID_PROVENANCE','witness.ability_source') end
+        elseif details.method=='native death' then if t.source~='UNIT_DIED' then return Invalid('INVALID_PROVENANCE','witness.death_source') end
         elseif not ({NAME_PLATE_UNIT_ADDED=true,UNIT_FLAGS=true,UNIT_FACTION=true,UNIT_NAME_UPDATE=true,UNIT_LEVEL=true,
-            PLAYER_TARGET_CHANGED=true,PLAYER_FOCUS_CHANGED=true,UPDATE_MOUSEOVER_UNIT=true,UNIT_TARGET=true,GROUP_ROSTER_UPDATE=true})[t.source] then return end
+            PLAYER_TARGET_CHANGED=true,PLAYER_FOCUS_CHANGED=true,UPDATE_MOUSEOVER_UNIT=true,UNIT_TARGET=true,GROUP_ROSTER_UPDATE=true})[t.source] then return Invalid('INVALID_PROVENANCE','witness.state_source') end
     end
     if details.evidenceClass~=nil then
-        if not ({['native-event']=true,['value-snapshot']=true,['source-aggregate']=true})[details.evidenceClass] then return end
+        if not ({['native-event']=true,['value-snapshot']=true,['source-aggregate']=true})[details.evidenceClass] then return Invalid('INVALID_FIELD','evidence.class') end
         local class,outcome,scope=ns.ChronicleCapture.Classify(t.kind,t.source,details)
-        if details.evidenceClass~=class or details.outcome~=outcome or details.outcomeScope~=scope then return end
-    elseif details.outcome~=nil or details.outcomeScope~=nil then return end
-    if t.kind=='important_player' and (not S.GUID(t.subject) or not S.Text(details.relationship,144)) then return end
+        if details.evidenceClass~=class or details.outcome~=outcome or details.outcomeScope~=scope then return Invalid('INVALID_FIELD','evidence.classification') end
+    elseif details.outcome~=nil or details.outcomeScope~=nil then return Invalid('INVALID_FIELD','evidence.missing_class') end
+    if t.kind=='important_player' and (not S.GUID(t.subject) or not S.Text(details.relationship,144)) then return Invalid('INVALID_FIELD','important.relationship') end
     if t.kind=='loadout_observed' and (not S.Text(details.reason,144) or not S.Integer(details.triggerAt,1)
-        or not S.Integer(details.observedAt,details.triggerAt) or not details.gearRef and not details.appearanceRef) then return end
+        or not S.Integer(details.observedAt,details.triggerAt) or not details.gearRef and not details.appearanceRef) then return Invalid('INVALID_FIELD','loadout.references') end
     local position
     if t.encounterPosition~=nil then
         position=S.EncounterPosition(t.encounterPosition,t.subject)
         if not position or t.kind~='player_observed' or details.encounter~=true or details.localSighting~=true
-            or position.at>t.at or position.elapsed>t.elapsed or position.timeSource~=t.timeSource then return end
+            or position.at>t.at or position.elapsed>t.elapsed or position.timeSource~=t.timeSource then return Invalid('INVALID_PROVENANCE','encounter_position.provenance') end
     end
     -- The copied allowlist excludes chat text, code, cycles, frames and arbitrary saved fields.
     return {schema=t.schema,id=t.id,kind=t.kind,source=t.source,session=t.session,character=owner,at=t.at,
         elapsed=t.elapsed,timeSource=t.timeSource,evidence=t.evidence,subject=t.subject,details=details,location=location,
-        restored=t.restored==true or nil,route=route,snapshot=snapshot,capture=capture,encounterPosition=position,sourceContext=sourceContext}
+        restored=t.restored==true or nil,route=route,snapshot=snapshot,capture=capture,encounterPosition=position,sourceContext=sourceContext,temporal=temporal}
 end
 local snapshotKeys={wanted={place='integer',name='text',guid='text',bounty='integer',kills='integer',cycle='integer'},
     profile={member='boolean',name='text',guild='text',rank='text',rankIndex='integer',role='text',frame='text',title='text'},
@@ -383,6 +467,14 @@ local function Size(v,depth)
     local n=32;for k,item in pairs(v) do n=n+Size(k,depth+1)+Size(item,depth+1) end;return n
 end
 S.Size=Size
+-- Four independently dated roster/guild identity arrays can exceed the normal
+-- scalar-event budget at 40 players. The schema still bounds each array to 40
+-- validated GUIDs; use the same fixed allowance at admission and readback.
+function S.EventLimit(kind)
+    if kind=='route_segment' or kind=='player_route' or kind=='native_snapshot' then return 131072 end
+    if kind=='group_roster' then return 40000 end
+    return 12000
+end
 local function Empty()
     return {events={},profiles={},sequence=0,sessionSequence=0,bytes=0,pruned=0,dropped=0,retainedSince=nil}
 end
@@ -511,7 +603,7 @@ function S.Normalize(db,checkpoint,onlyOwner)
                 if old.storageFormat==1 then event=raw end -- Decoder output is private and fully validated; avoid a retained second copy.
                 if event and not seen[event.id] then
                     seen[event.id]=true;local bytes=Size(event)
-                    if bytes>((event.kind=='route_segment' or event.kind=='player_route' or event.kind=='native_snapshot') and 131072 or 12000) then return false end
+                    if bytes>S.EventLimit(event.kind) then return false end
                     ShareEvent(c,event);c.events[#c.events+1]=event;c.bytes=c.bytes+bytes
                     local sequence=tonumber(event.id:match(':(%d+)$'));if sequence then c.sequence=math.max(c.sequence,sequence) end
                 end
@@ -639,6 +731,8 @@ function S.Initialize(cooperative)
     loadEpoch=loadEpoch+1;loadFrame:SetScript('OnUpdate',nil);loadJob=nil;loadSource=nil
     S.loading=false;S.loadError=nil;S.preferencesChanged=nil;S.loadProgress={chunks=0,totalChunks=0,records=0,checksumBlocks=0,pumps=0};S.db=nil;S.blocked=true
     local source=ns.DB.chronicle
+    local cooperativeHistory=cooperative and type(source)=='table' and type(source.characters)=='table' and next(source.characters)
+    if not cooperativeHistory and ns.FiresideSavedData and not ns.FiresideSavedData.CheckHistory() then S.loadError='Previously saved history needs recovery; original archive kept.';return false end
     if ns.ChronicleStartup then ns.ChronicleStartup.Begin(source) end
     if cooperative and type(source)=='table' and type(source.characters)=='table' and next(source.characters) then
         local initialOwner=ns.Chronicle and ns.Chronicle.Owner()
@@ -647,9 +741,10 @@ function S.Initialize(cooperative)
         end end
         S.loading=true;loadSource=source;local token=loadEpoch
         S.loadProgress.started=ns.SafeCall(GetTime);S.loadProgress.lastPump=S.loadProgress.started
-        ns.Print('Loading your history safely. Warden can stay closed; enabled collectors preserve new observations in the local recovery journal.')
+        ns.Print('Loading your history safely. Fireside can stay closed; enabled collectors preserve new observations in the local recovery journal.')
         loadFrame:Show()
         loadJob=coroutine.create(function()
+            if ns.FiresideSavedData and not ns.FiresideSavedData.CheckHistoryCooperative(coroutine.yield) then return nil end
             local checksumSteps=0;local current=ns.Chronicle and ns.Chronicle.Owner()
             while not current do coroutine.yield();current=ns.Chronicle and ns.Chronicle.Owner() end
             S.loadProgress.owner=current;S.loadProgress.totalChunks=0
@@ -735,10 +830,10 @@ function S.Character(key,create)
     end
     return c
 end
-function S.Prune(c,now)
+function S.Prune(c,now,isolated)
     -- Kept as a compatibility entry point. Only explicit Clear removes history.
     c.retainedSince=c.events[1] and c.events[1].at or nil
-    c.revision=(c.revision or 0)+1;S.revision=S.revision+1
+    c.revision=(c.revision or 0)+1;if not isolated then S.revision=S.revision+1 end
 end
 local function Accumulate(out,e,sessions,combat)
     local d=e.details;out.events=out.events+1;out.byKind[e.kind]=(out.byKind[e.kind] or 0)+1
@@ -788,33 +883,46 @@ function S.WriterCharacter(owner,create)
     if j and j.Writing() then return j.Character(owner) end
     return S.Character(owner,create)
 end
-function S.Commit(owner,event,checkpoint)
-    local c=S.Character(owner,true);if not c then return end
+-- The same validation/insertion path also qualifies a PRIVATE recovery copy.
+-- Isolated candidates never publish notices or invalidate the live ledger.
+function S.CommitCandidate(c,owner,event,checkpoint,isolated)
+    if not c then return end
     local clean=S.Event(event,owner,checkpoint)
     if not clean or not S.Preserved(event,clean) then return end
-    if Size(clean)>((clean.kind=='route_segment' or clean.kind=='player_route' or clean.kind=='native_snapshot') and 131072 or 12000) then return end
+    if Size(clean)>S.EventLimit(clean.kind) then return end
     c.sequence=math.max(c.sequence,tonumber(clean.id:match(':(%d+)$')) or 0)
     c.sessionSequence=math.max(c.sessionSequence,tonumber(clean.session:match('/s(%d+)$')) or 0)
-    local inserted=S.Insert(c,clean)
+    return S.Insert(c,clean,isolated)
+end
+function S.Commit(owner,event,checkpoint)
+    local inserted=S.CommitCandidate(S.Character(owner,true),owner,event,checkpoint)
     if inserted and ns.Athena then ns.Athena.Try(ns.Athena.Notice,inserted,'COMMITTED') end
     return inserted
 end
 function S.Append(owner,t,originalDetails)
-    local c=S.WriterCharacter(owner,true);if not c then return end
+    if ns.Chronicle and ns.Chronicle.Active() and owner==ns.Chronicle.Owner() then
+        local at=ns.Chronicle.Stamp()
+        if at then
+            t.temporal=t.temporal or ns.Chronicle.Temporal(t.kind,t.source,t.details or {},at)
+            t.temporal.recordedAt=at
+        end
+    end
+    local c=S.WriterCharacter(owner,true);if not c then S.AdmissionNote(t,'PRIVACY_AUTHORIZATION','writer.unavailable');return end
     if ns.AthenaIntakeContext then
         local ok=pcall(ns.AthenaIntakeContext.Attach,t,owner)
         if not ok then t.sourceContext=nil;ns.AthenaIntakeContext.diagnostics.contextErrors=ns.AthenaIntakeContext.diagnostics.contextErrors+1 end
     end
     c.sequence=c.sequence+1;t.schema=S.VERSION;t.id=owner..':'..c.sequence;t.character=owner
-    local event=S.Event(t,owner)
+    local event,admissionReason,admissionPath=S.Event(t,owner)
     if not event and originalDetails and originalDetails~=t.details then
         t.details=originalDetails
         if t.sourceContext then t.sourceContext.linkStatus='LINK_PENDING' end
-        event=S.Event(t,owner)
+        event,admissionReason,admissionPath=S.Event(t,owner)
         if event and ns.AthenaIntakeContext then ns.AthenaIntakeContext.diagnostics.contextErrors=ns.AthenaIntakeContext.diagnostics.contextErrors+1 end
     end
     local bytes=event and Size(event)
-    if not event or bytes>((event.kind=='route_segment' or event.kind=='player_route' or event.kind=='native_snapshot') and 131072 or 12000) then
+    if not event or bytes>S.EventLimit(event.kind) then
+        S.AdmissionNote(t,event and 'OVERSIZED'or admissionReason or'INVALID_SCHEMA',event and'event.byte_limit'or admissionPath or'event.validator')
         if ns.ChronicleStartupJournal and ns.ChronicleStartupJournal.Character(owner)==c then ns.ChronicleStartupJournal.Reject('Unsupported, unreadable or oversized normal event') end
         c.dropped=c.dropped+1;if statsCache[c] then statsCache[c].value.dropped=c.dropped end
         if ns.AthenaIntakeContext then ns.AthenaIntakeContext.Deny(t.source,type(t.details)=='table' and t.details.recordType or t.kind,'UNSAFE_OR_OVERSIZED_SOURCE') end
@@ -822,6 +930,7 @@ function S.Append(owner,t,originalDetails)
     end
     -- A capacity guard denies NEW admission. It never evicts accepted facts.
     if S.admissionBlocked or S.admissionLimitBytes and c.bytes+bytes>S.admissionLimitBytes then
+        S.AdmissionNote(t,'CAPACITY','writer.admission_limit')
         if ns.AthenaIntakeContext then ns.AthenaIntakeContext.Deny(t.source,event.details.recordType or t.kind,'CAPACITY_DEGRADED') end
         return
     end
@@ -829,15 +938,16 @@ function S.Append(owner,t,originalDetails)
     local accepted,live
     if j and j.Character(owner)==c then
         accepted,live=j.RecordEvent(event)
-        if not accepted then c.dropped=c.dropped+1;return end
-        if live then c.updated=math.max(c.updated or 0,event.at);if ns.IntelPolicy then ns.IntelPolicy.Notice(event) end;if ns.Athena then ns.Athena.Try(ns.Athena.Notice,event,'STAGED',true,j.WriterGeneration()) end;return event end
+        if not accepted then S.AdmissionNote(t,'CAPACITY','startup_journal.refused');c.dropped=c.dropped+1;return end
+        if live then S.AdmissionNote(t,'ACCEPTED','startup_journal.staged');c.updated=math.max(c.updated or 0,event.at);if ns.IntelPolicy then ns.IntelPolicy.Notice(event) end;if ns.Athena then ns.Athena.Try(ns.Athena.Notice,event,'STAGED',true,j.WriterGeneration()) end;return event end
     end
     local inserted=S.Insert(c,event)
+    S.AdmissionNote(t,inserted and'ACCEPTED'or'INTERNAL_FAILURE',inserted and'canonical.insert'or'canonical.insert_failed')
     if inserted and ns.IntelPolicy then ns.IntelPolicy.Notice(inserted) end
     if inserted and ns.Athena then ns.Athena.Try(ns.Athena.Notice,inserted,accepted and 'STAGED' or 'COMMITTED',true,accepted and j.WriterGeneration() or nil) end
     return inserted
 end
-function S.Insert(c,event)
+function S.Insert(c,event,isolated)
     local bytes=Size(event)
     local cached=statsCache[c];if cached and cached.revision~=c.revision then cached=nil end
     local index=#c.events+1
@@ -847,7 +957,7 @@ function S.Insert(c,event)
         index=low
     end
     ShareEvent(c,event);table.insert(c.events,index,event);c.bytes=c.bytes+bytes;c.updated=math.max(c.updated or 0,event.at)
-    S.Prune(c,event.at)
+    S.Prune(c,event.at,isolated)
     if cached then
         Accumulate(cached.value,event,cached.sessions,cached.combat);cached.value.bytes=c.bytes;cached.value.since=c.retainedSince
         cached.revision=c.revision

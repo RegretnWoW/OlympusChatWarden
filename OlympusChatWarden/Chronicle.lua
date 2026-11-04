@@ -28,7 +28,7 @@ end
 local function Allowed()
     local db=S.WriteRoot()
     return db and db.enabled and db.consentVersion==S.CONSENT
-        and ns.DB and (not ns.Modules or ns.Modules.Enabled('history')) and ns.Membership and ns.Membership.LocalHistoryAllowed()
+        and ns.DB and ns.Permissions.Decide('HistoryCollect')
 end
 function C.PersonalEnabled() return not ns.Modules or ns.Modules.Enabled('chronicle') end
 function C.IntelEnabled() return not ns.Modules or ns.Modules.Enabled('intel') end
@@ -36,6 +36,8 @@ function C.Active() return Allowed() and r.running==true end
 function C.InWorld() return C.Active() and r.inWorld==true end
 function C.WorldReady() return worldReady end
 local function Place()
+    local api=ns.Readable(C_Map) and type(C_Map)=='table' and C_Map.GetBestMapForUnit
+    local before;if type(api)=='function' then local ok,v=pcall(api,'player');if ok then before=S.Integer(v,1,10000000) end end
     local loc={zone=S.Text(Call('GetRealZoneText'),128),subzone=S.Text(Call('GetSubZoneText'),128)}
     local inside,kind=Call('IsInInstance')
     if ns.Readable(inside) and (type(inside)=='boolean' or inside==1) then
@@ -45,31 +47,65 @@ local function Place()
             if typ==kind then loc.instanceName=S.Text(name,128);loc.instanceID=S.Integer(id,1,10000000) end
         end
     end
+    local api=ns.Readable(C_Map) and type(C_Map)=='table' and C_Map.GetBestMapForUnit
+    if type(api)=='function' then local ok,map=pcall(api,'player');if ok and S.Integer(map,1,10000000)==before then loc.uiMapID=before end end
     return loc
 end
-local function SamePlace(a,b)
+local function SamePlace(a,b,ignoreMap)
     return a and b and a.zone==b.zone and a.subzone==b.subzone and a.inInstance==b.inInstance
         and a.instanceID==b.instanceID and a.instanceName==b.instanceName and a.instanceType==b.instanceType
+        and (ignoreMap or a.uiMapID==b.uiMapID)
 end
-local function Emit(kind,source,data,subject,evidence,location,route,snapshot,capture,encounterPosition,sourceContext)
-    if not C.Active() or not r.session then return end
+-- A callback clock is not a getter clock. Coroutine continuations carry only
+-- trigger association; each resumed native read receives its actual sample time.
+function C.EventContext(event) return {event=event,at=Stamp()} end
+function C.Temporal(kind,source,data,at,override)
+    if override then local v={};for k,n in pairs(override) do v[k]=n end;v.version=1;v.recordedAt=at;return v end
+    local t={version=1,recordedAt=at,precision='second',basis='sample',sampledAt=at}
+    local ctx=C.timeContext
+    local direct=({quest_turnin=true,quest_accepted=true,quest_removed=true,achievement_earned=true,player_death=true,spell_learned=true})[kind]
+    local r=data and data.recordType
+    local directFamily=({encounter_started=true,encounter_ended=true,boss_kill_event=true,native_kill_credit=true,pvp_match_complete=true,duel_finished=true,recipe_learned=true,native_craft_result=true,collection_added=true,item_received=true,quest_item_received=true,quest_currency_received=true,encounter_loot_delivery=true,public_achievement=true,witness_ability=true,currency_changed=true})[r]
+    if kind=='time_span' and data.firstAt and data.lastAt then t.basis='aggregate';t.precision='interval';t.observedFrom=data.firstAt;t.observedTo=data.lastAt
+    elseif data and data.baseline==true then t.basis='baseline';t.precision='unknown';t.firstObservedAt=data.firstObservedAt or at
+    elseif data and data.observedFrom and data.observedTo then t.precision='interval';t.observedFrom=data.observedFrom;t.observedTo=data.observedTo
+    elseif r=='own_spell_success_count' or r=='cast_observation_count' then
+        t.basis='aggregate';t.precision='interval';t.observedFrom=data.firstAt;t.observedTo=data.lastAt
+    elseif ctx and ctx.event==source and not ctx.queued and (direct or kind=='native_event' and directFamily and ns.ChronicleCapture and select(1,ns.ChronicleCapture.Classify(kind,source,data))=='native-event') then
+        t.basis='callback';t.eventAt=ctx.at;t.sampledAt=nil
+    end
+    if ctx and ctx.queued then t.triggerFrom=ctx.at;t.triggerTo=ctx.lastAt;t.coalesced=ctx.coalesced or 0 end
+    return t
+end
+local function Emit(kind,source,data,subject,evidence,location,route,snapshot,capture,encounterPosition,sourceContext,temporal)
+    if not C.Active() or not r.session then if S.AdmissionNote then S.AdmissionNote({kind=kind,details=data},'PRIVACY_AUTHORIZATION','capture.recording_or_session')end;return end
     if not C.PersonalEnabled() and not ({native_event=true,native_snapshot=true,player_observed=true,important_player=true,group_roster=true,
-        session_start=true,recording_start=true,recording_stop=true,character_snapshot=true,instance_enter=true,instance_exit=true,olympus_snapshot=true})[kind] then return end
+        session_start=true,recording_start=true,recording_stop=true,character_snapshot=true,instance_enter=true,instance_exit=true,olympus_snapshot=true})[kind] then if S.AdmissionNote then S.AdmissionNote({kind=kind,details=data},'PRIVACY_AUTHORIZATION','capture.module_permission')end;return end
     local at,timeSource=Stamp();local tick=Tick();local c=S.WriterCharacter(r.owner,false)
     -- Older archives may have used a different clock. Their latest timestamp
     -- cannot veto a newly delivered, otherwise valid native occurrence.
-    if not at or not tick then C.diagnostics.dropped=C.diagnostics.dropped+1;return end
+    if not at or not tick then C.diagnostics.dropped=C.diagnostics.dropped+1;if S.AdmissionNote then S.AdmissionNote({kind=kind,details=data},'MISSING_FIELD','capture.clock')end;return end
     local original=data or {}
     if ns.AthenaGuild and C.PersonalEnabled() then
         local ok,value=pcall(ns.AthenaGuild.Context,kind,source,original)
         if ok and type(value)=='table' then data=value
         elseif ns.AthenaIntakeContext then ns.AthenaIntakeContext.diagnostics.contextErrors=ns.AthenaIntakeContext.diagnostics.contextErrors+1 end
     end
-    return S.Append(r.owner,{kind=kind,source=source,details=data or {},subject=subject,
+    local event=S.Append(r.owner,{kind=kind,source=source,details=data or {},subject=subject,
         evidence=evidence or 'observed',at=at,timeSource=timeSource,elapsed=tick,
-        location=location or r.place or {},session=r.session,route=route,snapshot=snapshot,capture=capture,encounterPosition=encounterPosition,sourceContext=sourceContext},original)
+        location=location or r.place or {},session=r.session,route=route,snapshot=snapshot,capture=capture,encounterPosition=encounterPosition,sourceContext=sourceContext,temporal=C.Temporal(kind,source,data or original,at,temporal)},original)
+    local family=event and (event.details.recordType or event.kind)
+    if event and ns.AthenaStoryIndex and ns.AthenaStoryIndex.families[family] then r.conversationAnchor={sourceRef=ns.Athena.EvidenceRef(event.id),at=event.at,sessionRef=r.session,owner=r.owner} end
+    return event
 end
 C.Record=Emit;C.Place=Place;C.Stamp=Stamp;C.Tick=Tick
+function C.ConversationContext()
+    if not C.InWorld()then return {}end
+    if ns.AthenaMoments then return ns.AthenaMoments.Context()end
+    local anchor=r.conversationAnchor;local at=Stamp()
+    if not anchor or anchor.owner~=r.owner or anchor.sessionRef~=r.session or not at or at-anchor.at>90 then return {}end
+    return ns.Athena.Copy(anchor)
+end
 local function FlushTime()
     local p=r.timePending;if not p then return end;r.timePending=nil
     S.Append(r.owner,{schema=S.VERSION,kind='time_span',source='checkpoint',session=r.session,at=p.lastAt,elapsed=p.lastElapsed,
@@ -100,6 +136,7 @@ local function Timeslice(source)
     r.sliceWall=Stamp();r.afk=AFK()
 end
 local function Reset()
+    if ns.AthenaMoments then ns.AthenaMoments.Boundary('RECORDING_STOPPED')end
     if ns.ChronicleCapture then ns.ChronicleCapture.Flush() end
     FlushTime()
     if ns.ChronicleRoute then ns.ChronicleRoute.Stop() end
@@ -241,13 +278,20 @@ function C.ObserveUnit(unit,source,localSighting)
 end
 local function Location(source)
     local nextPlace=Place()
-    if not SamePlace(nextPlace,r.place) then
+    local namedChange=not SamePlace(nextPlace,r.place,true)
+    local knownMapChange=r.place and r.place.uiMapID and nextPlace.uiMapID and r.place.uiMapID~=nextPlace.uiMapID
+    if namedChange or knownMapChange then
         Timeslice(source)
         if r.place and r.place.inInstance and (not nextPlace.inInstance or r.place.instanceID~=nextPlace.instanceID
             or r.place.instanceName~=nextPlace.instanceName) then Emit('instance_exit',source,{},nil,'observed',r.place) end
         if nextPlace.inInstance and (not r.place or not r.place.inInstance or r.place.instanceID~=nextPlace.instanceID
             or r.place.instanceName~=nextPlace.instanceName) then Emit('instance_enter',source,{},nil,'observed',nextPlace) end
         r.place=nextPlace;Emit('location',source,{})
+    else
+        -- An unavailable map getter is not travel. Drop the stale optional ID
+        -- for subsequent evidence without inventing a new visit/departure.
+        if not SamePlace(nextPlace,r.place) then Timeslice(source) end
+        r.place=nextPlace
     end
 end
 local function Progress(source)
@@ -350,6 +394,7 @@ function C.Start(source,reload,login)
     if r.place.inInstance then Emit('instance_enter',source,{reason='recording-started-inside'}) end
     if C.PersonalEnabled() then Skills('SKILL_LINES_CHANGED') end;Roster('GROUP_ROSTER_UPDATE');RefreshWanted()
     if C.PersonalEnabled() and ns.ChronicleRoute then ns.ChronicleRoute.Start() end
+    if ns.ChronicleTravel and not reload and login==true then ns.ChronicleTravel.Boundary('session-start',source,true)end
     if C.PersonalEnabled() and ns.ChronicleEvidence then ns.ChronicleEvidence.Start() end
     if ns.ChronicleOlympus then ns.ChronicleOlympus.Start() end
     if ns.ChronicleCapture then ns.ChronicleCapture.Start() end
@@ -388,6 +433,7 @@ function C.SetEnabled(value)
     local db=S.PreferenceRoot()
     if type(value)~='boolean' or not db then return false end
     if value and not ns.Membership.Allowed() then return false end
+    if value and not ns.Permissions.Resume('history',true) then return false end
     if value and C.Active() then return true end
     if not value and C.Active() and ns.AthenaCastCounts then ns.AthenaCastCounts.Flush(nil,true) end
     if not value and C.Active() then Timeslice('control');Emit('recording_stop','control',{reason='opted-out'}) end
@@ -403,6 +449,10 @@ end
 function C.Clear()
     if ns.IntelPolicy then ns.IntelPolicy.Reset() end
     if not S.db or S.blocked then return false end
+    if ns.FiresideSavedData then ns.FiresideSavedData.PurgeRecovery()end
+    if ns.AthenaReadingSnapshots then ns.AthenaReadingSnapshots.Clear() end
+    ns.DB.activityRunSeparations=nil
+    if ns.AthenaAdventureEvidence then ns.AthenaAdventureEvidence.Clear() end
     if ns.AthenaCastCounts then ns.AthenaCastCounts.Clear() end
     -- Clearing always stops recording; it never immediately repopulates history.
     Reset();S.CancelArchives();if ns.ChronicleStartupJournal then ns.ChronicleStartupJournal.Clear() end
@@ -536,6 +586,8 @@ function C.Handle(event,...)
         return
     elseif not r.running then if event=='PLAYER_LOGOUT' then S.PrepareLogout() end;return end
     if event=='PLAYER_LOGOUT' or event=='PLAYER_LEAVING_WORLD' then
+        if event=='PLAYER_LOGOUT'and ns.ChronicleTravel then ns.ChronicleTravel.Boundary('session-end',event)end
+        if ns.AthenaAdventureEvidence then ns.AthenaAdventureEvidence.Boundary() end
         if ns.ChronicleCapture then ns.ChronicleCapture.Flush() end
         Timeslice(event);r.inWorld=false
         if ns.ChronicleRoute then ns.ChronicleRoute.Suspend('loading-screen') end
@@ -551,7 +603,7 @@ function C.Handle(event,...)
         if not id then C.diagnostics.dropped=C.diagnostics.dropped+1;return end
         r.quests=r.quests or {};local now=Tick()
         if now and r.quests[id] and now-r.quests[id]<2 then C.diagnostics.duplicates=C.diagnostics.duplicates+1;return end
-        r.quests[id]=now;Emit('quest_turnin',event,data,nil,'confirmed')
+        r.quests[id]=now;if ns.ChronicleHistory then ns.ChronicleHistory.QuestNPC(data) end;local accepted=Emit('quest_turnin',event,data,nil,'confirmed');if accepted and ns.ChronicleHistory then ns.ChronicleHistory.Completed(id,accepted.at) end
         if now then for q,t in pairs(r.quests) do if now-t>=2 then r.quests[q]=nil end end end
     elseif event=='PLAYER_MONEY' then
         local nextMoney=S.Integer(Call('GetMoney'),0)
@@ -574,6 +626,7 @@ local events={'PLAYER_ENTERING_WORLD','PLAYER_LEAVING_WORLD','PLAYER_LOGOUT','ZO
 C.registered={}
 for _,event in ipairs(events) do C.registered[event]=pcall(frame.RegisterEvent,frame,event) end
 frame:SetScript('OnEvent',function(_,event,...)
-    local ok=pcall(C.Handle,event,...);if not ok then C.diagnostics.errors=C.diagnostics.errors+1 end
+    local previous=C.timeContext;C.timeContext=C.EventContext(event)
+    local ok=pcall(C.Handle,event,...);C.timeContext=previous;if not ok then C.diagnostics.errors=C.diagnostics.errors+1 end
 end)
 if ns.OlympusConnection then ns.OlympusConnection.Subscribe(function() C.RefreshGate() end) end

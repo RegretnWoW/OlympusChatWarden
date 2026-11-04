@@ -29,7 +29,7 @@ function W.ValidRecord(t)
         and (t.kind=='mention')==(t.via=='chat')
 end
 local function Base()
-    return W.db and W.db.enabled and ns.DB and (not ns.Modules or ns.Modules.Enabled('alerts')) and ns.DB.alertsEnabled~=false and ns.Membership.Allowed()
+    return W.db and W.db.enabled and ns.DB and (not ns.Modules or ns.Modules.Enabled('alerts')) and ns.DB.alertsEnabled~=false and ns.Permissions.Decide('SignalCollect')
         and C.modern and C.state=='connected' and C.permission=='granted' and C.Profile()~=nil
 end
 function W.Active() return Base() and W.state=='ready' end
@@ -123,17 +123,44 @@ local function Emit(target,via)
         preview=preview..' Olympus-listed bounty: '..target.bounty..' points.',
         timestamp=ns.SafeCall(time) or ns.SafeCall(GetServerTime)},not W.db.badges)
     if item then
-        if W.db.sound and now-lastSound>=5 and type(PlaySound)=='function' then
-            lastSound=now;pcall(PlaySound,SOUNDKIT and SOUNDKIT.RAID_WARNING or 8959,'Master')
+        if W.db.sound and now-lastSound>=5 and ns.WardenAudio then
+            lastSound=now;ns.WardenAudio.Play('notification','wanted')
         end
         if W.db.toast and ns.ShowWantedToast then ns.ShowWantedToast(item) end
     end
     return item
 end
+local sightingTimes,sightingOrder,sightingSession={},{},nil
+function W.RecordJournalSighting(unit,target)
+    local chronicle,capture=ns.Chronicle,ns.ChronicleCapture
+    if not ns.DB or ns.DB.journalCaptureSightings~=true or not W.Active() or not chronicle or not chronicle.Active() or not chronicle.PersonalEnabled() then return false,'DENIED' end
+    if (unit~='target' and unit~='mouseover') or not target or W.byGUID[target.guid]~=target
+        or not ns.Checked(ns.SafeCall(UnitIsPlayer,unit)) or not ns.Checked(ns.SafeCall(UnitCanAttack,'player',unit))
+        or GUID(ns.SafeCall(UnitGUID,unit))~=target.guid then return false,'UNVERIFIED' end
+    local owner=chronicle.Owner();local c=ns.ChronicleStore.WriterCharacter(owner,false);local session=c and c.currentSession
+    if not session or not capture or not capture.Ready() then return false,'NOT_READY' end
+    if sightingSession~=session then sightingTimes={};sightingOrder={};sightingSession=session end
+    local now=ns.SessionTime();local last=sightingTimes[target.guid]
+    if last and now-last<900 then return false,'COALESCED' end
+    local event=capture.Record('native_event',unit=='target' and 'PLAYER_TARGET_CHANGED' or 'UPDATE_MOUSEOVER_UNIT',{
+        recordType='signal_sighting',origin='OLYMPUS_BOARD_MATCH_AT_OBSERVATION',via=unit,sourceVersion=1,
+        scope='Direct native player sighting; contemporaneous board match only; no allegation or current-list claim'
+    },target.guid,false)
+    if not event then
+        if ns.AthenaIntakeContext then ns.AthenaIntakeContext.Deny('Signal sighting','signal_sighting','WRITE_REJECTED') end
+        return false,'WRITE_REJECTED'
+    end
+    if not sightingTimes[target.guid] then
+        if #sightingOrder>=128 then sightingTimes[table.remove(sightingOrder,1)]=nil end
+        sightingOrder[#sightingOrder+1]=target.guid
+    end
+    sightingTimes[target.guid]=now;return event
+end
 function W.ObserveUnit(unit)
     if not W.Active() or not W.db.encounters or (unit~='target' and unit~='mouseover') then return end
     if not ns.Checked(ns.SafeCall(UnitIsPlayer,unit)) or not ns.Checked(ns.SafeCall(UnitCanAttack,'player',unit)) then return end
     local target=W.byGUID[GUID(ns.SafeCall(UnitGUID,unit)) or ''];if not target then return end
+    W.RecordJournalSighting(unit,target)
     return Emit(target,unit)
 end
 local function Letter(byte)

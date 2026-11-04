@@ -1,18 +1,18 @@
--- Small lifecycle registry. Saved selection never grants collection consent.
+-- Shared tools stay available together. Privacy still gates collection/sharing.
 local _,ns=...
 local M={records={},frames={},revision=0};ns.Modules=M
 M.order={'chat','chronicle','intel','shield','alerts'}
-M.names={chat='ChatWarden',chronicle='ChronicleWarden',intel='IntelWarden',shield='ShieldWarden',alerts='SignalWarden Alerts'}
-local aliases={messages='chat',capture='chat',rules='chat',packs='chat',reports='chat',mentions='alerts',olympusMuteSignal='alerts',wanted='alerts'}
+M.names={chat='Logos · Chat',chronicle='Atlas · History',intel='Aether · Profiles',shield='Aegis · Protection',alerts='Vigil · Alerts'}
+local aliases={messages='chat',capture='chat',rules='chat',packs='chat',reports='chat',mentions='alerts',olympusMuteSignal='alerts',olympusMuteObserve='alerts',wanted='alerts'}
 function M.Key(id) return aliases[id] or id end
 function M.Enabled(id)
     id=M.Key(id)
     if id=='core' or id=='signal' or id=='relay' or id=='settings' then return true end
     if id=='history' then return M.Enabled('chronicle') or M.Enabled('intel') end
     if not M.config then return true end -- compatibility for pure service callers before startup
-    local r=M.records[id];return M.config.selected[id]==true and not (M.config.legacyHold and M.config.legacyHold[id]) and (not r or r.state~='error' and not r.runtimeDisabled)
+    local r=M.records[id];return M.names[id]~=nil and (not r or r.state~='error' and not r.runtimeDisabled)
 end
-function M.Selected(id) return M.config and M.config.selected[M.Key(id)]==true end
+function M.Selected(id) return M.config~=nil and M.names[M.Key(id)]~=nil end
 local personalEvents={PLAYER_XP_UPDATE=true,PLAYER_LEVEL_UP=true,QUEST_TURNED_IN=true,SKILL_LINES_CHANGED=true,PLAYER_MONEY=true,
     PLAYER_FLAGS_CHANGED=true,PLAYER_DEAD=true,PLAYER_ALIVE=true,PLAYER_UNGHOST=true,QUEST_ACCEPTED=true,QUEST_REMOVED=true,
     QUEST_LOG_UPDATE=true,UPDATE_FACTION=true,BAG_UPDATE_DELAYED=true,SPELLS_CHANGED=true,ACHIEVEMENT_EARNED=true,
@@ -20,7 +20,7 @@ local personalEvents={PLAYER_XP_UPDATE=true,PLAYER_LEVEL_UP=true,QUEST_TURNED_IN
 function M.Capable(id)
     if id=='core' or id=='signal' or id=='relay' then return true end
     local history=id=='history' or id=='chronicle' or id=='intel'
-    return M.Enabled(id) and (not ns.Membership or ns.Membership.Allowed() or history and ns.Membership.LocalHistoryAllowed())
+    return M.Enabled(id) and (not ns.Membership or history and ns.Membership.LocalHistoryAllowed() or ns.Membership.BackgroundAllowed(id))
 end
 function M.EventAllowed(owner,event)
     return M.Enabled(owner) and (owner~='history' or not personalEvents[event] or M.Enabled('chronicle'))
@@ -66,9 +66,10 @@ function M.Initialize(existing)
         ns.DB.moduleSelection=saved
     end
     for _,id in ipairs(M.order) do
-        saved.selected[id]=saved.selected[id]==true;M.records[id]=M.records[id] or {state='not initialized'}
+        saved.selected[id]=true;M.records[id]=M.records[id] or {state='not initialized'}
         local r=M.records[id];r.initialized=false;r.runtimeDisabled=nil;if r.state=='error' then r.state='not initialized';r.error=nil end
     end
+    saved.legacyHold=nil -- Retired module-power switches; consent stores are unchanged.
     M.activityHistoryReady=false
     M.config=saved;M.needsWelcome=saved.onboardingDone~=true;M.dirty=true
 end
@@ -88,9 +89,10 @@ function M.Reconcile()
     local permission=not ns.Membership or ns.Membership.Allowed()
     local localHistory=ns.Membership and ns.Membership.LocalHistoryAllowed() or permission
     if not M.dirty and M.permission==permission and M.localHistory==localHistory then M.busy=false;return end
-    M.permission=permission;M.localHistory=localHistory;M.dirty=false
+    M.permission=permission;M.localHistory=localHistory;M.dirty=false;M.config.legacyHold=nil
     for _,id in ipairs(M.order) do
-        local r=M.records[id];local wanted=M.config.selected[id]==true
+        M.config.selected[id]=true
+        local r=M.records[id];local wanted=true
         if wanted and M.config.legacyHold and M.config.legacyHold[id] then
             r.state='paused';r.runtimeDisabled=true
         elseif not wanted then
@@ -98,14 +100,14 @@ function M.Reconcile()
             r.runtimeDisabled=nil;if r.state~='error' then r.state='disabled' end
         elseif r.state~='error' and r.state~='enabled' and InCombatLockdown and InCombatLockdown() then
             r.state='suspended';r.runtimeDisabled=true;M.pendingCombat=true
-        elseif r.state~='error' and ns.Membership and not ns.Membership.Allowed() and not ((id=='chronicle' or id=='intel') and localHistory) then
+        elseif r.state~='error' and ns.Membership and not(permission or (id=='chronicle'or id=='intel')and localHistory or ns.Membership.BackgroundAllowed(id)) then
             if r.state=='enabled' then Run(r,'stop') end;r.state='suspended'
         elseif r.state~='error' then
             r.runtimeDisabled=nil
             local ready=r.initialized
             if not ready then ready=Run(r,'initialize');r.initialized=ready end
             if ready then
-                local before=r.state;r.state=ns.Membership and not ns.Membership.Allowed() and not ((id=='chronicle' or id=='intel') and localHistory) and 'suspended' or 'enabled'
+                local before=r.state;r.state='enabled'
                 if r.state=='enabled' and before~='enabled' then Run(r,'start') end
             end
         end
@@ -117,6 +119,7 @@ function M.Reconcile()
 end
 function M.Set(id,value)
     id=M.Key(id);if not M.config or not M.names[id] or type(value)~='boolean' then return false end
+    if not value then return false,'Fireside tools stay available together. Recording and privacy choices are in Settings.'end
     local held=M.config.legacyHold and M.config.legacyHold[id]
     if M.config.selected[id]==value and M.records[id].state~='error' and not held then return true end
     if M.config.legacyHold then M.config.legacyHold[id]=nil end
@@ -131,7 +134,7 @@ function M.Set(id,value)
 end
 function M.Preset(full)
     if M.BeforeScopeChange then M.BeforeScopeChange() end
-    M.config.legacyHold=nil;for _,id in ipairs(M.order) do M.config.selected[id]=full==true or id=='chat' end;M.dirty=true
+    M.config.legacyHold=nil;for _,id in ipairs(M.order) do M.config.selected[id]=true end;M.dirty=true
     M.Reconcile();if M.ScopeChanged then M.ScopeChanged() end;M.revision=M.revision+1
     if ns.Workspace and ns.Workspace.ModulesChanged then ns.Workspace.ModulesChanged() end
 end

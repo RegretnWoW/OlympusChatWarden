@@ -75,8 +75,8 @@ function G.Pump(j,budget)
                 local own=j.own
                 if cap and (cap.family=='gear' or cap.family=='traits') then
                     j.objects[d.contentID]=e
-                    if S.GUID(cap.values.guid) and cap.values.guid~=own then Add(j,cap.values.guid,{object=e,event=e,at=e.at,hash=d.contentID,standalone=true},cap.family) end
-                elseif (e.kind=='important_player' or d.recordType=='duel_capture') and (d.gearRef or d.traitRef) and S.GUID(e.subject) and e.subject~=own then j.refs[#j.refs+1]=e end
+                    if S.GUID(cap.values.guid) then Add(j,cap.values.guid,{object=e,event=e,at=e.at,hash=d.contentID,standalone=true},cap.family) end
+                elseif (e.kind=='important_player' or d.recordType=='duel_capture') and (d.gearRef or d.traitRef) and S.GUID(e.subject) then j.refs[#j.refs+1]=e end
                 j.length=j.cursor;j.lastID=e.id;j.cursor=j.cursor+1
             end
         else
@@ -139,6 +139,19 @@ function G.TalentLabel(row)
     -- Selection and rank come from the dated snapshot. Names/icons are current
     -- client metadata for those saved IDs, not a new inspection or tree guess.
     local spell=row[6]~=false and row[6] or nil
+    if row[5]==false and row[6]==false then
+        local config=S.Integer(X.Call('C_ClassTalents.GetActiveConfigID'),1)
+        local info=config and X.Table(X.Call('C_Traits.GetConfigInfo',config));local treeMatches=false
+        for _,tree in ipairs(info and X.Table(info.treeIDs)or{})do if tree==row[1]then treeMatches=true end end
+        local node=treeMatches and X.Table(X.Call('C_Traits.GetNodeInfo',config,row[2]));local entryMatches=false
+        for _,entry in ipairs(node and X.Table(node.entryIDs)or{})do if entry==row[3]then entryMatches=true end end
+        local entry=entryMatches and X.Table(X.Call('C_Traits.GetEntryInfo',config,row[3]));local subtree=entry and S.Integer(entry.subTreeID,1)
+        local meta=subtree and X.Table(X.Call('C_Traits.GetSubTreeInfo',config,subtree))
+        if meta and config==S.Integer(X.Call('C_ClassTalents.GetActiveConfigID'),1)then
+            local atlas=S.Text(meta.iconElementID,160);if not atlas or not C_Texture or not ns.SafeCall(C_Texture.GetAtlasInfo,atlas)then atlas=nil end
+            return S.Text(meta.name,144)or'Talent branch selection',nil,nil,atlas
+        end
+    end
     local definition=row[5]~=false and X.Table(X.Call('C_Traits.GetDefinitionInfo',row[5])) or nil
     if definition and S.Integer(definition.spellID,1)~=spell then definition=nil end
     local info=spell and X.Table(X.Call('C_Spell.GetSpellInfo',spell))

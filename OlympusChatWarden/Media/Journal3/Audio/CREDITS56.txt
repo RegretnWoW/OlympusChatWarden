@@ -1,0 +1,3 @@
+Athena's Hearth — extended Spitfire master loop
+267.4193125 seconds, stereo 48 kHz. Approved native Spitfire/Kontakt render; full source/mastering receipts retained in Athenas-Hearth-Extended-Spitfire-Master-2026-11-01.
+100% is byte-identical to the approved OGG; 25/50/75% use constant attenuation of the lossless loop. Earlier audio remains untouched. No samples or proprietary instrument presets are distributed.

@@ -3,8 +3,10 @@ local _,ns=...
 local C,S,X=ns.Chronicle,ns.ChronicleStore,ns.ChronicleCapture
 local M={};ns.ChronicleCombat=M
 local scoreEpoch,scoreContext,scorePhase,scorePlace,scoreRef=0,nil,nil,nil,nil
+local boardSequence,boardSignature=0,nil
 local combatStart,counters,meterEpoch,matchSequence,meterSeen,scoreSeen,casts,lastRank=nil,nil,0,0,{},{},{},nil
 local combatWindow,batchAt,batchCount,batchContext,castSeen,castOrder=nil,nil,0,nil,{},{}
+local meterGroup,meterCache,meterOrder,meterBytes=nil,{},{},0
 local function Event(source,data,subject) return X.Record('native_event',source,data,subject) end
 local function Units()
     local out={'player','pet'}
@@ -57,6 +59,7 @@ function M.Kill(source,actor,target)
         end
     end
     Event(source,data,S.GUID(victim))
+    if ns.AthenaAdventureEvidence then ns.AthenaAdventureEvidence.Kill(data) end
     X.Mark('Native kill credit','Readable PARTY_KILL payload saved; live credit semantics unverified')
 end
 local function MeterTypes()
@@ -68,6 +71,61 @@ function M.MeterDetail(guid)
     if not guid then return false end
     if guid==X.Entity(X.Call('UnitGUID','player')) or guid==X.Entity(X.Call('UnitGUID','pet')) then return C.PersonalEnabled() end
     return S.GUID(guid)~=nil and ns.AthenaCollectionPolicy.Deep(20,guid,{priorityOnly=true}) or false
+end
+-- Source totals do not need a nearby-unit/guild search. Guild-only subjects
+-- are Context and ordinary world subjects Off for row 19. Keep the same pure
+-- policy resolver, with live priority, instance and GUID-verified group facts.
+function M.MeterAccess(guid)
+    if not guid then return false,false end
+    if guid==X.Entity(X.Call('UnitGUID','player')) or guid==X.Entity(X.Call('UnitGUID','pet')) then
+        local enabled=C.PersonalEnabled();return enabled,enabled
+    end
+    if not S.GUID(guid) then return false,false end
+    local P=ns.AthenaCollectionPolicy;local facts=P.Facts(guid,{priorityOnly=true})
+    local detail=P.Resolve(20,facts)=='Deep'
+    if detail then return true,true end
+    local inside,kind=X.Call('IsInInstance');kind=S.Text(kind,32)
+    facts.bg=X.Bool(inside)==true and (kind=='pvp' or kind=='arena')
+    if not facts.bg and not facts.duelOpponent then
+        if not meterGroup then
+            meterGroup={};local raid=X.Bool(X.Call('IsInRaid'))==true
+            for n=1,raid and 40 or 4 do
+                local unit=(raid and 'raid' or 'party')..n;local id=S.GUID(X.Call('UnitGUID',unit))
+                if id then meterGroup[id]=unit end
+            end
+        end
+        local unit=meterGroup[guid]
+        if unit and S.GUID(X.Call('UnitGUID',unit))==guid then
+            facts.group=X.Bool(X.Call('UnitInParty',unit))==true or S.Integer(X.Call('UnitInRaid',unit),1,40)~=nil
+            if S.GUID(X.Call('UnitGUID',unit))~=guid then facts.group=false end
+        end
+    end
+    local mode=P.Resolve(19,facts);return false,mode=='Deep' or mode=='Light'
+end
+local function RememberMeter(key,signature)
+    local old=meterCache[key]
+    if old then meterBytes=meterBytes-#old;meterCache[key]=nil
+        for n,k in ipairs(meterOrder) do if k==key then table.remove(meterOrder,n);break end end
+    end
+    if #signature>8192 then return end
+    while #meterOrder>=512 or meterBytes+#signature>262144 do
+        local first=table.remove(meterOrder,1);meterBytes=meterBytes-#meterCache[first];meterCache[first]=nil
+    end
+    meterCache[key]=signature;meterOrder[#meterOrder+1]=key;meterBytes=meterBytes+#signature
+end
+local function MeterSave(key,data,record,source,guid)
+    -- Only locally constructed, sanitized primitives reach this comparison.
+    -- This suppresses an identical notification; it never reuses a hash or
+    -- bypasses snapshot validation. Cache state advances only on accepted writes.
+    local signature=ns.ChronicleBackup.Encode(data)
+    if meterCache[key]==signature then return end
+    local hash=X.Store('meter',data,source)
+    if hash and meterSeen[key]~=hash then
+        local event=Event(source,{recordType=record,contentID=hash,family='meter',sessionID=data.sessionID,meterType=data.meterType,meterEpoch=data.meterEpoch},S.GUID(guid))
+        if not event then return end
+        meterSeen[key]=hash
+    end
+    if hash then RememberMeter(key,signature) end
 end
 function M.Recap(source,id,guid)
     if X.Busy() or not X.runID or not S.GUID(guid) or not S.Integer(id,1) then return end
@@ -98,8 +156,11 @@ function M.Meter(source,meterType,sessionID)
     local sessions=targeted and {{sessionID=sessionID}} or X.Table(X.Call('C_DamageMeter.GetAvailableCombatSessions'))
     if not sessions or not S.Array(sessions,200) then X.Mark('Damage meter','Unavailable session list');return end
     local types=targeted and {meterType} or MeterTypes()
-    for _,session in ipairs(sessions) do
-        session=X.Table(session);local id=session and S.Integer(session.sessionID,0)
+    -- Native tables can become inaccessible after a cooperative yield (for
+    -- example on entering a battleground). Never resume a native iterator.
+    for sessionIndex=1,#sessions do
+        if not X.Table(sessions) then X.Mark('Damage meter','Session list became restricted; read stopped');return end
+        local session=X.Table(sessions[sessionIndex]);local id=session and S.Integer(session.sessionID,0)
         if id then for _,kind in ipairs(types) do
             if X.Busy() then return end
             local row=X.Table(X.Call('C_DamageMeter.GetCombatSessionFromID',id,kind))
@@ -107,40 +168,40 @@ function M.Meter(source,meterType,sessionID)
             if row and sources and S.Array(sources,160) then
                 local total=S.Number(row.totalAmount,0);local duration=S.Number(row.durationSeconds,0)
                 -- One source per object keeps text backups independently bounded.
-                for i,v in ipairs(sources) do
-                    v=X.Table(v)
+                local sourceCount=#sources
+                for i=1,sourceCount do
+                    if not X.Table(sources) then X.Mark('Damage meter','Source list became restricted; read stopped');return end
+                    local v=X.Table(sources[i])
                     if v then
                         local guid=X.Entity(v.sourceGUID);local creature=S.Integer(v.sourceCreatureID,0)
                         local amount=S.Number(v.totalAmount,0)
-                        if amount and (M.MeterDetail(guid) or S.GUID(guid) and ns.AthenaCollectionPolicy.Light(19,guid)) then
+                        local detailed,light=M.MeterAccess(guid)
+                        if amount and light then
                             local data={runID=X.runID,sessionID=id,meterType=kind,meterEpoch=meterEpoch,totalAmount=total,durationSeconds=duration,
                                 sourceIndex=i,sources={{guid or false,creature or false,S.Text(v.name,144) or false,S.Text(v.classFilename,64) or false,
                                     amount,S.Number(v.amountPerSecond,0) or false,X.Flag(v.isLocalPlayer),
                                     S.Integer(v.deathRecapID,0) or false,S.Number(v.deathTimeSeconds,0) or false}}}
-                            local hash=X.Store('meter',data,source);local key=meterEpoch..':'..id..':'..kind..':'..i
-                            if hash and meterSeen[key]~=hash then
-                                Event(source,{recordType='damage_meter_source',contentID=hash,family='meter',sessionID=id,meterType=kind,meterEpoch=meterEpoch},S.GUID(guid))
-                                meterSeen[key]=hash
-                            end
+                            local key=meterEpoch..':'..id..':'..kind..':'..i
+                            MeterSave(key,data,'damage_meter_source',source,guid)
                             local recap=S.Integer(v.deathRecapID,1)
-                            if recap and S.GUID(guid) then M.Recap(source,recap,guid) end
+                            if detailed and recap and S.GUID(guid) then M.Recap(source,recap,guid) end
                             -- Read source spell aggregates only when native identity
                             -- allows an unambiguous getter, never by display name.
                             -- Ordinary match/roster participants keep lightweight
                             -- source totals. Proximity or a meter row cannot
                             -- authorize a spell census or promote its own actor.
-                            if M.MeterDetail(guid) then
+                            if detailed then
                                 local detail=X.Table(X.Call('C_DamageMeter.GetCombatSessionSourceFromID',id,kind,guid,creature))
                                 local spells=detail and X.Table(detail.combatSpells)
-                                if spells and S.Array(spells,1500) then for j,spell in ipairs(spells) do
+                                if spells and S.Array(spells,1500) then for j=1,#spells do
+                                    if not X.Table(spells) then X.Mark('Damage meter','Spell list became restricted; read stopped');return end
                                     if not M.MeterDetail(guid) then break end
-                                    spell=X.Table(spell);local spellID=spell and S.Integer(spell.spellID,1)
+                                    local spell=X.Table(spells[j]);local spellID=spell and S.Integer(spell.spellID,1)
                                     if spellID then
                                         local value={runID=X.runID,sessionID=id,meterType=kind,meterEpoch=meterEpoch,sourceGUID=guid,sourceCreatureID=creature,
                                             sourceIndex=i,spells={{spellID,S.Number(spell.totalAmount,0) or false,S.Number(spell.amountPerSecond,0) or false,
                                                 S.Number(spell.overkillAmount,0) or false,X.Flag(spell.isAvoidable),X.Flag(spell.isDeadly)}}}
-                                        local h=X.Store('meter',value,source);local sk=key..':spell:'..spellID..':'..j
-                                        if h and meterSeen[sk]~=h then Event(source,{recordType='damage_meter_spell',contentID=h,family='meter',sessionID=id,meterType=kind,meterEpoch=meterEpoch},S.GUID(guid));meterSeen[sk]=h end
+                                        MeterSave(key..':spell:'..spellID..':'..j,value,'damage_meter_spell',source,guid)
                                     end
                                     X.Yield()
                                 end end
@@ -149,10 +210,16 @@ function M.Meter(source,meterType,sessionID)
                     end
                     X.Yield()
                 end
-                if #sources==0 and total then
-                    local hash=X.Store('meter',{runID=X.runID,sessionID=id,meterType=kind,meterEpoch=meterEpoch,totalAmount=total,durationSeconds=duration,sources={}},source)
-                    if hash and meterSeen[hash]~=true then Event(source,{recordType='damage_meter_session',contentID=hash,family='meter'});meterSeen[hash]=true end
-                end
+                local emptyKey='empty:'..meterEpoch..':'..id..':'..kind
+                if sourceCount==0 and total then
+                    -- An empty session's ticking clock supplies no new actor,
+                    -- spell or total. Preserve its baseline and actual total
+                    -- changes, rather than a permanent stream of empty samples.
+                    if meterSeen[emptyKey]~=total then
+                        local hash=X.Store('meter',{runID=X.runID,sessionID=id,meterType=kind,meterEpoch=meterEpoch,totalAmount=total,durationSeconds=duration,sources={}},source)
+                        if hash and Event(source,{recordType='damage_meter_session',contentID=hash,family='meter'}) then meterSeen[emptyKey]=total end
+                    end
+                else meterSeen[emptyKey]=nil end
             end
             X.Yield()
         end end
@@ -164,6 +231,7 @@ local function ScoreContext()
 end
 local function BeginScores(phase)
     scoreRef=nil
+    boardSequence=0;boardSignature=nil
     scoreEpoch=scoreEpoch+1;matchSequence=matchSequence+1;scoreContext=ScoreContext();scorePhase=phase;scoreSeen={}
     local name,kind,_,_,_,_,_,id=X.Call('GetInstanceInfo')
     scorePlace={instanceName=S.Text(name,144),instanceType=S.Text(kind,32),instanceID=S.Integer(id,0)}
@@ -197,15 +265,18 @@ function M.Objectives(row,columns,reader)
 end
 function M.Score(source)
     if X.Busy() or not X.runID then return end
+    local _,currentKind=X.Call('GetInstanceInfo');currentKind=S.Text(currentKind,32)
+    if currentKind~='pvp' and currentKind~='arena' then return end
     if matchSequence==0 then
         local _,kind=X.Call('GetInstanceInfo')
-        if S.Text(kind,32)~='pvp' then return end
+        if S.Text(kind,32)~='pvp' and S.Text(kind,32)~='arena' then return end
         -- Login in an already active battleground has no observed start event.
         BeginScores('in-progress; start unobserved')
     end
     local token,report=scoreEpoch,matchSequence
     if scoreContext and scoreContext~=ScoreContext() then X.Mark('PvP scores','Score context changed before read; final rows unavailable');Coverage('interrupted','Score context changed before detail read');return 0 end
-    local count=S.Integer(X.Call('GetNumBattlefieldScores'),0,160) or 160;local readable=0
+    local count=S.Integer(X.Call('GetNumBattlefieldScores'),0,160);local countKnown=count~=nil
+    count=count or 160;local readable=0;local rowRefs={}
     if not X.API('C_PvP.GetScoreInfo') then X.Mark('PvP scores','Native score reader unavailable');Coverage('unavailable','Native scoreboard reader unavailable');return end
     local columns={};local nativeColumns=X.Table(X.Call('C_PvP.GetMatchPVPStatColumns'))
     if nativeColumns and S.Array(nativeColumns,32) then for _,column in ipairs(nativeColumns) do
@@ -214,7 +285,8 @@ function M.Score(source)
     for i=1,count do
         if token~=scoreEpoch or report~=matchSequence or scoreContext and scoreContext~=ScoreContext() then return readable end
         local value=X.Call('C_PvP.GetScoreInfo',i);local row=X.Table(value)
-        if ns.Readable(value) and value==nil then break end
+        if ns.Readable(value) and value==nil and not countKnown then count=i-1;break end
+        rowRefs[i]=false
         if row then
             local data={runID=X.runID,matchSequence=matchSequence,rowIndex=i,name=S.Text(row.name,144),guid=S.GUID(row.guid),phase=scorePhase,
                 instanceID=scorePlace and scorePlace.instanceID,instanceName=scorePlace and scorePlace.instanceName,instanceType=scorePlace and scorePlace.instanceType}
@@ -230,12 +302,31 @@ function M.Score(source)
             if token~=scoreEpoch or report~=matchSequence or scoreContext and scoreContext~=ScoreContext() then return readable end
             if data.killingBlows or data.deaths or data.objectives then
                 local hash=X.Store('scoreboard',data,source)
+                rowRefs[i]=hash or false
                 if hash then readable=readable+1 end
                 if hash and scoreSeen[i]~=hash then Event(source,{recordType='pvp_score_row',contentID=hash,family='scoreboard',part=i,parts=count,phase=scorePhase,
                     scoreReportID=X.runID..'/'..matchSequence,matchRef=scoreRef,coverage='Observation only; final freshness unverified'});scoreSeen[i]=hash end
             end
         end
         X.Yield()
+    end
+    -- A small manifest preserves one coherent read of the WHOLE board, including
+    -- unreadable positions. Unchanged reads coalesce; per-player objects retain
+    -- their existing content identities. Never collect a remote or previous BG.
+    if countKnown and S.Integer(X.Call('GetNumBattlefieldScores'),0,160)~=count then Coverage('interrupted','Scoreboard row count changed during capture');return readable end
+    if count>0 and token==scoreEpoch and report==matchSequence and scoreContext==ScoreContext() then
+        local signature=ns.ChronicleBackup.Encode({phase=scorePhase,rows=rowRefs})
+        if signature~=boardSignature then
+            boardSequence=boardSequence+1;local saved=true
+            for part=1,math.ceil(count/32) do
+                local refs={};for n=(part-1)*32+1,math.min(part*32,count) do refs[#refs+1]=rowRefs[n] or false end
+                local hash=X.Store('scoreboard_page',{runID=X.runID,matchSequence=matchSequence,captureSequence=boardSequence,
+                    part=part,parts=math.ceil(count/32),expectedRows=count,rowRefs=refs,phase=scorePhase,
+                    instanceID=scorePlace.instanceID,instanceName=scorePlace.instanceName,instanceType=scorePlace.instanceType},source)
+                if not hash then saved=false end
+            end
+            if saved then boardSignature=signature end
+        end
     end
     if readable==0 then Coverage('unavailable','No readable native scoreboard rows at this observation') end
     return readable
@@ -251,8 +342,9 @@ local function FlushCasts(source)
     end
     if not next(casts) then batchAt=nil;batchCount=0;batchContext=nil end
 end
-function M.Flush() FlushCasts('checkpoint') end
+function M.Flush() FlushCasts('checkpoint');if ns.AthenaAdventureEvidence then ns.AthenaAdventureEvidence.Flush() end end
 function M.Pump()
+    if ns.AthenaAdventureEvidence then ns.AthenaAdventureEvidence.Pump() end
     local now=C.Tick()
     if batchAt and now and now-batchAt>=15 then FlushCasts('checkpoint') end
 end
@@ -285,15 +377,27 @@ function M.SeedCounters()
     local loaded=S.Character(owner,false);if loaded and loaded~=writing then Seed(loaded) end
 end
 function M.Start()
+    meterGroup=nil;meterCache={};meterOrder={};meterBytes=0
     combatStart=nil;counters=nil;meterEpoch=0;matchSequence=0;meterSeen={};scoreSeen={};casts={};lastRank=nil
     combatWindow=nil;batchAt=nil;batchCount=0;batchContext=nil;castSeen={};castOrder={}
     scoreEpoch=scoreEpoch+1;scoreContext=nil;scorePhase=nil;scorePlace=nil
     if C.PersonalEnabled() then X.Queue('pvp-counter-baseline',function() M.SeedCounters();M.Counters('control') end) end;X.Queue('meter',function() M.Meter('control') end)
     X.Mark('Native kill credit','Event registered; waiting for readable delivery')
+    if ns.AthenaAdventureEvidence then ns.AthenaAdventureEvidence.Start() end
 end
-function M.Stop() scoreEpoch=scoreEpoch+1;scoreContext=nil;scoreRef=nil;combatStart=nil;counters=nil;meterSeen={};scoreSeen={};casts={};lastRank=nil;combatWindow=nil;batchAt=nil;batchCount=0;batchContext=nil;castSeen={};castOrder={} end
+function M.Stop() meterGroup=nil;meterCache={};meterOrder={};meterBytes=0;scoreEpoch=scoreEpoch+1;scoreContext=nil;scoreRef=nil;combatStart=nil;counters=nil;meterSeen={};scoreSeen={};casts={};lastRank=nil;combatWindow=nil;batchAt=nil;batchCount=0;batchContext=nil;castSeen={};castOrder={} end
+function M.InstanceReset(message)
+    local text=S.Text(message,512);local format=S.Text(_G.INSTANCE_RESET_SUCCESS,512)
+    if not text or not format then return end
+    local before,after=format:match('^(.-)%%s(.-)$');if not before or after:find('%%s') then return end
+    local function Escape(v) return v:gsub('(%W)','%%%1') end
+    local name=S.Text(text:match('^'..Escape(before)..'(.+)'..Escape(after)..'$'),128)
+    if name then return {recordType='instance_reset',name=name,scope='native localized instance reset notification; no chat text retained'} end
+end
 function M.Handle(event,a,b,c,d,e,f)
-    if event=='PARTY_KILL' then M.Kill(event,a,b)
+    if ns.AthenaAdventureEvidence then ns.AthenaAdventureEvidence.Handle(event) end
+    if event=='GROUP_ROSTER_UPDATE' or event=='GROUP_JOINED' or event=='GROUP_LEFT' or event=='PLAYER_ENTERING_WORLD' then meterGroup=nil
+    elseif event=='PARTY_KILL' then M.Kill(event,a,b)
     elseif event=='PLAYER_PVP_KILLS_CHANGED' then M.Counters(event)
     elseif event=='PLAYER_REGEN_DISABLED' then
         if not C.PersonalEnabled() then return end
@@ -309,6 +413,7 @@ function M.Handle(event,a,b,c,d,e,f)
             local at=C.Stamp();local now=C.Tick();if not at or not now then return end
             local cast=S.Text(b,128);cast=cast and cast:match('^Cast%-') and cast or nil
             if cast and castSeen[cast] then return end
+            if ns.ChronicleTravel then ns.ChronicleTravel.Cast(id)end
             local active=X.Bool(X.Call('UnitAffectingCombat','player'))
             local context=combatWindow and 'observed combat window' or active==true and 'combat; start unobserved'
                 or active==false and 'native noncombat observation' or 'combat state unknown'
@@ -338,10 +443,19 @@ function M.Handle(event,a,b,c,d,e,f)
             if reason and ns.ChronicleCoverage then ns.ChronicleCoverage.Note('Boss status','partial',reason) end
         end
     elseif event=='BOSS_KILL' then local data=ns.ChronicleSource.Encounter(event,a,b);if data then Event(event,data) end
+    elseif event=='CHAT_MSG_SYSTEM' then
+        local data=M.InstanceReset(a);if data then Event(event,data) end
+    elseif event=='LFG_COMPLETION_REWARD' then
+        local _,kind=X.Call('GetInstanceInfo')
+        if S.Text(kind,32)=='party' then Event(event,{recordType='instance_completed',scope='native dungeon completion reward event; individual loot unknown'}) end
     elseif event=='PVP_MATCH_ACTIVE' then
+        if scorePhase=='in-progress' and scoreContext==ScoreContext() and scoreRef then
+            if ns.ChronicleStore.AdmissionNote then ns.ChronicleStore.AdmissionNote({kind='native_event',details={recordType='match_observed'}},'REUSED','capture.same_match_start')end
+            return
+        end
         BeginScores('in-progress')
-        local anchor=Event(event,{recordType='match_observed',phase='native match active',matchSequence=matchSequence,runID=X.runID,
-            scope='native match active notification; no winner or full participation inferred'})
+        local anchor=X.Record('native_event',event,{recordType='match_observed',phase='native match active',matchSequence=matchSequence,runID=X.runID,
+            scope='native match active notification; no winner or full participation inferred'},nil,false)
         scoreRef=anchor and anchor.id
     elseif event=='PVP_MATCH_COMPLETE' then
         if scorePhase and scorePhase:find('in-progress',1,true)==1 and scoreContext==ScoreContext() then
@@ -352,7 +466,7 @@ function M.Handle(event,a,b,c,d,e,f)
         X.Queue('scores-final',function() M.FinalScores(event,token,1) end);M.Counters(event)
     elseif event=='UPDATE_BATTLEFIELD_SCORE' then X.Queue('scores',function() M.Score(event) end)
     elseif event=='UPDATE_FACTION' then M.Rank(event)
-    elseif event=='DAMAGE_METER_RESET' then meterEpoch=meterEpoch+1;meterSeen={};Event(event,{recordType='native_meter_reset',meterEpoch=meterEpoch})
+    elseif event=='DAMAGE_METER_RESET' then meterEpoch=meterEpoch+1;meterSeen={};meterCache={};meterOrder={};meterBytes=0;Event(event,{recordType='native_meter_reset',meterEpoch=meterEpoch})
     elseif event=='DAMAGE_METER_COMBAT_SESSION_UPDATED' then
         local kind,id=S.Integer(a,0,100),S.Integer(b,0)
         -- The native event identifies the changed type/session. Unrelated old
@@ -365,5 +479,8 @@ function M.Handle(event,a,b,c,d,e,f)
     elseif event=='DUEL_FINISHED' or event=='DUEL_INBOUNDS' or event=='DUEL_OUTOFBOUNDS' then Event(event,{recordType=event:lower(),resultKnown=false}) end
 end
 X.Register(M,{'PARTY_KILL','PLAYER_PVP_KILLS_CHANGED','PLAYER_REGEN_DISABLED','PLAYER_REGEN_ENABLED','UNIT_SPELLCAST_SUCCEEDED',
-    'ENCOUNTER_START','ENCOUNTER_END','BOSS_KILL','PVP_MATCH_ACTIVE','PVP_MATCH_COMPLETE','UPDATE_BATTLEFIELD_SCORE','DUEL_REQUESTED','DUEL_FINISHED',
+    'PLAYER_DEAD','PLAYER_ALIVE','PLAYER_UNGHOST','PLAYER_LEAVING_WORLD',
+    'ZONE_CHANGED','ZONE_CHANGED_INDOORS','ZONE_CHANGED_NEW_AREA',
+    'GROUP_ROSTER_UPDATE','GROUP_JOINED','GROUP_LEFT','PLAYER_ENTERING_WORLD',
+    'ENCOUNTER_START','ENCOUNTER_END','BOSS_KILL','PVP_MATCH_ACTIVE','PVP_MATCH_COMPLETE','UPDATE_BATTLEFIELD_SCORE','DUEL_REQUESTED','DUEL_FINISHED','CHAT_MSG_SYSTEM','LFG_COMPLETION_REWARD',
     'DUEL_INBOUNDS','DUEL_OUTOFBOUNDS','DAMAGE_METER_RESET','DAMAGE_METER_COMBAT_SESSION_UPDATED','DAMAGE_METER_CURRENT_SESSION_UPDATED','UPDATE_FACTION'})

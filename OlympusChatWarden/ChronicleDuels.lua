@@ -77,12 +77,12 @@ function D.OwnTraits(guid)
     local function owned() return D.Enabled() and not X.Busy() and Own()==guid
         and S.Integer(X.Call('C_ClassTalents.GetActiveConfigID'),1)==config and X.Bool(X.Call('C_Traits.ConfigHasStagedChanges',config))==false end
     if not owned() then return end
-    local choices,complete,read,total=I.TalentChoices(owned,config)
+    local choices,complete,read,total,layouts=I.TalentChoices(owned,config)
     local export=S.Text(X.Call('C_Traits.GenerateImportString',config),5000)
     local specIndex=S.Integer(X.Call('C_SpecializationInfo.GetSpecialization',false,false),1,100)
     local spec=specIndex and S.Integer(X.Call('C_SpecializationInfo.GetSpecializationInfo',specIndex,false,false),1,1000000)
     if not owned() or not (choices or export or spec) then return end
-    local values={guid=guid,configID=config,committed=true,choices=choices,choicesComplete=complete,nodesRead=read,nodesTotal=total,exportString=export,specializationID=spec}
+    local values={guid=guid,configID=config,committed=true,layoutRefs=ns.WardenTalents.Store(layouts,owned),choices=choices,choicesComplete=complete,nodesRead=read,nodesTotal=total,exportString=export,specializationID=spec}
     while choices and not X.Validate({format=1,family='traits',values=values}) and #choices>0 do table.remove(choices);values.choicesComplete=false end
     if not X.Validate({format=1,family='traits',values=values}) then values={guid=guid,configID=config,committed=true,exportString=export,specializationID=spec} end
     if owned() then return X.Store('traits',values,'control') end

@@ -51,8 +51,8 @@ function U.Rows(st,mode,guidFilter)
             if a.kind=='battleground' or a.kind=='arena' then Add(a.id,ns.ChronicleActivitiesUI.Title(a),Stamp(a.startAt)..' | '..a.status,a,a.evidence) end
         end
     elseif mode=='scoreboards' then
-        for n=#i.scoreboards,1,-1 do local e=i.events[i.scoreboards[n]];local v=e.capture.values
-            if not guidFilter or v.guid==guidFilter then Add(e.id,v.name or v.guid or 'Scoreboard observation',Stamp(e.at)..' | Match assignment unknown',e,{e.id}) end
+        for _,r in ipairs(ns.ChronicleScoreboards.List(st,nil,guidFilter)) do
+            Add(r.id,r.instanceName or 'Captured scoreboard',Stamp(r.lastAt)..' • '..#ns.ChronicleScoreboards.Rows(r)..' players'..(ns.ChronicleScoreboards.Complete(r) and ' • all rows' or ' • partial'),r,r.refs)
         end
     elseif mode=='progress' then
         for _,key in ipairs({'levels','xp','quests','skills','equipment','collections','achievements'}) do
@@ -113,6 +113,9 @@ function U.Detail(st,mode,row)
         if #data.pvpReports==0 then Put('body','No linked completion report. No result was invented.') end
         for _,id in ipairs(data.pvpReports) do local e=st.events[id];Put('body',Stamp(e.at)..' / winner code: '..tostring(e.details.winner or 'Unknown')..' / native reported duration: '..tostring(e.details.duration or 'Unknown')..' seconds. This is not observed duration or a personal win/loss.') end
     elseif mode=='scoreboards' then
+        Put('body','Open this captured board as a table. Original row evidence is retained.');return b
+        -- Legacy per-player detail is kept below for historical source readers.
+        --[[
         local v=data.capture.values;Put('accent',v.instanceName or 'Battleground observation');Put('meta',Stamp(data.at)..' • '..(v.phase or 'Observation phase not recorded'))
         Put('body','Observed scores • final-result freshness is unverified. Original source retains player GUID, local report identity and native fields.')
         if v.objectives then
@@ -126,6 +129,7 @@ function U.Detail(st,mode,row)
             Put('body',labels[key]..': '..tostring(value~=nil and value or 'Not recorded'))
         end
         Put('body','One dated scoreboard observation. Sequence values can be reused, so unique match identity and final-result status remain unknown. Updates are not summed into lifetime totals. Honor kills are distinct from killing blows. A listed GUID is not proof of physical contact.')
+        --]]
     elseif mode=='progress' then
         if row.id=='xp' then
             Put('body',i.progression.xpObserved..' XP in recorded positive-change events. This is not lifetime XP. Quest reward fields are not added again.')
@@ -164,6 +168,7 @@ function U.Build(parent,host)
     end,'neutral')
     local listPanel=V.Panel(p,0,-107,430,500,'dark');local detailPanel=V.Panel(p,444,-107,692,500,'paper')
     p.document,p.detailScroll=V.Document(detailPanel,16,-16,642,390);p.document:SetBlocks(U.Detail())
+    p.board=ns.ChronicleScoreboardUI.Build(p)
     p.list=V.ScrollingList(listPanel,12,-13,383,472,65,function(parentRow)
         local row=V.Button(parentRow,'',0,0,380,59,function(self) p.selected=self.item.id;p:ShowItem(self.item);p.shownSelection=p.selected;p.list:Render() end,'row')
         row.icon=V.Icon(row,'event:capture',27,14,-16);row.selectedArt=V.Nine(row,'selected');row.selectedArt:SetShown(false)
@@ -187,6 +192,7 @@ function U.Build(parent,host)
     p.older=V.Button(p,'Older 50',182,-621,170,32,function() p.page=p.page+1;p.selected=nil;p:Refresh(true) end,'neutral')
     p.count=V.Text(p,'',369,-628,760,13,V.muted);p.count:SetHeight(20)
     function p:ShowItem(item)
+        if self.mode=='scoreboards' and item then self.board:Present(self.state,ns.ChronicleScoreboards.List(self.state,nil,self.guidFilter),item.data) else self.board:Hide() end
         self.document:SetBlocks(U.Detail(self.state,self.mode,item));self.detailScroll:SetVerticalScroll(0)
         for n=#self.sources,2,-1 do self.sources[n]=nil end
         local refs=item and item.refs or {}

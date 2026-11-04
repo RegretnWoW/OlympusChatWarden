@@ -6,7 +6,7 @@ local source
 local function Eligible(saved)
     return type(saved)=='table' and not getmetatable(saved) and (saved.schema==nil or S.Integer(saved.schema,1,S.VERSION))
         and saved.enabled==true and saved.consentVersion==S.CONSENT and ns.DB
-        and ns.Modules.Enabled('history') and ns.Membership and ns.Membership.Allowed()
+        and ns.Modules.Enabled('history') and ns.Membership and ns.Permissions.Decide('HistoryCollect')
 end
 function B.Begin(saved) source=saved;B.notified=nil;J.Reset() end
 function B.Cancel() J.Cancel();B.diagnostics.deferred=J.Count() end

@@ -5,17 +5,17 @@ ns.OlympusConnection=C
 local handle,api,attempted,nextAttempt,nextRead,queued,reading
 local roles={king='King',councillor='High Councillor',steward='Steward',treasurer='Treasurer',
     guildmaster='Guild Master',officer='Officer',member='Member'}
-local reasons={missing='Older Olympus: using the local guild-name check.',
+local reasons={missing='Olympus membership verification is unavailable; guild names are not verification.',
     restart='Enable Olympus 1.2.4 or later and fully restart WoW so its API can load.',
     pending='Open /oly privacy and choose Yes for Olympus ChatWarden.',
-    refused='Olympus data access is declined. Choose Yes in /oly privacy to enable protection.',
+    refused='Olympus verification access is declined. Fireside remains locked; privacy controls stay available.',
     waiting='Waiting for Olympus to provide this character\'s membership.',
     busy='Olympus is busy. Connection will retry shortly.',
-    error='Olympus could not answer. Protection is paused until membership can be checked.',
+    error='Olympus could not answer. The Fireside interface is locked until membership is verified.',
     unsupported='This Olympus API version needs a compatible ChatWarden update.',
     registration='Olympus could not connect ChatWarden. Restart WoW and check again.',
     connected='Membership confirmed by Olympus.',
-    ['not-member']='Olympus does not recognize this character as a member. Protection is disabled.'}
+    ['not-member']='Olympus does not recognize this character as a member. The Fireside interface is locked.'}
 function C.Subscribe(fn) if type(fn)=='function' then C.listeners[#C.listeners+1]=fn end end
 function C.Plain(value,limit)
     if not ns.CanRead(value) or #value>1024 then return nil end

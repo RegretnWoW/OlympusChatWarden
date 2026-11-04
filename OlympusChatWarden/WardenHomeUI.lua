@@ -5,9 +5,10 @@ local Safe=ns.WardenBrand.Text
 function H.Build(parent)
     local W=ns.Workspace;local p=CreateFrame('Frame',nil,parent);p:SetAllPoints(parent);p:Hide()
     local hero=V.Panel(p,0,0,1136,96,'header');local crest=V.Texture(hero,'Warden',{0,0,512,512});crest:SetPoint('TOPLEFT',14,-14);crest:SetSize(68,68)
-    p.heroTitle=V.Text(hero,'Warden overview',92,-16,990,25,V.gold);p.heroTitle:SetHeight(30);p.heroTitle:SetWordWrap(false);p.heroTitle:SetJustifyV('TOP')
-    p.heroSummary=V.Text(hero,'Your Warden overview',92,-54,990,14,V.muted);p.heroSummary:SetHeight(22);p.heroSummary:SetWordWrap(false);p.heroSummary:SetJustifyV('TOP')
-    p.search=V.Edit(p,0,-112,960,36,'Search names, places, events and chat across Warden...',function() p.pending=true end);p.search:SetMaxLetters(160)
+    p.heroTitle=V.Text(hero,'Fireside overview',92,-16,990,25,V.gold);p.heroTitle:SetHeight(30);p.heroTitle:SetWordWrap(false);p.heroTitle:SetJustifyV('TOP')
+    V.Button(hero,'Database Health',884,-29,232,34,function() ns.AthenaSuiteUI.Health() end,'neutral')
+    p.heroSummary=V.Text(hero,'Your Fireside overview',92,-54,760,14,V.muted);p.heroSummary:SetHeight(22);p.heroSummary:SetWordWrap(false);p.heroSummary:SetJustifyV('TOP')
+    p.search=V.Edit(p,0,-112,960,36,'Search names, places, events and chat across Fireside...',function() p.pending=true end);p.search:SetMaxLetters(160)
     p.search:SetScript('OnEnterPressed',function() p:Search() end)
     V.Button(p,'Search all',974,-112,162,36,function() p:Search() end,'button')
     p.cards={}
@@ -43,7 +44,7 @@ function H.Build(parent)
         local enabled=ns.Modules.Enabled('history');local saved=ns.ChronicleStore.db
         local consent=saved and saved.enabled and saved.consentVersion==ns.ChronicleStore.CONSENT
         rows[1]={id='ready',icon='overview',group='CommandWarden',
-            title=enabled and (consent and 'Your next milestone will appear here' or 'Start preserving your adventure') or 'Your Warden control center',
+            title=enabled and (consent and 'Your next milestone will appear here' or 'Start preserving your adventure') or 'Your Fireside control center',
             sub=enabled and (consent and 'Browse retained events or check collection status in Data & Backups.' or 'Review recording, privacy and backup choices in Data & Backups. Nothing starts without your consent.') or 'Choose modules, change settings or open Relay support.',
             data={page=enabled and 'recording' or 'modules'}}
     end
@@ -61,7 +62,7 @@ function H.Build(parent)
     function p:Refresh(force)
         if InCombatLockdown and InCombatLockdown() then return end
         local own=ns.OlympusConnection.Profile();local class,token=ns.WardenBrand.Values(UnitClass,'player');class=class~='' and class or token;local level=ns.SafeNumber(ns.SafeCall(UnitLevel,'player'))
-        self.heroTitle:SetText(Safe(own and own.name or ns.SafeCall(UnitName,'player') or 'Warden overview'))
+        self.heroTitle:SetText(Safe(own and own.name or ns.SafeCall(UnitName,'player') or 'Fireside overview'))
         local summary={};for _,v in ipairs({class or '',level and level>0 and 'Level '..level or '',own and own.guild or ''}) do if v~='' then summary[#summary+1]=v end end
         self.heroSummary:SetText(Safe(table.concat(summary,' • ')))
         local M=ns.Modules;local metrics={}
@@ -76,7 +77,7 @@ function H.Build(parent)
                     local c=entry.categories or {};local owner=c.shield and 'shield' or (c.mentions or c.wanted or c.olympusmute) and 'alerts' or 'chat'
                     if M.Enabled(owner) then rows[#rows+1]={id=entry.id,title=ns.Activity.DisplayName(entry.sender),sub=ns.Activity.EventLabel(entry)..' • '..ns.WardenUI.Stamp(entry.timestamp),group=M.names[owner],icon=ns.EventIcons.Chat(entry),data={activity=entry,page=owner=='shield' and 'shield' or owner=='alerts' and 'mentions' or 'messages'}} end
                 end
-                local hasHighlights=#rows>0;EmptyHighlight(rows)
+                if ns.Fellowship then ns.Fellowship.HomeRows(rows) end;local hasHighlights=#rows>0;EmptyHighlight(rows)
                 FitHighlights(#rows);self.list:SetItems(rows,true);self.status:SetText(not ns.Modules.Enabled('chronicle') and 'Player dossiers are available in IntelWarden. Chronicle is off; its saved history is kept.' or hasHighlights and 'Your latest recorded milestones. Open Chronicle to explore more, or Recent activity for chat and protection.' or 'No highlights yet. Open Data & Backups to review recording and retained events.')
             end
         elseif not st and not self.job then

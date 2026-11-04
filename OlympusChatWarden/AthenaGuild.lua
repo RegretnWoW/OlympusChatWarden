@@ -1,15 +1,14 @@
 -- Automatic, local Guild Chronicle. Native affiliation and group-at-event
 -- context are evidence; neither is official event authority or boss attendance.
 local _,ns=...
-local G={};ns.AthenaGuild=G
+local G={diagnostics={requested=0,passes=0,membersRead=0,baselines=0,changes=0,unchanged=0,maxRosterSize=0}};ns.AthenaGuild=G
 local C,S,X=ns.Chronicle,ns.ChronicleStore,ns.ChronicleCapture
 local owner,previous,members,seeded=nil,nil,{},false
-local memberOrder={}
 local function Remember(guid,signature)
-    if members[guid]==nil then
-        memberOrder[#memberOrder+1]=guid
-        if #memberOrder>1000 then members[table.remove(memberOrder,1)]=nil end
-    end
+    -- One compact, source-backed signature per known member in this owner's
+    -- guild context. Evicting at 1,000 made rotating native roster subsets
+    -- continuously emit the same members as new baselines. This is disposable
+    -- equality state, never current membership authority or another history.
     members[guid]=signature
 end
 local function Active() return C.PersonalEnabled() and C.InWorld() end
@@ -44,13 +43,19 @@ function G.Roster(source)
     -- are mandatory; private notes, BNet IDs and last-online fields are ignored.
     local club=X.Call('C_Club.GetGuildClubId')
     if not S.Text(club,128) and not S.Integer(club,1) then return end
-    local ids=X.Table(X.Call('C_Club.GetClubMembers',club));if not ids or #ids>1000 then X.Mark('Guild roster','Unavailable or unsupported roster size; no name-only merge');return end
-    local pending={};for _,id in ipairs(ids) do if S.Text(id,128) or S.Integer(id,1) then pending[#pending+1]=id end end
     local observedOwner=owner
+    G.diagnostics.requested=G.diagnostics.requested+1
     -- A roster callback has no member facts in its payload. Read the catalog
     -- cooperatively and date each fact when read, never at the triggering event.
     -- Every readable fact is written before yielding; no raw roster rows linger.
     X.Queue('athena-guild-roster',function()
+    if owner~=observedOwner or not Active() then return end
+    -- Acquire once when the coalesced worker actually begins. A busy roster
+    -- callback must not synchronously copy the entire member-ID list again.
+    local ids=X.Table(X.Call('C_Club.GetClubMembers',club))
+    if not ids then X.Mark('Guild roster','Roster unavailable; no name-only merge');return end
+    G.diagnostics.passes=G.diagnostics.passes+1
+    local extent=#ids;G.diagnostics.maxRosterSize=math.max(G.diagnostics.maxRosterSize,extent)
     -- Cross-login equality is seeded only from this owner's validated originals.
     -- No unvalidated archive becomes live social authority; no old row is edited.
     local c=S.Character(observedOwner,false)
@@ -62,18 +67,18 @@ function G.Roster(source)
             local e=c.events[n];local d=e.details
             if d.recordType=='guild_member_observed' and d.guildRealm==own.guildRealm and d.guildName==own.guildName and S.GUID(e.subject) and members[e.subject]==nil then
                 Remember(e.subject,(d.guildRealm or '')..'/'..(d.guildName or '')..'/'..(d.guildRank or '?'))
-                if #memberOrder==1000 then break end
             end
             if n%128==0 then X.Yield() end
         end
         seeded=true
     end
     local began=ns.WardenPerformance and ns.WardenPerformance.Now()
-    for n,id in ipairs(pending) do
+    for n=1,extent do local id=ids[n]
         if owner~=observedOwner or C.Owner()~=observedOwner or not Active() then return end
         if S.Text(id,128) or S.Integer(id,1) then
             local info=X.Table(X.Call('C_Club.GetMemberInfo',club,id));local guid=info and S.GUID(info.guid)
             local rank=info and S.Text(info.guildRank,128)
+            G.diagnostics.membersRead=G.diagnostics.membersRead+1
             info=nil
             if guid then
                 local current=Own();local currentClub=X.Call('C_Club.GetGuildClubId')
@@ -83,8 +88,11 @@ function G.Roster(source)
                 if members[guid]~=signature then
                     local e=X.Record('native_event',source,{recordType='guild_member_observed',guildName=own.guildName,guildRealm=own.guildRealm,
                         guildRank=rank,baseline=members[guid]==nil,scope='GUID-bearing native guild roster',observedAt=C.Stamp()},guid,false)
-                    if e then Remember(guid,signature) end
-                end
+                    if e then
+                        G.diagnostics[members[guid] and 'changes' or 'baselines']=G.diagnostics[members[guid] and 'changes' or 'baselines']+1
+                        Remember(guid,signature)
+                    end
+                else G.diagnostics.unchanged=G.diagnostics.unchanged+1 end
             end
         end
         local now=ns.WardenPerformance and ns.WardenPerformance.Now()
@@ -132,8 +140,8 @@ function G.Context(kind,source,data)
         or out.guildContextUnknown>0 and 'guild associated; membership incomplete' or 'guild associated; no guild majority'
     return out
 end
-function G.Start() owner=C.Owner();previous=nil;members={};memberOrder={};seeded=false;G.Observe('control');G.Roster('control') end
-function G.Stop() owner=nil;previous=nil;members={};memberOrder={};seeded=false end
+function G.Start() owner=C.Owner();previous=nil;members={};seeded=false;G.Observe('control');G.Roster('control') end
+function G.Stop() owner=nil;previous=nil;members={};seeded=false end
 function G.Handle(event,unit)
     if event=='PLAYER_GUILD_UPDATE' and S.Text(unit,32)~='player' then return end
     G.Observe(event);G.Roster(event)

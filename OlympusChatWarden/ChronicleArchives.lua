@@ -7,6 +7,9 @@ local queue,queued,errors,job={},{},{},nil
 local function Clock() return ns.SafeCall(GetTime) end
 local Character=S.Character
 function S.Character(owner,create)
+    -- Initialize protects the unpublished candidate with blocked=true while
+    -- validation is running. That is a temporary wait, not a rejected archive.
+    if S.loading then return nil,'loading' end
     local c=Character(owner,false)
     if c and c.storageFormat~=nil then return nil,errors[owner] and 'failed' or 'packed' end
     if c then return c,'ready' end
@@ -23,7 +26,8 @@ function S.Initialize(...)
     return Initialize(...)
 end
 function S.RequestCharacter(owner)
-    if S.blocked or S.loading or not S.db then return nil,'blocked' end
+    if S.loading then return nil,'loading' end
+    if S.blocked or not S.db then return nil,'blocked' end
     local c=S.db.characters[owner]
     if not c then return nil,'empty' end
     if c.storageFormat==nil then return c,'ready' end

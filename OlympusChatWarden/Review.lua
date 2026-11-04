@@ -143,6 +143,7 @@ function R.ReportPlayer(entry)
     return ReportLink(entry)
 end
 function R.Add(original, matches, source, key, rendered)
+    if ns.Permissions.Denied('incidents') then return end
     if not ns.DB or not ns.CanRead(original) or (#matches == 0 and not (source and (source.shield or source.language or source.spam))) then return nil end
     local action, confidence = ns.MatchAction(matches)
     local wordAction=action
@@ -232,7 +233,7 @@ end
 function ns.ChatReviewSource(event, ...)
     local sender, channel, channelBaseName = select(1, ...), select(3, ...), select(8, ...)
     local lineID, guid = select(10, ...), select(11, ...)
-    local source = {kind = event:find("CHAT_MSG_MONSTER_", 1, true) and "npc" or "player",
+    local source = {kind = (event:find("CHAT_MSG_MONSTER_",1,true)or event:find("CHAT_MSG_RAID_BOSS_",1,true))and"npc"or"player",
         event = event, sender = ns.SafeString(sender, 128), guid = ns.SafeString(guid, 128),
         channel = ns.SafeString(channelBaseName, 128) or ns.SafeString(channel, 128)}
     if source.kind == "player" and source.guid then

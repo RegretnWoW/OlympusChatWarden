@@ -2,12 +2,12 @@
 local _,ns=...
 local B={path='Interface\\AddOns\\OlympusChatWarden\\Media\\Warden\\'};ns.WardenBrand=B
 B.sections={
-    overview={name='CommandWarden',icon='CommandWarden'},messages={name='ChatWarden',icon='ChatWarden'},
-    mentions={name='SignalWarden',icon='SignalWarden'},shield={name='ShieldWarden',icon='ShieldWarden'},
-    intel={name='IntelWarden',icon='IntelWarden'},chronicle={name='ChronicleWarden',icon='ChronicleWarden'},
-    relay={name='RelayWarden',icon='RelayWarden'},
+    overview={name='Home',icon='CommandWarden'},journey={name='Journey',icon='ChronicleWarden'},messages={name='Chat',icon='ChatWarden'},
+    mentions={name='Signal',icon='SignalWarden'},shield={name='Shield',icon='ShieldWarden'},
+    intel={name='Intel',icon='IntelWarden'},chronicle={name='Chronicle',icon='ChronicleWarden'},
+    relay={name='Relay',icon='RelayWarden'},settings={name='Settings',icon='CommandWarden'},
 }
-B.parents={capture='messages',rules='messages',packs='messages',reports='messages',activity='overview',settings='overview',modules='overview',performance='overview',recording='relay',updates='relay'}
+B.parents={capture='messages',rules='messages',packs='messages',reports='messages',activity='overview',modules='settings',performance='settings',recording='settings',updates='settings'}
 -- The six original crests include a 1/16 transparent margin on every side.
 -- Relay's source fills its canvas, so give it the same visible footprint in UI.
 B.iconScale={RelayWarden=.875,RelayWardenSmall=.875}
@@ -15,7 +15,10 @@ B.iconScale={RelayWarden=.875,RelayWardenSmall=.875}
 B.statusModules={enabled='messages',enabledOff='messages',filtering='messages',shieldActive='shield',shieldOff='shield',captureOff='capture',mentionsOff='mentions'}
 function B.Parent(id) return B.parents[id] or id end
 function B.Icon(id) local s=B.sections[B.Parent(B.statusModules[id] or id)];return s and s.icon end
-function B.Path(icon) return B.path..icon..'.tga' end
+function B.Path(icon)
+ local key=icon:gsub('Small$','');local art=ns.WardenArt;local alias=art and art.legacy[key]
+ return alias and art.Path(alias)or B.path..icon..'.tga'
+end
 function B.Text(value)
     return type(value)=='string' and value:gsub('|','||') or tostring(value or 'Not recorded')
 end
@@ -40,7 +43,7 @@ function B.UsageTooltip()
             if line and not (line.IsForbidden and line:IsForbidden()) and not (line.IsProtected and line:IsProtected()) then
                 local text=ns.SafeCall(line.GetText,line)
                 if ns.CanRead(text) then
-                    local renamed,changed=text:gsub('%f[%w_]OlympusChatWarden%f[^%w_]','Olympus Warden')
+                    local renamed,changed=text:gsub('%f[%w_]OlympusChatWarden%f[^%w_]','Fireside')
                     if changed>0 then line:SetText(renamed) end
                 end
             end

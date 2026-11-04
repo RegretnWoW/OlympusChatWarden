@@ -403,13 +403,33 @@ local function Prefix(pieces,t)
     return value
 end
 function I.Measure(st,scopeID,lo,hi,place)
-    local scope=st.intelligence and st.intelligence.byScope[scopeID]
+    local scope=st and st.intelligence and st.intelligence.byScope[scopeID]
     if not scope or not lo or not hi or hi<lo then return end
     local pieces=place and scope.places[place] or scope.pieces
     if not pieces then return 0 end
     return math.max(0,Prefix(pieces,hi)-Prefix(pieces,lo))
 end
 function I.ActivityTime(st,a)
+    if not st or not a then return end
+    if a.segmentIDs then
+        local seconds=0
+        for _,id in ipairs(a.segmentIDs) do
+            local part=st.byID[id];local n
+            if part and a.run and a.run.endedAt then
+                local scope=st.intelligence and st.intelligence.scopeByEvent[part.anchor]
+                local ending=st.events[a.run.source]
+                if part.startAt>a.run.endedAt then n=0
+                else
+                    local hi=part.endElapsed or part.lastElapsed
+                    if ending and part.session==ending.session then hi=math.min(hi,a.run.endElapsed) end
+                    n=I.Measure(st,scope,part.firstElapsed,math.max(part.firstElapsed,hi),part.instanceKey)
+                end
+            else n=part and I.ActivityTime(st,part) end
+            if n==nil then return end
+            seconds=seconds+n
+        end
+        return seconds
+    end
     local i=st.intelligence;local scopeID=i and i.scopeByEvent[a.anchor]
     return I.Measure(st,scopeID,a.firstElapsed,a.endElapsed or a.lastElapsed,a.instanceKey)
 end

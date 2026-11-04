@@ -24,7 +24,7 @@ function V.SetIcon(texture,name)
     local brand=not event and ns.WardenBrand and ns.WardenBrand.Icon(name)
     if brand then
         V.Region(texture,brand,{0,0,512,512})
-        texture:SetTexture(ns.WardenBrand.path..brand..'Small.tga');texture.ChatWardenArt={atlas=brand..'Small',rect={0,0,128,128}};return
+        texture:SetTexture(ns.WardenBrand.Path(brand..'Small'));texture.ChatWardenArt={atlas=brand..'Small',rect={0,0,128,128}};return
     end
     name=event or name
     V.Region(texture,status[name] and 'Status' or 'Icons',icons[name] or icons.messages)
@@ -74,6 +74,14 @@ function V.Icon(parent,name,size,x,y)
     t.ChatWardenIconBox={size=size,x=x or 0,y=y or 0};V.FitIcon(t);return t
 end
 function V.Nine(parent,kind)
+    local torch=ns.WardenArt
+    if torch then
+        if torch.controls[kind]then
+            if kind~='header'and kind~='search'and kind~='searchFocus'then return torch.ButtonBand(parent,torch.controls[kind],'BORDER')end
+            return torch.Band(parent,torch.controls[kind],kind=='header'and 'BACKGROUND'or 'BORDER')
+        end
+        if kind=='dark'or kind=='paper'then return torch.Frame(parent,kind=='paper',true)end
+    end
     -- Quiet surfaces sit below the original ornate banners and sapphire selection.
     if kind=='row' or kind=='minimal' then
         local group={}
@@ -155,19 +163,21 @@ function V.Button(parent,text,x,y,w,h,click,kind)
     ns.Theme.ClickSound(b,(kind=='tab' or kind=='tabOff') and 'tab' or 'button')
     -- The atlas supplies an opaque interior. A full rectangular backing leaks
     -- through the transparent bevel corners, especially over parchment headers.
-    b.ChatWardenRole=kind;b.ArtNormal=V.Nine(b,kind);b.ArtDisabled=V.Nine(b,(kind=='tab' or kind=='tabOff') and 'tabDisabled' or 'disabled');b.ArtDisabled:SetShown(false)
+    local face=CreateFrame('Frame',nil,b);face:SetAllPoints();face:EnableMouse(false);b.face=face
+    b.ChatWardenRole=kind;b.ArtNormal=V.Nine(face,kind);b.ArtDisabled=V.Nine(face,(kind=='tab' or kind=='tabOff') and 'tabDisabled' or 'disabled');b.ArtDisabled:SetShown(false)
     b.ArtHover=V.Nine(b,kind=='danger' and 'dangerHover' or kind=='row' and 'selected' or (kind=='tab' or kind=='tabOff') and 'tabHover' or kind=='neutral' and 'neutralHover' or 'hover');b.ArtHover:SetShown(false)
     b.ArtPressed=V.Nine(b,kind=='danger' and 'dangerPressed' or (kind=='tab' or kind=='tabOff') and 'tabPressed' or kind=='neutral' and 'neutralPressed' or 'pressed');b.ArtPressed:SetShown(false)
-    b.Caption=V.Text(b,text,12,-9,w-24,13,V.gold);b.Caption:ClearAllPoints();b.Caption:SetPoint('CENTER');b.Caption:SetWidth(w-18);b.Caption:SetJustifyH('CENTER');b.Caption:SetJustifyV('MIDDLE');b.Caption:SetWordWrap(false);b.Caption:SetHeight((h or 32)-8)
+    b.Caption=V.Text(face,text,12,-9,w-24,13,V.gold);b.Caption:ClearAllPoints();b.Caption:SetPoint('CENTER');b.Caption:SetWidth(w-18);b.Caption:SetJustifyH('CENTER');b.Caption:SetJustifyV('MIDDLE');b.Caption:SetWordWrap(false);b.Caption:SetHeight((h or 32)-8)
     b:SetScript('OnClick',click)
-    b:SetScript('OnEnter',function(self) if self:IsEnabled() then self.ArtHover:SetShown(true);self.Caption:SetTextColor(1,.95,.76) end end)
-    b:SetScript('OnLeave',function(self) self.ArtHover:SetShown(false);self.ArtPressed:SetShown(false);self.Caption:SetTextColor(unpack(V.gold)) end)
-    b:SetScript('OnMouseDown',function(self) if self:IsEnabled() then self.ArtHover:SetShown(false);self.ArtPressed:SetShown(true) end end)
-    b:SetScript('OnMouseUp',function(self) self.ArtPressed:SetShown(false) end)
+    local function tint(self,value)for _,t in ipairs(self.ArtNormal)do t:SetVertexColor(value,value,value,1)end end
+    b:SetScript('OnEnter',function(self)if self:IsEnabled()then tint(self,1);self.Caption:SetTextColor(1,.95,.76)end end)
+    b:SetScript('OnLeave',function(self)self.ArtHover:SetShown(false);self.ArtPressed:SetShown(false);tint(self,self:IsEnabled()and .94 or .4);self.Caption:SetTextColor(unpack(V.gold))end)
+    b:SetScript('OnMouseDown',function(self)if self:IsEnabled()then tint(self,.72)end end)
+    b:SetScript('OnMouseUp',function(self)tint(self,self:IsEnabled()and .94 or .4)end)
     local oldText=b.SetText;b.SetText=function(self,value) self.Caption:SetText(value) end
     b.GetText=function(self) return self.Caption:GetText() end
-    local enable=b.SetEnabled;b.SetEnabled=function(self,value) enable(self,value);self.ArtNormal:SetShown(value);self.ArtDisabled:SetShown(not value);self.ArtHover:SetShown(false);self.ArtPressed:SetShown(false);self.Caption:SetAlpha(value and 1 or .5) end
-    return b
+    local enable=b.SetEnabled;b.SetEnabled=function(self,value) enable(self,value);self.ArtNormal:SetShown(true);self.ArtDisabled:SetShown(false);self.ArtHover:SetShown(false);self.ArtPressed:SetShown(false);tint(self,value and .94 or .4);self.Caption:SetAlpha(value and 1 or .5)end
+    ns.Theme.Tactile(b,face);return b
 end
 function V.Edit(parent,x,y,w,h,placeholder,changed,multiline)
     local box=V.Panel(parent,x,y,w,h or 34,'search')
@@ -296,6 +306,7 @@ function V.Row(parent,y,click)
     row:SetScript('OnEnter',function(self) if not self.selected then self:SetAlpha(.8) end end)
     row:SetScript('OnLeave',function(self) self:SetAlpha(1) end)
     function row:Select(value) self.selected=value;self.ArtSelected:SetShown(value);self.ArtNormal:SetShown(not value) end
+    if ns.UI2Components then ns.UI2Components.TactileRow(row,function()return true end)end
     return row
 end
 function V.IconButton(parent,name,size,x,y,click,title,help)
@@ -304,6 +315,7 @@ function V.IconButton(parent,name,size,x,y,click,title,help)
     b.Icon=V.Icon(b,name,size,0,0);b:SetScript('OnClick',click)
     b:SetScript('OnEnter',function(self) self.Icon:SetAlpha(self.ChatWardenFeatureState==false and .55 or .8) end)
     b:SetScript('OnLeave',function(self) self.Icon:SetAlpha(self.ChatWardenFeatureState==false and .35 or 1) end)
+    if ns.UI2Components then ns.UI2Components.TactileRow(b,function()return true end)end
     ns.Theme.Tooltip(b,title,help);return b
 end
 function V.FeatureState(button,on)
@@ -327,7 +339,10 @@ function V.Divider(parent,y)
 end
 function V.Document(parent,x,y,w,h)
     local scroll=CreateFrame('ScrollFrame',nil,parent);scroll:SetPoint('TOPLEFT',x,y);scroll:SetSize(w,h)
-    V.SkinScroll(scroll)
+    -- Artifact books paginate their ink; never construct scrollbar siblings.
+    local owner=parent
+    while owner and not owner.ChatWardenArtifact do owner=owner:GetParent() end
+    if owner then scroll.ChatWardenPaged=true else V.SkinScroll(scroll) end
     local doc=ns.Theme.ReadOnlyDocument(scroll)
     doc:SetStyle(parent.ChatWardenPaper and 'paper' or 'dark')
     return doc,scroll
@@ -358,6 +373,7 @@ function V.SkinScroll(scroll)
     local art=V.Texture(up,'Controls',{1119,94,1176,154});art:SetAllPoints();up:SetScript('OnClick',function() Move(-50) end)
     local down=CreateFrame('Button',nil,parent);down:SetSize(20,20);down:SetPoint('BOTTOMLEFT',scroll,'BOTTOMRIGHT',4,0)
     art=V.Texture(down,'Controls',{1121,750,1176,809});art:SetAllPoints();down:SetScript('OnClick',function() Move(50) end)
+    if ns.UI2Components then ns.UI2Components.TactileRow(up,function()return true end);ns.UI2Components.TactileRow(down,function()return true end)end
     slider:SetScript('OnValueChanged',function(_,value)
         if synchronizing then return end
         if math.abs((scroll:GetVerticalScroll() or 0)-value)>epsilon then scroll:SetVerticalScroll(value) end
@@ -376,7 +392,7 @@ function V.SkinScroll(scroll)
         if math.abs(offset-clamped)>epsilon then scroll:SetVerticalScroll(clamped) end
         maximum=vertical
         local h=math.max(1,scroll:GetHeight());thumb:SetHeight(math.max(24,math.min(h-42,(h-42)*h/(h+vertical))))
-        local enabled=vertical>epsilon;local visible=scroll:IsShown() and (not scroll.ChatWardenHideWhenFit or enabled)
+        local enabled=vertical>epsilon;local visible=not scroll.ChatWardenPaged and scroll:IsShown() and (not scroll.ChatWardenHideWhenFit or enabled)
         slider:SetShown(visible);up:SetShown(visible);down:SetShown(visible)
         slider:SetEnabled(enabled);up:SetEnabled(enabled);down:SetEnabled(enabled)
         slider:SetAlpha(enabled and 1 or .45);up:SetAlpha(enabled and 1 or .45);down:SetAlpha(enabled and 1 or .45)

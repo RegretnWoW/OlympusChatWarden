@@ -37,6 +37,14 @@ function R.IsEvent(e)
     return eventKinds[e.kind]==true
 end
 function R.Title(e)
+    local d=e.details or {};local r=d.recordType
+    if r=='quest_completed_baseline' then return 'Previously completed quest · '..d.questID end
+    if r=='achievement_date_observed' then return 'Achievement date · '..(d.name or d.achievementID) end
+    if r=='played_observed' then return 'Played-time checkpoint' end
+    if r=='recipe_known_baseline' then return 'Known recipe · '..d.recipeID end
+    if r=='auction_owned_observed' then return 'Own auction · '..d.phase end
+    if r=='auction_invoice_observed' then return 'Seller invoice · collection unverified' end
+    if r=='trade_completed_observed' then return 'Completed trade · native success notice' end
     local qualified=ns.AthenaHistorySchema and ns.AthenaHistorySchema.Title(e);if qualified then return qualified end
     if ns.AthenaObservationSchema then local title=ns.AthenaObservationSchema.Title(e);if title then return title end end
     if (e.details.recordType=='aura_effect' or e.details.recordType=='own_spell_success_count') and ns.AthenaCombatQueries then return ns.AthenaCombatQueries.Title(e) end
@@ -535,7 +543,7 @@ function R.Build(parent)
     V.Button(b,'Select all text',510,-621,220,32,function() box:SetFocus();box:HighlightText() end,'neutral')
     V.Button(b,'Cancel backup',746,-621,220,32,function() ns.ChronicleBackup.Cancel();result:SetText('Backup creation cancelled. Existing history is kept.') end,'neutral')
     local f=CreateFrame('Frame',nil,p.backup);f:SetAllPoints(p.backup);p.fileBackup=f
-    V.Text(f,'One file holds your complete Warden history and settings',8,-64,1100,23,V.gold)
+    V.Text(f,'One file holds your complete Fireside history and settings',8,-64,1100,23,V.gold)
     local intro=V.Text(f,'WoW already saves your history and settings in the file below. Keep a backup copy outside the addon folder. You do not need numbered text parts for a complete backup.',8,-105,1100,15,V.muted);intro:SetHeight(48)
     p.savedFilePath=V.Edit(f,8,-166,1100,32,'',nil)
     p.savedFilePath:SetText('WTF/Account/<your account>/SavedVariables/OlympusChatWarden.lua')

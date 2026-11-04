@@ -1,115 +1,130 @@
-# Olympus Warden 1.1.4 — cumulative patch notes
+# Fireside — release-candidate guide
 
-## RC3 — Intel retained-page hotfix
+## Integrated76 accepted-ID compatibility
 
-Clicking a player after reopening Intel now prepares the saved view before opening the dossier. If combat or indexing delays preparation, the selected player waits safely. Save note and Watch player also wait for the real player view, preserving existing notes and watch choices. No recording, collection, database or consent changes.
+Exact membership also preserves older schema-valid zero-padded event IDs. No accepted identity is renamed or replaced by its numeric spelling.
 
-Changes since the supplied public 1.1.3 release. This package is 1.1.4-rc3, prepared for final live-client smoke testing.
+## Integrated75 protected-save completion
 
-## Athena: a connected local history
+Already-decoded large roots remain losslessly encoded at logout even when data protection is active. Invalid pending-journal states cannot advance verified checkpoints. Healthy behavior and approved artwork are unchanged.
 
-- Adds Athena, a shared evidence layer connecting Chronicle, Intel and permitted local protection/activity context. Modules reference original sources rather than copying private messages or reports into a general player database.
-- Preserves source dates, observer and player identity, original evidence links and explicit uncertainty. A readable partial observation can remain provisional without inventing its missing details.
-- Keeps personal Chronicle history, other-player intelligence and private incident evidence within their respective permission and access scopes.
-- Sharing in this release is internal to your own Warden modules. Player-to-player and guild-wide synchronization are not enabled.
+## Integrated74 explicit recovery completion
 
-## IntelWarden: living player dossiers
+A checksum-damaged current primary no longer prevents a deliberate restore of a verified checkpoint. Its original envelope must be retained first; a failed retention still blocks the operation. Damaged bytes are flagged in undo rather than presented as a valid recoverable generation.
 
-- Adds richer source-linked dossiers with dated observations, relationship context and historical chapters alongside existing notes, equipment and talents.
-- Watchlisting now initiates enrichment: checks what is already known, captures readable current identity/social facts and queues permitted gear/talent inspection when a legitimate opportunity is available.
-- Continues enrichment through future supported encounters and events. The dossier explains missing, incomplete, stale or unavailable sources instead of implying that no data exists.
-- Adds GUID-verified character-friend evidence. Missing or temporarily unreadable friend information is not automatically treated as a confirmed removal, and same-name players are not merged.
-- Distinct source-backed shared activities can earn Important status. A single roster, city sighting or scoreboard appearance cannot promote an entire crowd to deep collection.
-- Keeps independent watches, current verified friendship and earned relationships separate. Removing a watch stops future watch-only detail while preserving already accepted records and any independently valid eligibility.
-- Adds eligible pet-unit links, group role/leadership assignments, contextual targeting and visible-state observations where native sources support them. These do not establish permanent pet ownership, actual combat contribution or private remote activity.
-- Adds structured public achievement, guild association and supported personal interaction observations without turning raw chat into permanent quote history.
-- Retains original evidence navigation and historical gear/talent sources. Unknown equipment, missing talents and incomplete observations remain explicitly unknown.
+## Integrated73 recovery correction
 
-## Collection tiers: useful history without the crowd firehose
+Normal addon folder replacement no longer falsely flags valid startup observations that fill reserved event-ID ranges. Every previously committed identity remains checked. The primary save is admitted without restoring an older checkpoint. Pending v2 recovery evidence is qualified through an isolated replay, saved reading pages are checked by their actual cleaner and seal, and history rollback preserves the current sharing identity/counters. Original data and development media remain intact. Native Forever/Retail qualification is pending; this is a test candidate, not a public-release GO.
 
-- Applies a consistent policy across 25 activity families and ten player categories.
-- Keeps your own permitted history detailed. Current watches, GUID-verified friends and earned Important players qualify for richer future detail where supported and separately consented.
-- Keeps ordinary BG participants lightweight: relevant match identity, context, readable score/objective observations and eligible totals, without a per-player spell-detail census just because they appear on the meter.
-- Keeps ordinary party/raid relationships and meaningful encounter anchors so earlier meetings can still link to a later Important dossier.
-- Guild membership alone does not grant deep collection. Incidental world contacts do not create unrelated meter, passive state-change or death streams.
-- Ordinary duel opponents keep consented duel lifecycle, result and bounded summaries. Duel participation alone no longer starts automatic deep gear/talent inspection; independent eligibility or an explicit permitted manual action still works.
-- First-contact inspection remains a separate option, off by default. Watching someone never reveals offline gear, hidden APIs or a complete remote activity history.
+## Integrated63 native scene corrections
 
-## Combat, casts and auras
+The reader camera now stays above the complete opening book and uses a wider
+view over 2.6 seconds. An off-centre placement cannot force the camera into the
+book. The 2D pages and all their children are stacked above the native viewports.
+Journal text increases slightly from .48 to .54, keeping accessibility scaling.
 
-- Expands your own source-backed combat history and observed combat detail for independently eligible players.
-- Preserves readable native aura/effect observations, including partial or provisional facts. An effect on a player is not treated as proof that the player cast it; unavailable caster information stays unknown.
-- Aggregates routine eligible cast START, STOP and SUCCEEDED notifications by subject, spell, phase, source epoch/context and short window. Counts retain first/last times and observation coverage.
-- Keeps starts, stops and successful notifications separate. A start does not imply success; a successful notification does not prove damage, healing, a hit or a kill.
-- Keeps significant interrupted and channel-phase observations individually qualified. No interrupter is named without independent evidence.
-- Preserves uncertain notifications when a cast identity is unreadable rather than deduplicating merely by matching spell and timestamp.
-- Retains your existing primary successful-spell counter. Separate exceptional-ability observations and duel summaries do not inflate the new primary routine counts.
-- Gates expensive foreign spell-meter and death-recap detail before requesting it. Native credit, score and meter observations retain their source limits; no exact enemy rotation or complete combat log is claimed.
-- Preserves all previously accepted individual cast records; new aggregation applies at intake rather than rewriting historical originals.
+The live logo flame draws above the outer border. The bottom-right Open Menu /
+Close Menu button is the only menu toggle; the old top button is removed.
+The display shelf has a native backing pass and a badge pass below characters.
+Its badges sit .06 model units lower. Both Olympus flags draw behind characters.
 
-## Chronicle: timeline, highlights and source-backed stories
+Campfire Replay retains one small grounded native book and no temporary table.
+The wider 1.65 framing moves over 4.5 seconds. Its two exact welcome lines use
+readable scene captions; the camera stays focused on the player and firepit.
 
-- Separates My Timeline's character events from curated Highlights. Routine configuration snapshots and talent-tree node observations no longer crowd the normal journey/highlights presentation; the original sources remain available.
-- Adds Journey, All history, Guild history and My Combat views with paging, source links and explicit unknown states.
-- Adds Athena's Journal/Storybook: source-linked chapters over your recorded adventures, with an explanation of the evidence behind each account.
-- Keeps failed attempts, incomplete visits and no-recorded-victory histories. Story selection does not delete unfeatured evidence or invent boss success, attendance or loot recipients.
-- Keeps dated guild context distinct from a claim of an official guild event or proof that every roster member participated in every attempt.
+The editor shows directional-vector, point-source and lighting/effect locators
+with correct window scaling. The owner's home and Fields exports are retained
+as new private layout revisions; prior saved layouts remain untouched. Unverified
+effect placements stay private Lab candidates, without production promotion.
+Native model depth, camera, animation and lighting still require client checks.
 
-## Startup, recording and recovery
+## Integrated62 reading and motion correction
 
-- Starts eligible collection through the local recovery journal while retained history validates, instead of relying only on a small temporary startup buffer.
-- Expands startup coverage across the existing production collectors while retaining their individual consent and source checks.
-- Keeps pending startup operations across normal logout/reload and safely reconciles them with validated history. Original archive data remains preserved when recovery cannot complete.
-- Keeps your current character first and other archives on demand. Validation progresses with the Warden window closed; game-side background throttling and source delivery still depend on the client.
-- Distinguishes archive validation from reading-view preparation and summary finalization. Chat progress and short diagnostics make those stages easier to follow.
-- Fixes recording and duel-consent controls that could appear checked but fail to update during loading/recovery states, and reduces repeated readiness/status messages.
-- Retains qualified uncommitted cast batches in a bounded local pending queue. Denied personal cast-count writes can use the same durable fallback; exact already-committed batches reconcile without creating another copy.
-- Reports capacity failures and incomplete coverage. It does not delete accepted history or claim that undelivered native events, unavailable fields, exhausted storage or an interrupted disk save were losslessly captured.
+Journal body text and headings use a .48 base scale, one third smaller than
+Integrated61, while retaining the owner's accessibility multiplier. The extra
+top Close and navigation controls are removed from the reading view; page-edge
+interaction and normal keyboard navigation remain.
 
-## Player-owned retention and backups
+The reading camera now targets the placed native book, pitches toward a near
+overhead view and fits within the real rotated desk surface. The existing 2D
+reader has one contact shadow. Closing restores the authored room camera;
+the furniture, reading history, notes, drawings and saved layouts are preserved.
+Native framing requires separate Forever and Retail client inspection.
 
-- Makes the distinction between permanent accepted evidence, rebuildable views, temporary collection state and operational summaries explicit.
-- Keeps accepted character/player history until you explicitly clear it. No new age, tier, success or capacity-based automatic deletion is introduced.
-- Coalesces unchanged intake and reuses identical snapshots without erasing dated changes or a genuine A → B → A return.
-- Preserves existing event/source identities and original retained records through supported upgrades. Numeric snapshot verification accepts supported serialization round trips only when the original checksum still matches; it does not bypass verification or rewrite the evidence.
-- Protects pending recovery from identifier collisions and interrupted handoffs. Unrecognized archives/pending formats remain preserved with an explanation.
-- Text backup and restore wait while startup or cast evidence cannot safely commit, avoiding an apparently complete export that omits pending observations.
-- Complete SavedVariables backups include accepted history and pending local recovery. Keep a matching backup before upgrading or rolling back; older readers may not understand newer additive record types.
+The logo flame regains its natural 36 by 40 proportions and extends above the
+window. Campfire welcome owns its camera and consumes opening/skip mouse clicks,
+preventing the same click from reaching Journal or Hearth actions behind it.
+The real Settings Replay control, click consumption and camera exclusivity have
+focused regressions. Simulator execution cannot certify native cinematic motion.
 
-## Performance and everyday browsing
+## Integrated61 Fireside branding
 
-- Reduces repeated history-summary work. Late combat/group intervals update the affected recording-clock suffix instead of replaying unrelated completed clocks.
-- Uses cooperative indexing and distinct reading/finalization stages, with expensive view preparation deferred during combat.
-- Keeps a completed page visible while new observations queue, so continuous recording does not starve the reader of a usable result.
-- Stabilizes busy lists, including PvP reports, and keeps selections, page/scroll state and draft notes through supported navigation/reopening paths.
-- Releases disposable projections/caches when appropriate while keeping canonical history and active protection state.
-- Uses typed meter updates to request the changed session/type rather than repeatedly enumerating unrelated sessions. Independent updates keep their own jobs.
-- Retains module isolation: disabling a feature keeps its data and consent choices, while Chronicle does not depend on ChatWarden's master switch.
-- Expands short recording, recovery, pending-cast and optional performance diagnostics. Desktop benchmark results are kept separate from live WoW CPU, memory and frame-time measurements.
+Fireside is the visible product name, with Olympus beneath its new gold
+wordmark. The wreath is removed. The sapphire torch has a separate fixed bowl
+and live flame; the wordmark keeps uniform proportions. Menus, native settings,
+launchers, help, guides and the public addon-list title use Fireside. /fireside
+opens the normal menu; /warden, /ocw, /ow and /chatwarden remain compatibility
+aliases. Folder names, SavedVariables, API identifiers, trust anchors, signatures,
+rule packs, music IDs and actual Warcraft reference names remain unchanged.
+Integrated60's menu, Hearth, Replay, asset cleanup and RAM changes are retained.
 
-## Interface, alerts and fixes
+## Integrated60 menu, Hearth and cinematic repair
 
-- Uses the client's supported Blizzard UI sound kits for window, tab and button interactions. Unsupported clients remain silent instead of using guessed sound IDs.
-- Makes the optional shop shortcut toggle Warden open/closed. Existing shortcut opt-ins remain unchanged.
-- Fixes the page-hide nil-store error encountered when switching or closing Chronicle/Intel.
-- Fixes the BG Intel “My target” error when the saved view has no intelligence projection. Existing cooperative navigation waits when necessary and keeps the clicked GUID even if your target changes.
-- Guards Original record against a temporarily missing view and explains when its source is not ready.
-- Rejects inaccessible native tables before reading/iterating them in supported paths. Actual secure/secret-client behavior still needs native testing.
-- Adds separately opted-in activity notices for watched and earned Important players. Replaying old history does not replay those notices.
-- Keeps local filter advice correctable: marking an eligible decision as a false positive retracts its advisory contribution without rewriting the original source. Athena does not automatically shield a player.
-- Keeps optional historical incident evidence scoped and consented; normal filtering, Shield, spelling, Alerts and Relay retain their own settings and action rules.
+X closes the whole Fireside window. Close Menu leaves the living world visible.
+Olympian Oasis performs the installed client-timed Hearthstone sequence and then
+travels home with the menu closed. Repeated clicks reuse the existing cast.
+Walking transitions preserve menu visibility. Other content tabs do not travel.
+Settings > Advanced & help > Replay campfire welcome starts the cinematic in
+Olympus Fields. Success no longer refreshes/cancels it, and same-route background
+refreshes no longer count as navigation. A missing model or other blocked start
+now displays a clear Close-able explanation. Native playback remains unverified.
+The welcome accepts Chronicle's actual realm/character owner identity; previous
+bare-GUID welcome keys and incompatible saved roots remain preserved.
 
-## Privacy and compatibility
+The minimap and native micro-menu use a new small flaming Fireside torch and open
+Olympus Hall. The native inspection shortcut uses the Aether emblem. Existing
+launcher settings and permissions are unchanged.
 
-- No new indefinite raw-chat, quote or whisper retention. Chat Capture keeps its existing independent settings and default behavior.
-- No health/power monitoring stream, continuous tracking of other players, hidden-value extraction, name-only identity guessing or automatic guild/player history transfer.
-- No automatic Relay submission. Reports and retries retain the existing explicit submission rules.
-- The release-pass changes do not change the stored schema, consent revision, addon folder, SavedVariables identity or approved collection policy.
+The scene rig reuses its node and quad scratch tables rather than allocating
+them on every redraw. A dependency audit excludes 798 unused legacy animation
+files from distribution and releases 177 unreachable legacy metadata entries.
+Original artwork remains in the source and previous complete build; current
+badges, mementos, reader art, music, scene sources and Lab backdrops are retained.
+Measured Lua fixture results and the exact file proof accompany this build.
+These measurements do not certify whole-addon native RAM or texture memory.
 
-## Before updating
+## Integrated59 soundtrack update
 
-1. Fully close WoW and back up the complete SavedVariables files, including recovery data.
-2. Keep the original working addon ZIP and matching backup. Install the `OlympusChatWarden` folder from this clean user package.
-3. Confirm startup/readiness, Intel target browsing, your recording/module choices and a normal logout/login readback on this exact candidate.
+The approved Keeper of the Flame menu loop, latest layered Fields and Home masters,
+and a short action cue for the campfire book sequence are included. Music is on by
+default; turn it off on the first setup page or in Settings > Sound & Ambience.
+Explicit global Fireside sound and WoW mute/volume choices remain effective.
 
-Native API availability varies by client. Unknown evidence stays unknown. This RC2 has offline validation; final native startup/UI, BG performance and physical save/readback checks remain pending. These notes do not certify every gameplay API or promise complete recording under native restrictions.
+Menu, Fields and Home keep independent saved playback bookmarks. Returning uses a
+nearby resume point, up to two seconds earlier, with a short crossfade. Time away
+does not advance a track. The cinematic starts fresh on replay. Closing the entire
+Fireside window releases music to WoW; closing only the menu keeps world music going.
+Clients without stoppable sound handles fall back to full tracks without seeking
+or crossfades. Native audio timing, cache behavior and audible joins require
+separate Forever and Retail testing. No game volume setting is changed.
+
+The welcome uses the live edited firepit, collision-checked staging, and the actual
+book projection for its camera. Moving the firepit before replay moves the staging;
+removing it or leaving no reachable clear space fails safely. Editing its transform
+mid-cinematic cancels and restores the character. Clicking your own scenic character
+does not open your profile; other remembered-player profile clicks remain available.
+
+No scene artwork, route/history evidence, earned decorations, sharing permission or
+public SDK behavior changed. The release-readiness candidate remains the rollback.
+
+Build `1.1.4-unified-2.11.8-integrated63-scenefix1`; November2,2026; Integrated59 soundtrack candidate. Native release qualification is pending; no public release is authorized.
+
+## Changes under review
+
+- Whole-product source/entry-point/size audit and shared P0/P1/P2 register.
+- Current-build help and public guides; truthful local/pending/network and snapshot/live distinctions.
+- Offline-first Settings bug composer: expected behavior, reproduction, client context, optional aggregate diagnostics, editable/redactable local preview and duplicate draft reuse. No automatic submission.
+- Contained once-per-character campfire/book welcome using existing models and scene controller; immediate skip/replay and exact-state restoration are native acceptance gates.
+- Positive runtime allowlist, deterministic package manifest and reference checks; developer files and proven superseded duplicate assets remain archived outside the installable ZIP. Unknown dependencies are retained.
+
+This candidate has a new version; native release qualification remains pending. Use the final source commit and package SHA256 to identify this candidate. Integrated58 and its originals remain the rollback baseline. See GO_NO_GO.md and TEST_RESULTS.md outside the installable addon for actual results. No public publication or release tag has occurred.

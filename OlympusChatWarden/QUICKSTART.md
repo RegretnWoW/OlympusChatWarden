@@ -1,81 +1,49 @@
-# Recording in this preview
+# Fireside — release-candidate guide
 
-Precise own-character travel samples and permitted Olympus public history now
-join the Chronicle and Player Intelligence recorder. Earlier preview consent
-pauses for review of this expanded scope; your old history stays. Reopen the
-explanation with `/ocw chronicle prompt`.
+## Integrated59 soundtrack update
 
-Open **Recording** to inspect grouped events, **Collection Status** to see which
-getters returned valid values, and **Backup & Restore** to keep a private copy.
-Refresh saves pending route/time buffers. Recording stays optional and local.
+The approved Keeper of the Flame menu loop, latest layered Fields and Home masters,
+and a short action cue for the campfire book sequence are included. Music is on by
+default; turn it off on the first setup page or in Settings > Sound & Ambience.
+Explicit global Fireside sound and WoW mute/volume choices remain effective.
 
-# Olympus ChatWarden quickstart
+Menu, Fields and Home keep independent saved playback bookmarks. Returning uses a
+nearby resume point, up to two seconds earlier, with a short crossfade. Time away
+does not advance a track. The cinematic starts fresh on replay. Closing the entire
+Fireside window releases music to WoW; closing only the menu keeps world music going.
+Clients without stoppable sound handles fall back to full tracks without seeking
+or crossfades. Native audio timing, cache behavior and audible joins require
+separate Forever and Retail testing. No game volume setting is changed.
 
-**1.0.3-preview3:** The first-login popup asks whether to record history for
-Chronicle and Player Intelligence. Enable recording opts in; Not now keeps it
-off. Change your choice under Settings > Chronicle & Intel. Open **Recording**
-for saved events and **Backup & Restore**. History does not expire automatically.
-Back it up before changing PCs. Some facts come from Olympus; new history stays
-on this computer. Capture and Alerts can remain off. See CHRONICLE-INTEL.md.
+The welcome uses the live edited firepit, collision-checked staging, and the actual
+book projection for its camera. Moving the firepit before replay moves the staging;
+removing it or leaving no reachable clear space fails safely. Editing its transform
+mid-cinematic cancels and restores the character. Clicking your own scenic character
+does not open your profile; other remembered-player profile clicks remain available.
 
-Olympus 1.2.4 has a compact ChatWarden panel with four feature icons and a scrolling Recent Activity list. Right-click its ChatWarden tab or use Open ChatWarden for the full UI. Guild and guild rank sit above Zeus in the sidebar; a selected title appears only when available. Connection status is in the top bar.
+No scene artwork, route/history evidence, earned decorations, sharing permission or
+public SDK behavior changed. The release-readiness candidate remains the rollback.
 
-**Alerts** replaces the old Mentions page. Personal mentions and Wanted encounters have separate tabs and settings. Encounters also appear in Overview and the compact recent list. **Alerts > Wanted settings** controls encounter sounds, popups, badges and cooldowns. Exact full listed names in visible chat get only an icon with hover details, including in your own chat and outgoing whispers. Chat icons never send Wanted notifications. Olympus remains the source of the Wanted board.
+Build `1.1.4-unified-2.11.8-integrated63-scenefix1`; November2,2026; Integrated59 soundtrack candidate. Native release qualification is pending; no public release is authorized.
 
-Replace the addon folder and retain SavedVariables. Open `/ocw` or use the Olympus launcher; both start on Overview. Explicit feature shortcuts still open their requested pages. ChatWarden has one main window: use the sidebar for pages and the horizontal tabs for views. Drag the header to move it; it scales to fit the viewport by default. Use **Settings > Window size** for a saved 50–150% size. Drag the slider, or type a percentage and press Enter/Apply. **Fit to screen** restores automatic sizing.
+## Start here
 
-Lists use the mouse wheel or bronze scrollbar. Scrolling back preserves your place as new entries arrive; search/filter changes return to the top.
+Open /fireside. Choose modules in Settings > Modules; opening a tab does not grant recording or sharing permission.
+Olympus Hall is the overview. Aether contains community rooms, local people/profiles and support reports. Athenaeum searches reference articles. Olympian Oasis is your scenic hearth/home entry. Atlas contains Chronicle history and Journey Replay. Logos contains chat/review. Aegis contains Shield protections. Vigil contains Signal alerts. Settings controls preferences and privacy.
+Content tabs preserve your scene and character position. The Oasis/Hearth tab closes the menu and focuses your current world without teleporting or resetting your character. Walk through scene entrances/exits to travel. These actions move only Fireside's representation, never your real WoW character.
+Close Menu exposes the living world; Open Menu at the bottom right always returns to Olympus Hall. Escape closes an open menu; in the world, WoW keeps normal Escape behavior. No gameplay, collectors, communication or animation is paused. Fullscreen preserves proportions. The bell opens notifications. Native models, sound and secure controls require independent Forever and Retail verification; neither client is release-cleared.
 
-Click the Overview feature icons to enable or pause Filtering, Shield, Capture and Alerts. Header Filtering and Shield icons toggle too; Olympus opens or focuses its launcher. Dim icons with a minus badge indicate an inactive feature. WoW’s AddOns settings has one master switch and a button to open workspace settings.
+## Athena and Chronicle
 
-Open **Updates** for patch highlights. Previous update and Next update browse older release pages; Launch Tour and User Guide have separate tabs. Blue buttons perform primary actions or select a view; gray buttons navigate or offer utilities; red buttons remove data or protection. Details and Actions are separate framed boxes, and inactive list/document scrollbars stay visible.
+Recording begins only after its explicit consent in Settings > Atlas & recording. Pause keeps accepted history. Different conversation channels, first-contact inspection and public sharing have separate controls.
+Atlas shows recorded events, activities, time and linked captures. A dated observation is not necessarily current. Source totals are not invented individual encounters; missing participants, rewards, dialogue and outcomes remain unknown.
+The Journal assembles your retained evidence into reading pages. Reference lore and narrative wording are distinct from observed accomplishments. Inspect original sources when accuracy matters. No new location collector is introduced by this release.
 
-Detailed **Settings** include Filtering, Languages, Shield, Spam, Notifications, Spelling and Chronicle & Intel. Filtering has direct dropdowns for installed pack sensitivity. Mention preferences live at **Alerts > Mention settings**. Spelling has a scrolling personal dictionary. **Updates > User guide** has a topic list and a wide reader.
+## Fields and Olympian Oasis
 
-## Messages, rules and reports
+Click clear ground in a wide scene to move your reconstructed current character. Click a chair or campfire to approach and sit when the installed model supports it; click elsewhere to stand and move. Obstacles and other people affect paths.
+The gatehouse leads to Olympian Oasis. The home's lower-left exit returns to Olympus Fields. Door hover text names the destination. Content tabs do not teleport you out. Closing/reopening preserves the canonical scenic location; orderly logout saves it separately from gameplay evidence.
+Saved people in Fields are private scenic recollections, not online remote players. Unknown face/hair remain generic; available race/body/gear are source-qualified. A recent Aether state is only current when genuinely received.
+Scene placement, lights, shadows, rotated hitboxes and portal boxes can be edited/exported in the private Hephaestus Lab companion. This editor is not part of the public addon alone. Undo/reset affect layout, not recorded history.
 
-**Messages** is the filtering feed across all channels, including whispers: warnings, replacements, redactions and hidden messages. Ordinary chat stays out. Warnings/replacements appear quietly; the badge counts unread redactions and hides under your notification preferences. Selecting an entry reads it and updates its badge everywhere. The saved original appears automatically in **Messages**; **Why filtered?** explains the match. **Overview** combines activity and keeps safe previews until **Show original** is chosen. **Shield** holds contact/spam/advertising activity; **Alerts** holds personal mentions and Wanted encounters.
-
-**Rules** contains personal phrase actions, exceptions and replacements. Changes apply to new matching chat; earlier chat lines are not rewritten. **Reports** contains saved filter feedback and its privacy preview. Reports do not change rules. **Report player** opens the native reporting flow for supported player-chat entries; you choose the reason and submit it yourself.
-
-The report form puts the original and note beside the issue/action/source controls. Export headings identify the data you are sharing, including **Shield exports**, **Chat Capture exports** and **Bookmark exports**. Entry and privacy choices rebuild the final text; make manual edits last.
-
-## Mention alerts
-
-Open **Alerts > Mention settings**. Your first or full character name is watched automatically; no @ is needed. Add nicknames and literal watch phrases, enable or disable them, and choose their channels. Global channel switches apply to all phrases.
-
-Mention badges start on. Sound and toast start off; both are optional and share an adjustable cooldown. Hidden chat, shielded contacts, your own messages and duplicate deliveries do not create mention alerts. Redacted message previews stay redacted. Multiple matching phrases in one message create one entry.
-
-Reading a mention clears its unread state. **Mark all read** clears the selected alert type, or both types in All alerts. Overview and the Olympus launcher share the same counts. Messages, Alerts, contact activity and read states survive reloads and logins per character, restoring silently. The shared activity stream holds at most 300 entries or 1 MB in memory. **Settings > Activity history** lets you turn remembering off or use confirmed **Clear all history for this character**; rules, reports, captures, bookmarks and protection lists are kept.
-
-## Capture and conversations
-
-Recording remains opt-in. Open **Capture > Capture settings**, choose whisper and guild/officer coverage, then enable recording. Recent, Bookmarks and Conversations use existing locally captured records. Conversations group incoming and outgoing whispers; they cannot recover chat from before recording began.
-
-Select a line or conversation to bookmark, copy or export it. Bookmarks preserve up to 10 already captured lines on each side; future lines are not added. Delete from capture asks for a second click and preserves saved bookmarks. Limits remain 5,000 captured lines or 4 MB and 50 bookmarks or 1 MB. Battle.net, NPC and addon traffic are excluded.
-
-## Protection, spelling and packs
-
-**Settings** contains filtering, language, Shield, spam, notification and spelling controls. **Settings > Shield** offers Balanced protection, Previous defaults or Custom limits for each contact check; Apply saves count/window/timeout together, and Reset defaults restores Balanced without restarting active timers. **Shield** manages contact alerts, timed shields and allowed players. Allowed players bypass Shield; normal word filters still apply. Spam, ads and hidden-language notifications have separate switches and stay quiet by default.
-
-Spelling highlights and typing auto-correction remain optional. Right-click a highlighted word to choose a suggestion, add a personal word or ignore it for the session. No correction sends your text.
-
-**Typo-aware incoming filtering** is enabled in Balanced mode once for this private build. Use **Settings > Spelling** to select Balanced/Aggressive or turn it off; later choices survive reload. Balanced protects known words/names and skips ambiguous different guesses. Originals and the selected mode remain in Why filtered? and reports. Typing assistance stays separate.
-
-**Alerts > Mention settings > Match close typos in watch phrases** is an optional extra and starts off. It requires the global typo engine and uses a unique one-edit match. Character names and nicknames stay literal.
-
-**Packs** shows stock and installed signed categories, their phrase/mask/replacement counts, enabled state and sensitivity. Optional packs still require **Paste import > Verify pack > Install pack**. Existing rc60 signed packs remain valid. The packs link is available from Packs; nothing downloads or installs automatically.
-
-Shield actions follow the selected player: **Remove shield** ends a stored shield, **End chat pause** ends a brief pause, and **Stop allowing** removes an allowed player. A removed contact can still have historical alerts in Recent alerts; its status reflects the current protection. Adding an already shielded player leaves the existing shield unchanged and explains why.
-
-## Copying and sharing
-
-Export previews let you choose entries, hide known names, omit notes and add other names to hide. Review and edit the final text, select it, then Ctrl+C. Changing selection or privacy choices rebuilds the text, so make manual edits last. Plain message copies also open a privacy preview. Signed pack copies preserve the author-signed bytes.
-
-## Guild access and testing
-
-With Olympus 1.2.4 or later, choose Yes for Olympus ChatWarden in /oly privacy. Its membership answer takes priority; pending or declined permission keeps protection disabled. Fully restart WoW after updating Olympus. Older Olympus versions use the local guild-name check. Missing access pauses protection and closes full-workspace tools while keeping saved data; the native page stays available for connection help.
-
-This build has automated checks and static previews. Test native font wrapping, scrollbars, input focus, viewport scaling and player right-click actions in WoW before publishing the release. The old experimental body-cover/camera system remains removed; ordinary name redaction is retained.
-
-**Page controls:** Capture has Start/Pause Capture; Shield and Alerts have Enable/Pause buttons. Their page icons perform the same action. Shield settings show each Balanced default count/window/timeout while Custom limits are edited. Covered names in lists and selected headers can be clicked to reveal or cover them without revealing message content. Pack installation has Back to Packs; the prior search/selection/scroll position and unfinished import draft are kept.
+See [User guide](USER-GUIDE.md) and [Release notes](RELEASE-NOTES.md).

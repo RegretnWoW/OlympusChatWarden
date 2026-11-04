@@ -35,6 +35,7 @@ function A.Remove(id,silent)
     if not silent then A.Changed() end;return true
 end
 function A.Add(id,category,data,quiet)
+    if ns.Permissions.Denied('incidents') then return end
     local item=A.byID[id]
     if not item then
         local bytes=#(data.text or '')+#(data.preview or '')+#(data.sender or '')+512

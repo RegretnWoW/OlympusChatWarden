@@ -16,13 +16,10 @@ local function NeedsHistory(filter)
 end
 local function Busy() return InCombatLockdown and InCombatLockdown() end
 local function Open(id,item)
-    if Busy() then ns.Print('Open Warden after combat.');return end
+    if Busy() then ns.Print('Open Fireside after combat.');return end
     if not ns.Membership.Allowed() then ns.Print(ns.Membership.Status());return end
-    if not ns.Workspace.Open(id) then return end
-    if item then local page=ns.Workspace.pages[id];if page then
-        if id=='mentions' then page.mode='all';page:Activate() end
-        page.selected=item;A.Mark(item.id);page:Refresh()
-    end end
+    if item then return P.OpenRecord(item) end
+    return ns.UI2.Open({page=id})
 end
 local function Text(parent,text,size,color)
     local t=V.Text(parent,text,0,0,10,size or 12,color or muted);t:ClearAllPoints()
@@ -50,7 +47,20 @@ local function Module(item)
     if c.shield then return 'shield','ShieldWarden','shield' end
     return 'chat','ChatWarden','messages'
 end
+function P.Context()
+ if not ns.Permissions.Decide('UIAccess') then return {state='VERIFICATION_REQUIRED'} end
+ local own=C.Profile();local owner=ns.Chronicle.Owner();local out={state='LOCAL',owner=owner,signals=A.Unread('alerts'),net=ns.AetherNet.ConnectionState(),rosterScope='Observed associations; current roster unknown'}
+ if own and own.member then out.guild=own.guild;out.name=own.name;out.state='OFFICIAL_SELF_PROFILE' end
+ local registry=ns.AthenaHistoryGraph.Registry(owner)
+ if registry and out.guild then
+  local match
+  for key,guild in pairs(registry.guilds) do if guild.identity.name==out.guild then if match then match=false;break else match=key end end end
+  if match then out.guildKey=match;out.members=#registry.guilds[match].members end
+ end
+ return out
+end
 function P.Entries(filter)
+    if not ns.Permissions.Decide('UIAccess') then return {},'VERIFICATION_REQUIRED',nil,0 end
     local entries={};local unread=0
     for _,item in ipairs(A.List()) do
         local category=Module(item)
@@ -86,7 +96,12 @@ function P.Entries(filter)
     return entries,status,st,unread
 end
 function P.OpenRecord(item)
-    if not item or not item.event or Busy() or not ns.Membership.Allowed() then return end
+    if not item or Busy() or not ns.Membership.Allowed() then return end
+    -- Alerts use the very same typed resolver as Signal and the global bell.
+    -- It selects the exact retained message before marking anything read.
+    if item.id and ns.Activity.Get(item.id) then return ns.UI2NotificationCenter.OpenSource(item.id) end
+    if item.eventKey and ns.AetherNet.Subject('EVENT',item.eventKey) then return ns.UI2.Open({page='chronicle',kind='activity',key=item.eventKey,owner=item.owner}) end
+    if not item.event then return end
     if item.wardenModule=='intel' then return ns.WardenUI.Navigate('player',item.owner,item.guid or item.event.subject,item.event) end
     if item.activity then return ns.WardenUI.Navigate('activity',item.owner,item.activity.id,item.event) end
     return ns.WardenUI.Navigate('highlight',item.owner,item.event.id,item.event)
@@ -101,7 +116,7 @@ function P.Layout(page)
     Label(v.heading,54,4,cw-184,21);Label(v.connection,54,26,cw-184,13)
     Place(v.target,cw-126,10,116,24);v.target.Caption:SetWidth(100)
     local y=48
-    v.notice:SetShown(not ns.Membership.Allowed())
+    v.notice:SetShown(true)
     if not ns.Membership.Allowed() then Label(v.notice,18,y,cw-36,64,true);y=y+72 end
     local visible={};for _,card in ipairs(v.features) do card:SetShown(ns.Modules.Enabled(Owner(card.feature)));if card:IsShown() then visible[#visible+1]=card end end
     local cell=#visible>0 and math.min(200,cw/#visible) or cw
@@ -162,7 +177,9 @@ function P.Refresh(page)
     P.Layout(page)
     local allowed=ns.Membership.Allowed();local profile=C.Profile();local own=profile and profile.member and profile
     local name=own and own.name or ns.Mentions.Character() or 'Your character';name=name:match('^(.-)%-') or name
-    v.identity=name;v.notice:SetText(C.Reason())
+    v.identity=name;local context=P.Context();v.guildContext=context
+    v.heading:SetText(allowed and (context.guild or 'Fireside') or 'Verification required')
+    v.notice:SetText(allowed and ((context.members and context.members..' observed guild associates · ' or '')..tostring(context.signals or 0)..' unread signals · '..tostring(context.net)..' · Source-qualified local activity') or C.Reason())
     v.connection:SetText(allowed and 'Olympus connected' or 'Access needed');v.connection:SetTextColor(unpack(allowed and V.blue or bronze))
     for i,card in ipairs(v.features) do
         local spec=specs[i];local key=spec[1];local on=FeatureOn(key)
@@ -185,7 +202,7 @@ function P.Refresh(page)
     v.empty:SetShown(#entries==0)
     local enabled=ns.Modules.Enabled('chat') or ns.Modules.Enabled('shield') or ns.Modules.Enabled('alerts') or ns.Modules.Enabled('history')
     local chatOnly=ns.Modules.Enabled('chat') and not ns.Modules.Enabled('shield') and not ns.Modules.Enabled('alerts') and not ns.Modules.Enabled('history')
-    v.empty:SetText(not allowed and 'Your activity stays saved. Grant Olympus access to resume protection.' or not enabled and 'No optional activity sources are enabled.\n\nOpen CommandWarden to choose modules. Your saved history is kept.' or (v.filter=='chat' or chatOnly) and 'No recent chat activity.\n\nRight-click the Chat crest to open ChatWarden. Chat Capture is separate and stays off until you choose it.' or 'No recent Warden activity in this view.\n\nClick a module crest or right-click a filter to open its full page. Recording remains your choice in Data & Backups.')
+    v.empty:SetText(not allowed and 'Your activity stays saved. Verify Olympus membership to open the interface. Consented recording and protections use their own settings.' or not enabled and 'No optional activity sources are enabled.\n\nOpen CommandWarden to choose modules. Your saved history is kept.' or (v.filter=='chat' or chatOnly) and 'No recent chat activity.\n\nRight-click the Chat crest to open ChatWarden. Chat Capture is separate and stays off until you choose it.' or 'No recent Fireside activity in this view.\n\nClick a module crest or right-click a filter to open its full page. Recording remains your choice in Data & Backups.')
     if allowed and status=='building' then v.empty:SetText(ns.ChronicleActivities.ProgressText()..'\n\nMeaningful events appear when the view is ready.') end
     if allowed and WantsHistory(v.filter) and ns.ChronicleStore.loading then v.empty:SetText('Loading retained history. Progress appears in chat.\n\n'..ns.Chronicle.Status())
     elseif allowed and WantsHistory(v.filter) and ns.ChronicleStore.blocked then v.empty:SetText('Saved history is unavailable to this build. Your original archive is preserved.\n\nOpen Relay Data & Backups for recovery information.') end
@@ -204,7 +221,8 @@ function P.Build(page)
     v.content=CreateFrame('Frame',nil,page);v.content:SetSize(280,360)
     v.hero=V.Panel(v.content,0,0,280,38,'dark');v.logo=V.Texture(v.hero,'Warden',{0,0,512,512},'ARTWORK')
     v.heading=Text(v.hero,'Warden',18,bronze);v.connection=Text(v.hero,'',10,muted);v.notice=Text(v.content,'',12,bronze)
-    ns.Theme.Tooltip(v.hero,'Olympus connection','Membership and connection details are available in Warden’s top bar.')
+    v.hero:EnableMouse(true);v.hero:SetScript('OnMouseUp',function(_,button) if button=='LeftButton' and v.guildContext and v.guildContext.guildKey then ns.UI2.OpenGuild(v.guildContext.guildKey,v.guildContext.owner) end end)
+    ns.Theme.Tooltip(v.hero,'Olympus connection','Membership and connection details are available in Fireside’s top bar.')
     v.hero:HookScript('OnEnter',function() if GameTooltip then GameTooltip:AddLine(C.Reason(),.7,.73,.76,true);GameTooltip:Show() end end)
     v.target=V.Button(v.hero,'Inspect target',0,0,116,24,function()
         if Busy() or not ns.Membership.Allowed() then return end
@@ -254,7 +272,7 @@ function P.Build(page)
                 P.OpenRecord(self.item)
             else Open(self.category,self.item) end
         end)
-        ns.Theme.Tooltip(row,'Recent Activity','Open this entry in Warden. Ctrl + left-click reveals a covered player name.')
+        ns.Theme.Tooltip(row,'Recent Activity','Open this entry in Fireside. Ctrl + left-click reveals a covered player name.')
         row:HookScript('OnEnter',function(self)
             self:Select(true)
             if GameTooltip and self.item then GameTooltip:AddLine(self.title:GetText() or '',.91,.77,.58,true);GameTooltip:AddLine(self.summary or '',.91,.77,.58,true);GameTooltip:AddLine(self.meta:GetText() or '',.7,.73,.76,true);GameTooltip:Show() end

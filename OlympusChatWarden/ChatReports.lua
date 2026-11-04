@@ -13,6 +13,8 @@ for _, event in ipairs(C.Events) do supported[event] = true end
 for _, event in ipairs({"CHAT_MSG_RAID_WARNING", "CHAT_MSG_INSTANCE_CHAT", "CHAT_MSG_INSTANCE_CHAT_LEADER"}) do
     C.Events[#C.Events + 1] = event; supported[event] = true
 end
+C.NPCEvents={'CHAT_MSG_MONSTER_SAY','CHAT_MSG_MONSTER_YELL','CHAT_MSG_MONSTER_EMOTE','CHAT_MSG_MONSTER_WHISPER','CHAT_MSG_RAID_BOSS_EMOTE','CHAT_MSG_RAID_BOSS_WHISPER'}
+for _,event in ipairs(C.NPCEvents)do supported[event]=true end
 local function Clip(text, limit)
     local n = math.min(#text, limit)
     while n > 0 and text:byte(n + 1) and text:byte(n + 1) >= 128 and text:byte(n + 1) <= 191 do n = n - 1 end
@@ -32,7 +34,7 @@ function C.Prune()
     local oldest = ns.SessionTime() - C.MAX_AGE
     while C.entries[1] and C.entries[1].sessionTime < oldest do RemoveFirst() end
 end
-function C.Capture(event, message, sender, lineID)
+function C.Capture(event, message, sender, lineID, sourceKind)
     if not ns.DB or not ns.CanRead(message) or not ns.CanRead(sender)
         or not NameKey(sender) or not ns.CanRead(event) or not supported[event] then return end
     local id = ns.SafeNumber(lineID)
@@ -57,7 +59,7 @@ function C.Capture(event, message, sender, lineID)
             threshold = ns.Confidence.Presets[ns.DB.preset], exceptionCount = #ns.DB.exceptions}}
     for _, pack in ipairs(ns.PackNames) do entry.capturePolicy.disabledPacks[pack] = ns.DB.disabledPacks[pack] == true end
     entry.capturePolicy.moduleDisabled=ns.Modules and not ns.Modules.Enabled('chat') or false
-    entry.captureSnapshot = ns.Reports.Snapshot(message, "player", event, entry.capturePolicy,{kind='player',sender=sender})
+    entry.captureSnapshot = ns.Reports.Snapshot(message, sourceKind=='npc'and'npc'or'player', event, entry.capturePolicy,{kind=sourceKind=='npc'and'npc'or'player',sender=sender})
     -- Event delivery alone does not prove what a native chat filter displayed.
     entry.captureSnapshot.actualAction=nil;entry.captureSnapshot.actionRecorded=false
     entry.bytes = #entry.original + #entry.sender + #entry.event + #ns.Reports.JSON(entry.captureSnapshot) + 512
@@ -70,6 +72,9 @@ function C.RecordOutcome(entry,action,source,diagnostic,preview)
     if type(entry)~='table' or type(entry.captureSnapshot)~='table'
         or not ({Unchanged=true,Warning=true,Redacted=true,Replaced=true,Hidden=true})[action] then return false end
     local snapshot=entry.captureSnapshot;local before=#ns.Reports.JSON(snapshot)
+    local priority={Unchanged=0,Warning=1,Redacted=2,Replaced=2,Hidden=3}
+    if snapshot.actionRecorded and(priority[snapshot.actualAction]or 0)>(priority[action]or 0)then action=snapshot.actualAction end
+    snapshot.outcomeAt=ns.SessionTime()
     snapshot.actualAction=action;snapshot.actionRecorded=true;snapshot.analysisTiming='chat-filter'
     snapshot.diagnosticError=diagnostic
     if source and (source.shield or source.spam) then snapshot.combinedPredictedAction='Hidden' end
@@ -78,6 +83,7 @@ function C.RecordOutcome(entry,action,source,diagnostic,preview)
     local delta=#ns.Reports.JSON(snapshot)-before
     entry.bytes=entry.bytes+delta;C.bytes=C.bytes+delta
     while C.bytes>C.MAX_BYTES and #C.entries>0 do RemoveFirst() end
+    if ns.AthenaConversations and ns.AthenaConversations.OnDisplayOutcome then pcall(ns.AthenaConversations.OnDisplayOutcome,entry)end
     if ns.SignalCore then
         if ns.SignalCore.Has('chat.displayed') then ns.SignalCore.Publish('chat.displayed',{version=1,entry=entry,source=source,preview=preview}) end
     elseif ns.Mentions then ns.Mentions.Observe(entry,source,preview) end
@@ -91,6 +97,20 @@ function C.Find(sender, lineID)
         local entry = C.entries[i]
         if entry.lineID == id and NameKey(entry.sender) == name then return entry end
     end
+end
+-- Match only an exact original/event/sender in the brief native delivery
+-- window. Hashes alone and name-only matches cannot authorize private text.
+function C.FindDisplay(input)
+    C.Prune();local found,exact;local at=input.receivedAt or ns.SessionTime()
+    for i=#C.entries,1,-1 do local e=C.entries[i]
+        if math.abs(at-e.sessionTime)<=2 and e.event==input.event and NameKey(e.sender)==NameKey(input.sender)and e.original==input.text then
+            if input.lineID and e.lineID==input.lineID then return e end
+            if not input.lineID and e.deliveryKey and e.deliveryKey==input.fallbackKey then if exact then return nil,'AMBIGUOUS_DELIVERY'end;exact=e end
+            if found then found=false elseif found==nil then found=e end
+        end
+    end
+    if exact then return exact end
+    return found or nil,found==false and'AMBIGUOUS_DELIVERY'or'NO_MATCHING_DISPLAY_OUTCOME'
 end
 function C.ParseLink(link)
     if not ns.CanRead(link) then return end
@@ -147,7 +167,11 @@ end
 function C.Open(click)
     C.Prune()
     local exact = click and C.Find(click.sender, click.lineID)
+    C.manualInvocation=(C.manualInvocation or 0)+1
     local draft = {source = "player", reportMethod = "chat-name-menu", selection = "manual",
+        -- An absent line ID cannot identify a message. Never recover another
+        -- canceled report merely because its sender is the same person.
+        contextKey = not exact and ('manual-chat/'..C.manualInvocation) or nil,
         choices = Candidates(click and click.sender, exact), choiceIndex = 0, exact = exact,
         status = "The clicked message is unavailable. Paste it here, or choose a recent message."}
     if exact then C.SelectDraft(draft, 1) end
@@ -198,7 +222,7 @@ function C.BuildMenu(_, root, ctx)
     M.AddHistory(ctx,parent)
     M.Section(parent,'CommandWarden')
     local any=ns.Modules.Enabled('chat') or ns.Modules.Enabled('shield')
-    M.Button(parent,any and 'Open Warden settings' or 'Manage modules',nil,function() ns.Workspace.Open(any and 'settings' or 'modules');return true end,'Open shared preferences or module selection in CommandWarden.')
+    M.Button(parent,any and 'Open Fireside settings' or 'Manage modules',nil,function() ns.Workspace.Open(any and 'settings' or 'modules');return true end,'Open shared preferences or module selection in CommandWarden.')
 end
 function C.Install()
     if not eventFrame then

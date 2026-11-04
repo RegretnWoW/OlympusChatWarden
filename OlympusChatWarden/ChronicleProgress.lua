@@ -6,10 +6,12 @@ local G={};ns.ChronicleProgress=G
 local balances,seen,added,lockSignature={},{},{},nil
 local function Save(family,data,source,key,details)
     local hash=X.Store(family,data,source);if not hash then return end
-    if seen[key]~=hash then
+    if not seen[key] or seen[key].hash~=hash then
         details=details or {};details.recordType=details.recordType or family..'_observed'
         details.contentID=hash;details.family=family
-        X.Record('native_event',source,details,nil,false);seen[key]=hash
+        local at=C.Stamp();details.firstObservedAt=seen[key] and seen[key].first or at;details.baseline=not seen[key]
+        if seen[key] then details.observedFrom=seen[key].at;details.observedTo=at end
+        local accepted=X.Record('native_event',source,details,nil,false);if accepted then seen[key]={hash=hash,at=at,first=details.firstObservedAt} end
     end
     return hash
 end
@@ -51,7 +53,7 @@ function G.CurrencyEvent(id,quantity,change,gain,destroy)
         after=S.Number(quantity,0),quantityChange=S.Number(change),quantityGainSource=S.Integer(gain,0),destroyReason=S.Integer(destroy,0)},nil,false)
     X.Queue('currency:'..id,function() G.Currency(id,'checkpoint') end)
 end
-function G.Lockouts(source)
+function G.Lockouts(source,forceObservation)
     if not X.Ready() or X.Busy() then return end
     local count=S.Integer(X.Call('GetNumSavedInstances'),0,500)
     local bosses=S.Integer(X.Call('GetNumSavedWorldBosses'),0,500)
@@ -80,7 +82,7 @@ function G.Lockouts(source)
         local chunk={};for i=(part-1)*12+1,math.min(#rows,part*12) do chunk[#chunk+1]=rows[i] end
         local hash=X.Store('lockout_list',{rows=chunk,complete=complete,instanceCount=count,worldBossCount=bosses},source)
         scope[#scope+1]=hash or 'unavailable'
-        if hash and seen['lockouts:'..part]~=hash then
+        if hash and (forceObservation or seen['lockouts:'..part]~=hash) then
             X.Record('native_event',source,{recordType='lockout_list_observed',contentID=hash,family='lockout_list',part=part,parts=parts,partial=not complete},nil,false)
             seen['lockouts:'..part]=hash
         end
@@ -123,12 +125,20 @@ function G.Catalog(kind,source)
     if kind=='mount' then
         local ids=X.Table(X.Call('C_MountJournal.GetMountIDs'))
         if not ids or not S.Array(ids,20000) then X.Mark('Mounts','Owned catalog API unavailable');return end
-        for _,id in ipairs(ids) do id=S.Integer(id,1);if id then G.Mount(id,source) end;X.Yield() end
+        for index=1,#ids do
+            if not X.Table(ids) then X.Mark('Mounts','Catalog became restricted; read stopped');return end
+            local id=S.Integer(ids[index],1);if id then G.Mount(id,source) end;X.Yield()
+        end
+        if not X.Table(ids) then X.Mark('Mounts','Catalog became restricted; read stopped');return end
         X.Mark('Mounts','Readable owned mount observations; initial catalog is not unlock history')
     elseif kind=='pet' then
         local ids=X.Table(X.Call('C_PetJournal.GetOwnedPetIDs'))
         if not ids or not S.Array(ids,20000) then X.Mark('Pets','Owned-pet catalog API unavailable');return end
-        for _,id in ipairs(ids) do if S.Text(id,128) then G.Pet(id,source) end;X.Yield() end
+        for index=1,#ids do
+            if not X.Table(ids) then X.Mark('Pets','Catalog became restricted; read stopped');return end
+            local id=ids[index];if S.Text(id,128) then G.Pet(id,source) end;X.Yield()
+        end
+        if not X.Table(ids) then X.Mark('Pets','Catalog became restricted; read stopped');return end
         X.Mark('Pets','Readable owned pet observations; no private custom names or notes')
     elseif kind=='toy' then
         local count=S.Integer(X.Call('C_ToyBox.GetNumFilteredToys'),0,20000)
@@ -139,14 +149,30 @@ function G.Catalog(kind,source)
 end
 function G.Start()
     balances={};seen={};added={};lockSignature=nil
-    X.Queue('currencies',function() G.CurrencyList('control') end)
-    X.Queue('lockouts',function() G.Lockouts('control') end)
-    for _,v in ipairs({'mount','pet','toy'}) do local kind=v;X.Queue('catalog:'..kind,function() G.Catalog(kind,'control') end) end
+    if ns.ChronicleHistory then ns.ChronicleHistory.Start() end
+    X.Queue('progress-baseline',function()
+        local c=S.WriterCharacter(C.Owner(),false)
+        for i,e in ipairs(c and c.events or {}) do
+            local d=e.details
+            if e.kind=='native_event' and (d.recordType=='collection_observed' or d.recordType=='currency_observed' or d.recordType=='currency_changed') and d.contentID then
+                local key=d.collectionType and d.collectionType..':'..tostring(d.collectionID or d.battlePetGUID) or d.currencyID and 'currency:'..d.currencyID
+                if key and not seen[key] then seen[key]={hash=d.contentID,at=e.at,first=d.firstObservedAt or e.at}
+                elseif key and seen[key].at<e.at then seen[key].hash=d.contentID;seen[key].at=e.at end
+            end
+            if i%128==0 then X.Yield() end
+        end
+        G.CurrencyList('control');G.Lockouts('control')
+        for _,kind in ipairs({'mount','pet','toy'}) do G.Catalog(kind,'control') end
+    end,true)
 end
-function G.Stop() balances={};seen={};added={};lockSignature=nil end
+function G.Stop() balances={};seen={};added={};lockSignature=nil;if ns.ChronicleHistory then ns.ChronicleHistory.Stop() end end
 function G.Handle(event,a,b,c,d,e)
+    if ns.ChronicleHistory then ns.ChronicleHistory.Handle(event,a,b,c,d,e) end
     if event=='CURRENCY_DISPLAY_UPDATE' then G.CurrencyEvent(a,b,c,d,e)
-    elseif event=='UPDATE_INSTANCE_INFO' then X.Queue('lockouts',function() G.Lockouts(event) end)
+    elseif event=='UPDATE_INSTANCE_INFO' then X.Queue('lockouts',function() G.Lockouts(event,true) end)
+    elseif event=='PLAYER_ENTERING_WORLD' then
+        local _,kind=X.Call('GetInstanceInfo')
+        if kind=='raid' or kind=='party' then X.Queue('lockouts',function() G.Lockouts(event,true) end) end
     elseif event=='NEW_MOUNT_ADDED' or event=='NEW_TOY_ADDED' then
         local id=S.Integer(a,1);local kind=event=='NEW_MOUNT_ADDED' and 'mount' or 'toy'
         if id then Added(kind,id,event);X.Queue(kind..':'..id,function() if kind=='mount' then G.Mount(id,event) else G.Toy(id,event) end end) end
@@ -155,4 +181,4 @@ function G.Handle(event,a,b,c,d,e)
     elseif event=='PET_JOURNAL_LIST_UPDATE' then X.Queue('catalog:pet',function() G.Catalog('pet',event) end)
     elseif event=='TOYS_UPDATED' then X.Queue('catalog:toy',function() G.Catalog('toy',event) end) end
 end
-X.Register(G,{'CURRENCY_DISPLAY_UPDATE','UPDATE_INSTANCE_INFO','NEW_MOUNT_ADDED','NEW_TOY_ADDED','NEW_PET_ADDED','PET_JOURNAL_LIST_UPDATE','TOYS_UPDATED'})
+X.Register(G,{'CURRENCY_DISPLAY_UPDATE','UPDATE_INSTANCE_INFO','PLAYER_ENTERING_WORLD','NEW_MOUNT_ADDED','NEW_TOY_ADDED','NEW_PET_ADDED','PET_JOURNAL_LIST_UPDATE','TOYS_UPDATED','TIME_PLAYED_MSG','TRADE_SKILL_SHOW','TRADE_SKILL_LIST_UPDATE','QUEST_DETAIL','QUEST_PROGRESS','QUEST_COMPLETE','QUEST_FINISHED','ACHIEVEMENT_EARNED'})

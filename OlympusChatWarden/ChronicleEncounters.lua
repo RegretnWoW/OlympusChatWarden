@@ -322,18 +322,20 @@ function I.TalentChoices(owned,ownConfig)
         if not owned() then return end
         if not nodes then complete=false else
             local layout
-            if not ownConfig then
+            do
                 layout={tree=tree,rows={},groups=ns.WardenTalents.Groups(tree),complete=true};layouts[#layouts+1]=layout
             end
             total=total+#nodes
-            for n=1,math.min(#nodes,math.max(0,256-read)) do
+            -- Retail returns nodes for every specialization in a class tree.
+            -- A 256-node scan can stop before the active specialization starts.
+            for n=1,math.min(#nodes,math.max(0,2048-read)) do
                 local id=S.Integer(nodes[n],1,1000000000)
                 local node=id and X.Table(X.Call('C_Traits.GetNodeInfo',config,id));read=read+1
                 if not owned() then return end
                 if not node or S.Integer(node.ID)~=id then complete=false;if layout then layout.complete=false end else
-                    if layout then
+                    if layout and (X.Bool(node.isVisible)==true and X.Bool(node.subTreeActive)~=false or (S.Integer(node.currentRank,0,1000)or 0)>0)then
                         local geometry=ns.WardenTalents.Node(config,tree,node,owned);if not owned() then return end
-                        if geometry then layout.rows[#layout.rows+1]=geometry else layout.complete=false end
+                        if geometry and #layout.rows<256 then layout.rows[#layout.rows+1]=geometry else layout.complete=false end
                     end
                     local active=X.Table(node.activeEntry);local rank=active and S.Integer(active.rank,0,1000)
                     local entry=active and S.Integer(active.entryID,1,1000000000)
@@ -347,6 +349,7 @@ function I.TalentChoices(owned,ownConfig)
                         elseif not seen[id] then complete=false end
                     elseif S.Integer(node.currentRank,0,1000)~=0 then complete=false end
                 end
+                local running,main=coroutine.running();if n%16==0 and running and main~=true then X.Yield();if not owned()then return end end
             end
             if read<total then complete=false;if layout then layout.complete=false end end
         end

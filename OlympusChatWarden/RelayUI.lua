@@ -13,10 +13,10 @@ local function State(r)
     return statusNames[r.state] or r.state
 end
 local function Message(r)
-    if r.state=='received' then return 'Your report was delivered successfully.' end
-    if r.state=='sending' then return 'Warden is sending your report.' end
-    if r.state=='pending' and r.autoRetry==true then return "Warden will automatically try again while you're online." end
-    return "Warden couldn't deliver your report. It is safely saved."..(r.autoRetry==false and ' Automatic delivery is paused.' or '')
+    if r.state=='received' then return 'The recipient acknowledged storing this report. This does not confirm staff review.' end
+    if r.state=='sending' then return 'Fireside is sending your report.' end
+    if r.state=='pending' and r.autoRetry==true then return "Fireside will automatically try again while you're online." end
+    return "Fireside couldn't deliver your report. It is safely saved."..(r.autoRetry==false and ' Automatic delivery is paused.' or '')
 end
 local function Module(id) if id=='suite' then return 'CommandWarden / general' end;for _,row in ipairs(S.modules) do if row[1]==id then return row[2] end end;return id end
 local function Multi(parent,x,y,w,h,limit,changed)
@@ -48,7 +48,7 @@ local function Summary(p)
     end
     local headings={report='Report a Bug',mine='My Reports',inbox='Developer Inbox',diagnostics='Advanced Support Tools',copy='Copy a report'}
     p.heroTitle:SetText(headings[p.mode] or 'Relay support')
-    p.summary:SetText(S.blocked or (p.mode=='report' and 'Tell us what went wrong. Warden handles delivery after you submit.'
+    p.summary:SetText(S.blocked or (p.mode=='report' and 'Review the configured recipient and payload before explicit submission. Local copy/export is available without peers.'
         or p.mode=='inbox' and (#(S.db and S.db.inbox or {})..' incoming reports • review labels stay local')
         or p.mode=='diagnostics' and 'Diagnostics, saved unfinished reports and developer tools. Nothing is sent here.'
         or pending..' waiting  •  '..received..' delivered  •  '..failed..' need attention'))
@@ -86,11 +86,11 @@ function U.Build(parent)
     p.steps=Multi(form,18,-363,664,108,1600,function(v) p.fields.steps=v;Changed() end)
     p.new=V.Button(form,'Start another report',18,-486,260,34,function() p:NewDraft() end,'neutral')
     p.feedback=V.Text(form,'',18,-535,660,13,V.blue);p.feedback:SetHeight(38)
-    V.Text(preview,'Send to the Warden developer',18,-15,386,19,V.gold)
+    V.Text(preview,'Send to the Fireside developer',18,-15,386,19,V.gold)
     p.attach=V.Check(preview,'Include Technical Details',18,-52,false,function(v)
         p.includeDiagnostics=v;p.diagnostics=v and D.Prepare() or '';p:InvalidatePreview()
     end,386)
-    local explanation=Label(preview,'Include Warden version and diagnostic information to help investigate the problem.',18,-88,386,12);explanation:SetHeight(42)
+    local explanation=Label(preview,'Include Fireside version and diagnostic information to help investigate the problem.',18,-88,386,12);explanation:SetHeight(42)
     p.previewButton=V.Button(preview,'View Details',18,-140,180,28,function() p:Preview() end,'neutral')
     p.previewDoc,p.previewScroll=V.Document(preview,16,-184,390,220)
     p.sendReason=V.Text(preview,'',18,-424,386,12,V.blue);p.sendReason:SetHeight(26)
@@ -101,8 +101,8 @@ function U.Build(parent)
         local ready=self.draft and S.Encode(S.Payload(self.draft,self.includeDiagnostics and self.diagnostics or ''))~=nil
         self.send:SetEnabled(ready and not S.blocked)
         self.sendReason:SetText(ready and 'Ready to submit.' or 'Enter a title and describe what happened.')
-        self.previewDoc:SetBlocks({{kind='heading',text='We handle delivery'},
-            {kind='body',text="After you submit, Warden saves your report and automatically tries to deliver it while you're online. You can close this window."},
+        self.previewDoc:SetBlocks({{kind='heading',text='Local save, explicit network submission'},
+            {kind='body',text="Submission saves a bounded queue for the configured recipient. Delivery can fail or remain pending; only a received acknowledgement changes its status. Copy/export is independent of peers."},
             {kind='body',text='Technical details are optional. Chat logs, adventure history, player dossiers and private notes are excluded.'}})
     end
     function p:SetDraft(r)
@@ -112,7 +112,7 @@ function U.Build(parent)
         self.title:SetText(r.fields.title);self.description:SetText(r.fields.description);self.steps:SetText(r.fields.steps)
         self.module:Refresh();self.category:Refresh();self.loading=false;self:InvalidatePreview()
         self.recipient:SetText(r.selfTestReceiver and ('Developer self-test to '..S.Safe(P.LocalName())..'. Nothing sends until Submit Report.')
-            or 'Your report and character name are shared with the Warden developer.')
+            or 'Your report and character name are shared with the Fireside developer.')
         self.feedback:SetText('Your unfinished text stays on this computer.');self:SetView('report')
     end
     function p:NewDraft()
@@ -144,7 +144,7 @@ function U.Build(parent)
         if not ok then self.feedback:SetText(err or 'Please check your report.');return end
         self.lastReport=self.draft.id;self.mine.selected=S.Find(self.lastReport);self.mine.revision=nil
         self.draft=nil;self.previewWire=nil;self:SetView('mine')
-        self.mine.hint:SetText('Report saved. Warden is handling delivery; you can close this window.')
+        self.mine.hint:SetText('Report queued for the configured recipient. Check its actual receipt status; local copy/export remains available.')
     end
     local function Manager(id,inbox)
         local f=View(id);f.query='';f.status='all';f.module='all';f.version=''
@@ -214,7 +214,7 @@ function U.Build(parent)
                 if r.state=='draft' then p:SetDraft(r) else local copy,err=S.Copy(r.id);if copy then p:SetDraft(copy) else f.hint:SetText(err) end end
             end,'button')
             f.continue=Button('Continue editing',165,function() local r=Selected();if r and r.state=='draft' then p:SetDraft(r) end end,'neutral')
-            f.retry=Button('Retry Now',125,function() local r=Selected();if r then local ok,err=P.Try(r.id);Dirty();f.hint:SetText(ok and 'Warden is sending your report.' or err) end end);f.retry:SetEnabled(false)
+            f.retry=Button('Retry Now',125,function() local r=Selected();if r then local ok,err=P.Try(r.id);Dirty();f.hint:SetText(ok and 'Fireside is sending your report.' or err) end end);f.retry:SetEnabled(false)
             f.automatic=Button('Resume delivery',170,function() local r=Selected();if r then local ok,err=P.SetAutomatic(r.id,r.autoRetry~=true);Dirty();if not ok then f.hint:SetText(err) end end end,'neutral');f.automatic:SetEnabled(false)
         else
             f.reviewState=V.Dropdown(f,0,-484,225,{{'New','Mark New'},{'Reviewing','Mark Reviewing'},{'Confirmed','Mark Confirmed'},{'Fixed','Mark Fixed'},{'Closed','Mark Closed'}},function() return f.selected and f.selected.state or 'New' end,function(v) local r=Selected();if r then S.SetInboxState(r.key,v);Dirty() end end);x=240
@@ -255,7 +255,7 @@ function U.Build(parent)
                 self.document:SetBlocks({{kind='title',text=#rows>0 and 'Select a report' or 'No reports to show'},
                     {kind='body',text=inbox and 'Received reports appear here.' or 'Submitted reports appear here. Choose Report a Bug to get started.'}})
             end
-            self.list:SetItems(rows,true);self.hint:SetText(#rows..' reports. Warden handles delivery of submitted reports while you are online.')
+            self.list:SetItems(rows,true);self.hint:SetText(#rows..' reports. Fireside handles delivery of submitted reports while you are online.')
             if self.selected then Select(self.selected) end
             if self.reviewState then self.reviewState:Refresh() end
         end
@@ -278,15 +278,15 @@ function U.Build(parent)
     function p:Health()
         local count=0;for _,id in ipairs(ns.Modules.order) do if ns.Modules.Enabled(id) then count=count+1 end end
         local blocks={{kind='title',text='Health summary'},
-            {kind='body',text='Warden '..ns.VERSION..' • '..count..' optional modules running\nInitialization: '..(#(ns.StartupErrors or {})==0 and 'Ready' or 'Needs attention')..'\nArchive: '..(ns.ChronicleStore.loading and 'Validating saved history' or ns.ChronicleStore.db and 'Available' or 'Not loaded')..'\nOlympus: '..ns.OlympusConnection.StatusText()..'\nDelivery: '..(P.Busy() and 'Transfer in progress; awaiting receipt' or 'No active transfer; receiver availability unknown')},
+            {kind='body',text='Fireside '..ns.VERSION..' • '..count..' optional modules running\nInitialization: '..(#(ns.StartupErrors or {})==0 and 'Ready' or 'Needs attention')..'\nArchive: '..(ns.ChronicleStore.loading and 'Validating saved history' or ns.ChronicleStore.db and 'Available' or 'Not loaded')..'\nOlympus: '..ns.OlympusConnection.StatusText()..'\nDelivery: '..(P.Busy() and 'Transfer in progress; awaiting receipt' or 'No active transfer; receiver availability unknown')},
             {kind='meta',text='Opening this page enables no profiling and sends nothing. Olympus access does not prove that a developer receiver is online.'},
             {kind='heading',text='Last native send'},
             {kind='body',text=P.DeliveryDetail()},
             {kind='body',text='Local receiver check: '..(P.IsDeveloper() and 'Developer Inbox available' or 'Standard reporting character')..'\nNative full identity: '..S.Safe(P.LocalIdentity() or 'Not available')..'\nThis local identity check is not part of the optional diagnostics attachment.'},
             {kind='heading',text='Capture limitations'},
-            {kind='body',text='Only Warden Lua file names, line numbers and occurrence counts are retained from errors passed through the installed error handler. Original error messages, stacks, locals, player names and history are excluded. An error before Relay loads, or handled by another logger, may not be available. Paste useful details into your own description if needed.'}}
+            {kind='body',text='Only Fireside Lua file names, line numbers and occurrence counts are retained from errors passed through the installed error handler. Original error messages, stacks, locals, player names and history are excluded. An error before Relay loads, or handled by another logger, may not be available. Paste useful details into your own description if needed.'}}
         local athena=ns.Athena.GetHealth('relay')
-        if athena then blocks[#blocks+1]={kind='heading',text='Athena shared services'};blocks[#blocks+1]={kind='body',text=tostring(athena.operationalDecisions or 'Unknown')..' auditable operational decisions • '..tostring(athena.operationalActions or 'Unknown')..' action references • '..athena.errors..' service errors. Local only; no intelligence network.'} end
+        if athena then blocks[#blocks+1]={kind='heading',text='Athena shared services'};blocks[#blocks+1]={kind='body',text=tostring(athena.operationalDecisions or 'Unknown')..' auditable operational decisions • '..tostring(athena.operationalActions or 'Unknown')..' action references • '..athena.errors..' service errors. Local canon; the exchange mock is separate and live transport is held.'} end
         if self.advancedHealth then blocks[#blocks+1]={kind='heading',text='Advanced diagnostics'};blocks[#blocks+1]={kind='body',text=D.Snapshot()} end
         self.healthDoc:SetBlocks(blocks)
         if self.selfTest then self.selfTest:SetShown(P.IsDeveloper()) end
@@ -320,6 +320,7 @@ function U.Build(parent)
             tabs[#tabs+1]={'inbox','Developer Inbox',function() p:SetView('inbox') end,220}
 
         end
+        tabs[#tabs+1]={'aether','Aether',function() ns.AthenaSuiteUI.Aether() end,190}
         W.Tabs(tabs,mode=='copy' and (self.exportBack or 'mine') or mode)
         for k,view in pairs(self.views) do view:SetShown(k==mode) end
         if mode=='report' and not self.draft and S.db then

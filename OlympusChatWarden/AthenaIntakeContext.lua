@@ -10,6 +10,10 @@ function H.State(owner,session)
 end
 function H.Module(e)
     local d=e.details or {};local r=d.recordType or ''
+    if ns.ChronicleMerchant and ns.ChronicleMerchant.types[r] or e.capture and e.capture.family=='merchant' then return 'chronicle','OWNER_PRIVATE' end
+    if e.capture and e.capture.family=='character_card' then return 'intel','LOCAL_INTEL' end
+    if e.capture and e.capture.family=='scoreboard_page' then return 'combat','LOCAL_HISTORY' end
+    if r=='signal_sighting' then return 'alerts','LOCAL_HISTORY' end
     if r=='historical_incident' or r=='incident_correction' then return d.ownerModule=='shield' and 'shield' or 'chat','PRIVATE_INCIDENT' end
     if r:find('guild_',1,true)==1 then return 'guild','LOCAL_HISTORY' end
     if e.kind=='player_observed' or e.kind=='important_player' or r=='contact_observed' or r=='contact_inspection_attempt'
@@ -59,6 +63,7 @@ function H.Accepted(e,status,live)
     if ns.AthenaHistorySchema.InstanceContradiction(st.instanceLocation,e.location) then
         st.instanceRef=nil;st.instanceLocation=nil;st.encounterRef=nil;st.encounterID=nil;st.matchRef=nil
     end
+    if ns.AthenaMoments then local ok=pcall(ns.AthenaMoments.Accepted,e,status,live);if not ok then H.diagnostics.linkErrors=H.diagnostics.linkErrors+1 end end
     if ns.AthenaFirstContact then
         local ok=pcall(ns.AthenaFirstContact.Accepted,e)
         if not ok then H.diagnostics.linkErrors=H.diagnostics.linkErrors+1 end

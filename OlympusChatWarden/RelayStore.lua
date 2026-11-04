@@ -2,8 +2,9 @@
 -- not Chronicle's schema or ledger. Incoming data is never evaluated as Lua.
 local _,ns=...
 local R={SCHEMA=1,MAX_LOCAL=200,MAX_INBOX=500,MAX_BYTES=8192};ns.RelayStore=R
-R.modules={{'suite','Warden / general'},{'chronicle','ChronicleWarden'},{'intel','IntelWarden'},
-    {'messages','ChatWarden'},{'mentions','SignalWarden'},{'shield','ShieldWarden'},{'relay','RelayWarden'}}
+R.modules={{'suite','Fireside / general'},{'chronicle','ChronicleWarden'},{'intel','IntelWarden'},
+    {'messages','ChatWarden'},{'mentions','SignalWarden'},{'shield','ShieldWarden'},{'relay','RelayWarden'},
+    {'realm','Fields / Oasis scenes'},{'journal','Athena Journal'},{'aether','Aether / Agora'},{'codex','Athenaeum'}}
 R.categories={{'bug','Something is broken'},{'display','Display or navigation'},{'performance','Performance'},
     {'recording','Recording or saved data'},{'delivery','Report delivery'},{'other','Other problem'}}
 local moduleKeys,categoryKeys={},{}
@@ -67,8 +68,8 @@ local function Dense(array,limit)
 end
 function R.Initialize()
     if R.db or R.blocked then return end
-    if OlympusWardenRelayDB==nil then OlympusWardenRelayDB={schema=R.SCHEMA,reports={},inbox={},serial=0} end
-    local db=OlympusWardenRelayDB
+    if ns.Storage.OlympusWardenRelayDB==nil then ns.Storage.OlympusWardenRelayDB={schema=R.SCHEMA,reports={},inbox={},serial=0} end
+    local db=ns.Storage.OlympusWardenRelayDB
     if type(db)~='table' or db.schema~=R.SCHEMA or not Dense(db.reports,R.MAX_LOCAL) or not Dense(db.inbox,R.MAX_INBOX)
         then R.blocked='Relay data needs recovery; the original saved data has been kept.';return end
     local ids={}
@@ -91,6 +92,65 @@ function R.Initialize()
     end
     R.db=db;db.serial=type(db.serial)=='number' and db.serial==db.serial and math.max(0,math.min(1000000000,math.floor(db.serial))) or 0
     for _,r in ipairs(db.reports) do if r.state=='sending' then r.state='pending';r.status='Interrupted before a receipt. Delivery remains queued.' end end
+end
+-- Recipient-private selected historical shares live in Relay's existing save,
+-- never Chronicle evidence or the public Aether ledger. Original wire bytes
+-- are retained; validation is atomic and recovery never rewrites a bad root.
+R.RECEIVED_VERSION=1;R.RECEIVED_MAX=32;R.RECEIVED_BYTES=393216
+function R.Received(owner,storage)
+    R.Initialize();storage=storage or R.db
+    if not storage or not ns.ChronicleStore.GUID(owner) then return nil,'RECEIVED_OWNER_OR_STORE' end
+    local root=storage.directHistory
+    if root==nil then return {},nil end
+    if type(root)~='table' or root.schema~=1 or type(root.owners)~='table' or getmetatable(root) then return nil,'RECEIVED_RECOVERY_REQUIRED' end
+    for k in pairs(root) do if k~='schema' and k~='owners' then return nil,'RECEIVED_ROOT_FIELD' end end
+    local owners=0
+    for guid,rows in pairs(root.owners) do
+        owners=owners+1;if owners>16 or not ns.ChronicleStore.GUID(guid) or not Dense(rows,R.RECEIVED_MAX) then return nil,'RECEIVED_CAPACITY' end
+        local bytes,seen=0,{}
+        for _,row in ipairs(rows) do
+            if type(row)~='table' or getmetatable(row) then return nil,'RECEIVED_RECORD' end
+            for k in pairs(row) do if not ({id=true,recipient=true,sender=true,principal=true,acceptedAt=true,receivedAt=true,requestID=true,reviewHash=true,snapshot=true,sourceClass=true})[k] then return nil,'RECEIVED_FIELD' end end
+            if row.recipient~=guid or not ns.ChronicleStore.GUID(row.sender) or not R.Text(row.principal,128) or not R.Text(row.requestID,96)
+                or type(row.acceptedAt)~='number' or type(row.receivedAt)~='number' or row.acceptedAt~=row.acceptedAt or row.receivedAt~=row.receivedAt
+                or row.acceptedAt<1 or row.receivedAt>4102444800 or row.acceptedAt%1~=0 or row.receivedAt%1~=0 or row.acceptedAt>row.receivedAt
+                or row.sourceClass~='received_direct' or not ns.AthenaSharePolicy.ValidateHistorical(row.snapshot)
+                or row.snapshot.observerOwner:match('/(Player%-.+)$')~=row.sender then return nil,'RECEIVED_POLICY' end
+            local wire=ns.ChronicleBackup.Encode(row.snapshot);local hash=ns.PackCrypto.Hex(ns.PackCrypto.SHA256(wire))
+            if row.reviewHash~=hash or row.id~=row.sender..'/'..hash or seen[row.id] then return nil,'RECEIVED_HASH_OR_DUPLICATE' end
+            seen[row.id]=true;bytes=bytes+#wire+512;if bytes>R.RECEIVED_BYTES then return nil,'RECEIVED_BYTES' end
+        end
+    end
+    return root.owners[owner] or {}
+end
+function R.ImportHistorical(recipient,sender,principal,requestID,snapshot,acceptedAt,receivedAt,reviewHash,userAccepted,storage)
+    if userAccepted~=true then return false,'EXPLICIT_RECIPIENT_ACCEPT_REQUIRED' end
+    R.Initialize();storage=storage or R.db
+    local rows,why=R.Received(recipient,storage);if not rows then return false,why end
+    local clean=ns.AthenaSharePolicy.ValidateHistorical(snapshot)
+    if not clean or clean.observerOwner:match('/(Player%-.+)$')~=sender then return false,'RECEIVED_SOURCE' end
+    local wire=ns.ChronicleBackup.Encode(clean);local hash=ns.PackCrypto.Hex(ns.PackCrypto.SHA256(wire))
+    if hash~=reviewHash or type(acceptedAt)~='number' or type(receivedAt)~='number' or acceptedAt>receivedAt then return false,'EXACT_REVIEW_REQUIRED' end
+    local id=sender..'/'..hash
+    for _,row in ipairs(rows) do if row.id==id then return true,'ALREADY_IMPORTED' end end
+    local staged=ns.Athena.Copy(storage.directHistory or {schema=1,owners={}})
+    staged.owners[recipient]=staged.owners[recipient] or {}
+    table.insert(staged.owners[recipient],{id=id,recipient=recipient,sender=sender,principal=principal,requestID=requestID,
+        acceptedAt=acceptedAt,receivedAt=receivedAt,reviewHash=hash,snapshot=ns.Athena.Copy(clean),sourceClass='received_direct'})
+    local valid,err=R.Received(recipient,{directHistory=staged});if not valid then return false,err end
+    storage.directHistory=staged;R.Changed();return true,id
+end
+function R.ReceivedFor(recipient,subject,family)
+    local rows,why=R.Received(recipient);if not rows then return nil,why end
+    local out={};for _,row in ipairs(rows) do if row.snapshot.guid==subject and (not family or row.snapshot.family==family) then out[#out+1]=ns.Athena.Copy(row) end end
+    table.sort(out,function(a,b) return a.snapshot.observedAt>b.snapshot.observedAt end);return out
+end
+function R.DeleteReceived(recipient,id,explicit)
+    if explicit~=true or recipient~=ns.PlayerCard.Own() then return false,'EXACT_RECIPIENT_CONFIRMATION_REQUIRED' end
+    local rows,why=R.Received(recipient);if not rows then return false,why end
+    local staged=ns.Athena.Copy(R.db.directHistory);if not staged then return false,'RECEIVED_NOT_FOUND' end
+    for i,row in ipairs(rows) do if row.id==id then table.remove(staged.owners[recipient],i);R.db.directHistory=staged;R.Changed();return true end end
+    return false,'RECEIVED_NOT_FOUND'
 end
 function R.Find(id)
     if not R.db then return end
@@ -163,9 +223,9 @@ function R.SetInboxState(key,state)
 end
 function R.Export(r,inbox)
     if not r then return 'Choose a report.' end
-    local p=r.wire and R.Decode(r.wire) or R.Payload(r)
+    local p=r.wire and R.Decode(r.wire) or R.Payload(r,r.supportLocalOnly and R.Text(r.supportDiagnostics or '',1800) or '')
     if not p then return 'This report needs recovery.' end
-    local lines={'Olympus Warden bug report',p.id,'Version: '..p.version,'Module: '..p.module,'Category: '..p.category,'Status: '..r.state}
+    local lines={'Fireside bug report',p.id,'Version: '..p.version,'Module: '..p.module,'Category: '..p.category,'Status: '..r.state}
     if inbox then lines[#lines+1]='Received from: '..r.sender end
     if r.selfTestReceiver then lines[#lines+1]='Developer self-test to: '..r.selfTestReceiver end
     if not inbox and r.wire then lines[#lines+1]='Automatic delivery: '..(r.autoRetry==true and 'enabled' or 'paused / completed') end

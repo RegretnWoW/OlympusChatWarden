@@ -103,8 +103,7 @@ function ns.OpenCategories()
         close:SetScript("OnClick", function() categoryWindow:Hide() end)
         categoryWindow:HookScript("OnShow", Sync)
     end
-    local width, height = UIParent:GetWidth(), UIParent:GetHeight()
-    categoryWindow:SetScale(math.min(1, math.max(0.5, (width - 30) / 650), math.max(0.5, (height - 30) / 620)))
+    T.FitWindow(categoryWindow,650,620)
     Sync(); T.ShowWindow(categoryWindow)
 end
 function ns.BuildOptions(requested)
@@ -285,6 +284,7 @@ SLASH_OLYMPUSCHATWARDEN1 = "/chatwarden"
 SLASH_OLYMPUSCHATWARDEN2 = "/ocw"
 SLASH_OLYMPUSCHATWARDEN3 = "/warden"
 SLASH_OLYMPUSCHATWARDEN4 = "/ow"
+SLASH_OLYMPUSCHATWARDEN5 = "/fireside"
 SlashCmdList.OLYMPUSCHATWARDEN = function(message)
     if not ns.DB then return end
     local command, argument = (message or ""):match("^%s*(%S*)%s*(.-)%s*$")
@@ -324,7 +324,7 @@ SlashCmdList.OLYMPUSCHATWARDEN = function(message)
             ns.Print("Optional warning/redaction history " .. argument .. ". High-confidence items always go to review. Existing entries remain until clear/reload.")
         else ns.Print("History is " .. (ns.DB.history and "on" or "off") .. ": " .. #ns.Review.entries .. " session entries. Use /ocw history on|off.") end
     elseif command == "minimap" then
-        ns.Workspace.Open('settings');ns.Print('The optional Warden minimap button is in CommandWarden > Settings. It starts off.')
+        ns.Workspace.Open('settings');ns.Print('The optional Fireside minimap button is in CommandWarden > Settings. It starts off.')
     elseif command == "on" or command == "off" then
         ns.DB.enabled = command == "on"
         ns.PolicyChanged(); Sync()

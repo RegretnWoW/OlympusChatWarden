@@ -21,8 +21,8 @@ local v103={version='1.0.3',subtitle='Your history, preserved',cards={
 }}
 -- Keep published notes here when adding a new release. Older cards retain the
 -- wording shipped in those versions; browsing them does not change settings.
-local v110={version='1.1.0',subtitle='Your whole adventure, one Warden suite',cards={
-    {'Welcome to Olympus Warden','Six connected modules bring your Chronicle, player dossiers, chat, signals and contact protection into one Olympus workspace.','overview'},
+local v110={version='1.1.0',subtitle='Your whole adventure, one Fireside suite',cards={
+    {'Welcome to Fireside','Six connected modules bring your Chronicle, player dossiers, chat, signals and contact protection into one Olympus workspace.','overview'},
     {'ChronicleWarden comes first','Browse recorded milestones, shared activities, dungeon visits and optional duels. Dates, companions and original evidence stay connected.','chronicle'},
     {'Meet IntelWarden','Revisit remembered players, private notes and historical gear or talents. A live model appears only for the exact available player.','intel'},
     {'Duels with their own history','Separate opt-in keeps individual duel encounters and supported before/after observations. Unchanged gear and talents reuse saved configurations.','chronicle'},
@@ -34,7 +34,7 @@ local v111={version='1.1.1',subtitle='CommandWarden, RelayWarden and safer histo
     {'CommandWarden and feature choices','Choose Chat Only or individual features in one control center. Disabling a module keeps saved history, notes and recording choices.','modules'},
     {'Meet RelayWarden','Submit once. My Reports tracks validated delivery and retries while online. Drafts stay local; Technical Details starts off.','relay'},
     {'A clearer Olympus workspace','Larger crests, clear ON/OFF states and adaptive Olympus controls improve readability. Chat Capture still defaults off.','overview'},
-    {'Your character becomes ready first','Your current character validates first; other archives load on request. Chat reports 25/50/75/100% progress with Warden closed.','chronicle'},
+    {'Your character becomes ready first','Your current character validates first; other archives load on request. Chat reports 25/50/75/100% progress with Fireside closed.','chronicle'},
     {'Protect eligible startup events','Accepted startup events survive normal logout/reload. Overflow is counted; movement, inspections and full duels remain partly uncaptured.','recording'},
     {'Dossiers, notes and complete backups','Player menus open exact saved dossiers, notes and watchlist entries. One Windows backup keeps history, reports and pending recovery.','intel'},
 }}
@@ -48,19 +48,35 @@ local v113={version='1.1.3',subtitle='Inspection, shortcuts and reliable views',
     {'Historical talent trees','Browse recorded native positions, connections and ranks. Zoom scales icons and labels together; Reset always restores 100%. Copy exports in a separate dialog.','intel'},
     {'Equipment tooltips and links','Recorded item IDs get native item-type tooltips and clearly labeled links. Exact saved modifiers take priority; short owned-cache retries can complete late inspection links.','intel'},
     {'Reports appear after login','My Reports and Developer Inbox now populate saved reports before any new submission. Delivery behavior and existing reports are unchanged.','relay'},
-    {'Three native shortcuts','Optional shop, minimap and Inspect side-tab shortcuts use native framing and Warden artwork. Each starts off in CommandWarden Settings.','settings'},
+    {'Three native shortcuts','Optional shop, minimap and Inspect side-tab shortcuts use native framing and Fireside artwork. Each starts off in CommandWarden Settings.','settings'},
     {'Safer tooltips and cleaner views','Protected tooltip text is checked before comparison. Duplicate CommandWarden header buttons and overlapping talent instructions are removed.','overview'},
     {'Inspect from Olympus','Inspect target opens normal Blizzard inspection and the exact recorded Intel dossier. Consent, history and module choices stay intact.','olympus'},
 }}
-ns.InstalledUpdate={version=release,subtitle='Athena — retained history and player intelligence',cards={
-    {'Athena and your recorded story','Local evidence links feed dossiers, Timeline and source-backed Journal chapters. Missing facts stay unknown; no player sync.','chronicle'},
-    {'Living dossiers, meaningful collection','Watches prompt eligible enrichment. Important players qualify for richer detail; ordinary players keep relevant light context.','intel'},
-    {'Contextual casts and observed effects','Routine cast phases use dated counts; interruptions stay separate. Readable aura evidence keeps its source and uncertainty.','chronicle'},
-    {'Startup recovery and kept history','Eligible startup events use local recovery. Accepted history stays kept, and text backup waits for uncommitted observations.','recording'},
-    {'More stable, less repetitive browsing','Targeted meter reads, cooperative indexes and stable reading pages reduce repeated work. Full change notes accompany this build.','overview'},
-    {'Intel retained-page hotfix','Reopened player rows, saved notes and watch controls wait for the real history view. BG target navigation keeps its earlier fix.','intel'},
+local dev8={version='1.1.4-athena-living-dev8',subtitle='Athena’s Journal — The Journey DEV8',cards={
+    {'A continuous manuscript','The Journey gathers meaningful quest and activity developments into connected scenes. Routine roster observations and skill polls stay in the evidence archive.','chronicle'},
+    {'The world and your own story','A historical prologue leads into your character’s life. Bundled quest references add supported motives, objectives and context, with future outcomes kept behind their reveal gates.','chronicle'},
+    {'Books drawn from one life','Collections and Lore of Azeroth remain other paths through the same retained history. Reading positions, chapter navigation and Sources & Limits stay close at hand.','chronicle'},
+    {'Private memories, by choice','Conversation preservation starts off. Selected, permitted memories can accompany an adventure; private speech never becomes proof of its outcome.','settings'},
+    {'Less repeated work in crowds','Large guild rosters retain compact change signatures. Unchanged meter results avoid repeat hashing, and empty meter timers stop creating a stream of records.','overview'},
+    {'History and membership','Existing history and consent stay kept. Olympus guild verification is active. This development candidate still needs native performance and reading checks.','recording'},
 }}
-ns.UpdateHistory={ns.InstalledUpdate,v113,v112,v111,v110,v103,previous,
+local dev10={version='1.1.4-athena-living-dev10',subtitle='Athena’s Journal — The Bronze Chronicle DEV10',cards={
+    {'A bronze magical book','Fitted pages, a wide two-page spread, animated page turns and a word-by-word blue ink reveal. Choose instant page effects in Reading options.','chronicle'},
+    {'Keep your completed reading','Suitable saved reading copies reopen after normal logout or reload. Athena keeps the old book visible while its finished replacement is prepared.','recording'},
+    {'Another telling of your journey','Regenerate varies wording and eligible lore without changing your recorded deeds. Parallel quest work and returns can share connected passages.','chronicle'},
+    {'The Lore Codex','147 subjects and 238 sourced facts enrich the organized lore library and relevant scenes. Warcraft III through Classic/Forever; missing fields stay unknown.','chronicle'},
+    {'Open early, keep reading','Opening during archive validation now waits and continues. Library controls keep their layout, and public historical lore can open while personal history loads.','overview'},
+    {'Your sources and choices stay kept','The 5,020-quest corpus and accepted history remain intact. Guild verification is active. Native animation, layout and crowd performance checks remain pending.','settings'},
+}}
+ns.InstalledUpdate={version=release,subtitle='Athena’s Journal — Metis 1.0',cards={
+    {'Meet Metis','One narrative director now brings significance, scene planning, lore, continuity, composition and editorial checks into the same engine.','chronicle'},
+    {'Plan before composing','Parallel errands can share one planned scene. Interrupted updates revise the same subject when no other scene intervenes.','chronicle'},
+    {'Manuscript memory','Rebuildable source anchors track introduced developments, unfinished quests, recurring people and earlier close calls. A return can receive a spaced, source-backed callback.','chronicle'},
+    {'A final editorial gate','Every narrative path uses the same reference checks. A failed replacement keeps your completed reading copy available.','recording'},
+    {'Consistent book typography','Missing scaled font families are included. Body paragraphs and page measurements use the same size rules, including quotations.','settings'},
+    {'Your world and history stay kept','Bronze book effects, saved copies and Regenerate remain. The quest and lore corpora are unchanged; normal guild verification stays active. Native checks remain pending.','overview'},
+}}
+ns.UpdateHistory={ns.InstalledUpdate,dev10,dev8,v113,v112,v111,v110,v103,previous,
     {version='1.0.1',subtitle='Archived release notes',cards={
         {'Smarter filtering','Better context handling means fewer false matches in questions, criticism and ordinary discussion.','messages'},
         {'First-name Mentions','Your first name or full name can trigger Mentions. No @ needed, and Capture can stay off.','mentions'},

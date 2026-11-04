@@ -6,11 +6,13 @@ local P={};ns.AthenaPersonalSources=P
 P.sources={MAIL_SEND_SUCCESS=true,MAIL_SUCCESS=true,AUCTION_HOUSE_AUCTION_CREATED=true,
     TRADE_SHOW=true,TRADE_ACCEPT_UPDATE=true,TRADE_CLOSED=true,TRADE_REQUEST_CANCEL=true,PARTY_INVITE_REQUEST=true,PARTY_INVITE_CANCEL=true,
     TAXIMAP_OPENED=true,TAXIMAP_CLOSED=true}
+for _,event in ipairs(ns.ChronicleMerchant.events) do P.sources[event]=true end
 local own,sequence,trade,taxi=nil,0,nil,false
-function P.Start() own=C.Owner();sequence=0;trade=nil;taxi=false end
-function P.Stop() own=nil;trade=nil;taxi=false end
+function P.Start() own=C.Owner();sequence=0;trade=nil;taxi=false;ns.ChronicleMerchant.Start() end
+function P.Stop() own=nil;trade=nil;taxi=false;ns.ChronicleMerchant.Stop() end
 function P.Handle(event,a,b)
     if not C.PersonalEnabled() or not X.Ready() or own~=C.Owner() or not P.sources[event] then return end
+    ns.ChronicleMerchant.Handle(event,a,b)
     local phase,scope,provisional
     local auction,playerAccepted,targetAccepted
     if event=='TRADE_SHOW' then if trade then return end;trade={};phase='Trade window observed';scope='own trade UI opened; transfer not established'

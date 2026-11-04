@@ -41,17 +41,19 @@ function P.End(name,start,units)
     local elapsed=now-start;row.calls=row.calls+1;row.total=row.total+elapsed;row.max=math.max(row.max,elapsed);row.units=row.units+(units or 0)
 end
 function P.Report()
-    ns.Print('Warden profiling '..(P.active and 'running' or 'off')..'. Batch target: '..P.MS..' ms; an individual operation or GC can exceed it.')
+    ns.Print('Fireside profiling '..(P.active and 'running' or 'off')..'. Batch target: '..P.MS..' ms; an individual operation or GC can exceed it.')
     local memory=ns.SafeCall(collectgarbage,'count')
-    if ns.SafeNumber(memory) then ns.Print(string.format('Whole UI Lua heap: %.1f MiB (all addons, not Warden alone).',memory/1024)) end
+    if ns.SafeNumber(memory) then ns.Print(string.format('Whole UI Lua heap: %.1f MiB (all addons, not Fireside alone).',memory/1024)) end
     local addons=C_AddOns
     ns.SafeCall(addons and addons.UpdateAddOnMemoryUsage or UpdateAddOnMemoryUsage)
     local own=ns.SafeCall(addons and addons.GetAddOnMemoryUsage or GetAddOnMemoryUsage,'OlympusChatWarden')
-    if ns.SafeNumber(own) then ns.Print(string.format('Client-attributed Warden memory: %.1f MiB.',own/1024)) end
-    local names={};for name in pairs(P.stats) do names[#names+1]=name end;table.sort(names)
-    for _,name in ipairs(names) do local r=P.stats[name];ns.Print(string.format('%s: %d calls, %.2f ms total, %.3f ms/call, %.2f ms max, %d work units.',name,r.calls,r.total,r.total/math.max(1,r.calls),r.max,r.units))
+    if ns.SafeNumber(own) then ns.Print(string.format('Client-attributed Fireside memory: %.1f MiB.',own/1024)) end
+    local names={};for name in pairs(P.stats) do names[#names+1]=name end
+    table.sort(names,function(a,b) if P.stats[a].total~=P.stats[b].total then return P.stats[a].total>P.stats[b].total end;return a<b end)
+    for i=1,math.min(12,#names) do local name=names[i];local r=P.stats[name];ns.Print(string.format('%s: %d calls, %.2f ms total, %.3f ms/call, %.2f ms max, %d work units.',name,r.calls,r.total,r.total/math.max(1,r.calls),r.max,r.units))
         if r.heapGrowth then ns.Print(string.format('  Sampled heap growth %.1f KiB; net %.1f KiB. Includes GC/nested calls; not retained allocation.',r.heapGrowth,r.heapNet)) end
     end
+    if #names>12 then ns.Print((#names-12)..' smaller timing categories omitted; showing the 12 largest totals first.') end
     ns.Print('Timings are inclusive: nested measurements overlap. Profiling adds overhead while enabled; normal gameplay reads no diagnostic timers or heap samples.')
     local S=ns.ChronicleStore;local residency=S.Residency();local events,profiles,bytes=residency.loadedEvents,residency.loadedProfiles,residency.expandedBytes
     if not residency.validated then ns.Print('Retained ledger is not validated in this session; historical totals are unavailable.')
@@ -60,7 +62,7 @@ function P.Report()
     local J=ns.ChronicleStartupJournal
     if J then ns.Print('Startup recovery: '..J.Count()..' local observations awaiting merge'..(J.Busy() and ' (recovering).' or '.')..(J.error and ' '..J.error or '')) end
     if S and S.LoadStatus then
-        local l=S.LoadStatus();if l.pumps>0 then ns.Print(string.format('History validation: %d / %d chunks; %d worker calls with Warden closed, %d open; longest callback interval %.2f s. Background FPS setting: %s.',l.chunks,l.totalChunks,l.closedPumps,l.openPumps,l.longestInterval,tostring(l.backgroundFPS or 'unavailable'))) end
+        local l=S.LoadStatus();if l.pumps>0 then ns.Print(string.format('History validation: %d / %d chunks; %d worker calls with Fireside closed, %d open; longest callback interval %.2f s. Background FPS setting: %s.',l.chunks,l.totalChunks,l.closedPumps,l.openPumps,l.longestInterval,tostring(l.backgroundFPS or 'unavailable'))) end
         if l.elapsed then ns.Print(string.format('Current-character validation duration: %.2f s.',l.elapsed)) end
         if l.sampledPeakKiB then ns.Print(string.format('Sampled validation peak: %.1f MiB whole UI Lua heap (only sampled with profiling enabled).',l.sampledPeakKiB/1024)) end
         local all=S.allCharacterLoad;if all and all.started and all.finished then ns.Print(string.format('Explicit all-character loading duration: %.2f s.',all.finished-all.started)) end
@@ -79,8 +81,8 @@ function P.Report()
 end
 function P.Slash(text)
     local action=(text or ''):lower()
-    if action=='start' then P.active=true;P.stats={};ns.Print('Warden profiling started for this login. Use /warden perf stop when finished.')
+    if action=='start' then P.active=true;P.stats={};ns.Print('Fireside profiling started for this login. Use /fireside perf stop when finished.')
     elseif action=='stop' then P.Report();P.active=false;P.stats={}
-    elseif action=='reset' then P.stats={};ns.Print('Warden profile measurements reset.')
+    elseif action=='reset' then P.stats={};ns.Print('Fireside profile measurements reset.')
     else P.Report();ns.Print('/warden perf start | status | stop | reset. Measurements stay in memory for this login only.') end
 end

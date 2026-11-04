@@ -30,8 +30,8 @@ local function Save(kind,key,data,source,evidence)
 end
 local function Yield() coroutine.yield() end
 local function Schedule(key,fn)
-    if jobs[key] then jobs[key].again=fn;return end
-    jobs[key]={thread=coroutine.create(fn)};queue[#queue+1]=key
+    if jobs[key] then jobs[key].again=fn;jobs[key].context.lastAt=C.Stamp();return end
+    jobs[key]={thread=coroutine.create(fn),context={queued=true,at=C.Stamp(),lastAt=C.Stamp()}};queue[#queue+1]=key
 end
 function E.Pending() return #queue end
 function E.Pump()
@@ -40,7 +40,7 @@ function E.Pump()
     -- Four rows per frame. Bursts coalesce by collector, never an unbounded timer queue.
     for _=1,4 do
         local key=queue[1];if not key then break end
-        local job=jobs[key];local ok=coroutine.resume(job.thread)
+        local job=jobs[key];local previous=C.timeContext;C.timeContext=job.context;local ok=coroutine.resume(job.thread);C.timeContext=previous
         if not ok then E.diagnostics.errors=E.diagnostics.errors+1;if ns.ChronicleCoverage then ns.ChronicleCoverage.Note('Own-character detail','failed','An asynchronous observation failed; no inferred replacement') end end
         if not ok or coroutine.status(job.thread)=='dead' then
             table.remove(queue,1);jobs[key]=nil
@@ -55,9 +55,10 @@ function E.ItemString(link,id)
 end
 function E.Character(source)
     local version,build,buildDate,interface=Call('GetBuildInfo')
-    local _,_,classID=Call('UnitClass','player');local _,_,raceID=Call('UnitRace','player')
+    local _,class,classID=Call('UnitClass','player');local _,race,raceID=Call('UnitRace','player')
     local data={locale=S.Text(Call('GetLocale'),16),clientVersion=S.Text(version,64),build=S.Text(build,32),
         buildDate=S.Text(buildDate,64),interface=S.Integer(interface,1),classID=S.Integer(classID,1,1000),raceID=S.Integer(raceID,1,1000),
+        class=S.Text(class,64),race=S.Text(race,64),faction=S.Text(Call('UnitFactionGroup','player'),64),
         sex=S.Integer(Call('UnitSex','player'),1,3),restedXP=S.Integer(Call('GetXPExhaustion'),0),
         honor=S.Integer(Call('UnitHonor','player'),0),honorMax=S.Integer(Call('UnitHonorMax','player'),0),
         honorLevel=S.Integer(Call('UnitHonorLevel','player'),0)}
@@ -216,7 +217,7 @@ function E.Handle(event,...)
     elseif event=='QUEST_ACCEPTED' then
         -- Modern: questID. Older documented contract: logIndex, questID.
         local data=ns.ChronicleSource.Quest(event,a,b)
-        if data then C.Record('quest_accepted',event,data,nil,'confirmed');E.Quests(event) end
+        if data then if ns.ChronicleHistory then ns.ChronicleHistory.QuestNPC(data) end;C.Record('quest_accepted',event,data,nil,'confirmed');E.Quests(event) end
     elseif event=='QUEST_REMOVED' then
         local data=ns.ChronicleSource.Quest(event,a,b);if data then C.Record('quest_removed',event,data,nil,'confirmed') end
     elseif event=='QUEST_LOG_UPDATE' then E.Quests(event)
@@ -240,5 +241,6 @@ local events={'PLAYER_EQUIPMENT_CHANGED','UNIT_INVENTORY_CHANGED','QUEST_ACCEPTE
     'PLAYER_REGEN_DISABLED','PLAYER_CONTROL_GAINED','PLAYER_CONTROL_LOST','UNIT_ENTERED_VEHICLE','UNIT_EXITED_VEHICLE'}
 for _,event in ipairs(events) do E.registered[event]=pcall(frame.RegisterEvent,frame,event) end
 frame:SetScript('OnEvent',function(_,event,...)
-    local ok=pcall(E.Handle,event,...);if not ok then E.diagnostics.errors=E.diagnostics.errors+1 end
+    local previous=C.timeContext;C.timeContext=C.EventContext(event)
+    local ok=pcall(E.Handle,event,...);C.timeContext=previous;if not ok then E.diagnostics.errors=E.diagnostics.errors+1 end
 end)

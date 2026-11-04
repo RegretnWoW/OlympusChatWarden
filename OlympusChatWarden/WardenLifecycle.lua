@@ -49,6 +49,7 @@ function M.ScopeChanged()
         previousScope=scope;ns.Chronicle.ModuleBoundary();M.ClearHistoryCaches()
         if M.Enabled('history') then M.LoadHistory();ns.Chronicle.RefreshGate() else ns.ChronicleStore.CancelLoad() end
     end
+    if ns.AthenaConversations then ns.AthenaConversations.RefreshCapture() end
     if ns.Workspace and ns.Workspace.window then ns.Workspace.Queue() end
 end
 M.Register('chat',function() if ns.RulePacks.RuntimeDeferred then ns.RulePacks.Initialize() end;Init('Language');Init('ChatCapture');Init('Spelling') end,function()
@@ -57,7 +58,7 @@ M.Register('chat',function() if ns.RulePacks.RuntimeDeferred then ns.RulePacks.I
     ns.Matcher=nil;ns.BodyReplacements=nil;ns.Gommage=nil;ns.RulePacks.RuntimeDeferred=true
 end,function()
     if ns.RulePacks.RuntimeDeferred then ns.RulePacks.Initialize() end
-    if not ns.Initializing and ns.Membership.Allowed() then ns.PacksSuspended=nil;ns.RulePacks.Restore() end
+    if not ns.Initializing and ns.Permissions.Decide('ChatFilter') then ns.PacksSuspended=nil;ns.RulePacks.Restore() end
     if ns.InstallAdapters then ns.InstallAdapters() end
 end)
 M.Register('shield',function() Init('Shield') end,function() ns.Shield.Suspend();ns.Spam.Reset() end)

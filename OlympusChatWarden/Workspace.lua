@@ -1,24 +1,25 @@
 -- One live workspace, backed by the existing filtering and storage modules.
 local _,ns=...
 local V,T,A=ns.Art,ns.Theme,ns.Activity
-local W={pages={},navigation={},legacyFrames={},width=1440,height=900,leftOverhang=5,bottomOverhang=4};ns.Workspace=W
+local W={pages={},navigation={},legacyFrames={},width=1440,height=960,leftOverhang=5,bottomOverhang=4};ns.Workspace=W
 local definitions={
-    {'overview','CommandWarden','Your dashboard, modules, performance and shared settings.'},
-    {'chronicle','ChronicleWarden','Your own adventures, milestones and recorded time.'},
-    {'intel','IntelWarden','Recently met players and profiles from retained evidence.'},
+    {'overview','Home','Your dashboard, recent activity and contextual opportunities.'},
+    {'journey','Journey','Open Athena’s illustrated journal and its collections.'},
+    {'chronicle','Chronicle','Your own adventures, milestones and recorded time.'},
+    {'intel','Intel','Recently met players and profiles from retained evidence.'},
+    {'messages','Chat','Messages, Capture, Rules, Packs and Reports.'},
+    {'shield','Shield','Manage local shields, allowed players and contact alerts.'},
+    {'mentions','Signal','Personal mentions, Wanted encounters and observed OlympusMute sharing.'},
+    {'relay','Relay','Bug reports, networking, diagnostics, data, backups and help.'},
     {'activity','Recent activity','Chat, signals and protection activity.'},
-    {'messages','ChatWarden','Messages, Capture, Rules, Packs and Reports.'},
-    {'mentions','SignalWarden','Personal mentions, Wanted encounters and observed OlympusMute sharing.'},
-    {'shield','ShieldWarden','Manage local shields, allowed players and contact alerts.'},
-    {'relay','RelayWarden','Bug reports, diagnostics, data, backups and help.'},
     {'capture','Chat Capture','Search, bookmark and revisit locally recorded conversations.'},
     {'recording','Data & Backups','Inspect recorded events, collection status and backups.'},
     {'rules','My Rules','Your personal phrase actions and exceptions.'},
     {'packs','Rule Packs','Author-signed categories with independent controls.'},
     {'reports','My Reports','Read saved feedback and review exactly what you share.'},
     {'updates','Updates & Help','Release notes, guides and optional pack downloads.'},
-    {'settings','CommandWarden','Shared appearance, window size and Warden preferences.'},
-    {'modules','Modules & Performance','Choose your Warden features. Disabled modules keep saved data.'},
+    {'settings','Settings','Suite configuration, modules, appearance, recording and protection preferences.'},
+    {'modules','Modules & Performance','Choose your Fireside features. Disabled modules keep saved data.'},
     {'performance','Performance','Module runtime states and safe diagnostics.'},
 }
 local labels={};for _,d in ipairs(definitions) do labels[d[1]]=d end
@@ -195,7 +196,7 @@ function W.Ensure()
     header:EnableMouse(true);header:RegisterForDrag('LeftButton');header:SetScript('OnDragStart',function() root:StartMoving() end)
     header:SetScript('OnDragStop',function() root:StopMovingOrSizing() end)
     local logo=V.Texture(header,'Logo',{0,0,512,512},'OVERLAY');logo:SetSize(100,100);logo:SetPoint('TOPLEFT',4,7)
-    V.Text(header,'Olympus Warden',115,-25,460,27,V.gold)
+    V.Text(header,'Fireside',115,-25,460,27,V.gold)
     W.filterButton=V.IconButton(header,'messages',44,729,-14,function() W.ToggleFeature('filtering') end,'ChatWarden filtering','Click to enable or pause filtering. The crest stays the same; ON/OFF shows its state.');W.filterStatus=V.Text(header,'',785,-28,135,12);W.filterStatus:SetHeight(24);W.filterStatus:SetJustifyV('MIDDLE')
     W.shieldButton=V.IconButton(header,'shield',44,930,-14,function() W.ToggleFeature('shield') end,'ShieldWarden','Click to enable or pause all Shield protection. The crest stays the same; ON/OFF shows its state.');W.shieldStatus=V.Text(header,'',986,-28,102,12);W.shieldStatus:SetHeight(24);W.shieldStatus:SetJustifyV('MIDDLE')
     W.olympusButton=V.IconButton(header,'olympus',25,1105,-24,function() local _,message=ns.OlympusIntegration.Open();if message then ShowStatus(message) end;W.Queue() end,'Olympus','Open Olympus and bring it to the front.')
@@ -206,63 +207,39 @@ function W.Ensure()
     end)
     V.Button(header,'X',1362,-16,38,38,function() root:Hide() end,'danger')
     W.totalBadge=V.Badge(header,-48,-48)
-    local sidebar=V.Panel(root,12,-101,236,778,'sidebar')
+    -- One global navigation surface. Context rails are owned by a feature.
+    W.globalNavigation=V.Panel(root,12,-100,1416,48,'dark')
     local index=0
     for _,d in ipairs(definitions) do if NavID(d[1])==d[1] and d[1]~='modules' then
         index=index+1
-        local id=d[1];local label=id=='updates' and 'Updates & Help' or d[2]
-        local b=V.Button(sidebar,label,8,-12-(index-1)*64,220,62,function() W.Open(id) end,'row')
-        b.WardenClickSound='tab'
-        local fontPath=b.Caption:GetFont();if not T.DocumentFont(b.Caption,16) then b.Caption:SetFont(fontPath,16,'') end
-        b.Caption:ClearAllPoints();b.Caption:SetPoint('LEFT',72,0);b.Caption:SetWidth(140);b.Caption:SetJustifyH('LEFT')
-        b.Icon=V.Icon(b,id,60,6,-1);b.SelectedArt=V.Nine(b,'selected');b.SelectedArt:SetShown(false)
-        b.Badge=V.Badge(b,-4,-11);W.navigation[id]=b
-        T.Tooltip(b,d[2],d[3])
+        local id=d[1]
+        local b=V.Button(W.globalNavigation,d[2],6+(index-1)*156,-5,150,38,function() W.Open(id) end,'tabOff')
+        b.WardenClickSound='tab';b.Caption:ClearAllPoints();b.Caption:SetPoint('LEFT',42,0);b.Caption:SetWidth(100);b.Caption:SetJustifyH('LEFT')
+        b.Icon=V.Icon(b,id,32,5,-3);b.SelectedArt=V.Nine(b,'selected');b.SelectedArt:SetShown(false)
+        b.Badge=V.Badge(b,-3,-3);b.moduleID=id;W.navigation[id]=b;T.Tooltip(b,d[2],d[3])
     end end
-    -- Measure the complete labels with the client's actual font. Use one size
-    -- for the whole sidebar so CommandWarden fits without shrinking its crest.
-    local navMeasure=sidebar:CreateFontString(nil,'OVERLAY');navMeasure:Hide()
-    local navSize=16
-    while navSize>12 do
-        local fits=true
-        for _,b in pairs(W.navigation) do
-            local path=b.Caption:GetFont()
-            if not T.DocumentFont(navMeasure,navSize) then navMeasure:SetFont(path,navSize,'') end
-            navMeasure:SetText(b:GetText())
-            if (navMeasure:GetStringWidth() or 0)>b.Caption:GetWidth()-4 then fits=false;break end
-        end
-        if fits then break end;navSize=navSize-1
-    end
-    for _,b in pairs(W.navigation) do
-        local path=b.Caption:GetFont()
-        if not T.DocumentFont(b.Caption,navSize) then b.Caption:SetFont(path,navSize,'') end
-    end
-    W.LayoutNavigation()
-    W.profile=CreateFrame('Frame',nil,sidebar);W.profile:SetPoint('TOPLEFT',10,-476);W.profile:SetSize(216,102)
-    W.profileRows={}
-    for i,label in ipairs({'Guild','Rank','Title'}) do
-        local row={label=V.Text(W.profile,label,0,-(i-1)*34,44,10,V.blue),value=V.Text(W.profile,'',50,-(i-1)*34,164,12,V.gold)}
-        row.value:SetHeight(32);row.value:SetWordWrap(true);row.value:SetJustifyV('TOP')
-        if row.value.SetMaxLines then row.value:SetMaxLines(2) end
-        W.profileRows[i]=row
-    end
-    T.Tooltip(W.profile,'Olympus Profile','Your guild, rank and selected title come from Olympus after you grant access.');W.profile:EnableMouse(true)
-    W.LayoutNavigation() -- Also place the profile correctly on a cold minimal start.
-    W.guardian=V.Texture(sidebar,'Guardian',{0,0,1024,1024},'ARTWORK');W.LayoutGuardian(false)
-    W.pageHeader=V.Panel(root,260,-101,1168,76,'dark')
-    W.pageIcon=V.Icon(W.pageHeader,'overview',72,12,-2)
-    W.heading=V.Text(W.pageHeader,'',100,-10,810,22,V.gold);W.heading:SetHeight(28);W.heading:SetWordWrap(false)
-    W.pageToggle=V.Button(W.pageHeader,'',920,-8,228,32,function() W.ToggleFeature(W.current) end,'button')
-    W.pageIconButton=CreateFrame('Button',nil,W.pageHeader);W.pageIconButton:SetPoint('TOPLEFT',12,-2);W.pageIconButton:SetSize(72,72);W.pageIconButton.Icon=W.pageIcon
+    -- Keep the existing authorized profile values available to the header tooltip.
+    W.profile=CreateFrame('Frame',nil,header);W.profile:Hide();W.profileRows={}
+    for i,label in ipairs({'Guild','Rank','Title'}) do W.profileRows[i]={label=V.Text(W.profile,label,0,0,44,10),value=V.Text(W.profile,'',50,0,164,12)} end
+    W.guardian=V.Texture(W.profile,'Guardian',{0,0,1024,1024},'ARTWORK')
+    T.Tooltip(logo,'Fireside','Your Olympus profile, when available, remains supplied by the authorized Olympus connection.')
+    W.backButton=V.Button(header,'Back',580,-22,118,32,function() if W.Back then W.Back() end end,'neutral');W.backButton:Hide()
+    W.pageHeader=V.Panel(root,12,-154,1416,64,'dark')
+    W.pageIcon=V.Icon(W.pageHeader,'overview',48,10,-6)
+    W.heading=V.Text(W.pageHeader,'',70,-4,1000,20,V.gold);W.heading:SetHeight(28);W.heading:SetWordWrap(false)
+    W.pageToggle=V.Button(W.pageHeader,'',1166,-7,228,28,function() W.ToggleFeature(W.current) end,'button')
+    W.pageIconButton=CreateFrame('Button',nil,W.pageHeader);W.pageIconButton:SetPoint('TOPLEFT',10,-6);W.pageIconButton:SetSize(48,48);W.pageIconButton.Icon=W.pageIcon
     W.pageIconButton:SetScript('OnClick',function() W.ToggleFeature(W.current) end)
     T.Tooltip(W.pageIconButton,'Feature Switch','Click to enable or pause this feature. Saved records and settings are kept.')
 
-    W.tabHost=CreateFrame('Frame',nil,W.pageHeader);W.tabHost:SetPoint('TOPLEFT',86,-42);W.tabHost:SetSize(1066,28)
+    W.tabHost=CreateFrame('Frame',nil,W.pageHeader);W.tabHost:SetPoint('TOPLEFT',70,-33);W.tabHost:SetSize(1320,28)
     W.chatTabHost=CreateFrame('Frame',nil,W.pageHeader);W.chatTabHost:SetPoint('TOPLEFT',100,-42);W.chatTabHost:SetSize(1052,28);W.chatTabHost:Hide()
-    W.canvas=CreateFrame('Frame',nil,root);W.canvas:SetPoint('TOPLEFT',274,-190);W.canvas:SetSize(1140,676)
+    W.canvas=CreateFrame('Frame',nil,root);W.canvas:SetPoint('TOPLEFT',150,-230);W.canvas:SetSize(1140,700)
     W.legacyHost=CreateFrame('ScrollFrame',nil,W.canvas);W.legacyHost:SetAllPoints();W.legacyHost:Hide()
-    W.status=V.Text(root,'History stays local. Report delivery starts only after Submit.',274,-875,1030,11,V.muted)
-    V.Text(root,'v'..ns.VERSION,1297,-875,118,11,V.gold)
+    W.status=V.Text(root,'History stays local. Report delivery starts only after Submit.',24,-945,1000,11,V.muted)
+    W.status:SetWordWrap(false);W.status:SetHeight(18)
+    local version=V.Text(root,'v'..ns.VERSION,1040,-945,375,11,V.gold)
+    version:SetJustifyH('RIGHT');version:SetWordWrap(false);version:SetHeight(18)
     root:HookScript('OnShow',W.Refresh)
     local screen=CreateFrame('Frame',nil,root);screen:RegisterEvent('DISPLAY_SIZE_CHANGED');screen:RegisterEvent('UI_SCALE_CHANGED')
     screen:SetScript('OnEvent',function() if W.Fit then W.Fit() end end)
@@ -272,37 +249,12 @@ function W.Ensure()
     W.LayoutNavigation()
 end
 function W.Tabs(specs,current)
-    local chat=chatPages[W.current]
-    local relay=relayPages[W.current]
-    W.chatTabHost:SetShown(chat==true or relay==true)
+    W.chatTabHost:Hide()
     for _,button in ipairs(W.chatTabs or {}) do button:Hide() end
     for _,button in ipairs(W.relayTabs or {}) do button:Hide() end
-    if chat then
-        W.chatTabs=W.chatTabs or {}
-        for i,s in ipairs({{'messages','Messages'},{'capture','Capture'},{'rules','Rules'},{'packs','Packs'},{'reports','Reports'},{'chat-settings','Settings'}}) do
-            local id=s[1];local b=W.chatTabs[i]
-            if not b then b=V.Button(W.chatTabHost,s[2],(i-1)*174,0,168,28,function() if id=='chat-settings' then W.SettingsSub('general') else W.Open(id) end end,'tabOff');b.ActiveArt=V.Nine(b,'tab');W.chatTabs[i]=b end
-            local selected=W.current==id or id=='chat-settings' and W.mounted~=nil
-            b.ActiveArt:SetShown(selected);b.ArtNormal:SetShown(not selected);b:Show()
-        end
-    end
-    if relay then
-        local choices={{'relay','Support'},{'recording','Data & Backups'},{'updates','Help & Updates'}}
-        local selected=W.current
-        W.relayTabs=W.relayTabs or {}
-        local width=280
-        for i,s in ipairs(choices) do
-            local id=s[1];local b=W.relayTabs[i]
-            if not b then b=V.Button(W.chatTabHost,'',0,0,width,28,function() end,'tabOff');b.ActiveArt=V.Nine(b,'tab');W.relayTabs[i]=b end
-            b:ClearAllPoints();b:SetPoint('TOPLEFT',(i-1)*(width+6),0);b:SetSize(width,28);b.Caption:SetWidth(width-18);b:SetText(s[2]);b:Show()
-            b:SetScript('OnClick',function()
-                W.Open(id)
-            end)
-            b.ActiveArt:SetShown(id==selected);b.ArtNormal:SetShown(id~=selected)
-        end
-    end
-    W.tabHost:ClearAllPoints();W.tabHost:SetPoint('TOPLEFT',100,(chat or relay) and -74 or -42)
+    W.tabHost:ClearAllPoints();W.tabHost:SetPoint('TOPLEFT',70,-33)
     W.LayoutHeader(#specs>0)
+    if W.RefreshContextRail then W.RefreshContextRail() end
     W.tabs=W.tabs or {};for _,tab in ipairs(W.tabs) do tab:Hide() end
     local x=0;local maximum=(W.tabHost:GetWidth()-math.max(0,#specs-1)*6)/math.max(1,#specs)
     for i,spec in ipairs(specs) do
@@ -314,12 +266,12 @@ function W.Tabs(specs,current)
     end
 end
 function W.LayoutHeader(hasTabs)
-    local height=(chatPages[W.current] or relayPages[W.current]) and (hasTabs and 108 or 76) or 76
-    W.pageHeader:SetHeight(height)
-    W.canvas:ClearAllPoints();W.canvas:SetPoint('TOPLEFT',274,-114-height)
-    W.canvas:SetHeight(752-height)
-    W.LayoutMounted()
-    W.LayoutRelayLegacy()
+    W.pageHeader:SetHeight(64)
+    local rail=W.settingsKey~=nil or chatPages[W.current]
+    local wide=W.current=='intel' or W.current=='journey'
+    W.canvas:ClearAllPoints();W.canvas:SetPoint('TOPLEFT',rail and 276 or wide and 24 or 150,-230)
+    W.canvas:SetSize(wide and not rail and 1392 or 1140,700)
+    W.LayoutMounted();W.LayoutRelayLegacy()
 end
 -- Legacy evidence/help pages retain their controls and internal routes. A small
 -- outer viewport accommodates the new primary Relay row without clipping tools.
@@ -350,6 +302,7 @@ function W.Place(widget,x,y,width,height,parent)
         if widget.Text and width then widget.Text:SetWidth(math.max(1,width-34)) end
     elseif width then widget:SetWidth(width) end
     if height then widget:SetHeight(height) end
+    if width and widget.Caption then widget.Caption:SetWidth(math.max(1,width-18)) end
     if height and widget.GetObjectType and widget:GetObjectType()=='FontString' then widget:SetJustifyV('TOP') end
     return widget
 end
@@ -367,7 +320,8 @@ function W.ToolTitle(frame,title)
 end
 function W.Header(id)
     local d=labels[id] or labels.overview
-    W.heading:SetText(commandPages[id] and 'CommandWarden' or chatPages[id] and 'ChatWarden' or relayPages[id] and 'RelayWarden' or d[2]);V.SetIcon(W.pageIcon,NavID(id));W.pageIcon:SetAlpha(1)
+    local section=ns.WardenBrand.sections[NavID(id)]
+    W.heading:SetText(section and section.name or d[2]);V.SetIcon(W.pageIcon,NavID(id));W.pageIcon:SetAlpha(1)
     if W.pageIcon.SetDesaturated then W.pageIcon:SetDesaturated(false) end
     -- Replace via the shared icon routine so reference rectangles stay in one module.
     for key,button in pairs(W.navigation) do button.SelectedArt:SetShown(key==NavID(id));button.ArtNormal:SetShown(key~=NavID(id)) end
@@ -408,7 +362,7 @@ function W.SetScale(percent)
     if not ns.Membership.Allowed() then return false end
     if percent~=nil then percent=tonumber(percent);if not percent or percent~=percent or percent<50 or percent>150 then return false,'Enter a percentage from 50 to 150.' end end
     ns.DB.workspaceScale=percent and math.floor(percent+.5)/100 or nil
-    W.Ensure();Fit();return true
+    W.Ensure();T.ApplyWindowScales();return true
 end
 local builders={}
 builders.modules=function() return ns.ModuleUI.Build(W.canvas) end
@@ -420,6 +374,12 @@ builders.chronicle=function() return ns.WardenUI.Build(W.canvas,'chronicle') end
 local Bookmark
 function W.Open(id)
     if not ns.DB or not ns.Membership.Allowed() then ns.Print(ns.Membership.Status());return false end
+    if id=='journey' then
+        if not ns.Modules.Enabled('chronicle') then W.Open('modules');return false end
+        local ok,book=ns.AthenaJournalWindow.Open()
+        if ok and W.window and not (book and book.workspaceEmbedded) then W.window:Hide() end
+        return ok,book
+    end
     if id=='alerts' then id='mentions' end
     id=({warden='overview',commandwarden='overview',chatwarden='messages',signalwarden='mentions',shieldwarden='shield',intelwarden='intel',chroniclewarden='chronicle',relaywarden='relay'})[id] or id
     id=labels[id] and id or 'overview';local requested=id;id=ns.Modules.Route(id)
@@ -440,25 +400,13 @@ function W.Destination(id)
     local opened,page=W.Open(id);if not opened or W.current~=id or not page then return nil end;return page
 end
 function W.CommandTabs(current)
-    local tabs={{'overview','Overview',function() W.Open('overview') end,210},
-        {'modules','Modules',function() W.Open('modules') end,210},
-        {'performance','Performance',function() W.Open('performance') end,210},
-        {'settings','Settings',function() W.Open('settings') end,210}}
-    if ns.WardenSimLab then tabs[#tabs+1]={'hephaestus','Hephaestus Lab',function() ns.WardenSimLab.Open() end,210} end
-    W.Tabs(tabs,current)
+    -- Home is a destination, configuration lives in the Settings rail.
+    W.Tabs({},current)
 end
 function W.LayoutNavigation()
-    if not W.navigation then return end
-    local n=0
-    for _,d in ipairs(definitions) do
-        local b=W.navigation[d[1]]
-        if b then
-            local visible=ns.Modules.Route(d[1])==d[1]
-            b:SetShown(visible)
-            if visible then n=n+1;b:ClearAllPoints();b:SetPoint('TOPLEFT',8,-12-(n-1)*64) end
-        end
+    for _,button in pairs(W.navigation) do
+        button:Show();button.ModuleDisabled=ns.Modules.Route(button.moduleID or '')~=(button.moduleID or '')
     end
-    if W.profile then W.profile:ClearAllPoints();W.profile:SetPoint('TOPLEFT',10,-26-n*64) end
 end
 function W.ModulesChanged()
     if not W.window then return end
@@ -613,7 +561,7 @@ local function ListPage(category,title,items,detail,actions)
             end
             self.document:SetBlocks(blocks,table.concat(sections,'\n'))
         end
-        local infoText=Plain(info or (not item and 'Choose an entry to see its channel, time and Warden action. Originals stay behind deliberate reveal controls.' or ''))
+        local infoText=Plain(info or (not item and 'Choose an entry to see its channel, time and Fireside action. Originals stay behind deliberate reveal controls.' or ''))
         if item and info and info:match('^Player: ') then
             local stop=info:find('\n',1,true) or #info+1
             infoText='Player: '..W.NameText(item,self.info,self.nameRevealed==item.id)..Plain(info:sub(stop))
@@ -696,7 +644,7 @@ builders.activity=function()
     local p=ListPage(nil,'Recent Activity',function() return A.List() end,function(item,page)
         if item and item.wanted then return WantedDetail(item) end
         if not item then return {{text='Your recent activity',kind='title'},
-            {text='Choose an entry to review what Warden observed and the action it took. Hidden originals stay behind Show original.',kind='body'},
+            {text='Choose an entry to review what Fireside observed and the action it took. Hidden originals stay behind Show original.',kind='body'},
             {text='Looking for adventures or players?',kind='heading'},{text='Open ChronicleWarden for your recorded history or IntelWarden for player dossiers.',kind='body'}} end
         local categories={};for _,key in ipairs({'messages','mentions','shield','activity'}) do if item.categories[key] then categories[#categories+1]=({messages='Messages',mentions='Alerts',shield='Shield',activity='Activity'})[key] end end
         local entry=item.reviewID and ns.Review.Get(item.reviewID)
@@ -847,7 +795,7 @@ function W.ScaleSettings()
     if W.scalePage and W.scalePage.ResetDraft then
         W.HidePages();W.pages.form=W.scalePage;W.scalePage:Show();W.Tabs({{'back','Back',function() W.Open('settings') end}},nil);W.scalePage:ResetDraft();return
     end
-    local p=FormPage('Window size','Choose the size that feels comfortable. This setting is saved for this account.')
+    local p=FormPage('Window size','Choose the size for all Fireside windows, including Athena. This setting is saved for this account.')
     local panel=V.Panel(p,18,-101,1104,370,'dark')
     local current=math.floor((ns.DB.workspaceScale or Fit())*100+.5);local syncing=false;local dirty=false
     V.Text(panel,'Window scale',24,-26,800,18,V.gold)
@@ -1202,17 +1150,30 @@ function W.BookmarkEditor(captured,bookmark)
 end
 builders.settings=function()
     local p=Page()
-    V.Text(p,'Make Warden comfortable',12,-12,1100,24,V.gold)
-    V.Text(p,'Shared preferences live here. Protection and recording settings stay with the feature they control.',12,-55,1100,15,V.muted)
-    local specs={{'Window size','Apply a size or fit Warden to your screen. Navigation preserves your choice.',W.ScaleSettings,'settings'},
-        {'Recent activity history','Choose how the bounded chat/protection review feed is kept. Chronicle history is separate.',W.HistorySettings,'copy'}}
-    for n,s in ipairs(specs) do local card=V.Panel(p,0,-110-(n-1)*154,1140,136,'dark');V.Icon(card,s[4],56,18,-18);V.Text(card,s[1],96,-18,1000,21,V.gold);V.Text(card,s[2],96,-53,1000,15,V.muted);V.Button(card,'Open '..s[1]:lower(),96,-90,420,32,s[3],'neutral') end
-    local launch=V.Panel(p,0,-418,1140,218,'dark');V.Icon(launch,'overview',56,18,-18)
-    V.Text(launch,'Optional shortcuts',96,-18,1000,21,V.gold)
-    p.shopLauncher=V.Check(launch,'Replace the shop micro button with Warden',96,-56,ns.DB.shopLauncher,function(value) ns.WardenLaunchers.Set('shopLauncher',value) end,970)
-    p.inspectLauncher=V.Check(launch,'Show an IntelWarden tab beside Blizzard Inspect',96,-94,ns.DB.inspectLauncher,function(value) ns.WardenLaunchers.Set('inspectLauncher',value) end,970)
-    p.wardenMinimap=V.Check(launch,'Show a Warden minimap button',96,-132,ns.DB.wardenMinimap,function(value) ns.WardenLaunchers.Set('wardenMinimap',value) end,970)
-    V.Text(launch,'All start off. Changes requested in combat apply after combat. Recording and module choices are unchanged.',96,-175,1000,13,V.muted)
+    V.Text(p,'Settings',12,-8,1100,24,V.gold)
+    V.Text(p,'Configure Fireside in one place. Feature pages keep their everyday work and contextual controls.',12,-47,1100,14,V.muted)
+    local specs={
+        {'Appearance','Window scale for the suite and Athena’s book.',W.ScaleSettings,'settings'},
+        {'Modules','Choose which features run; saved history is kept.',function() W.Open('modules') end,'overview'},
+        {'Recording & history','Chronicle, Intel and local recording preferences.',function() W.SettingsSub('chronicle') end,'chronicle'},
+        {'Chat & spelling','Filtering, typing assistance and signed rule packs.',function() W.SettingsSub('general') end,'messages'},
+        {'Shield & spam','Protection preferences and contact policy.',function() W.SettingsSub('shield') end,'shield'},
+        {'Signal','Mentions, sounds and notification preferences.',function() W.SettingsSub('notifications') end,'mentions'},
+        {'Languages','Language display and text coverage preferences.',function() W.SettingsSub('languages') end,'messages'},
+        {'Performance & health','Runtime diagnostics and read-only database health.',function() W.Open('performance') end,'overview'}}
+    for n,s in ipairs(specs) do
+        local card=V.Panel(p,((n-1)%2)*576,-84-math.floor((n-1)/2)*114,564,104,'dark')
+        V.Icon(card,s[4],44,12,-10);V.Text(card,s[1],70,-12,472,18,V.gold)
+        local description=V.Text(card,s[2],70,-40,472,12,V.muted);description:SetHeight(28)
+        V.Button(card,'Open',354,-70,190,27,s[3],'neutral')
+    end
+    local launch=V.Panel(p,0,-544,1140,120,'dark')
+    V.Text(launch,'Optional shortcuts',16,-12,1000,18,V.gold)
+    p.shopLauncher=V.Check(launch,'Journal shop shortcut',16,-48,ns.DB.shopLauncher,function(value) ns.WardenLaunchers.Set('shopLauncher',value) end,340)
+    T.Tooltip(p.shopLauncher,'Athena’s Journal shortcut','Uncheck to restore the normal Blizzard Shop. This optional shortcut starts off.')
+    p.inspectLauncher=V.Check(launch,'Intel beside Inspect',390,-48,ns.DB.inspectLauncher,function(value) ns.WardenLaunchers.Set('inspectLauncher',value) end,340)
+    p.wardenMinimap=V.Check(launch,'Fireside minimap button',764,-48,ns.DB.wardenMinimap,function(value) ns.WardenLaunchers.Set('wardenMinimap',value) end,340)
+    V.Text(launch,'Shortcuts start off. Changes requested in combat apply after combat.',16,-90,1100,12,V.muted)
     function p:Activate() W.CommandTabs('settings');self.shopLauncher:SetChecked(ns.DB.shopLauncher);self.inspectLauncher:SetChecked(ns.DB.inspectLauncher);self.wardenMinimap:SetChecked(ns.DB.wardenMinimap) end
     return p
 end
@@ -1262,7 +1223,7 @@ builders.updates=function()
     p:SetRelease(1)
     local hero=V.Panel(p.tour,0,0,1140,111,'header')
     local crest=V.Texture(hero,'Logo',{0,0,512,512},'ARTWORK');crest:SetSize(92,92);crest:SetPoint('TOPLEFT',16,-9)
-    V.Text(hero,'Welcome to Olympus Warden',124,-18,986,28,V.gold)
+    V.Text(hero,'Welcome to Fireside',124,-18,986,28,V.gold)
     V.Text(hero,'Your protection, remembered players and personal Chronicle in one Olympus suite.',125,-57,978,14)
     V.Text(hero,'LAUNCH TOUR  |  Installed version '..ns.VERSION,125,-78,978,11,V.blue)
     local features={
@@ -1273,7 +1234,7 @@ builders.updates=function()
         {'intel','IntelWarden','Explore players you remember, private notes and dated gear and talent observations.','Recent players • Dossiers • Appearance & Gear','intel'},
         {'chronicle','ChronicleWarden','Follow milestones, activities, duels and measured time from your recorded adventure.','Highlights • Activities • Time & averages','chronicle'},
         {'relay','RelayWarden','Write a bug report, preview optional diagnostics and manage data, backups and help.','Reports • Diagnostics • Data & Backups • Help','relay'},
-        {'settings','Make Warden comfortable','Choose your window size, protection, languages, notifications and typing assistance.','Settings • Window size • User guide','settings'},
+        {'settings','Make Fireside comfortable','Choose your window size, protection, languages, notifications and typing assistance.','Settings • Window size • User guide','settings'},
     }
     p.features={}
     for i,spec in ipairs(features) do
@@ -1357,10 +1318,10 @@ function W.SettingsSub(key)
     if not ns.Modules.Enabled(owner) then W.Open('modules');return end
     ns.BuildOptions(key);local panels={general=ns.OptionsPanel,languages=ns.LanguageOptionsPanel,shield=ns.ShieldOptionsPanel,spam=ns.SpamOptionsPanel,notifications=ns.NotificationOptionsPanel,spelling=ns.SpellingOptionsPanel,chronicle=ns.ChronicleOptionsPanel}
     local panel=panels[key];if not panel then W.Open('settings');ShowStatus('This settings page is unavailable in the current client.');return end
-    local destination=owner=='chat' and 'messages' or owner=='shield' and 'shield' or owner=='alerts' and 'mentions' or ns.Modules.Enabled('chronicle') and 'chronicle' or 'intel'
+    local destination='settings'
     W.activeSetting=key;W.pending=destination;W.Embed(panel,destination,true);W.pending=nil
     local names={{'general','Filtering'},{'languages','Languages'},{'shield','Shield'},{'spam','Spam'},{'notifications','Notifications'},{'spelling','Spelling'},{'chronicle','Chronicle & Intel'}};local tabs={}
-    for _,spec in ipairs(names) do local id=spec[1];local section=(id=='shield' or id=='spam') and 'shield' or id=='notifications' and 'alerts' or id=='chronicle' and 'history' or 'chat';if section==owner then tabs[#tabs+1]={id,spec[2],function() W.SettingsSub(id) end,180} end end
+    for _,spec in ipairs(names) do local id=spec[1];tabs[#tabs+1]={id,spec[2],function() W.SettingsSub(id) end,148} end
     W.Tabs(tabs,key)
 end
 -- Secondary editors use the same workspace host, never scattered addon windows.
@@ -1402,7 +1363,7 @@ ns.OpenReports=function() W.Open('reports') end
 ns.OpenUpdates=function() ns.DB.updateSeen=ns.VERSION;W.Open('updates');if W.pages.updates then W.pages.updates:SetRelease(1);W.pages.updates:SetView('notes') end end
 function W.Welcome()
     if not ns.DB or not ns.Membership.Allowed() then if ns.Membership then ns.Print(ns.Membership.Status()) end;return end
-    if InCombatLockdown and InCombatLockdown() then ns.Print('Open the Warden introduction after combat with /warden welcome.');return end
+    if InCombatLockdown and InCombatLockdown() then ns.Print('Open the Fireside introduction after combat with /fireside welcome.');return end
     if ns.WelcomeWindow then ns.WelcomeWindow:Hide() end
     W.Open('updates');if W.pages.updates then W.pages.updates:SetView('tour') end
     ns.DB.welcomeSeen=1;ns.DB.updateSeen=ns.VERSION
@@ -1431,6 +1392,7 @@ SlashCmdList.OLYMPUSCHATWARDEN=function(message)
     if command=='' then W.Open(ns.Modules.InitialRoute())
     elseif command=='options' or command=='settings' then W.Open('settings')
     elseif command=='mentions' or command=='alerts' then W.Open('mentions')
+    elseif command=='journal' then ns.AthenaJournalWindow.Open()
     elseif command=='overview' then W.Open('overview') else oldSlash(message) end
 end
 local toast
@@ -1480,11 +1442,11 @@ ns.SyncPacks=function(...) oldSyncPacks(...);W.Queue() end
 function W.SettingsCanvas(panel,key)
     local canvas=CreateFrame('Frame',nil,nil);canvas:SetSize(640,620)
     local art=V.Panel(canvas,8,-8,624,604,'dark');local logo=V.Texture(art,'Logo',{0,0,512,512},'ARTWORK');logo:SetSize(122,122);logo:SetPoint('TOPLEFT',250,-40)
-    V.Text(art,'Olympus Warden',28,-195,570,25,V.gold)
-    V.Text(art,'All Warden sections and settings share this workspace.',28,-241,570,15)
+    V.Text(art,'Fireside',28,-195,570,25,V.gold)
+    V.Text(art,'All Fireside sections and settings share this workspace.',28,-241,570,15)
     W.nativeMaster=V.Check(art,'Enable ChatWarden',60,-292,ns.DB.enabled,function(value) if ns.Membership.Allowed() then ns.DB.enabled=value;ns.PolicyChanged();W.Queue() end end,504)
     canvas:HookScript('OnShow',function() W.nativeMaster:SetChecked(ns.DB.enabled) end)
-    V.Button(art,'Open Warden settings',60,-350,504,44,function()
+    V.Button(art,'Open Fireside settings',60,-350,504,44,function()
         if SettingsPanel and not (SettingsPanel.IsProtected and SettingsPanel:IsProtected()) then SettingsPanel:Hide() end
         W.SettingsSub(key or 'general')
     end)
@@ -1492,3 +1454,4 @@ function W.SettingsCanvas(panel,key)
 end
 local hideAll=T.HideAll
 T.HideAll=function() hideAll();if toast then toast:Hide() end;if wantedToast then wantedToast:Hide() end;V.CloseMenus() end
+

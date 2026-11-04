@@ -28,7 +28,7 @@ function U.PumpNavigation()
     if n.kind=='player' or n.kind=='scores' then
         local p=W.Destination('intel');if not p then return end;p.owner=n.owner;p.query='';p.search:SetText('');p.selected=n.id;p.detail='profile';p.mode=n.kind=='scores' and 'scoreboards' or 'all';p.scoreGuid=n.kind=='scores' and n.id or nil;p.returnTo=n.origin;p:Activate()
     elseif n.kind=='history' or n.kind=='activity' then
-        local a=n.kind=='activity' and st.byID[n.id]
+        local a=n.kind=='activity' and A.View(st,n.id)
         if n.kind=='activity' and (not a or n.event and not a.evidenceSet[n.event.id]) then
             if n.event then ns.Print('This activity could not be resolved. Opening its source record.');ns.RecordingUI.OpenSource(nil,n.event) end;return
         end
@@ -39,6 +39,7 @@ function U.PumpNavigation()
     end
 end
 function U.Navigate(kind,owner,id,event,origin)
+    if kind=='story' then return ns.AthenaJournalWindow.Open({owner=owner,storyId=id}) end
     local S,W=ns.ChronicleStore,ns.Workspace;local c=owner and S.Character(owner,false)
     local destination=(kind=='player' or kind=='scores') and 'intel' or 'chronicle'
     if ns.Modules.Route(destination)~=destination then W.Open(destination);return false end
@@ -153,7 +154,7 @@ function U.Highlights(st,query)
         end
     end end
     for n=#st.activities,math.max(1,#st.activities-49),-1 do
-        local a=st.activities[n]
+        local a=A.View(st,st.activities[n].id)
         if ({dungeon=true,raid=true,boss=true,battleground=true,arena=true,duel=true})[a.kind] then
             Add({id='activity:'..a.id,title=ns.ChronicleActivitiesUI.Title(a,st),sub=Stamp(a.startAt)..' • '..(a.context.instanceName or a.context.zone or 'Location unavailable'),at=a.startAt,activity=a,icon=ns.EventIcons.Activity(a),refs=a.evidence})
         end
@@ -216,6 +217,7 @@ function U.ChronicleDetail(st,row)
         {kind='body',text='Highlights selects notable levels, achievements, collection additions, supported rare reward receipts and shared adventures. My Timeline follows your character’s ordinary events. Full source history retains technical observations and every accepted original.'},
         {kind='heading',text='Only the time you recorded'},
         {kind='body',text='Stats describe retained evidence. Unrecorded time and unsupported outcomes remain unknown. Time & averages explains measured coverage; Activities shows the shared-adventure records.'}} end
+    if not st then return {{kind='title',text=row.title},{kind='body',text='Preparing this activity from your saved history. The existing record is kept.'}} end
     if row.activity and row.activity.kind=='duel' then return ns.DuelUI.Blocks(st,row.activity) end
     local b={};local function Put(kind,text) b[#b+1]={kind=kind,text=Safe(text)} end
     Put('title',row.title);Put('meta',row.sub)
@@ -223,11 +225,14 @@ function U.ChronicleDetail(st,row)
         local a=row.activity;local seconds=I.ActivityTime(st,a)
         Put('heading','Shared adventure')
         if a.context and (a.context.instanceName or a.context.zone) then Put('accent',a.context.instanceName or a.context.zone) end
-        Put('body','First observed: '..Stamp(a.startAt)..'\nLast evidence: '..Stamp(a.lastAt)..'\nRecorded segment: '..a.status)
+        Put('body','First observed: '..Stamp(a.startAt)..'\nLast evidence: '..Stamp(a.lastAt)..'\nRecorded segment: '..ns.ChronicleActivitiesUI.Status(a))
+        Put('meta','Recording boundary: '..a.startReason..(a.endReason and ' / '..a.endReason or '')..(a.pvpReports and '\nReloads can create separate recording segments in the same battleground. These rows are not a count of unique matches.' or ''))
+        if a.recordingSegments and a.recordingSegments>1 then Put('body',a.recordingSegments..' recorded visits in this run. Open activity to inspect their original sources; time outside and reload intervals remain unmeasured.') end
+        if a.pvpReports then Put('body',#a.pvpReports..' native completion reports. Personal win/loss remains unknown.') end
         Put('body','Measured time in this segment: '..Hours(seconds)..'\n'..#a.attempts..' recorded boss attempts or results.')
         local members={};for guid in pairs(a.members or {}) do members[#members+1]=A.Name(st,guid) end;table.sort(members)
         if #members>0 then Put('heading','Associated roster');Put('body',table.concat(members,', '));Put('meta','Roster association; individual boss attendance remains unknown.') end
-        Put('meta','Recorded segment • completion remains '..(a.completion or 'unknown'))
+        Put('meta',a.run and ('Activity run • '..ns.ChronicleActivitiesUI.Status(a)) or 'Recorded segment • completion remains '..(a.completion or 'unknown'))
     else
         local e=row.event;local d=e.details
         if e.kind=='level_change' then Put('heading','A new level');Put('body','Recorded change: level '..d.before..' to '..d.after..'.')
@@ -305,6 +310,7 @@ function U.PlayerStory(st,row,chapterPage)
         for _,block in ipairs(ns.AthenaEnrichment.Blocks(row.id,false)) do out[#out+1]=block end
     end
     U.AthenaStory(st,row,out,chapterPage)
+    if ns.AthenaSuiteUI then ns.AthenaSuiteUI.AppendProfile(st,row,out) end
     out[#out+1]={kind='meta',text='Details & limits explains native credit, public reports and unknown values. Original record opens the saved source.'};return out
 end
 function U.Build(parent,kind)
@@ -334,7 +340,11 @@ function U.Build(parent,kind)
     p.ownerMenu=V.Dropdown(p,0,-189,330,choices,function() return p.owner~=C.Owner() and p.owner or false end,function(owner)
         p.owner=owner or C.Owner();p.selected=nil;p.page=0;p.state=nil;p:Refresh(true)
     end,{maxRows=8})
-    p.search=V.Edit(p,342,-189,494,32,kind=='intel' and 'Search name, guild, class or GUID...' or 'Search recent highlights...',function(value) p.query=value;p.selected=nil;p.page=0;p.dirty=true;p:Refresh(true) end)
+    p.search=V.Edit(p,342,-189,494,32,kind=='intel' and 'Search name, guild, class or GUID...' or 'Search recent highlights...',function(value,user)
+        p.query=value
+        if not user and p.restoringQuery==value then p.restoringQuery=nil;return end
+        p.selected=nil;p.page=0;p.dirty=true;p:Refresh(true)
+    end)
     p.target=V.Button(p,kind=='intel' and 'My target' or 'Record settings',848,-189,136,32,function()
         if kind~='intel' then ns.OpenChronicleOptions();return end
         local guid=ns.ChronicleStore.GUID(ns.SafeCall(UnitGUID,'target'))
@@ -354,7 +364,7 @@ function U.Build(parent,kind)
     end,'neutral')
     p.dataTools=V.Button(p,'Data & Backups',996,-189,140,32,function() W.Open('recording') end,'neutral')
     p.body=CreateFrame('Frame',nil,p);p.body:SetPoint('TOPLEFT',0,-236);p.body:SetSize(1136,380)
-    local left=V.Panel(p.body,0,0,390,380,'dark');local right=V.Panel(p.body,404,0,732,380,'dark')
+    local left=V.Panel(p.body,0,0,390,380,'dark');local right=V.Panel(p.body,404,0,732,380,'dark');p.listPanel=left;p.detailPanel=right;p.identityHero=hero
     p.document,p.scroll=V.Document(right,18,-54,677,304)
     p.detailsToggle=V.Button(right,'Details & limits',18,-12,196,28,function() p.showDetails=not p.showDetails;p:ShowItem(p.currentRow) end,'neutral')
     p.detailsToggle:SetShown(kind=='intel')
@@ -371,7 +381,10 @@ function U.Build(parent,kind)
     end,'neutral');p.dismissAdvisory:Hide()
     if kind~='intel' then p.scroll:ClearAllPoints();p.scroll:SetPoint('TOPLEFT',right,'TOPLEFT',18,-18);p.scroll:SetHeight(340) end
     p.list=V.ScrollingList(left,12,-13,343,352,64,function(host)
-        local row=V.Button(host,'',0,0,340,58,function(self) p.selected=self.item.id;p:ShowItem(self.item);p.list:Render() end,'row')
+        local row=V.Button(host,'',0,0,340,58,function(self)
+            if kind=='chronicle' and self.item.activity then U.Navigate('activity',p.owner,self.item.activity.id);return end
+            p.selected=self.item.id;p:ShowItem(self.item);p.list:Render()
+        end,'row')
         row.icon=V.Icon(row,kind=='intel' and 'event:reports' or 'event:capture',32,12,-13)
         row.title=V.Text(row,'',54,-9,272,14,V.gold);row.title:SetHeight(19);row.title:SetWordWrap(false)
         row.sub=V.Text(row,'',54,-32,272,11,V.muted);row.sub:SetHeight(18);row.sub:SetWordWrap(false)
@@ -386,6 +399,7 @@ function U.Build(parent,kind)
     end,'neutral')
     p.evidence=V.Button(p,'Evidence',584,-628,134,30,function()
         local row=p.currentRow;if not row then return end
+        if kind=='chronicle' and row.activity then U.Navigate('activity',p.owner,row.activity.id);return end
         local host=W.Destination('recording');if not host then return end;host:SetView('intelligence')
         local view=host.intelligence;view.owner=p.owner;view.mode=kind=='intel' and 'players' or 'progress';view.selected=kind=='intel' and row.id or nil;view.dirty=true;view:Refresh(true)
     end,'neutral')
@@ -403,6 +417,7 @@ function U.Build(parent,kind)
         local st=p:ReadyPlayer(row);if not st then return end
         local pr=I.Player(st,row.id);C.SetPersonal(row.id,pr.note,not pr.watch);p:Refresh(true)
     end,'neutral')
+    if kind=='intel' then p.athenaInsights=V.Button(p,'Athena Insights',932,-628,204,30,function() local row=p.currentRow;if row then ns.AthenaSuiteUI.Profile(row.id,p.owner) end end,'neutral') end
     p.newer=V.Button(p,'Newer 50',0,-628,146,30,function() p.page=math.max(0,p.page-1);p.selected=nil;p:Refresh(true) end,'neutral')
     p.older=V.Button(p,'Older 50',156,-628,146,30,function() p.page=p.page+1;p.selected=nil;p:Refresh(true) end,'neutral')
     p.status=V.Text(p,'Reading retained history...',4,-664,904,11,V.muted);p.status:SetHeight(26)
@@ -415,24 +430,37 @@ function U.Build(parent,kind)
     end,'neutral');p.shared:SetShown(kind=='intel')
     p.deep=ns.ChronicleIntelligenceUI.Build(p,p);p.deep:Hide()
     p.activities=ns.ChronicleActivitiesUI.Build(p,p);p.activities:Hide()
-    if kind=='chronicle' then p.timeline=ns.AthenaTimelineUI.Build(p,p);p.storybook=ns.AthenaJournalUI.Build(p,p) end
-    function p:ReadyPlayer(row)
+    if kind=='chronicle' then
+        p.timeline=ns.AthenaTimelineUI.Build(p,p)
+        p.storybook=CreateFrame('Frame',nil,p);p.storybook:SetAllPoints(p);p.storybook:Hide()
+        local book=V.Panel(p.storybook,0,0,1136,250,'dark');V.Icon(book,'chronicle',96,24,-26)
+        V.Text(book,'Athena’s Journal',142,-32,900,28,V.gold)
+        V.Text(book,'Read your Moments, Chapters and Sagas in their own movable adventure book. Highlights and My Timeline remain here in Chronicle.',142,-84,900,17,V.muted)
+        V.Button(book,'Open Athena’s Journal',142,-164,400,40,function() ns.AthenaJournalWindow.Open({owner=p.owner}) end)
+        function p.storybook:Refresh() end
+    end
+    function p:ReadyState(row)
         if not row then return end
-        if not self.state then
+        if not self.state or self.state.owner~=self.owner then
             -- Hidden pages retain rendered rows, not the full history index.
             -- A click must reacquire that index before using the saved row.
             self.selected=row.id;self.dirty=true;self:Refresh(true)
         end
         local st=self.state
+        if st and st.owner==self.owner then return st end
+    end
+    function p:ReadyPlayer(row)
+        local st=self:ReadyState(row)
         if st and st.owner==self.owner and st.intelligence and st.intelligence.players[row.id] then return st end
     end
     function p:ShowItem(row)
-        if kind=='intel' and row and not self.state then self:ReadyPlayer(row);return end
+        if row and (not self.state or self.state.owner~=self.owner) then self:ReadyState(row);return end
         local changed=self.currentRow and row and self.currentRow.id~=row.id or (self.currentRow~=nil)~=(row~=nil)
         local offset=row and self.savedSelection==row.id and self.savedScroll or not changed and (self.scroll:GetVerticalScroll() or 0) or 0
         self.currentRow=row
+        if self.athenaInsights then self.athenaInsights:SetEnabled(row~=nil) end
         if changed then self.chapterPage=0 end
-        local blocks=kind=='intel' and (self.showDetails and U.Profile(self.state,row) or U.PlayerStory(self.state,row,self.chapterPage)) or U.ChronicleDetail(self.state,row)
+        local blocks=kind=='intel' and (self.structuredCards and {} or self.showDetails and U.Profile(self.state,row) or U.PlayerStory(self.state,row,self.chapterPage)) or U.ChronicleDetail(self.state,row)
         local dossier=kind=='intel' and row and ns.Athena.GetDossier('intel',row.id,{limit=50,chapterPage=self.chapterPage or 0})
         self.dossier=dossier
         for n=#chapterChoices,2,-1 do chapterChoices[n]=nil end
@@ -450,6 +478,7 @@ function U.Build(parent,kind)
         self.chapterSource:SetShown(kind=='intel' and row~=nil and not self.showDetails and not (context and context.advisory))
         self.detailsToggle:SetText(self.showDetails and 'Back to dossier' or 'Details & limits')
         self.open:SetEnabled(row~=nil);self.evidence:SetEnabled(row~=nil)
+        self.evidence:SetText(kind=='chronicle' and row and row.activity and 'Open activity' or 'Evidence')
         self.shared:SetEnabled(row~=nil)
         local editing=kind=='intel' and self.detail~='gear' and self.detail~='talents' and self.detail~='combat'
         self.note:SetShown(editing);self.save:SetShown(editing);self.watch:SetShown(editing)
@@ -471,14 +500,17 @@ function U.Build(parent,kind)
         end
     end
     function p:Activate()
+        if self.athenaSuite then self.athenaSuite:Hide() end
         local specs=kind=='intel' and {{'recent','Recent players'},{'all','All profiles'},{'watch','My watchlist'},{'scoreboards','PvP reports'}} or {{'storybook','Storybook'},{'journal','Highlights'},{'timeline','My Timeline'},{'time','Time & averages'},{'activities','Activities'},{'progress','Progress'}}
-        local tabs={};for _,spec in ipairs(specs) do local mode=spec[1];tabs[#tabs+1]={mode,spec[2],function()
+        local tabs={};for _,spec in ipairs(specs) do local mode=spec[1];tabs[#tabs+1]={mode,mode=='storybook' and 'Open Athena' or spec[2],function()
+            if mode=='storybook' then ns.AthenaJournalWindow.Open({owner=self.owner});return end
             local guid=kind=='intel' and self.mode~='scoreboards' and self.selected
             self.mode=mode;self.detail='profile';self.selected=nil;self.page=0;self.linkedRow=nil
             if mode=='scoreboards' then self.scoreGuid=guid;self.returnTo=guid and {kind='player',owner=self.owner,id=guid} end
+            if mode=='activities' then self.activities.dirty=true end
             self:Activate();self:Refresh(true)
         end,210} end
-        tabs[#tabs+1]={'recording-settings','Recording settings',function() ns.OpenChronicleOptions() end,210}
+        tabs[#tabs+1]={'recording-settings','Configure recording',function() ns.OpenChronicleOptions() end,210}
         W.Tabs(tabs,self.mode)
         local storybook=self.mode=='storybook'
         local deep=self.mode=='time' or self.mode=='progress' or self.mode=='scoreboards';local timeline=self.mode=='timeline';local activities=self.mode=='activities' or timeline
@@ -489,6 +521,7 @@ function U.Build(parent,kind)
         self.dataTools:SetShown(summary)
         self.body:SetShown(summary);self.deep:SetShown(deep);self.activities:SetShown(activities and not timeline);if self.timeline then self.timeline:SetShown(timeline) end
         for _,control in ipairs({self.open,self.evidence,self.note,self.save,self.watch,self.newer,self.older,self.status}) do control:SetShown(summary) end
+        if self.athenaInsights then self.athenaInsights:SetShown(kind=='intel' and summary) end
         self.shared:SetShown(kind=='intel' and summary);self.back:SetShown(self.returnTo~=nil)
         self.note:GetParent():SetShown(kind=='intel' and summary)
         if self.appearance then self.appearance:SetShown(not deep and not activities and self.detail=='gear') end
@@ -499,6 +532,7 @@ function U.Build(parent,kind)
         self:Refresh(true)
     end
     function p:Refresh(force)
+        if self.athenaSuite and self.athenaSuite:IsShown() then return end
         if self.mode=='storybook' then self.storybook:Refresh(force);return end
         if self.mode=='timeline' then self.timeline:Refresh(force);return end
         if self.mode=='time' or self.mode=='progress' or self.mode=='scoreboards' then self.deep:Refresh(force);return end

@@ -103,7 +103,7 @@ function S.Initialize()
     -- Later changes to these options remain the player's choice.
     if db.defaultsVersion~=2 then
         db.enabled=true;db.profile='normal';db.quiet=false;db.defaultsVersion=2
-        ns.DB.olympusMuteSignal=true
+        -- Contact-default migration must not enable an optional native tooltip.
     end
     if db.tuningV1~=true then
         if db.profile=='normal' then db.profile='balanced' end

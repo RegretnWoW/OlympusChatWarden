@@ -1,6 +1,6 @@
 local _,ns=...
 local C,S=ns.Chronicle,ns.ChronicleStore
-local disclosure='ChronicleWarden and IntelWarden (Player Intelligence) save your route, encounters and locations, progress, gear and supported activity. No continuous tracking of other players. Permitted Olympus data stays dated; missing facts stay unknown. Kept locally until you clear it. Warden does not upload history or send messages.'
+local disclosure='ChronicleWarden and IntelWarden (Player Intelligence) save your route, encounters and locations, progress, gear and supported activity. No continuous tracking of other players. Permitted Olympus data stays dated; missing facts stay unknown. Kept locally until you clear it. Fireside does not upload history or send messages.'
 C.Disclosure=disclosure
 C.CollectionHelp={
     Character='Your client/build, class/race/body identifiers, rested XP and readable honor values. These describe an observed state, not a newly earned milestone.',
@@ -164,8 +164,8 @@ function ns.BuildChronicleOptions(parent)
     T.Tooltip(check,'Optional recording',disclosure..' Chat Capture and alert sounds can remain off. Turning this off keeps existing records; Clear history removes them.')
     local privacy=Text('Where the information comes from',24,-196,590,18)
     local privacyBody=Text(disclosure,24,-226,590,14,V.muted);privacyBody:SetHeight(96)
-    local scope=Text('What Warden records',24,-330,590,18)
-    local scopeBody=Text('Your route: every 2 seconds. Encounters keep available positions separately for you and the other player. Also records progress, gear, supported combat, native statistics, currencies, lockouts and collections. Missing details stay unknown.',24,-360,590,14,V.muted);scopeBody:SetHeight(96)
+    local scope=Text('What Fireside records',24,-330,590,18)
+    local scopeBody=Text('Your route: every 2 seconds. Records progress, gear, combat, statistics and collections. Your combat summaries keep low health, deaths and observed recovery; individual health updates are not stored. Encounters keep available positions for each player. Missing details stay unknown.',24,-360,590,14,V.muted);scopeBody:SetHeight(96)
     local status=Text('',24,-468,590,14,V.blue);status:SetHeight(42)
     local stats=Text('',24,-515,590,13,V.muted);stats:SetHeight(58)
     panel.statusHelp=T.StatTooltip(status,'Recording status','Click for recording details. Recording requires your current consent and Olympus access. Pausing keeps history. Missing fields stay unknown.',function() ns.RecordingUI.OpenCollection('time') end)
@@ -313,10 +313,10 @@ function C.MaybePrompt(force)
             popup.ChatWardenOwned=true;T.RegisterWindow(popup);ns.RecordingConsentWindow=popup
             V.Button(popup,'X',579,-13,27,27,function() popup:Hide() end,'danger')
             V.Icon(popup,'recording',46,24,-36)
-            V.Text(popup,'Remember your adventure with Olympus Warden',83,-46,500,21,V.gold)
+            V.Text(popup,'Remember your adventure with Fireside',83,-46,500,21,V.gold)
             local text=V.Text(popup,'Explore personal milestones in ChronicleWarden and players you remember in IntelWarden. Recording is optional and starts off.',26,-110,565,16,V.gold);text:SetHeight(88)
             local scope=V.Text(popup,'Saves your precise route every two seconds, progress, gear and supported activities. Player encounters keep available locations, not continuous tracks. Dated permitted Olympus data is included. Missing facts stay unknown; duel recording needs a separate choice.',26,-215,565,14,V.muted);scope:SetHeight(80)
-            local privacy=V.Text(popup,'History stays on this computer until you clear it. Warden does not upload it or send messages. You control deliberate exports and backups; future sharing needs separate consent. Existing historical tracks remain saved.',26,-311,565,14,V.muted);privacy:SetHeight(76)
+            local privacy=V.Text(popup,'History stays on this computer until you clear it. Fireside does not upload it or send messages. You control deliberate exports and backups; future sharing needs separate consent. Existing historical tracks remain saved.',26,-311,565,14,V.muted);privacy:SetHeight(76)
             local control=V.Text(popup,'Applies to eligible characters on this installation. Pausing keeps history. Review and back up from Data & Backups. This does not enable Chat Capture or alert sounds.',26,-403,565,13,V.blue);control:SetHeight(52)
             V.Button(popup,'Not now',26,-470,264,32,function() popup:Hide() end,'neutral')
             V.Button(popup,'Enable recording',307,-470,287,32,function()

@@ -6,9 +6,9 @@ local pageID, loginReady, queued, deferFrame = "basics", false, false
 local pages = {
     {id = "basics", title = "Overview", text = [[GETTING STARTED
 
-Open Olympus Warden from Olympus or type /warden. /ocw still works.
+Open Fireside from Olympus or type /fireside. /ocw still works.
 
-Warden: Your home page, data overview and search across the suite. Recent activity keeps chat and protection events together.
+Fireside: Your home page, data overview and search across the suite. Recent activity keeps chat and protection events together.
 ChatWarden: Messages, Capture, Rules, Packs and Reports share their own tabs. Filtering still explains why a message matched.
 SignalWarden: Personal mentions, Wanted encounters and observed OlympusMute sharing. A sharing observation does not prove someone muted you.
 ShieldWarden: Unwanted contact, active shields and allowed players.
@@ -35,10 +35,10 @@ Older Olympus versions use the local guild-name check. Protection pauses when ac
 
 USEFUL COMMANDS
 
-/warden: Open Warden. /ocw and /chatwarden remain supported.
-/warden signal: Open SignalWarden.
-/warden intel: Open IntelWarden. /warden chronicle: Open ChronicleWarden.
-/warden search <words>: Search the suite.
+/fireside: Open Fireside. /ocw and /chatwarden remain supported.
+/fireside signal: Open SignalWarden.
+/fireside intel: Open IntelWarden. /fireside chronicle: Open ChronicleWarden.
+/fireside search <words>: Search the suite.
 /ocw capture: Open ChatWarden > Capture.
 /ocw test <phrase>: Check how your word filters handle a phrase, without posting it.
 /ocw updates: Read patch highlights.
@@ -54,7 +54,7 @@ An exact full listed name in visible chat gets a small Wanted icon. Hover for th
 Open Alerts > Wanted settings to choose encounter sounds, popups and badges, or change the cooldown. Sound and toast start off. The default encounter cooldown is five minutes per player. Chat icons have their own switch and never send notifications.
 
 Olympus supplies and manages the Wanted board. ChatWarden saves your personal alerts and their historical bounty details. Grant access in /oly privacy; permission loss pauses alerts and clears the live list. Saved alerts follow your Activity history setting.]]},
-    {id = "recording", title = "Recording", text = [[YOUR WARDEN HISTORY
+    {id = "recording", title = "Recording", text = [[YOUR FIRESIDE HISTORY
 
 Recording > Activities connects your saved dungeon, raid, group and PvP visit records. Choose a player to see associated history, inspect boss results and open original evidence. A damage meter is not required. The complete Chronicle timeline and player dossiers will build on this foundation.
 

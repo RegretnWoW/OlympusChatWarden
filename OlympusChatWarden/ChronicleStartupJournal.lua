@@ -18,11 +18,11 @@ local function Fail(reason)
     J.error=reason;job=nil;frame:SetScript('OnUpdate',nil)
 end
 local function Root()
-    local db=OlympusWardenStartupDB
-    if db==nil then db={version=2,characters={}};OlympusWardenStartupDB=db end
+    local db=ns.Storage.OlympusWardenStartupDB
+    if db==nil then db={version=2,characters={}};ns.Storage.OlympusWardenStartupDB=db end
     if Table(db) and db.version==1 then
         -- Preserve the complete v1 root for its original reader, including IDs.
-        db={version=2,characters={},legacy=db};OlympusWardenStartupDB=db
+        db={version=2,characters={},legacy=db};ns.Storage.OlympusWardenStartupDB=db
     end
     if not Table(db) or db.version~=2 or not Table(db.characters) then return end
     for k in pairs(db) do if k~='version' and k~='characters' and k~='legacy' then return end end
@@ -42,7 +42,7 @@ end
 function J.Cancel() job=nil;frame:SetScript('OnUpdate',nil);ns.ChronicleStartupLegacy.Cancel() end
 function J.Reset() J.Cancel();writer=nil;J.quitting=nil end
 function J.Freeze() J.quitting=true;J.Cancel() end
-function J.Clear() J.Reset();OlympusWardenStartupDB={version=2,characters={}};J.error=nil end
+function J.Clear() J.Reset();ns.Storage.OlympusWardenStartupDB={version=2,characters={}};J.error=nil end
 function J.Character(owner) return writer and writer.owner==owner and not J.error and writer.character end
 function J.WriteRoot() return writer and not J.error and writer.db end
 function J.Writing() return writer~=nil end
@@ -103,6 +103,7 @@ local function Entry(db,owner)
     return e
 end
 function J.Open(owner,source,at)
+    if owner~=C.Owner() or not ns.Permissions.HistoryConsent(source) or not ns.Modules.Enabled('history') then return false end
     if writer then return writer.owner==owner and not J.error end
     local db=Root();local e=db and Entry(db,owner)
     if not e or not at then Fail('Recording recovery is unsupported. Original history and journal are kept; new capture is blocked.');return false end
@@ -116,9 +117,10 @@ function J.Open(owner,source,at)
     J.error=nil;Wake();return true
 end
 local function Stage(op)
+    if not ns.Permissions.Decide('HistoryCollect') then return false end
     if not writer or J.error then return false end
     local w,g=writer,writer.g
-    if OlympusWardenStartupDB~=w.root or w.root.characters[w.owner]~=w.entry then Fail('Recording recovery changed unexpectedly; both histories are kept.');return false end
+    if ns.Storage.OlympusWardenStartupDB~=w.root or w.root.characters[w.owner]~=w.entry then Fail('Recording recovery changed unexpectedly; both histories are kept.');return false end
     if w.entry.generations[#w.entry.generations]~=g then w.entry.generations[#w.entry.generations+1]=g end
     -- Copy on acceptance: later mutations cannot change earlier evidence.
     op=Copy(op);g.tail[#g.tail+1]=op;g.total=g.total+1;g.bytes=g.bytes+S.Size(op)
@@ -141,13 +143,13 @@ function J.RecordEvent(event)
     if not writer then return true end
     return Stage({kind='event',value=event}),writer.streaming==true
 end
-function J.RecordProfile(owner,p) if writer and writer.owner==owner then return Stage({kind='profile',value=p}) end end
+function J.RecordProfile(owner,p) if ns.Permissions.Decide('HistoryCollect') and writer and writer.owner==owner then return Stage({kind='profile',value=p}) end end
 function J.RecordState(key) if writer then return Stage({kind='state',key=key,value=writer.db.olympusState[key]}) end end
 function J.Reject(reason)
     J.diagnostics.rejected=J.diagnostics.rejected+1;J.lastRejected=reason
 end
 function J.Count()
-    local db=OlympusWardenStartupDB;local n=0
+    local db=ns.Storage.OlympusWardenStartupDB;local n=0
     for _,e in pairs(Table(db) and Table(db.characters) and db.characters or {}) do
         for _,g in ipairs(Table(e) and Table(e.generations) and e.generations or {}) do
             if Table(g) and type(g.total)=='number' and type(g.committed)=='number' then n=n+math.max(0,g.total-g.committed) end
@@ -156,7 +158,7 @@ function J.Count()
     return n+ns.ChronicleStartupLegacy.Count()
 end
 function J.Has(owner)
-    local db=OlympusWardenStartupDB
+    local db=ns.Storage.OlympusWardenStartupDB
     local e=Table(db) and Table(db.characters) and db.characters[owner]
     return Table(e) and Table(e.generations) and #e.generations>0 or ns.ChronicleStartupLegacy.Has(owner)
 end
@@ -209,7 +211,7 @@ local function Rewrite(j,value,key)
     end
     return value
 end
-local function MergeProfile(c,p)
+local function MergeProfile(c,p,isolated)
     local old=c.profiles[p.guid];local before=old and S.Size(old) or 0
     if not old then old=Copy(p);c.profiles[p.guid]=old else
         old.firstObserved=math.min(old.firstObserved,p.firstObserved)
@@ -218,7 +220,7 @@ local function MergeProfile(c,p)
         for _,k in ipairs({'lastSighting','lastEncounter'}) do if p[k] and (not old[k] or p[k].at>=old[k].at) then old[k]=Copy(p[k]) end end
         -- Private notes/watch settings are never replaced by a capture baseline.
     end
-    c.bytes=c.bytes+S.Size(old)-before;c.updated=math.max(c.updated or 0,p.lastObserved);S.Prune(c,p.lastObserved)
+    c.bytes=c.bytes+S.Size(old)-before;c.updated=math.max(c.updated or 0,p.lastObserved);S.Prune(c,p.lastObserved,isolated)
 end
 local function Apply(j,op)
     if not Table(op) or not Table(op.value) then error('Invalid recovery operation') end
@@ -243,7 +245,7 @@ local function Apply(j,op)
             local old=j.objects[hash]
             if old then
                 if not ns.ChronicleCapture.SameSnapshot(old.capture,event.capture,hash,j.checkpoint) then error('Snapshot fingerprint conflict') end
-                J.diagnostics.reused=J.diagnostics.reused+1;return
+                if not j.validation then J.diagnostics.reused=J.diagnostics.reused+1 end;return
             end
         end
         local deps,why=ns.ChronicleCapture.Dependencies(event,j.objects);if not deps then error(why) end
@@ -264,21 +266,21 @@ local function Apply(j,op)
                 j.g.collisionPivot=n;j.g.collisionBase=base;Reserve(j.c,j.g)
                 event=Rewrite(j,input);existing=j.ids[event.id]
                 if existing then error('Recovery collision reservation is not unique') end
-                J.diagnostics.collisions=(J.diagnostics.collisions or 0)+1
+                if not j.validation then J.diagnostics.collisions=(J.diagnostics.collisions or 0)+1 end
             end
         end
         if not existing then
-            local saved=S.Commit(j.owner,event,j.checkpoint);if not saved or Encode(saved)~=Encode(event) then error('Recovery commit did not preserve complete evidence') end
-            if ns.AthenaLab and ns.AthenaLab.Current() then pcall(ns.AthenaLab.CanonicalMapping,input.id,saved.id,saved.subject) end
-            if ns.Athena and ns.Athena.CommitLiveNotice then ns.Athena.Try(ns.Athena.CommitLiveNotice,input.id,saved,j.g.id) end
+            local saved;if j.validation then saved=S.CommitCandidate(j.c,j.owner,event,j.checkpoint,true)else saved=S.Commit(j.owner,event,j.checkpoint)end;if not saved or Encode(saved)~=Encode(event) then error('Recovery commit did not preserve complete evidence') end
+            if not j.validation and ns.AthenaLab and ns.AthenaLab.Current() then pcall(ns.AthenaLab.CanonicalMapping,input.id,saved.id,saved.subject) end
+            if not j.validation and ns.Athena and ns.Athena.CommitLiveNotice then ns.Athena.Try(ns.Athena.CommitLiveNotice,input.id,saved,j.g.id) end
             j.ids[saved.id]=saved;if saved.capture then j.objects[saved.details.contentID]=saved end
-            J.diagnostics.merged=J.diagnostics.merged+1
+            if not j.validation then J.diagnostics.merged=J.diagnostics.merged+1 end
         end
     elseif op.kind=='profile' then
         local p=op.value
         local check=S.Normalize({schema=S.VERSION,characters={[j.owner]={events={},profiles={[p.guid or '']=p}}}})
         if not check or not S.Preserved(p,check.characters[j.owner].profiles[p.guid]) then error('Recovery profile did not validate') end
-        MergeProfile(j.c,p)
+        MergeProfile(j.c,p,j.validation)
     elseif op.kind=='state' then
         if type(op.key)~='string' or op.key:sub(1,#j.owner+1)~=j.owner..'/' then error('Recovery state owner mismatch') end
         local state=Rewrite(j,op.value)
@@ -322,7 +324,7 @@ local function Run(j)
             -- A tail may be sealed while checksums yield; ordinals remain stable.
             local op=ops[expected-first+1]
             Apply(j,op);g.bytes=math.max(0,g.bytes-S.Size(op));g.committed=expected;expected=expected+1
-            J.diagnostics.committed=J.diagnostics.committed+1;coroutine.yield()
+            if not j.validation then J.diagnostics.committed=J.diagnostics.committed+1 end;coroutine.yield()
         end
         if chunk then g.chunks[ci]=false;ci=ci+1 else
             local remaining={};local tailFirst=g.total-#g.tail+1
@@ -339,9 +341,45 @@ local function Run(j)
         end
     end
 end
+-- Dry-run the actual journal replay against private normalized character
+-- copies. Never swap live globals, advance a real writer, consume pending
+-- operations, emit Athena notices, or change the live revision/diagnostics.
+-- Restores retain their original journal so normal startup performs the merge.
+function J.ValidateRecovery(history,root,checkpoint)
+    assert(Table(root) and root.version==2 and Table(root.characters),'Unsupported recovery journal')
+    if root.legacy~=nil then
+        assert(Table(root.legacy)and root.legacy.version==1 and Table(root.legacy.characters)and next(root.legacy.characters)==nil,'Legacy observations require their original application recovery')
+        for k in pairs(root.legacy)do assert(k=='version'or k=='characters','Unsupported legacy journal metadata')end
+    end
+    for k in pairs(root) do assert(k=='version' or k=='characters' or k=='legacy','Unsupported recovery journal field') end
+    assert(ns.ChronicleCapture,'Snapshot recovery validator is unavailable')
+    for owner,entry in pairs(root.characters) do
+        assert(type(owner)=='string' and owner:match('^[^/]+/Player%-%d+%-%x+$'),'Invalid recovery owner')
+        local private={characters={[owner]=Copy(entry)}};local e=assert(Entry(private,owner),'Invalid recovery character')
+        if #e.generations>0 then
+        local sample={};for k,v in pairs(history or {})do if k~='characters'then sample[k]=v end end
+        sample.characters={[owner]=history and history.characters[owner] or {events={},profiles={}}}
+        local db=assert(S.Normalize(sample,checkpoint),'Recovery history did not validate');local c=db.characters[owner]
+        local last=0
+        for _,g in ipairs(e.generations)do
+            assert(ValidGeneration(g,owner)and g.id>last and g.id<=e.nextGeneration,'Invalid recovery generation order');last=g.id
+            g.hashes=g.hashes or {}
+            local j={validation=true,root=private,entry=e,g=g,owner=owner,db=db,c=c,ids={},objects={},hashes=g.hashes}
+            local thread=coroutine.create(function()Run(j)end)
+            while true do
+                local ok,why=coroutine.resume(thread);assert(ok,why)
+                if coroutine.status(thread)=='dead'then break end
+                if checkpoint then checkpoint()end
+            end
+            assert(g.committed==g.total,'Incomplete recovery replay')
+        end
+        end
+    end
+    return true
+end
 function J.Merge() if not J.error and not J.quitting then Wake() end end
 function J.Pump()
-    if J.quitting or J.error or S.loading or S.blocked or not S.db or not ns.DB or not ns.Modules.Enabled('history') or not ns.Membership.Allowed() then return end
+    if J.quitting or J.error or S.loading or S.blocked or not S.db or not ns.DB or not ns.Modules.Enabled('history') or not ns.Permissions.Decide('HistoryCollect') then return end
     local root=Root();if not root then Fail('Unsupported recovery root; original evidence is retained.');return end
     local owner=C.Owner();if not owner then return end
     if ns.ChronicleStartupLegacy.error then Fail(ns.ChronicleStartupLegacy.error);return end
@@ -383,7 +421,7 @@ function J.Pump()
     end
 end
 function J.Status()
-    local bytes=0;local db=OlympusWardenStartupDB
+    local bytes=0;local db=ns.Storage.OlympusWardenStartupDB
     for _,e in pairs(Table(db) and Table(db.characters) and db.characters or {}) do
         for _,g in ipairs(Table(e) and Table(e.generations) and e.generations or {}) do if Table(g) then bytes=bytes+(S.Number(g.bytes,0) or 0) end end
     end

@@ -172,6 +172,7 @@ end
 function P.RemoveReport(id)
     for i, report in ipairs(P.reports) do
         if report.id == id then
+            if ns.FiresideSavedData then ns.FiresideSavedData.PurgeRecovery()end
             P.reportBytes = P.reportBytes - #ns.Reports.JSON(report); table.remove(P.reports, i)
             if ns.RefreshPersonal then ns.RefreshPersonal() end
             if ns.RefreshReview then ns.RefreshReview() end

@@ -4,7 +4,7 @@ local _,ns=...
 local J={VERSION=1,LIMIT=1024,BYTES=524288};ns.ChronicleStartupLegacy=J
 local S,C=ns.ChronicleStore,ns.Chronicle
 local frame=CreateFrame('Frame');local job
-local function Saved() return type(OlympusWardenStartupDB)=='table' and OlympusWardenStartupDB.legacy end
+local function Saved() return type(ns.Storage.OlympusWardenStartupDB)=='table' and ns.Storage.OlympusWardenStartupDB.legacy end
 local entryKeys={rows=true,run=true,bytes=true,overflow=true,firstAt=true,sessions=true,started=true,gap=true}
 local function Root()
     local db=Saved()
@@ -18,7 +18,7 @@ local function Fail(reason)
     J.error=reason;job=nil;frame:SetScript('OnUpdate',nil)
 end
 function J.Cancel() job=nil;frame:SetScript('OnUpdate',nil) end
-function J.Clear() J.Cancel();OlympusWardenStartupDB.legacy=nil;J.error=nil end
+function J.Clear() J.Cancel();ns.Storage.OlympusWardenStartupDB.legacy=nil;J.error=nil end
 local function ValidEntry(owner,e)
     if type(e)~='table' or getmetatable(e) or not S.Array(e.rows,J.LIMIT) or not S.Integer(e.run,0,1000000000)
         or type(e.sessions)~='table' or getmetatable(e.sessions) or not S.Integer(e.overflow,0,1000000000)
@@ -34,6 +34,7 @@ local function ValidEntry(owner,e)
     return bytes
 end
 function J.Prepare(owner,at)
+    if owner~=C.Owner() or not ns.Permissions.Decide('HistoryCollect') then return end
     local db=Root();if not db or not S.Text(owner,240) then Fail('Startup recovery needs attention; its original saved data is kept.');return end
     local e=db.characters[owner]
     if not e then e={rows={},run=0,bytes=0,overflow=0,firstAt=at,sessions={}};db.characters[owner]=e end
@@ -74,7 +75,7 @@ function J.Count()
 end
 function J.Merge()
     if job or S.loading or S.blocked or not S.db or S.db.consentVersion~=S.CONSENT
-        or not ns.Modules.Enabled('history') or not ns.Membership.Allowed() then return end
+        or not ns.Modules.Enabled('history') or not ns.Permissions.Decide('HistoryCollect') then return end
     local db=Saved();if db==nil then return end
     if not Root() then Fail('Startup recovery root is unsupported; its original data is kept.');return end
     local owner=C.Owner();local e=owner and db.characters[owner];if not e then return end
@@ -105,7 +106,7 @@ local function Pump()
     local j=job;if not j then return end
     if Saved()~=j.root or j.root.characters[j.owner]~=j.entry
         or S.db~=j.db or S.Character(j.owner,false)~=j.character or j.character.events~=j.events
-        or C.Owner()~=j.owner or not ns.Modules.Enabled('history') or not ns.Membership.Allowed() then J.Cancel();return end
+        or C.Owner()~=j.owner or not ns.Modules.Enabled('history') or not ns.Permissions.Decide('HistoryCollect') then J.Cancel();return end
     local c,e=j.character,j.entry;local deadline=ns.WardenPerformance.Begin();local used=0
     if j.scan<=j.count and c.events[j.count]~=j.tail then
         j.count=#c.events;j.tail=c.events[j.count];j.scan=1;j.found={}

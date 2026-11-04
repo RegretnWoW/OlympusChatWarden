@@ -221,9 +221,9 @@ function I.Status()
         local c=ns.OlympusConnection
         return c.Reason()..(c.surfaceState=='surface-full' and ' Another addon is using the native page; /ocw opens the full workspace.' or '')
     end
-    if I.IsActive() then return "Olympus tab ready. Open the Warden suite; right-click for CommandWarden settings." end
-    if Loaded() then return "Open Olympus once to create the Warden tab. /ocw opens the Warden suite." end
-    return "Olympus required. Use /ocw to open Warden while installing/updating it."
+    if I.IsActive() then return "Olympus tab ready. Open the Fireside suite; right-click for CommandWarden settings." end
+    if Loaded() then return "Open Olympus once to create the Fireside tab. /ocw opens the Fireside suite." end
+    return "Olympus required. Use /ocw to open Fireside while installing/updating it."
 end
 local function Queue()
     if queued then return end

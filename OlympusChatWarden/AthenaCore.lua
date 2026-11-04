@@ -9,7 +9,7 @@ local checked=setmetatable({},{__mode='k'})
 local function Enabled(module)
     return scopes[module] and (module=='command' or module=='relay' or not ns.Modules or ns.Modules.Enabled(module))
 end
-local function Allowed(module) return Enabled(module) and ns.DB and (not ns.Membership or ns.Membership.Allowed()) end
+local function Allowed(module) return Enabled(module) and ns.DB and (not ns.Membership or ns.Membership.BackgroundAllowed(module)) end
 local function Text(v,n) return ns.CanRead(v) and #v<=(n or 256) and v or nil end
 local function GUID(v) return Text(v,128) and v:match('^Player%-%w[%w%-]*$') and v end
 local function Now() return ns.SafeNumber(ns.SafeCall(GetServerTime)) or ns.SafeNumber(ns.SafeCall(time)) or 0 end
@@ -114,7 +114,7 @@ function A.Subscribe(consumer,kinds,handler)
     return true
 end
 function A.Observe(module,observation)
-    if not Allowed(module) then return nil,'MODULE_DISABLED' end
+    if not Allowed(module) or not ns.Permissions.Decide('IncidentCollect') then return nil,'MODULE_DISABLED' end
     if type(observation)~='table' or not ns.Readable(observation) then return nil,'UNREADABLE' end
     if module~='chat' or observation.kind~='chat_decision' then return nil,'UNSUPPORTED_TYPED_SOURCE' end
     local s,why=Store();if not s then return nil,why end
@@ -132,7 +132,7 @@ function A.Observe(module,observation)
     s.decisions[#s.decisions+1]=r;Notify('decision',r,true);return id,'COMMITTED'
 end
 function A.RecordCorrection(module,id,correction)
-    if module~='chat' or not Allowed(module) or type(correction)~='table' or correction.kind~='false_positive' then return nil,'DENIED' end
+    if module~='chat' or not Allowed(module) or not ns.Membership.Allowed() or type(correction)~='table' or correction.kind~='false_positive' then return nil,'DENIED' end
     local s=Store();if not s then return nil,'UNAVAILABLE' end
     for _,r in ipairs(s.decisions) do if r.id==id then
         if s.corrections[id] then return id,'DUPLICATE' end
@@ -166,7 +166,7 @@ function A.GetPlayerContext(consumer,guid,scope)
     return out
 end
 function A.RecordAction(module,action,causeIDs)
-    if not Allowed(module) or not ({shield=true,alerts=true,relay=true,command=true})[module] or type(action)~='table' then return nil,'DENIED' end
+    if not Allowed(module) or not ns.Permissions.Decide('IncidentCollect') or not ({shield=true,alerts=true,relay=true,command=true})[module] or type(action)~='table' then return nil,'DENIED' end
     local s=Store();if not s then return nil,'UNAVAILABLE' end
     local guid=GUID(action.subject);local key=Text(action.nameKey,180)
     if not guid and not key and module~='relay' and module~='command' then return nil,'UNRESOLVED_IDENTITY' end
@@ -184,7 +184,7 @@ function A.RecordAction(module,action,causeIDs)
     s.actions[#s.actions+1]=row;Notify('action',row,true);return row.id,'COMMITTED'
 end
 function A.RecordAssessment(module,finding,dependencies)
-    if module~='intel' or not Allowed(module) or type(finding)~='table' or not GUID(finding.subject) then return nil,'DENIED' end
+    if module~='intel' or not Allowed(module) or not ns.Permissions.Decide('IncidentCollect') or type(finding)~='table' or not GUID(finding.subject) then return nil,'DENIED' end
     -- Derived on demand; no new evidence and no independent Shield trigger.
     local c=A.GetPlayerContext('intel',finding.subject,'protection')
     return c and {subject=finding.subject,label=c.advisory,dependencies=c.sourceIDs,originKind='assessment',policyVersion=A.POLICY,retracted=not c.advisory}
@@ -225,6 +225,7 @@ function A.Notice(e,status,live,generation)
     -- Called only after the existing authoritative writer accepts a native event.
     -- Journal recovery does not replay business actions.
     if not e then return end
+    if ns.WardenMementos then A.Try(ns.WardenMementos.Observe,e,status) end
     if ns.AthenaIntakeContext then
         local ok=pcall(ns.AthenaIntakeContext.Accepted,e,status,live)
         if not ok then ns.AthenaIntakeContext.diagnostics.linkErrors=ns.AthenaIntakeContext.diagnostics.linkErrors+1 end
@@ -275,7 +276,7 @@ local function CachedRole(guid)
     local c=type(saved)=='table' and type(saved.characters)=='table' and saved.characters[r.owner]
     if type(c)~='table' then return end
     if r.provisional then
-        local journal=OlympusWardenStartupDB
+        local journal=ns.Storage.OlympusWardenStartupDB
         if type(journal)=='table' and journal.version==2 and type(journal.characters)=='table' and journal.characters[r.owner] then return r end
         if c.sequence==r.sequence and c.updated==r.updated and c.sessionSequence==r.sessionSequence then return r end
     elseif Text(r.sourceID,512) and r.sourceID:sub(1,#r.owner+1)==r.owner..':' then

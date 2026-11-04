@@ -11,7 +11,8 @@ A.Subscribe('alerts',{'decision','correction'},function(event)
     signalled[event.subject]=true;signalOrder[#signalOrder+1]=event.subject
     ns.Print('Athena: a player in your local history has repeated spam-filter decisions. Review Messages for original decisions and corrections.')
     local causes={};for n=1,math.min(3,#context.sourceIDs) do causes[n]=context.sourceIDs[n] end
-    A.RecordAction('alerts',{kind='local_advisory_notice',subject=event.subject},causes)
+    local notice=A.RecordAction('alerts',{kind='local_advisory_notice',subject=event.subject},causes)
+    if notice and ns.Activity then ns.Activity.Add('athena:'..notice,'athena',{subjectGUID=event.subject,notificationPreference='athena',sender='Athena',preview='A player in your retained history has repeated filtering decisions. Open their dossier to review context.'},false) end
 end)
 -- Optional native activity notices. Only this login's accepted observations can
 -- enter this queue; recovered history cannot replay alerts. Payloads remain in
@@ -35,7 +36,8 @@ local function Deliver(guid,event,choice)
     end
     cooldowns[guid]=now
     ns.Print('Athena: '..(choice=='watched' and 'a watched player' or 'an Important player')..' has a newly retained activity. Open IntelWarden for its dated source; this is not proof of proximity or misconduct.')
-    A.RecordAction('alerts',{kind='retained_activity_notice',subject=guid,sourceEvidenceID=event.id})
+    local notice=A.RecordAction('alerts',{kind='retained_activity_notice',subject=guid,sourceEvidenceID=event.id})
+    if notice and ns.Activity then ns.Activity.Add('athena:'..notice,'athena',{subjectGUID=guid,notificationPreference=choice=='watched' and 'athenaWatched' or 'athenaEarned',sender='Athena',preview='A '..(choice=='watched' and 'watched' or 'recurring Important')..' player has a newly retained activity. This does not establish proximity.'},false) end
 end
 function A.NativeNotice(e,status,generation)
     if not ns.Notifications.Get('athenaWatched') and not ns.Notifications.Get('athenaEarned') then return end

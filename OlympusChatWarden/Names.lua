@@ -359,6 +359,15 @@ for _, event in ipairs({"NAME_PLATE_UNIT_ADDED", "NAME_PLATE_UNIT_REMOVED", "UNI
     pcall(events.RegisterEvent, events, event)
 end
 events:SetScript("OnEvent", function(_, event, unit)
+    -- Another unit choosing a target does not change a displayed name. In a
+    -- crowd these callbacks can arrive every frame; only our target/focus
+    -- chains need a target-label rescan. Intel's independent listeners still
+    -- receive every native event and retain their permitted observations.
+    if event == "UNIT_TARGET" then
+        local token=ns.SafeString(unit,64)
+        if token~='target' and token~='focus' then return end
+        unit=token
+    end
     if event == "NAME_PLATE_UNIT_ADDED" or event == "NAME_PLATE_UNIT_REMOVED" then
         local token = ns.SafeString(unit, 64)
         if token and token:match("^nameplate%d+$") then

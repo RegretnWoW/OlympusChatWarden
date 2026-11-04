@@ -51,6 +51,22 @@ function V.Valid(d)
     end
     return false
 end
+function V.Explain(d)
+    local r=d.recordType
+    if not allowed[r]then return 'UNSUPPORTED_TYPE_VERSION','native_event.recordType'end
+    for k in pairs(d)do if not allowed[r][k]then return 'INVALID_SCHEMA','native_event.unexpected_field'end end
+    for _,key in ipairs({'evidenceState','interpretationVersion','sourceVersion','subjectEligibility','fieldReadability','interpretationStatus','runID','sourceOccurrenceKey','scope','attribution','coverage'})do
+        if d[key]==nil then return 'MISSING_FIELD','observation.'..key end
+    end
+    if d.interpretationVersion~=1 or d.sourceVersion~=1 then return 'UNSUPPORTED_TYPE_VERSION','observation.version'end
+    if r=='visible_use'or r=='group_assignment'then
+        if d.baseline==nil then return 'MISSING_FIELD','observation.baseline'end
+        if type(d.baseline)~='boolean'then return 'INVALID_FIELD','observation.baseline'end
+    end
+    if r=='visible_use'and type(d.mounted)~='boolean'then return d.mounted==nil and'MISSING_FIELD'or'INVALID_FIELD','observation.mounted'end
+    if r=='group_assignment'and d.assignedRole==nil and d.groupLeader==nil and d.groupAssistant==nil then return 'MISSING_FIELD','observation.assignment'end
+    return 'INVALID_FIELD','native_event.'..r..'.values'
+end
 function V.Record(t,owner)
     local d=t.details;if not S.GUID(t.subject) then return false end
     if (t.subject==owner:match('/(Player%-.+)$'))~=(d.subjectEligibility=='SELF') then return false end

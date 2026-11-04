@@ -4,11 +4,40 @@ ns.Theme = T
 local uiSounds={open='IG_CHARACTER_INFO_OPEN',close='IG_CHARACTER_INFO_CLOSE',tab='IG_CHARACTER_INFO_TAB',button='IG_MAINMENU_OPTION_CHECKBOX_ON'}
 local soundSerial=0
 function T.UISound(kind)
+    if ns.WardenAudio then
+        local ok=ns.WardenAudio.Play(kind=='open'and'ui.open'or kind=='close'and'ui.close'or kind=='tab'and'tab'or'button');if ok then soundSerial=soundSerial+1 end;return ok
+    end
     local kit=type(SOUNDKIT)=='table' and SOUNDKIT[uiSounds[kind] or '']
     -- Use the client's own kits and normal sound settings. Unsupported clients
     -- remain silent; no guessed sound IDs or forced audio channels.
     if type(PlaySound)~='function' or type(kit)~='number' then return end
     local ok=pcall(PlaySound,kit);if ok then soundSerial=soundSerial+1 end
+end
+-- Finite shared material motion. The visual child moves, never the input box.
+function T.Tactile(button,face)
+    if button.wardenTactile then return end;button.wardenTactile=true
+    local depth,target=0,0
+    local function place()
+        face:ClearAllPoints();face:SetPoint('TOPLEFT',button,'TOPLEFT',0,-depth);face:SetPoint('BOTTOMRIGHT',button,'BOTTOMRIGHT',0,-depth);button.tactileDepth=depth
+    end
+    local function settle()
+        local eligible=not button.wardenTactileEligible or button.wardenTactileEligible(button)
+        local nextTarget=eligible and(button.wardenHeld and 1.35 or button.active and .35 or button.wardenHover and -.25 or 0)or 0
+        if nextTarget==target and math.abs(depth-target)<.001 then return end;target=nextTarget
+        if ns.DB and ns.DB.journalReducedMotion==true or not button:IsShown()then depth=target;place();face:SetScript('OnUpdate',nil);return end
+        local from,elapsed=depth,0
+        face:SetScript('OnUpdate',function(_,dt)
+            elapsed=elapsed+math.min(.05,math.max(0,dt or 0));local t=math.min(1,elapsed/.12)
+            depth=from+(target-from)*(1-(1-t)^3);place();if t==1 then face:SetScript('OnUpdate',nil)end
+        end)
+    end
+    button:HookScript('OnEnter',function(self)self.wardenHover=true;settle()end)
+    button:HookScript('OnLeave',function(self)self.wardenHover=nil;self.wardenHeld=nil;settle()end)
+    button:HookScript('OnMouseDown',function(self)if self:IsEnabled()then self.wardenHeld=true;settle()end end)
+    button:HookScript('OnMouseUp',function(self)self.wardenHeld=nil;settle()end)
+    button:HookScript('OnDisable',function(self)self.wardenHeld=nil;self.wardenHover=nil;settle()end)
+    button:HookScript('OnHide',function()face:SetScript('OnUpdate',nil);button.wardenHeld=nil;button.wardenHover=nil;depth=0;target=0;place()end)
+    button.UpdateTactile=settle;place()
 end
 function T.ClickSound(button,kind)
     if button.WardenClickSoundBound then return end
@@ -33,9 +62,20 @@ function T.WindowScale(width,height)
     local parentScale=UIParent.GetEffectiveScale and UIParent:GetEffectiveScale() or 1
     if type(parentScale)~='number' or parentScale~=parentScale or parentScale<=0 then parentScale=1 end
     local fit=math.min((UIParent:GetWidth()-26)/width,(UIParent:GetHeight()-26)/height)
-    return math.max(.1,math.min(1.5,1/parentScale,fit)),math.max(.1,fit)
+    local requested=ns.DB and ns.DB.workspaceScale
+    if type(requested)~='number' or requested~=requested or requested<.1 or requested>1.5 then requested=nil end
+    -- Keep the automatic physical reading size proportional to the display.
+    -- A fixed 1600-pixel window is comfortable at 1080p but tiny at 4K. Only
+    -- Auto changes: an explicit user preference remains authoritative and
+    -- every window is still bounded by the available logical viewport.
+    local physicalHeight=UIParent:GetHeight()*parentScale
+    local automatic=math.max(.7,math.min(1.5,physicalHeight/1080))/parentScale
+    -- The slider is a multiplier of the same fitted design at every DPI.
+    -- It never changes logical widths, fonts or the number of card columns.
+    return math.max(.1,math.min((requested or 1)*automatic,fit)),math.max(.1,fit)
 end
 function T.FitWindow(frame,width,height)
+    frame.ChatWardenFitWidth=width;frame.ChatWardenFitHeight=height
     local scale=T.WindowScale(width,height)
     local current=frame.GetScale and frame:GetScale() or frame.ChatWardenWindowScale
     if not current or math.abs(current-scale)>.0001 then frame:SetScale(scale);frame.ChatWardenWindowScale=scale end
@@ -81,7 +121,7 @@ end
 -- Unicode changes the font fallback for an entire EditBox, including Latin
 -- text. Independent sections keep that fallback local to the original.
 local readerColors={
-    paper={body={.20,.14,.09},quote={.15,.11,.07},title={.31,.15,.055},heading={.37,.20,.08},meta={.39,.32,.25},accent={.10,.29,.40},warning={.48,.25,.025},danger={.58,.12,.09},success={.17,.34,.13}},
+    paper={body={.105,.065,.035},quote={.105,.065,.035},title={.23,.105,.035},heading={.27,.13,.045},meta={.28,.22,.16},accent={.10,.29,.40},warning={.48,.25,.025},danger={.58,.12,.09},success={.17,.34,.13}},
     dark={body={.93,.92,.88},quote={.96,.93,.85},title={.96,.82,.62},heading={.96,.82,.62},meta={.77,.80,.83},accent={.4,.75,1},warning={1,.72,.28},danger={1,.4,.34},success={.42,.82,.39}},
 }
 local function DocumentPlain(value)
@@ -106,30 +146,86 @@ function T.ParagraphBlocks(text)
     end
     Flush();return blocks
 end
+function T.DocumentTextSize(kind,scale)
+    local size=kind=='margin' and 14 or kind=='title' and 24 or kind=='heading' and 20 or kind=='quote' and 17 or kind=='meta' and 14 or 16
+    return math.floor(size*(scale or 1)+.5)
+end
+function T.ReaderFont(text,size,kind,style)
+    if style=='paper' then
+        local face=(kind=='title' or kind=='heading') and 'bold' or 'regular'
+        local family=_G['ChatWardenJournalSerif'..face..size]
+        if family then text:SetFontObject(family);text.ChatWardenFontSize=size;return true end
+        local ok,value=pcall(text.SetFont,text,'Interface\\AddOns\\OlympusChatWarden\\Media\\JournalType\\'..face..'.ttf',size,'')
+        if ok and value~=false then text.ChatWardenFontSize=size;return true end
+    end
+    return T.DocumentFont(text,size)
+end
 function T.ReadOnlyDocument(scroll)
     local doc=CreateFrame('Frame',nil,scroll);doc.boxes={};doc.parts={};doc.blocks={};doc.style='dark'
     doc:SetSize(math.max(1,scroll:GetWidth()),math.max(1,scroll:GetHeight()));scroll:SetScrollChild(doc)
     local fitting=false
     local function Apply(box)
         T.Body(box);local path=box:GetFont()
-        local kind=box.blockKind or 'body';local size=kind=='title' and 24 or kind=='heading' and 20 or kind=='quote' and 17 or kind=='meta' and 14 or 16
-        if not T.DocumentFont(box,size) then box:SetFont(path,size,'') end;if box.SetSpacing then box:SetSpacing(3) end
-        box:SetTextColor(unpack((readerColors[doc.style] or readerColors.dark)[box.blockTone or kind] or readerColors.dark.body))
+        local kind=box.blockKind or 'body';local size=T.DocumentTextSize(kind,doc.fontScale)
+        if not T.ReaderFont(box,size,kind,doc.style) then box:SetFont(path,size,'') end;if box.SetSpacing then box:SetSpacing(3) end
+        box:SetJustifyH('LEFT');if box.SetJustifyV then box:SetJustifyV('TOP') end
+        local color=(readerColors[doc.style]or readerColors.dark)[box.blockTone or kind]or readerColors.dark.body
+        box:SetTextColor(color[1],color[2],color[3],doc.bookInkOverlay and 0 or 1)
+        if doc.bookInkOverlay and box.SetShadowColor then box:SetShadowColor(0,0,0,0)end
+    end
+    local function SemanticTargets(box,block,width,size)
+        box.linkTargets=box.linkTargets or {}
+        for _,target in ipairs(box.linkTargets) do target:Hide() end
+        if not block.spans or #block.spans==0 or (block.text or ''):find('|',1,true) then return end
+        local metrics=box.spanMeasure
+        if not metrics then metrics=box:CreateFontString(nil,'OVERLAY');box.spanMeasure=metrics;metrics:Hide();metrics:SetWordWrap(false) end
+        T.ReaderFont(metrics,size,block.kind,doc.style)
+        local text=block.text or '';local x,line,used=0,0,0;local spans={}
+        for _,span in ipairs(block.spans) do if #spans<24 and type(span.first)=='number' and type(span.last)=='number' and span.first>=1 and span.last<=#text and span.last>=span.first and ns.AthenaHistoryGraph.Destination(span.ref) then spans[#spans+1]=span end end
+        for first,word,after in text:gmatch('()(%S+%s*)()') do
+            metrics:SetText(word);local w=math.max(1,doc.bookInkOverlay and ns.AthenaBookTurnSurface.Advance(word,size,block.kind)or metrics:GetStringWidth()or size*#word*.5)
+            if x+w>width and x>0 then x=0;line=line+1 end
+            for _,span in ipairs(spans) do if first<=span.last and after-1>=span.first and used<48 then
+                used=used+1;local target=box.linkTargets[used]
+                if not target then target=CreateFrame('Button',nil,box);box.linkTargets[used]=target;target.rule=target:CreateTexture(nil,'OVERLAY');target.rule:SetColorTexture(.10,.29,.40,.70);target.rule:SetPoint('BOTTOMLEFT');target.rule:SetPoint('BOTTOMRIGHT');target.rule:SetHeight(1) end
+                target.ref=span.ref;target:ClearAllPoints();target:SetPoint('TOPLEFT',x,-line*(size+3));target:SetSize(math.min(w,width-x),size+3)
+                target.rule:SetShown(doc.style~='paper')
+                target:SetScript('OnClick',function(self) doc:FinishWordReveal();local route=ns.AthenaHistoryGraph.Destination(self.ref);if route then ns.UI2.Open(route) end end)
+                T.Tooltip(target,'Related '..span.ref.type:lower(),'Open this source-backed reference. Return with Olympus Back.');target:Show()
+            end end
+            if word:find('\n',1,true) then x=0;line=line+1 else x=x+w end
+        end
     end
     local function Fit()
         if fitting then return end;fitting=true
         local width=math.max(1,scroll:GetWidth()-8);local y=0;doc:SetWidth(width)
         for i,block in ipairs(doc.blocks) do
             local box=doc.boxes[i];local text=box.original or ''
-            box:ClearAllPoints();box:SetPoint('TOPLEFT',0,-y);box:SetWidth(width)
-            local path,size,flags=box:GetFont();if not T.DocumentFont(box.measure,size) and path then box.measure:SetFont(path,size,flags) end
+            local ornament=block.characterCard or block.guildSeal;local inset=ornament and 78 or 0
+            local illustration=doc.bookInkOverlay and ns.AthenaBookArt and ns.AthenaBookArt.Height(block)or 0
+            box:ClearAllPoints();box:SetPoint('TOPLEFT',inset,-y-illustration);box:SetWidth(math.max(80,width-inset-(block.margin and (width<340 and 32 or 144) or 0)))
+            if box.ornament then box.ornament:SetShown(ornament~=nil);box.ornament:ClearAllPoints();box.ornament:SetPoint('TOPLEFT',doc,'TOPLEFT',0,-y-4) end
+            local path,size,flags=box:GetFont();if not T.ReaderFont(box.measure,size,block.kind,doc.style) and path then box.measure:SetFont(path,size,flags) end
+            box.measure:SetJustifyH('LEFT');box.measure:SetJustifyV('TOP')
             if box.measure.SetSpacing then box.measure:SetSpacing(3) end
-            box.measure:SetWidth(width);box.measure:SetText(text)
+            box.measure:SetWidth(box:GetWidth());box.measure:SetText(text)
             local _,newlines=text:gsub('\n','')
             -- Native EditBox layout can differ slightly from its FontString
             -- measurer. Allow a line of slack instead of clipping the last wrap.
-            local height=math.max((newlines+1)*(size+3),(box.measure:GetStringHeight() or 0)+size+8)
-            box:SetHeight(height);y=y+height+(block.gap or (block.kind=='heading' and 9 or 14))
+            local height=math.max(ornament and 94 or 0,(newlines+1)*(size+3),(box.measure:GetStringHeight() or 0)+size+8)
+            box:SetHeight(math.max(height,block.margin and width>=340 and 116 or 0));SemanticTargets(box,block,box:GetWidth(),size)
+            if block.margin then
+                if not box.marginNote then box.marginNote=CreateFrame('Button',nil,box);box.marginNote.label=box.marginNote:CreateFontString(nil,'OVERLAY');box.marginNote.label:SetAllPoints();box.marginNote.label:SetWordWrap(true) end
+                local margin=box.marginNote;local narrow=width<340
+                margin:ClearAllPoints();margin:SetPoint('TOPLEFT',doc,'TOPLEFT',width-(narrow and 28 or 132),-y);margin:SetSize(narrow and 28 or 132,narrow and 28 or 110)
+                T.ReaderFont(margin.label,narrow and 13 or 14,'margin','paper');margin.label:SetTextColor(.34,.20,.10)
+                margin.label:SetText(narrow and 'Ink' or (block.margin.text or ''):gsub('|','||'));T.Tooltip(margin,'Private handwritten recollection',block.margin.text or '');margin:Show()
+            elseif box.marginNote then box.marginNote:Hide() end
+            if block.doodle then
+                box:SetHeight(200);if not box.doodle then box.doodle=CreateFrame('Frame',nil,doc)end
+                box.doodle:ClearAllPoints();box.doodle:SetPoint('TOPLEFT',doc,'TOPLEFT',0,-y);box.doodle:SetSize(width,190);box.doodle:Show();ns.WardenDrawing.Render(box.doodle,block.doodle)
+            elseif box.doodle then box.doodle:Hide()end
+            y=y+illustration+box:GetHeight()+(block.gap or (block.kind=='heading' and 9 or 14))
         end
         doc:SetHeight(math.max(scroll:GetHeight(),y))
         if scroll.ChatWardenUpdateScrollRange then scroll.ChatWardenUpdateScrollRange(math.max(0,doc:GetHeight()-scroll:GetHeight())) end
@@ -137,40 +233,82 @@ function T.ReadOnlyDocument(scroll)
         if offset>math.max(0,doc:GetHeight()-scroll:GetHeight()) then scroll:SetVerticalScroll(math.max(0,doc:GetHeight()-scroll:GetHeight())) end
         fitting=false
     end
+    function doc:GetReadingAnchor()
+        local offset=scroll:GetVerticalScroll() or 0;local y=0
+        for i,block in ipairs(self.blocks) do local height=self.boxes[i]:GetHeight()+(block.gap or (block.kind=='heading' and 9 or 14))
+            if offset<y+height then return {block=i,id=block.id,fraction=(offset-y)/math.max(1,height)} end;y=y+height
+        end
+        return {block=1,fraction=0}
+    end
+    function doc:RestoreReadingAnchor(anchor)
+        if not anchor then return end
+        if anchor.id then for i,block in ipairs(self.blocks) do if block.id==anchor.id then anchor={id=anchor.id,block=i,fraction=anchor.fraction};break end end end
+        if not self.blocks[anchor.block] then return end
+        local y=0
+        for i=1,anchor.block do local block=self.blocks[i];local height=self.boxes[i]:GetHeight()+(block.gap or (block.kind=='heading' and 9 or 14))
+            if i==anchor.block then y=y+height*anchor.fraction else y=y+height end
+        end
+        scroll:SetVerticalScroll(math.max(0,math.min(y,math.max(0,self:GetHeight()-scroll:GetHeight()))))
+    end
+    function doc:SetFontScale(scale)
+        local anchor=self:GetReadingAnchor();self.fontScale=math.max(self.bookInkOverlay and .35 or .85,math.min(1.5,scale or 1))
+        for _,box in ipairs(self.boxes) do Apply(box) end;Fit();self:RestoreReadingAnchor(anchor)
+    end
     function doc:SetStyle(style)
         self.style=readerColors[style] and style or 'dark'
         for _,box in ipairs(self.boxes) do Apply(box) end;Fit()
     end
+    function doc:Refit() Fit() end
     function doc:SetBlocks(blocks,sourceText)
+        if self.FinishWordReveal then self:FinishWordReveal() end
         local same=#blocks==#self.blocks
         if same then for i,block in ipairs(blocks) do
             if type(block)=='string' then block={text=block} end
             local old=self.blocks[i]
             local text=block.literal and (block.text or ''):gsub('|','||') or DocumentPlain(block.text)
-            if old.text~=text or old.kind~=(block.kind or 'body') or old.gap~=block.gap or old.tone~=block.tone
-                or old.tooltip~=block.tooltip or old.tooltipTitle~=block.tooltipTitle then same=false;break end
+            if old.id~=block.id or old.text~=text or old.kind~=(block.kind or 'body') or old.gap~=block.gap or old.tone~=block.tone
+                or ns.AthenaBookArt.Key(old.journalArt)~=ns.AthenaBookArt.Key(block.journalArt) or old.tooltip~=block.tooltip or old.tooltipTitle~=block.tooltipTitle or old.spans~=block.spans or old.margin~=block.margin or old.guildRef~=block.guildRef or old.guildOwner~=block.guildOwner or old.activate~=block.activate or old.characterCard~=block.characterCard or old.guildSeal~=block.guildSeal or old.doodle~=block.doodle then same=false;break end
         end end
         if same then self.sourceText=sourceText and DocumentPlain(sourceText);return end
         self.blocks={};self.parts={};self.sourceText=sourceText and DocumentPlain(sourceText)
         for i,block in ipairs(blocks) do
             if type(block)=='string' then block={text=block} end
             local text=block.literal and (block.text or ''):gsub('|','||') or DocumentPlain(block.text)
-            self.blocks[i]={text=text,kind=block.kind or 'body',gap=block.gap,tone=block.tone,tooltip=block.tooltip,tooltipTitle=block.tooltipTitle}
+            self.blocks[i]={journalArt=block.journalArt,doodle=block.doodle,id=block.id,text=text,kind=block.kind or 'body',gap=block.gap,tone=block.tone,tooltip=block.tooltip,tooltipTitle=block.tooltipTitle,activate=block.activate,revealAllowed=block.revealAllowed,characterCard=block.characterCard,guildSeal=block.guildSeal,guildRef=block.guildRef,guildOwner=block.guildOwner,spans=block.spans,margin=block.margin}
             local box=self.boxes[i]
             if not box then
                 box=CreateFrame('EditBox',nil,self);self.boxes[i]=box;box.ChatWardenNoSpelling=true;box.ChatWardenArtStyled=true
                 box:SetMultiLine(true);box:SetAutoFocus(false);T.TextField(box)
                 box.measure=box:CreateFontString(nil,'OVERLAY');box.measure:SetWordWrap(true);if box.measure.SetNonSpaceWrap then box.measure:SetNonSpaceWrap(true) end;box.measure:Hide()
                 box:SetScript('OnEscapePressed',function(b) b:ClearFocus() end)
+                box:HookScript('OnMouseDown',function() if doc.FinishWordReveal then doc:FinishWordReveal() end end)
                 box:HookScript('OnTextChanged',function(b,user) if user then b:SetText(b.original or '');Apply(b) end end)
+                box:HookScript('OnTextChanged',function()if doc.bookInkChanged then doc.bookInkChanged()end end)
             end
             self.parts[i]=text;box.original=text;box.blockKind=block.kind or 'body';box.blockTone=block.tone
+            if block.characterCard or block.guildSeal then
+                if not box.ornament then
+                    box.ornament=CreateFrame('Frame',nil,self);box.ornament:SetSize(66,84)
+                    box.ornament.icon=box.ornament:CreateTexture(nil,'ARTWORK');box.ornament.icon:SetPoint('TOPLEFT',4,-4);box.ornament.icon:SetSize(56,56)
+                    box.ornament.caption=box.ornament:CreateFontString(nil,'OVERLAY');T.Body(box.ornament.caption);box.ornament.caption:SetPoint('TOPLEFT',0,-64);box.ornament.caption:SetSize(66,18);box.ornament.caption:SetTextColor(.43,.25,.10)
+                end
+                local card=block.characterCard
+                if card then
+                    ns.WardenCharacterCards.Portrait(box.ornament.icon,card);box.ornament.caption:SetText(card.values.name)
+                    T.Tooltip(box.ornament,'Remembered companion',(card.values.name or 'Companion')..(card.values.class and '\n'..card.values.class or '')..(card.values.guild and '\n<'..card.values.guild..'>' or '')..'\nIllustrative class emblem • dated identity; exact offline face unavailable.')
+                else
+                    box.ornament.icon:SetTexture(T.Icon);box.ornament.icon:SetTexCoord(0,1,0,1);box.ornament.caption:SetText('Guild')
+                    T.Tooltip(box.ornament,block.guildSeal,'A guild seal marks this passage. Historical tabard artwork was not captured.')
+                    box.ornament:EnableMouse(block.guildRef~=nil);box.ornament:SetScript('OnMouseUp',block.guildRef and function(_,button) if button=='LeftButton' then ns.UI2.OpenGuild(block.guildRef,block.guildOwner) end end or nil)
+                end
+            elseif box.ornament then box.ornament:Hide() end
             if block.tooltip then T.Tooltip(box,block.tooltipTitle or text,block.tooltip)
             else box:SetScript('OnEnter',nil);box:SetScript('OnLeave',nil) end
+            box:SetScript('OnMouseUp',type(block.activate)=='function' and function(_,button) if button=='LeftButton' then block.activate() end end or nil)
             if box:GetText()~=text then box:SetText(text);box:ClearFocus() end
             Apply(box);box:Show()
         end
-        for i=#blocks+1,#self.boxes do self.boxes[i]:Hide();self.boxes[i]:ClearFocus() end
+        for i=#blocks+1,#self.boxes do self.boxes[i]:Hide();if self.boxes[i].doodle then self.boxes[i].doodle:Hide()end;self.boxes[i]:ClearFocus();if self.boxes[i].ornament then self.boxes[i].ornament:Hide() end end
         Fit()
     end
     function doc:SetSections(parts)
@@ -186,6 +324,33 @@ function T.ReadOnlyDocument(scroll)
     end
     function doc:GetText() return self.sourceText or table.concat(self.parts,'\n') end
     function doc:ClearFocus() for _,box in ipairs(self.boxes) do box:ClearFocus() end end
+    -- Presentation only: complete text and layout exist before ink is revealed.
+    -- No reflow per word, no timer when idle, and no partial text is saved.
+    function doc:FinishWordReveal()
+        if not self.wordReveal then return end
+        self.wordReveal=nil;self:SetScript('OnUpdate',nil)
+        for i,b in ipairs(self.blocks) do local box=self.boxes[i];box:SetText(b.text);box:SetAlpha(1);Apply(box) end
+    end
+    function doc:RevealWords(rate,allText)
+        self:FinishWordReveal()
+        local queue={}
+        for i,b in ipairs(self.blocks) do if (b.kind=='body' or allText==true) and #b.text>0 and (not b.activate or b.revealAllowed) then
+            local ends={};for _,at in b.text:gmatch('(%S+%s*)()') do ends[#ends+1]=at-1 end
+            queue[#queue+1]={box=self.boxes[i],text=b.text,ends=ends,at=0};self.boxes[i]:SetText('')
+        end end
+        if #queue==0 then return end
+        self.wordReveal={queue=queue,index=1,credit=0,rate=math.max(8,math.min(80,rate or 32)),time=0}
+        self:SetScript('OnUpdate',function(self,dt)
+            local r=self.wordReveal;if not r then return end
+            r.time=r.time+dt;r.credit=math.min(12,r.credit+math.min(dt,.1)*r.rate)
+            local steps=math.floor(r.credit);if steps==0 then return end;r.credit=r.credit-steps
+            local row=r.queue[r.index];row.at=math.min(#row.ends,row.at+steps)
+            row.box:SetText(row.text:sub(1,row.ends[row.at] or 0));row.box:SetAlpha(.9+.1*math.sin(r.time*8))
+            if row.box.SetShadowColor and not self.bookInkOverlay then row.box:SetShadowColor(.16,.58,1,.65);row.box:SetShadowOffset(1,-1) end
+            if row.at>=#row.ends then row.box:SetAlpha(1);Apply(row.box);r.index=r.index+1;if not r.queue[r.index] then self:FinishWordReveal() end end
+        end)
+    end
+    doc:HookScript('OnHide',function(self) self:FinishWordReveal() end)
     scroll:HookScript('OnSizeChanged',Fit);scroll:HookScript('OnShow',Fit)
     return doc
 end
@@ -278,6 +443,7 @@ end
 
 local function WindowFrames(root)
     local frames = {}
+    local modals = {}
     local function Collect(frame, offset)
         frames[#frames + 1] = {frame = frame, offset = offset}
         if frame.IsMouseEnabled and frame:IsMouseEnabled() and not focusHooks[frame] then
@@ -291,14 +457,29 @@ local function WindowFrames(root)
             frame:HookScript("OnDragStop", function() QueueFocus(root) end)
         end
         for _, child in ipairs({frame:GetChildren()}) do
-            if child:GetFrameStrata() ~= "TOOLTIP" and not (child.IsForbidden and child:IsForbidden())
+            if type(child.GetFrameStrata)=='function' and type(child.GetFrameLevel)=='function' and not registered[child]
+                and child:GetFrameStrata() ~= "TOOLTIP" and not (child.IsForbidden and child:IsForbidden())
                 and not (child.IsProtected and child:IsProtected()) then
-                local relative = math.max(1, child:GetFrameLevel() - frame:GetFrameLevel())
-                Collect(child, offset + relative)
+                if child.ChatWardenModal then
+                    if child:IsShown() then modals[#modals + 1] = child end
+                else
+                    local relative = math.max(1, child:GetFrameLevel() - frame:GetFrameLevel())
+                    Collect(child, offset + relative)
+                end
             end
         end
     end
     Collect(root, 0)
+    -- Modal trees form complete bands ABOVE the whole owner tree. Comparing
+    -- only their old relative levels let deeply nested Lab controls pierce a
+    -- popup after focus/restacking, even though its title remained in front.
+    local index = 1
+    while index <= #modals do
+        local highest = 0
+        for _, item in ipairs(frames) do highest = math.max(highest, item.offset) end
+        Collect(modals[index], highest + 4)
+        index = index + 1
+    end
     -- Native portrait/border templates reserve offsets of 400–510. Preserve
     -- their ordering without carrying those large gaps into every window.
     local levels, seen, ranks = {}, {}, {}
@@ -311,10 +492,34 @@ local function WindowFrames(root)
     return frames, #levels - 1
 end
 
+function T.RegisterModal(frame,owner)
+    if frame.ChatWardenModal then return end
+    frame.ChatWardenModal = true
+    if owner then
+        frame.ChatWardenModalOwner=owner
+        frame:SetParent(UIParent);frame:ClearAllPoints();frame:SetPoint('CENTER',owner,'CENTER',0,0)
+        T.RegisterWindow(frame)
+        return
+    end
+    hooksecurefunc(frame, 'Show', function()
+        local root = Owner(frame)
+        if root then T.FocusWindow(root) end
+    end)
+end
+
 -- Keep complete window trees in separate, bounded level ranges. Raising only
 -- the root lets an older window's nested controls draw through the new window.
 function T.FocusWindow(root)
     if restacking or switching or not registered[root] or not root:IsShown() then return end
+    -- A visible modal stays above its owner even when the owner receives a
+    -- deferred mouse-up focus request. It is its own complete window tree.
+    for _=1,16 do
+        local nextRoot
+        for i=#windows,1,-1 do local w=windows[i]
+            if w.ChatWardenModalOwner==root and w:IsShown() and w:IsVisible() then nextRoot=w;break end
+        end
+        if not nextRoot then break end;root=nextRoot
+    end
     focusRevision = focusRevision + 1
     restacking = true
     if focused~=root then ClosePopups(root);focused=root end
@@ -326,11 +531,12 @@ function T.FocusWindow(root)
         local level = 20
         for _, window in ipairs(windows) do
           if window:IsShown() then
+            if type(window.ChatWardenBeforeFocus)=='function' then window:ChatWardenBeforeFocus() end
             local frames, highest = WindowFrames(window)
             -- A complete focused window belongs to a higher strata than every
             -- background window, including native decoration and nested text.
             -- This prevents lower controls from piercing its opaque backing.
-            local strata = window == root and "DIALOG" or "HIGH"
+            local strata = window == root and (window.ChatWardenModal and 'FULLSCREEN_DIALOG' or 'DIALOG') or 'HIGH'
             for _, item in ipairs(frames) do
                 -- Fixed layers reject reassignment on native frames. Unlock
                 -- BEFORE moving them, then lock the completed ordering. Locking
@@ -350,6 +556,22 @@ function T.FocusWindow(root)
     restacking = false
     if not ok and geterrorhandler then geterrorhandler()(errorMessage) end
 end
+local function ScaleOwned(frame)
+    if frame:GetParent()~=UIParent and frame:GetParent()~=nil then return end
+    if ns.Checked and ns.Checked(ns.SafeCall(InCombatLockdown)) then T.pendingWindowScale=true;return end
+    if ns.Workspace and frame==ns.Workspace.window then ns.Workspace.Fit();return end
+    T.FitWindow(frame,frame:GetWidth(),frame:GetHeight())
+end
+function T.ApplyWindowScales()
+    T.pendingWindowScale=nil
+    for _,frame in ipairs(windows) do if registered[frame]~='external' then ScaleOwned(frame) end end
+    ClosePopups()
+end
+local scaleEvents=CreateFrame('Frame')
+for _,event in ipairs({'UI_SCALE_CHANGED','DISPLAY_SIZE_CHANGED','PLAYER_REGEN_ENABLED'}) do scaleEvents:RegisterEvent(event) end
+scaleEvents:SetScript('OnEvent',function(_,event)
+    if event~='PLAYER_REGEN_ENABLED' or T.pendingWindowScale then T.ApplyWindowScales() end
+end)
 function T.RegisterWindow(frame,external)
     if registered[frame] then return end
     if frame.IsProtected and frame:IsProtected() or frame.IsForbidden and frame:IsForbidden() then return end
@@ -367,6 +589,7 @@ function T.RegisterWindow(frame,external)
         if not external and shown and not soundShown and not switching then T.UISound('open') end
         soundShown=shown
         if switching then return end
+        if not external then ScaleOwned(frame) end
         T.FocusWindow(frame)
     end)
     hooksecurefunc(frame, "Hide", function()

@@ -3,6 +3,12 @@ local _,ns=...
 local C,S=ns.Chronicle,ns.ChronicleStore
 local V={LIMIT=32,INTERVAL=30};ns.ChronicleCoverage=V
 local pending,count={},0
+local states={};V.states=states
+function V.State(family,state,reason)
+    if not ({active=true,paused=true,unavailable=true,unreadable=true,deferred=true,partial=true,failed=true})[state] then return end
+    if not states[family] then local n=0;for _ in pairs(states) do n=n+1 end;if n>=32 then return end end
+    local previous=states[family];states[family]={state=state,at=C.Stamp(),reason=S.Text(reason,200),lastValidatedAt=state=='active' and C.Stamp() or previous and previous.lastValidatedAt}
+end
 function V.Note(family,state,reason,n)
     if not C.InWorld() then return end
     family=S.Text(family,96);state=S.Text(state,64);reason=S.Text(reason,200)
@@ -23,5 +29,5 @@ function V.Flush(force)
         end
     end
 end
-function V.Clear() pending={};count=0 end
+function V.Clear() pending={};count=0;for family in pairs(states) do V.State(family,'paused','Recording boundary; unread intervals remain unknown') end end
 function V.Pending() return count end

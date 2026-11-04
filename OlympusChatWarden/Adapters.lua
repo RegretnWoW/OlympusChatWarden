@@ -621,7 +621,7 @@ function ns.RefreshBarber()
     end
 end
 
-local npcEvents = {"CHAT_MSG_MONSTER_SAY", "CHAT_MSG_MONSTER_YELL", "CHAT_MSG_MONSTER_WHISPER", "CHAT_MSG_MONSTER_EMOTE"}
+local npcEvents = {"CHAT_MSG_MONSTER_SAY", "CHAT_MSG_MONSTER_YELL", "CHAT_MSG_MONSTER_WHISPER", "CHAT_MSG_MONSTER_EMOTE","CHAT_MSG_RAID_BOSS_EMOTE","CHAT_MSG_RAID_BOSS_WHISPER"}
 local playerEvents = {"CHAT_MSG_SAY", "CHAT_MSG_YELL", "CHAT_MSG_WHISPER", "CHAT_MSG_WHISPER_INFORM",
     "CHAT_MSG_PARTY", "CHAT_MSG_PARTY_LEADER", "CHAT_MSG_RAID", "CHAT_MSG_RAID_LEADER",
     "CHAT_MSG_GUILD", "CHAT_MSG_OFFICER", "CHAT_MSG_CHANNEL", "CHAT_MSG_EMOTE", "CHAT_MSG_TEXT_EMOTE",
@@ -631,7 +631,7 @@ for _, event in ipairs(npcEvents) do npcLookup[event] = true end
 
 function ns.ChatFilter(frame, event, message, ...)
     local source, key = ns.ChatReviewSource(event, ...)
-    local capture=ns.ChatReports and ns.ChatReports.Capture(event,message,source.sender,select(10,...))
+    local capture=ns.ChatReports and ns.ChatReports.Capture(event,message,source.sender,select(10,...),source.kind)
     local safePreview
     local function Record(action,info,diagnostic)
         if capture then ns.ChatReports.RecordOutcome(capture,action,info or source,diagnostic,safePreview) end
@@ -654,7 +654,7 @@ function ns.ChatFilter(frame, event, message, ...)
         -- Resolve the final native name label against this exact original before
         -- the formatter runs, including Label/Leave actions. The existing bounded
         -- report cache deduplicates chat-window callbacks and the event receiver.
-        ns.ChatReports.Capture(event,message,source.sender,select(10,...))
+        ns.ChatReports.Capture(event,message,source.sender,select(10,...),source.kind)
     end
     if #matches == 0 and not language then
         Record('Unchanged',shieldSource,shieldSource and shieldSource.filterStatus=='review-unavailable' and 'Original could not be retained for review.' or nil)

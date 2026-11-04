@@ -32,6 +32,7 @@ function T.Discover(token)
     local categoryCount=#categories;local total=0;local complete=categoryCount<=T.MAX_CATEGORIES
     for index=1,math.min(categoryCount,T.MAX_CATEGORIES) do
         if not Stable(token) then return false end
+        if not X.Table(categories) then X.Mark('Native statistics','Category list became restricted; read stopped');return false end
         local category=S.Integer(categories[index],1,10000000)
         if category then
             local label,parent=X.Call('GetCategoryInfo',category)
@@ -51,7 +52,7 @@ function T.Discover(token)
         else complete=false end
         X.Yield()
     end
-    if not Stable(token) then return false end
+    if not Stable(token) or not X.Table(categories) then return false end
     T.catalog=catalog;T.byID=byID;T.categories=groups;T.catalogComplete=complete
     return true
 end
@@ -138,7 +139,7 @@ end
 function T.Print()
     ns.Print('Native statistics: '..#T.categories..' categories; '..#T.catalog..' IDs. Character/account scope, resets and update latency are unverified.')
     for _,row in ipairs(T.categories) do ns.Print('Category '..row.id..': '..(row.title or 'Unknown title')..'; native entries '..tostring(row.reported or 'unknown')) end
-    ns.Print('Values are native displayed strings. Commas, decimals and units are not guessed. Saved totals remain separate from Warden encounters and duel records.')
+    ns.Print('Values are native displayed strings. Commas, decimals and units are not guessed. Saved totals remain separate from Fireside encounters and duel records.')
 end
 function T.PrintIDs(page)
     page=S.Integer(page,1,1000) or 1;local first=(page-1)*50+1

@@ -4,7 +4,7 @@ local M={};ns.PlayerMenus=M
 function M.Submenu(root)
     if not ns.Membership.Allowed() or not root or not root.CreateButton then return end
     if root.CreateDivider then root:CreateDivider() end
-    return root:CreateButton('Olympus Warden')
+    return root:CreateButton('Fireside')
 end
 function M.Name(ctx)
     if not ns.Readable(ctx) or type(ctx)~='table' then return end

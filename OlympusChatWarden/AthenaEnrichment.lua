@@ -17,7 +17,7 @@ E.categories={
     {id='combat',label='Combat & duels',owner='ChronicleCombat / ChronicleDuels',source='native credit / combat / duel evidence',mode='passive',retry='delivered attributable event; duel consent remains separate'},
     {id='pvp',label='PvP history',owner='ChronicleCombat',source='GUID-bearing native scoreboards / objectives',mode='passive',retry='delivered scoreboard; no remote honor-cache attribution'},
     {id='public',label='Public & guild events',owner='AthenaCollectors / ChronicleOlympus',source='delivered GUID-bearing announcements / read-only public records',mode='passive',retry='delivered event; no remote activity request'},
-    {id='context',label='Shared Warden context',owner='Athena',source='existing validated Chronicle / Intel references and authorized outcomes',mode='derived',retry='existing source changes; no raw private module data'},
+    {id='context',label='Shared Fireside context',owner='Athena',source='existing validated Chronicle / Intel references and authorized outcomes',mode='derived',retry='existing source changes; no raw private module data'},
     {id='remote',label='Hidden or offline activity',owner='none',source='no supported ordinary client source',mode='unobservable',retry='never; no remote quests, bank, reputation or complete history'},
 }
 local capabilities={identity='readable UnitGUID / UnitIsPlayer / UnitFullName / UnitClass / UnitRace / UnitLevel',
@@ -106,10 +106,12 @@ local function Cheap(guid,unit,source,r)
     local eligible,reason=E.Priority(guid)
     if not Enabled() or not eligible or S.GUID(X.Call('UnitGUID',unit))~=guid then return end
     local signature=(guild or '?')..'/'..(rank or '?')
-    if (hash and hash~=r.appearanceHash) or (guild and signature~=r.socialSignature) or verifiedFriend and not r.friend then
+    r.cardIdentity=data
+    local card=ns.WardenCharacterCards.Capture(guid,data,hash,r.gear,r.traits,source)
+    if card and card~=r.cardHash or (hash and hash~=r.appearanceHash) or (guild and signature~=r.socialSignature) or verifiedFriend and not r.friend then
         local e=X.Record('important_player',source,{relationship=verifiedFriend and 'encountered friend' or reason,guildName=guild,guildRank=rank,
-            appearanceRef=hash,appearanceObservedAt=hash and at,unitVisible=X.Bool(X.Call('UnitIsVisible',unit))},guid,false)
-        if e then r.appearanceHash=hash or r.appearanceHash;r.socialSignature=signature;r.socialAt=(guild or verifiedFriend) and at or r.socialAt;r.socialSource=(guild or verifiedFriend) and source or r.socialSource;r.friend=verifiedFriend or r.friend end
+            cardRef=card,appearanceRef=hash,appearanceObservedAt=hash and at,unitVisible=X.Bool(X.Call('UnitIsVisible',unit))},guid,false)
+        if e then r.cardHash=card or r.cardHash;r.appearanceHash=hash or r.appearanceHash;r.socialSignature=signature;r.socialAt=(guild or verifiedFriend) and at or r.socialAt;r.socialSource=(guild or verifiedFriend) and source or r.socialSource;r.friend=verifiedFriend or r.friend end
     end
     return true
 end
@@ -174,6 +176,10 @@ function E.Inspection(guid,state,reason,gear,traits)
     if not E.Priority(guid) then return end
     local r=Touch(guid);if not r then return end
     r.inspectState=state;r.failure=reason;r.gear=gear or r.gear;r.traits=traits or r.traits
+    if r.cardIdentity and (gear or traits) then
+        local card=ns.WardenCharacterCards.Capture(guid,r.cardIdentity,r.appearanceHash,r.gear,r.traits,'INSPECT_READY')
+        if card and card~=r.cardHash and X.Record('important_player','INSPECT_READY',{relationship=select(2,E.Priority(guid)),cardRef=card},guid,false) then r.cardHash=card end
+    end
     if gear or traits then r.inspectedAt=C.Stamp() end
     if state=='saved' or state=='partial' then
         local signature=(gear or '?')..'/'..(traits or '?')

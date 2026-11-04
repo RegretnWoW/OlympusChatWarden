@@ -3,17 +3,24 @@ local _,ns=...
 local L={};ns.WardenLaunchers=L
 local S=ns.ChronicleStore
 local worker=CreateFrame('Frame');local pending
-local icon='Interface\\AddOns\\OlympusChatWarden\\Media\\Warden\\WardenMicro.tga'
+local icon='Interface\\AddOns\\OlympusChatWarden\\Media\\Warden\\FiresideTorch65.tga'
 local function Busy() return ns.Checked(ns.SafeCall(InCombatLockdown)) end
 local function Guid(unit) return S.GUID(ns.SafeCall(UnitGUID,unit)) end
 local function Access() return ns.DB and ns.Membership.Allowed() end
+function L.OpenHall()
+    if Busy()then ns.Print('Open Fireside after combat.');return false end
+    if not Access()then ns.Print(ns.Membership.Status());return false end
+    if ns.UI2 and ns.UI2.OpenMenu then return ns.UI2.OpenMenu()end
+    return ns.Workspace.Open('overview')
+end
 function L.ToggleMain()
     local window=ns.Workspace.window
     if window and window:IsShown() then window:Hide();return true end
-    if Busy() then ns.Print('Open Warden after combat.');return false end
+    if Busy() then ns.Print('Open Fireside after combat.');return false end
     if not Access() then ns.Print(ns.Membership.Status());return false end
     return ns.Workspace.Open('overview')
 end
+function L.ToggleAthena() return ns.AthenaJournalWindow.Toggle() end
 local function InspectUnitToken()
     local f=InspectFrame
     if not f or f.IsForbidden and f:IsForbidden() then return end
@@ -86,7 +93,7 @@ local function MakeMinimap()
     local border=b:CreateTexture(nil,'OVERLAY');border:SetSize(34,34);border:SetPoint('CENTER',0,0);border:SetTexture('Interface\\Common\\RingBorder');b.border=border
     b:SetHighlightTexture('Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight','ADD');b:RegisterForClicks('LeftButtonUp','RightButtonUp');b:RegisterForDrag('LeftButton')
     b:SetScript('OnClick',function(_,mouse)
-        if Busy() then ns.Print('Open Warden after combat.');elseif Access() then ns.Workspace.Open(mouse=='RightButton' and 'settings' or 'overview') else ns.Print(ns.Membership.Status()) end
+        L.OpenHall()
     end)
     b:SetScript('OnDragStart',function()
         if Busy() or type(GetCursorPosition)~='function' then return end
@@ -101,7 +108,7 @@ local function MakeMinimap()
     b:SetScript('OnDragStop',function() b:SetScript('OnUpdate',nil) end)
     b:SetScript('OnHide',function() b:SetScript('OnUpdate',nil) end)
     Minimap:HookScript('OnSizeChanged',function() if ns.DB and not Busy() then PlaceMinimap(b) end end)
-    Tooltip(b,'Olympus Warden','Left-click: CommandWarden. Right-click: Settings. Drag to move around the minimap.')
+    Tooltip(b,'Fireside','Click: Open Olympus Hall. Drag to move around the minimap.')
     return b
 end
 local function ShopLayout(button,shop)
@@ -121,7 +128,7 @@ function L.Refresh()
     if Busy() then L.deferred=true;return end
     L.deferred=nil
     local shop=StoreMicroButton or ShopMicroButton
-    if ns.DB.shopLauncher and shop and not (shop.IsForbidden and shop:IsForbidden()) then
+    if ns.DB.shopLauncher and Access() and shop and not (shop.IsForbidden and shop:IsForbidden()) then
         if not L.shop or L.shop:GetParent()~=shop then
             if L.shop then L.shop:Hide() end
             local b=CreateFrame('Button',nil,shop);b:SetAllPoints(shop);b:SetFrameLevel(shop:GetFrameLevel()+5);b:RegisterForClicks('LeftButtonUp')
@@ -133,8 +140,8 @@ function L.Refresh()
             b:SetScript('OnMouseUp',Release);b:SetScript('OnHide',Release)
             shop:HookScript('OnSizeChanged',function() if not Busy() then ShopLayout(b,shop) end end)
             b:SetHighlightTexture('Interface\\Buttons\\UI-Common-MouseHilight','ADD')
-            b:SetScript('OnClick',L.ToggleMain)
-            Tooltip(b,'Olympus Warden','Toggle Warden open or closed. Disable the shop-button shortcut in CommandWarden > Settings to restore the shop button.')
+            b:SetScript('OnClick',L.OpenHall)
+            Tooltip(b,'Fireside','Open Olympus Hall. Disable in Fireside Settings to restore Shop.')
             L.shop=b
         end
         ShopLayout(L.shop,shop);L.shop:Show()
@@ -148,14 +155,14 @@ function L.Refresh()
         if not L.inspect or L.inspect:GetParent()~=host then
             if L.inspect then L.inspect:Hide() end
             local b=CreateFrame('Frame',nil,host,'LargeSideTabButtonTemplate');b:EnableMouse(true)
-            b.Icon:SetTexture('Interface\\AddOns\\OlympusChatWarden\\Media\\Warden\\IntelWarden.tga');b.Icon:SetSize(38,38);b.icon=b.Icon;b:SetChecked(false)
+            ns.WardenArt.Icon(b.Icon,'intel');b.Icon:SetSize(38,38);b.icon=b.Icon;b:SetChecked(false)
             b:SetCustomOnMouseUpHandler(function(self,mouse,upInside)
                 if mouse~='LeftButton' or not upInside or not self.wardenEnabled then return end
                 local unit=InspectUnitToken()
                 if not unit or Guid(unit)~=self.guid then ns.Print('The inspected player changed. Reopen the correct player’s inspection.');return end
                 L.OpenIntel(unit,false)
             end)
-            Tooltip(b,'Open in IntelWarden','Open this exact inspected player’s saved dossier. Recording is required to save a new player; opening a dossier never enables it.')
+            Tooltip(b,'Open in Aether','Open this exact inspected player’s saved profile. Recording is required to save a new player; opening a profile never enables it.')
             host:HookScript('OnShow',L.Refresh)
             if type(host.InitializeModeTabLayout)=='function' then hooksecurefunc(host,'InitializeModeTabLayout',L.Refresh) end
             L.inspect=b

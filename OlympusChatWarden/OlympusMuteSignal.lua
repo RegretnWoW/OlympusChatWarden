@@ -18,7 +18,8 @@ local function Realm()
     return ns.CanRead(value) and ns.Engine.Lower((value:gsub("[%s%-]", ""))) or nil
 end
 local function Key(name, realm)
-    if not ns.CanRead(name) or #name == 0 or #name > 128 or name:find("[%z\1-\32\127|:]") then return end
+    if not ns.CanRead(name) or #name == 0 or #name > 128 or name:find("[%z\1-\31\127|:]")
+        or name:find('^ ') or name:find(' $') or name:find('  ',1,true) then return end
     local base, suffix = name:match("^([^%-]+)%-(.+)$")
     if base then name, realm = base, suffix end
     realm = ns.CanRead(realm) and realm ~= "" and ns.Engine.Lower((realm:gsub("[%s%-]", ""))) or Realm()
@@ -49,6 +50,9 @@ end
 function S.Stop() pending={};notified={} end
 local function UnitKey(unit)
     if not ns.CanRead(unit) then return end
+    -- Forever's second UnitFullName value can be a surname. Use the existing
+    -- full-name adapter rather than treating that value as a realm.
+    if ns.Shield and ns.Shield.UnitName then return Key(ns.Shield.UnitName(unit)) end
     local fn = UnitFullName or UnitName
     if type(fn) ~= "function" then return end
     local ok, name, realm = pcall(fn, unit)
@@ -70,7 +74,7 @@ local function ValidPayload(payload)
     return found > 0
 end
 function S.Observe(prefix, text, channel, sender)
-    if not ns.Active("olympusMuteSignal") or not ns.CanRead(prefix) or prefix ~= PREFIX
+    if not ns.Active("olympusMuteObserve") or not ns.CanRead(prefix) or prefix ~= PREFIX
         or not ns.CanRead(text) or #text > 240 or not ns.CanRead(channel) or not channels[channel] then return end
     local who = Key(sender)
     if not who or who == UnitKey("player") then return end
@@ -114,6 +118,12 @@ function S.Observe(prefix, text, channel, sender)
             preview='Compatible OlympusMute sharing was observed. This does not prove the player has muted anyone.'},ns.DB.alertsEnabled==false)
     end
     if ns.ScanTooltips then ns.ScanTooltips() end
+end
+function S.Observation(name)
+ local key=Key(name);local seen=key and observed[key]
+ if not seen then return nil,'Unknown; no retained compatible sharing observation.' end
+ return {key=key,at=seen,source='Complete compatible OMuteShare v1 payload observed; payload discarded',
+  limits='Sender identity is not independently authenticated. This does not prove addon installation, a mute action, or that anyone was muted. Missing observations mean Unknown.'}
 end
 function S.ClearTooltip(tip) tips[tip] = nil end
 local function OwnTitle(tip, state)

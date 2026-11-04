@@ -16,6 +16,21 @@ local function Encode(v,depth)
     return table.concat(out)
 end
 B.Encode=Encode
+-- Exact canonical byte length without constructing a second full archive.
+-- Callers may qualify a candidate incrementally; no saved counter is trusted.
+function B.EncodedSize(value,checkpoint)
+ local function size(v,depth)
+  assert(depth<12,'Backup nesting limit.');if checkpoint then checkpoint()end
+  local t=type(v)
+  if t=='string'then return 2+#tostring(#v)+#v
+  elseif t=='number'then assert(S.Number(v));local n=string.format('%.17g',v);return 2+#tostring(#n)+#n
+  elseif t=='boolean'then return 2 end
+  assert(t=='table'and not getmetatable(v),'Unsupported backup value.')
+  local n,bytes=0,0;for k,x in pairs(v)do assert(type(k)=='string'or type(k)=='number');n=n+1;bytes=bytes+size(k,depth+1)+size(x,depth+1)end
+  return 2+#tostring(n)+bytes
+ end
+ return size(value,0)
+end
 local function Decode(text,saved)
     local pos,nodes=1,0
     local function length()
@@ -81,6 +96,27 @@ function B.PackSaved(db)
     return packed
 end
 local function Busy() return InCombatLockdown and InCombatLockdown() end
+-- The multipart text format is intended for small merges. Large archives use
+-- the complete closed-client SavedVariables backup until replay cost is fixed.
+B.MAX_TEXT_EVENTS=256;B.MAX_TEXT_PROFILES=64;B.MAX_TEXT_PACKED_BYTES=65536
+function B.TextExportAllowance()
+    if not S.db or type(S.db.characters)~='table' then return false,'History is unavailable.' end
+    local events,profiles,packed=0,0,0
+    for _,c in pairs(S.db.characters) do
+        if c.storageFormat==1 then
+            for _,chunks in ipairs({c.eventChunks or {},c.profileChunks or {}}) do
+                for _,chunk in ipairs(chunks) do packed=packed+#chunk;if packed>B.MAX_TEXT_PACKED_BYTES then break end end
+            end
+        else
+            events=events+#(c.events or {})
+            for _ in pairs(c.profiles or {}) do profiles=profiles+1;if profiles>B.MAX_TEXT_PROFILES then break end end
+        end
+        if events>B.MAX_TEXT_EVENTS or profiles>B.MAX_TEXT_PROFILES or packed>B.MAX_TEXT_PACKED_BYTES then
+            return false,'This archive exceeds the temporary small text-backup limit. No history was changed. Close WoW normally and copy OlympusChatWarden.lua, its .bak and the pending recording journal from SavedVariables for a complete backup.'
+        end
+    end
+    return true
+end
 local function Exact(t,keys)
     if type(t)~='table' or getmetatable(t) then return false end
     for k in pairs(t) do if not keys[k] then return false end end
@@ -97,21 +133,40 @@ function B.Create(checkpoint)
     if S.db.enabled then return nil,'Pause recording before creating a text backup. Resume it after copying your snapshot.' end
     if ns.ChronicleStartupJournal and (ns.ChronicleStartupJournal.Count()>0 or ns.ChronicleStartupJournal.error) then return nil,'Startup observations await recovery. The complete SavedVariables file backup includes them; text export must wait.' end
     if ns.AthenaCastCounts and not ns.AthenaCastCounts.BackupReady() then return nil,'Cast observations await commit. Keep the complete SavedVariables file backup; text export must wait.' end
+    local allowed,limitReason=B.TextExportAllowance();if not allowed then return nil,limitReason end
     local ready,reason=S.RequireCharacters()
     while not ready and checkpoint and reason and reason:find('Loading requested',1,true) do
         checkpoint('materializing');ready,reason=S.RequireCharacters()
     end
     if not ready then return nil,reason end
+    allowed,limitReason=B.TextExportAllowance();if not allowed then return nil,limitReason end
     if checkpoint then checkpoint('materializing') end
     local blocks=0
     local hashCheckpoint=checkpoint and function() blocks=blocks+1;if blocks%16==0 then checkpoint() end end or nil
     local parts={};local owners={};for owner in pairs(S.db.characters) do owners[#owners+1]=owner end;table.sort(owners)
     for _,owner in ipairs(owners) do
         local c=S.db.characters[owner];local records={};local included={}
+        -- The encoded array header and numeric key sizes are deterministic.
+        -- Count their exact bytes rather than re-encoding the growing part
+        -- twice for every source record. Final payloads/checksums are unchanged.
+        local entryBytes=0;local encodedSizes={}
+        local outerBytes=#Encode({owner=owner,records={}})-#'t0:'
+        local function recordSize(record)
+            local identity=record.event or record.profile
+            local size=encodedSizes[identity]
+            if not size then size=#Encode(record);encodedSizes[identity]=size end
+            return size
+        end
+        local function addedBytes(group)
+            local bytes=0
+            for i,record in ipairs(group) do bytes=bytes+#Encode(#records+i)+recordSize(record) end
+            return bytes
+        end
+        local function partSize(n,bytes) return outerBytes+#('t'..n..':')+bytes end
         local objects=ns.ChronicleCapture and ns.ChronicleCapture.ObjectIndex(c.events) or {}
         local function flush()
             if #records>0 then parts[#parts+1]={owner=owner,sequence=c.sequence,sessionSequence=c.sessionSequence,records=records} end
-            records={};included={}
+            records={};included={};entryBytes=0
         end
         local function add(record)
             if checkpoint then checkpoint() end
@@ -126,11 +181,11 @@ function B.Create(checkpoint)
                 if not record.event or not included[record.event.id] then out[#out+1]=record end
                 return out
             end
-            local group=bundle();local probe={};for _,r in ipairs(records) do probe[#probe+1]=r end
-            for _,r in ipairs(group) do probe[#probe+1]=r end
-            if #records>0 and #Encode({owner=owner,records=probe})>18000 then flush();group=bundle() end
+            local group=bundle();local bytes=addedBytes(group)
+            if #records>0 and partSize(#records+#group,entryBytes+bytes)>18000 then flush();group=bundle();bytes=addedBytes(group) end
             for _,r in ipairs(group) do records[#records+1]=r;if r.event then included[r.event.id]=true end end
-            if #Encode({owner=owner,records=records})>22000 then error('A linked snapshot exceeds the text-backup part limit. Use the complete SavedVariables file backup.',0) end
+            entryBytes=entryBytes+bytes
+            if partSize(#records,entryBytes)>22000 then error('A linked snapshot exceeds the text-backup part limit. Use the complete SavedVariables file backup.',0) end
         end
         for _,e in ipairs(c.events) do add({event=e}) end
         local guids={};for guid in pairs(c.profiles) do guids[#guids+1]=guid end;table.sort(guids)
@@ -152,8 +207,12 @@ end
 function B.Begin(done)
     if B.job then return false,'A text backup is already being created.' end
     if Busy() or S.db and S.db.enabled then return false,'Pause recording and create the text backup out of combat.' end
+    local allowed,why=B.TextExportAllowance();if not allowed then return false,why end
+    local started=ns.SafeNumber(ns.SafeCall(GetTime)) or 0
     local revision=S.revision;local materialized=S.materializationRevision or 0;local job={};B.job=job
     local function checkpoint(phase)
+        local elapsed=(ns.SafeNumber(ns.SafeCall(GetTime)) or started)-started
+        if elapsed>25 then error('Small text-backup time budget reached. No history was changed. Use the complete closed-client SavedVariables backup.',0) end
         local delta=(S.materializationRevision or 0)-materialized
         if phase=='materializing' and S.revision==revision+delta then revision=S.revision;materialized=S.materializationRevision or 0 end
         if S.revision~=revision or S.blocked or not S.db or S.db.enabled or Busy() then error('History changed or combat began. Pause recording and create a new snapshot.',0) end

@@ -19,14 +19,21 @@ for a = 0, 15 do
         xorNibble[a][b] = value
     end
 end
+-- Shared immutable byte lookup: 65,536 numeric entries, built only on clients
+-- without native bit operations. Four byte steps replace eight nibble steps.
+local xorByte
+if not native then
+ xorByte={}
+ for a=0,255 do local al,ah=a%16,floor(a/16)
+  for b=0,255 do xorByte[a*256+b+1]=xorNibble[al][b%16]+16*xorNibble[ah][floor(b/16)]end
+ end
+end
 local function Xor2(a, b)
     if native then return native.bxor(a, b) % MOD end
-    local value, power = 0, 1
-    for _ = 1, 8 do
-        value = value + xorNibble[a % 16][b % 16] * power
-        a, b, power = floor(a / 16), floor(b / 16), power * 16
-    end
-    return value
+    local al,bl=a%256,b%256;local value=xorByte[al*256+bl+1]
+    a,b=(a-al)/256,(b-bl)/256;al,bl=a%256,b%256;value=value+xorByte[al*256+bl+1]*256
+    a,b=(a-al)/256,(b-bl)/256;al,bl=a%256,b%256;value=value+xorByte[al*256+bl+1]*65536
+    a,b=(a-al)/256,(b-bl)/256;return value+xorByte[a*256+b+1]*16777216
 end
 local function Xor(a, b, c)
     if native then return (c and native.bxor(a,b,c) or native.bxor(a,b)) % MOD end
@@ -36,6 +43,7 @@ local function And(a, b)
     if native then return native.band(a, b) % MOD end
     return (a + b - Xor2(a, b)) / 2
 end
+C.BitOps={bxor=function(a,b)return Xor2(a%MOD,b%MOD)end,band=function(a,b)return And(a%MOD,b%MOD)end,bor=function(a,b)a,b=a%MOD,b%MOD;return a+b-And(a,b)end}
 local rotate = native and (native.ror or native.rrotate)
 local function Ror(x, n)
     if rotate then return rotate(x,n) % MOD end
@@ -50,6 +58,14 @@ local K = {1116352408,1899447441,3049323471,3921009573,961987163,1508970993,2453
     2730485921,2820302411,3259730800,3345764771,3516065817,3600352804,4094571909,275423344,
     430227734,506948616,659060556,883997877,958139571,1322822218,1537002063,1747873779,
     1955562222,2024104815,2227730452,2361852424,2428436474,2756734187,3204031479,3329325298}
+-- Restore coroutines may yield between SHA blocks; ordinary verification stays
+-- synchronous. No digest input, arithmetic or signature policy is changed.
+local recoveryDeadlines=setmetatable({},{__mode='k'})
+function C.RecoveryBudget(thread,deadline)recoveryDeadlines[thread]=deadline end
+function C.RecoveryCheckpoint()
+ local thread=coroutine.running();local deadline=thread and recoveryDeadlines[thread]
+ if deadline then local now=ns.WardenPerformance and ns.WardenPerformance.Now()or os and os.clock and os.clock()*1000;if now and now>=deadline then coroutine.yield()end end
+end
 function C.SHA256(message, checkpoint)
     local length = #message
     message = message .. char(128) .. string.rep(char(0), (55 - length) % 64)
@@ -57,6 +73,7 @@ function C.SHA256(message, checkpoint)
     local h = {1779033703,3144134277,1013904242,2773480762,1359893119,2600822924,528734635,1541459225}
     local w = {}
     for offset = 1, #message, 64 do
+        C.RecoveryCheckpoint()
         for i = 1, 16 do
             local j = offset + (i - 1) * 4
             w[i] = byte(message,j)*16777216 + byte(message,j+1)*65536 + byte(message,j+2)*256 + byte(message,j+3)
@@ -68,8 +85,9 @@ function C.SHA256(message, checkpoint)
         end
         local a,b,c,d,e,f,g,j = h[1],h[2],h[3],h[4],h[5],h[6],h[7],h[8]
         for i = 1, 64 do
-            local t1 = (j + Xor(Ror(e,6),Ror(e,11),Ror(e,25)) + Xor(And(e,f),And(MOD-1-e,g)) + K[i] + w[i]) % MOD
-            local t2 = (Xor(Ror(a,2),Ror(a,13),Ror(a,22)) + Xor(And(a,b),And(a,c),And(b,c))) % MOD
+            -- The terms in each sum are bit-disjoint (SHA-256 Ch and Maj).
+            local t1 = (j + Xor(Ror(e,6),Ror(e,11),Ror(e,25)) + And(e,f)+And(MOD-1-e,g) + K[i] + w[i]) % MOD
+            local t2 = (Xor(Ror(a,2),Ror(a,13),Ror(a,22)) + And(a,b)+And(Xor2(a,b),c)) % MOD
             j,g,f,e,d,c,b,a = g,f,e,(d+t1)%MOD,c,b,a,(t1+t2)%MOD
         end
         local values = {a,b,c,d,e,f,g,j}

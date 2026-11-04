@@ -2,7 +2,7 @@
 local _,ns=...
 local function OwnedFrame(...) return ns.Modules and ns.Modules.Frame('history',...) or CreateFrame(...) end
 local S=ns.ChronicleStore
-local A={VERSION=5,BUDGET=1024,CACHE_LIMIT=2,generation=0,caches=setmetatable({},{__mode='k'})}
+local A={VERSION=7,BUDGET=1024,CACHE_LIMIT=2,generation=0,caches=setmetatable({},{__mode='k'})}
 ns.ChronicleActivities=A
 local frame=OwnedFrame('Frame');local job
 local clock=0
@@ -33,7 +33,7 @@ function A.Provenance(e)
 end
 function A.New(owner)
     return {owner=owner,activities={},byID={},players={},events={},identities={},menuNames={},links={},processed=0,
-        duplicateDeliveries=0,unmatchedPerformance=0,revision=0,duels={},duelPlayers={}}
+        duplicateDeliveries=0,unmatchedPerformance=0,revision=0,duels={},duelPlayers={},reloadSegments={}}
 end
 local function Player(st,guid)
     if not S.GUID(guid) or guid==Own(st.owner) then return end
@@ -62,6 +62,9 @@ local function Activity(st,kind,e,reason)
 end
 local function Roster(st,a,e,carried)
     if not a or not e then return end
+    if e.details.guildName and #(e.details.guildMembers or {})>0 then
+        a.guildName=e.details.guildName;a.guildMemberCount=#e.details.guildMembers
+    end
     Add(a.rosters,a.rosterSet,e.id)
     for _,guid in ipairs(e.details.members or {}) do Associate(st,a,guid) end
     if carried then
@@ -99,6 +102,16 @@ local function BeginInstance(st,e,reason)
     local a=Activity(st,kind,e,reason)
     if kind=='battleground' or kind=='arena' then a.partialMatch=true;a.matchOutcome='unknown';a.pvpReports={} end
     a.instanceKey=key;a.partialStart=reason~='entry';st.active=a;Roster(st,a,st.roster,true)
+    local startup=st.startup;local previous=startup and startup.reloadActivity
+    if previous and previous.kind==kind and previous.instanceKey==key
+        and startup.source==e.source and startup.session==e.session and startup.key==key then
+        -- This groups only a proven UI-reload boundary in the display. It
+        -- never establishes a match ID or fills the unobserved interval.
+        a.reloadPrevious=previous.id;a.reloadRoot=previous.reloadRoot or previous.id
+        local parts=st.reloadSegments[a.reloadRoot]
+        if not parts then parts={previous.id};st.reloadSegments[a.reloadRoot]=parts end
+        parts[#parts+1]=a.id
+    end
     return a
 end
 local function Attempt(st,e)
@@ -148,7 +161,7 @@ local function Encounter(st,e)
     if a.kind=='boss' then a.status='ended';a.endAt=e.at end
 end
 local meaningful={instance_enter=true,instance_exit=true,group_roster=true,player_observed=true,important_player=true,
-    level_change=true,quest_turnin=true,achievement_earned=true,equipment_change=true,loot_offered=true,
+    level_change=true,quest_accepted=true,quest_objective=true,quest_turnin=true,achievement_earned=true,equipment_change=true,loot_offered=true,
     loadout_observed=true,collection_gap=true,player_death=true}
 local function Alias(st,guid,name,realm,at)
     if not S.GUID(guid) or not S.Text(name,144) then return end
@@ -166,11 +179,24 @@ local function Alias(st,guid,name,realm,at)
 end
 function A.Feed(st,e)
     local d=e.details
+    if d.recordType=='moment_capture'then
+        st.events[e.id]=e;local source=d.sourceRef and d.sourceRef:match('^history:(.+)$')
+        for id in pairs(source and st.links[source]or{})do Link(st,st.byID[id],e)end
+        st.revision=st.revision+1;return
+    end
+    local previousCount=#st.activities
     if st.session and (st.session~=e.session or e.elapsed<(st.elapsed or 0) or e.at<(st.at or 0)) then Break(st,e,'recording or clock boundary') end
     st.session=e.session;st.elapsed=e.elapsed;st.at=e.at;st.revision=st.revision+1
     if e.kind=='recording_start' then
+        local candidate=st.reloadCandidate
         Break(st,e,'recording start or reload')
         st.startup={id=e.id,session=e.session,source=e.source,key=InstanceKey(e),stage='location'}
+        if d.reason=='ui-reload' and candidate and candidate.session==e.session
+            and e.source=='PLAYER_ENTERING_WORLD' and candidate.source=='PLAYER_LOGOUT'
+            and e.at>=candidate.at and e.at-candidate.at<=300 and candidate.activity.instanceKey==InstanceKey(e) then
+            st.startup.reloadActivity=candidate.activity
+        end
+        st.reloadCandidate=nil
     elseif st.startup then
         local stage=st.startup.stage
         if not (stage=='location' and (e.kind=='character_snapshot' or e.kind=='location')
@@ -188,6 +214,7 @@ function A.Feed(st,e)
     end
     if e.kind=='native_snapshot' and e.capture then
         local v=e.capture.values
+        if e.capture.family=='lockout_list' then st.events[e.id]=e;Link(st,st.active,e) end
         if e.capture.family=='scoreboard' and S.GUID(v.guid) then st.events[e.id]=e;PlayerEvidence(st,v.guid,e);Alias(st,v.guid,v.name,nil,e.at) end
         if e.capture.family=='meter' then
             for _,row in ipairs(v.sources or {}) do if S.GUID(row[1]) then st.events[e.id]=e;PlayerEvidence(st,row[1],e) end end
@@ -239,6 +266,10 @@ function A.Feed(st,e)
         st.roster=e
     end
     if e.kind=='native_event' then
+        if d.recordType=='guild_affiliation' and d.baseline==false then
+            local a=Activity(st,'guild',e,'own guild affiliation change');a.guildName=d.guildName or d.guildBefore
+            a.status='ended';a.endAt=e.at;a.endReason=d.after and 'guild joined' or 'guild left'
+        end
         if d.duelID then
             local a=st.duels[d.duelID]
             if d.recordType=='duel_session_request' and not a then
@@ -271,12 +302,23 @@ function A.Feed(st,e)
                 if ns.ChronicleDuels then ns.ChronicleDuels.UpdateHistory(st,a) end
             end
         end
+        if d.recordType=='match_observed' and st.active and st.active.pvpReports and #st.active.pvpReports>0 then
+            Close(st,e,'new native match',true);BeginInstance(st,e,'new native match')
+        end
         if d.recordType=='encounter_started'  or d.recordType=='encounter_ended' or d.recordType=='boss_kill_event' then Encounter(st,e)
-        elseif d.recordType=='pvp_match_complete' and e.source=='PVP_MATCH_COMPLETE' and st.active
-            and st.active.pvpReports and InstanceKey(e)==st.active.instanceKey then
+        elseif d.recordType=='pvp_match_complete' and e.source=='PVP_MATCH_COMPLETE' then
             -- A visit is not a unique match. Keep native completion reports but
             -- never use map/name or a reused score sequence to infer a match ID.
-            st.active.pvpReports[#st.active.pvpReports+1]=e.id
+            local target=st.active and st.active.pvpReports and InstanceKey(e)==st.active.instanceKey and st.active
+            if not target and d.matchRef then
+                for id in pairs(st.links[d.matchRef] or {}) do local a=st.byID[id]
+                    if a and a.pvpReports and a.session==e.session then
+                        if target and target~=a then target=nil;break end
+                        target=a
+                    end
+                end
+            end
+            if target then target.pvpReports[#target.pvpReports+1]=e.id;Link(st,target,e) end
         elseif d.recordType and d.recordType:find('damage_meter',1,true)==1 then st.unmatchedPerformance=st.unmatchedPerformance+1 end
     end
     if meaningful[e.kind] or e.kind=='native_event' then Link(st,st.active,e);Link(st,st.group,e) end
@@ -288,8 +330,47 @@ function A.Feed(st,e)
             a.measuredSeconds=a.measuredSeconds+d.seconds;a.timeSpanCount=a.timeSpanCount+1;st.events[e.id]=e;Link(st,a,e)
         end
     end
-    if e.kind=='recording_stop' then Break(st,e,'recording stopped or client unloaded') end
+    if e.kind=='recording_stop' then
+        local a=st.active
+        st.reloadCandidate=a and {activity=a,at=e.at,session=e.session,source=e.source} or nil
+        Break(st,e,'recording stopped or client unloaded')
+    elseif e.kind~='recording_start' then
+        -- An intervening native occurrence is not the explicit stop/reload pair.
+        st.reloadCandidate=nil
+    end
+    ns.ChronicleRuns.Feed(st,e)
+    for i=previousCount+1,#st.activities do ns.ChronicleRuns.Bind(st,st.activities[i]) end
     if ns.ChronicleIntelligence then ns.ChronicleIntelligence.Feed(st,e) end
+    if ns.ChronicleScoreboards then ns.ChronicleScoreboards.Feed(st,e) end
+end
+-- Reader-only grouping shared with Athena. Original activity segments and
+-- sources stay independent in st.activities.
+function A.View(st,id)
+    local a=st and st.byID[id];if not a then return end
+    local run=ns.ChronicleRuns.ForSegment(st,id)
+    if run and run.viewRevision==st.revision then return run.view end
+    local root=a.reloadRoot or a.id;local ids=run and ns.ChronicleRuns.Segments(st,run) or st.reloadSegments and st.reloadSegments[root]
+    if not ids or #ids==0 then return a end
+    local first,last=st.byID[ids[1]],st.byID[ids[#ids]];local out={}
+    for k,v in pairs(first) do out[k]=v end
+    out.segmentIDs=ids;out.recordingSegments=#ids;out.lastAt=last.lastAt;out.lastElapsed=last.lastElapsed
+    out.endAt=last.endAt;out.endElapsed=last.endElapsed;out.status=last.status;out.endReason=last.endReason
+    out.evidence={};out.evidenceSet={};out.members={};out.rosters={};out.rosterSet={};out.pvpReports=first.pvpReports and {} or nil;out.attempts={}
+    out.measuredSeconds=0;out.timeSpanCount=0;local reports={}
+    for _,segment in ipairs(ids) do local part=st.byID[segment]
+        for _,ref in ipairs(part.evidence) do Add(out.evidence,out.evidenceSet,ref) end
+        for _,ref in ipairs(part.rosters) do Add(out.rosters,out.rosterSet,ref) end
+        for guid in pairs(part.members) do out.members[guid]=true end
+        for _,ref in ipairs(part.pvpReports or {}) do Add(out.pvpReports,reports,ref) end
+        for _,attempt in ipairs(part.attempts) do out.attempts[#out.attempts+1]=attempt end
+        out.measuredSeconds=out.measuredSeconds+part.measuredSeconds;out.timeSpanCount=out.timeSpanCount+part.timeSpanCount
+    end
+    if run then
+        out.run=ns.ChronicleRuns.AsOf(run,nil,st.runs)
+        for _,ref in ipairs(ns.ChronicleRuns.SourceRefs(st,run)) do if st.events[ref] then Add(out.evidence,out.evidenceSet,ref) end end
+        run.view=out;run.viewRevision=st.revision
+    end
+    return out
 end
 function A.Name(st,guid,at)
     local aliases=st.identities[guid] or {};local name=guid
@@ -340,18 +421,20 @@ function A.Player(st,guid)
     p.summary=out;p.summaryRevision=st.revision;return out
 end
 function A.Query(st,filter)
-    filter=filter or {};local result={};if not st then return result end
+    filter=filter or {};local result,seen={},{};if not st then return result end
     local p=filter.guid and st.players[filter.guid];local ids=p and p.activitySet
     if filter.guid and not ids then return result end
     for i=#st.activities,1,-1 do
-        local a=st.activities[i];local ok=(not filter.kind or filter.kind==a.kind or a.kind=='duel' and a.duel.accepted and filter.kind=='duel_'..a.duel.result) and (not ids or ids[a.id])
+        local original=st.activities[i];local a=filter.groupReloads and A.View(st,original.id) or original
+        local included=not ids or ids[original.id]
+        local ok=not seen[a.id] and included and (not filter.kind or filter.kind==a.kind or a.kind=='duel' and a.duel.accepted and filter.kind=='duel_'..a.duel.result)
         if ok and filter.search and filter.search~='' then
             local text=(a.context.instanceName or a.context.zone or '')..' '..a.kind..' '..a.id
             for guid in pairs(a.members) do text=text..' '..guid..' '..A.Name(st,guid,a.lastAt) end
             for _,t in ipairs(a.attempts) do text=text..' '..(t.name or '') end
             ok=text:lower():find(filter.search:lower(),1,true)~=nil
         end
-        if ok then result[#result+1]=a;if #result>=(filter.limit or 50) then break end end
+        if ok then seen[a.id]=true;result[#result+1]=a;if #result>=(filter.limit or 50) then break end end
     end
     return result
 end
@@ -368,6 +451,7 @@ function A.ViewRevision(st)
 end
 function A.Request(owner)
     if ns.Modules and not ns.Modules.Enabled('history') then return nil,'disabled' end
+    if S.loading then return nil,'building' end
     if S.blocked then return nil,'blocked' end
     local c,status=S.RequestCharacter(owner)
     if status=='loading' or status=='blocked' then return nil,'building' elseif status=='failed' then return nil,'blocked' end
@@ -382,10 +466,18 @@ function A.Request(owner)
     local st=extend and cache.state or A.New(owner)
     job={owner=owner,character=c,raw=c.events,state=st,index=extend and cache.count+1 or 1,
         count=#c.events,tail=c.events[#c.events],revision=c.revision,profiles=c.profiles,profilesRead=0,extending=extend~=nil and extend~=false,profilesDone=not ns.Modules.Enabled('intel')}
-    local elapsed=0
-    frame:SetScript('OnUpdate',function(_,delta)
-        elapsed=elapsed+(delta or 0);if job and job.extending and elapsed<.05 then return end;elapsed=0;A.Pump()
-    end)
+    if ns.WardenScheduler then
+        local scheduled=job
+        local admitted=ns.WardenScheduler.Submit('history activity index','low',function()
+            if not job then return true end
+            A.Pump(128);return job==nil
+        end,{module='history',onCancel=function()
+            if job==scheduled then A.caches[scheduled.character]=nil;job=nil end
+        end})
+        if not admitted then A.caches[scheduled.character]=nil;job=nil end
+    else
+        frame:SetScript('OnUpdate',function() A.Pump() end)
+    end
     return nil,'building'
 end
 function A.Pump(budget)

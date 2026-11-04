@@ -52,10 +52,11 @@ end
 function C.Changed() if ns.RefreshCapture then ns.RefreshCapture() end end
 function C.SetOption(key,value)
     if key~='enabled' and key~='whispers' and key~='guild' then return end
+    if key=='enabled' and value==true and not ns.Permissions.Resume('capture',true) then return false end
     C.db[key]=value==true;C.Changed()
 end
 function C.Record(event,message,sender,lineID,channel)
-    if not C.db or not C.db.enabled or not ns.CanRead(event) or not ns.CanRead(message) or not ns.CanRead(sender) then return end
+    if not ns.Permissions.Decide('ChatCapture') or not C.db or not C.db.enabled or not ns.CanRead(event) or not ns.CanRead(message) or not ns.CanRead(sender) then return end
     if (event=='CHAT_MSG_WHISPER' or event=='CHAT_MSG_WHISPER_INFORM') and not C.db.whispers then return end
     if (event=='CHAT_MSG_GUILD' or event=='CHAT_MSG_OFFICER') and not C.db.guild then return end
     local id=ns.SafeNumber(lineID)
@@ -117,14 +118,16 @@ function C.UpdateBookmark(id,title,note)
 end
 function C.RemoveBookmark(id)
     for i,item in ipairs(C.db.bookmarks) do if item.id==id then
+        if ns.FiresideSavedData then ns.FiresideSavedData.PurgeRecovery()end
         -- Recount because old records may not have included the assigned id.
         table.remove(C.db.bookmarks,i);C.bookmarkBytes=0
         for _,other in ipairs(C.db.bookmarks) do C.bookmarkBytes=C.bookmarkBytes+#ns.Reports.JSON(other) end
         C.Changed();return
     end end
 end
-function C.Clear() C.db.entries={};C.bytes=0;C.live={};C.liveReverse={};C.Changed() end
+function C.Clear() if ns.FiresideSavedData then ns.FiresideSavedData.PurgeRecovery()end;C.db.entries={};C.bytes=0;C.live={};C.liveReverse={};C.Changed() end
 function C.RemoveRecords(records)
+    if ns.FiresideSavedData then ns.FiresideSavedData.PurgeRecovery()end
     local ids={};for _,entry in ipairs(records or {}) do if type(entry)=='table' and ns.SafeNumber(entry.id) then ids[entry.id]=true end end
     local removed=0
     for i=#C.db.entries,1,-1 do
@@ -145,4 +148,19 @@ function C.Line(entry)
     return ns.Review.TimeLabel(entry)..'  '..entry.event:gsub('CHAT_MSG_','')..(entry.channel and ' ('..entry.channel..')' or '')..'  '..entry.sender
         ..(entry.recipient and ' -> '..entry.recipient or '')..'\n'..entry.original
         ..(entry.truncated and '\n[Long message shortened]' or '')
+end
+-- Derived views over retained records only; no conversation database or probes.
+function C.Conversations()
+ local rows,map={},{}
+ for _,entry in ipairs(C.db and C.db.entries or {}) do
+  if entry.event=='CHAT_MSG_WHISPER' or entry.event=='CHAT_MSG_WHISPER_INFORM' then
+   local name=entry.recipient or entry.sender;local key=ns.Shield.Key(name)
+   if key then
+    local group=map[key];if not group then group={id=key,sender=name,records={}};map[key]=group;rows[#rows+1]=group end
+    group.records[#group.records+1]=entry;group.timestamp=entry.timestamp;group.preview=entry.original
+   end
+  end
+ end
+ table.sort(rows,function(a,b) local x,y=a.timestamp or 0,b.timestamp or 0;return x==y and a.id<b.id or x>y end)
+ return rows
 end
