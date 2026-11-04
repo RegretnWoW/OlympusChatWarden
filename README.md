@@ -1,82 +1,31 @@
-<img width="1700" height="660" alt="01-main-banner-1700px" src="https://github.com/user-attachments/assets/d0670af9-3bae-4edb-afdb-0f9eacf60f40" />
+# Olympus Fireside
+### A Living World Built From Your Adventures.
 
-## Olympus Warden BETA
+**Keep the Fire Alive.**
 
-Olympus Warden is an all-in-one companion addon for World of Warcraft: Forever, featuring a personal adventure journal, player dossiers, historical equipment and talents, PvP records, chat filtering, and contact protection.
+Olympus Fireside is a solo-developed, fully playable 2.5D RPG experience built entirely inside World of Warcraft, created exclusively for the Olympus community.
 
-Built specifically for the Olympus community, Warden integrates directly with the official Olympus guild addon, bringing your alerts, protection tools, and recent activity into the Olympus interface. It's the ultimate companion for members who want to get more out of their adventures in Azeroth.
+What began as a simple chat-filtering addon has evolved into an ambitious interactive world featuring a custom graphics engine, explorable environments, dynamic lighting, detailed contact shadows, animated characters, original soundtracks, cinematics, and an extensive collection of community and adventure-tracking systems.
 
-BETA NOTICE: Olympus Warden 1.1 is a major expansion developed and tested by a single developer; while extensive testing has been completed, bugs and incomplete data collection are still possible as the new features are refined.
+But Fireside is more than a world to explore.
 
-<img width="600" height="585" alt="Olympus-Warden-Olympus-Integration" src="https://github.com/user-attachments/assets/644a8677-9b1e-4dd8-9ddb-c5308f79af89" />
+At its heart is **Athena**, an interconnected memory and intelligence system designed to preserve your adventures throughout Azeroth. Rather than simply recording events, Athena captures meaningful encounters, quests, battles, player interactions, equipment history, and journeys, transforming them into personalized stories.
 
-## ChronicleWarden — Your Adventure Journal
-Build a searchable history of your time in Azeroth, from character progression and exploration to dungeon runs, rivalries, and major milestones.
+**Athena's Journal** tells the story of your character's adventures, while **Atlas** brings those journeys back to life through animated map replays. Fireside's character reconstruction system can even populate its environments with familiar faces from your recorded encounters.
 
-Adventure Timeline: Browse activities, recent highlights, achievements, and recorded milestones.
-Character Progress: Levels, quests, rewards, professions, exploration, and deaths.
-Travel & Playtime: Zone history, recorded activity, measured time, and calendar summaries.
-Dungeons & Raids: Group adventures, supported boss encounters, and recorded outcomes.
-PvP & Battlegrounds: Match observations, scoreboards, objectives, and available combat statistics.
-Duel History: Opponents, results, dated gear and talent observations, and comparisons.
-Shared Adventures: Review recorded activities and encounters involving other players.
-Original Evidence: Open the underlying records behind your history.
+Alongside its RPG world, Fireside includes guild-focused social features, player intelligence, protection tools, historical records, and an expanding collection of interactive experiences.
 
-History recording is optional, and supported information is preserved across sessions. Some records may be partial depending on game-client support.
+### The Vision
 
-## IntelWarden — Player Intelligence & Dossiers
-Remember the people behind your adventures with searchable player histories and personal dossiers.
+Fireside is being developed as a living RPG world that grows alongside its players.
 
-Player Profiles: Recorded encounters, group relationships, and supported Olympus information.
-Personal Notes & Watchlists: Save notes and keep track of friends, rivals, and familiar players.
-Historical Gear: Browse dated equipment observations, item details, and saved configurations.
-Talent History: Review recorded specializations, talent selections, and supported native exports.
-PvP Intelligence: Saved scoreboard observations, objectives, and available player statistics.
-Connected History: Follow players into shared adventures, duels, and original event records.
+The long-term vision includes shared multiplayer spaces, an explorable town, interactive NPCs, a bustling tavern, player housing, activities, and new ways to connect with other Olympus members.
 
-Unknown details remain unknown. Warden does not invent equipment, encounters, or character information.
+The ultimate goal isn't to replace World of Warcraft. It's to bring players together, encourage new friendships, and preserve the adventures they share.
 
-## ChatWarden — Advanced Chat Filtering
-Customizable chat filtering and review tools, built around personal viewing preferences.
+**Your adventures become your memories. Your memories become your world.**
 
-Mild, Balanced, and Broad filtering presets.
-Context-aware filtering, redaction, warnings, and hiding.
-Spam, advertising, and language filtering.
-Gommage name and text covering options.
-Olympus and King-specific filtering categories.
-Custom rules, exceptions, and signed rule packs.
-Message Review with explanations and false-positive feedback.
-Optional chat capture, bookmarks, search, and exports.
-
-## SignalWarden — Alerts & Mentions
-
-Character-name, nickname, and keyword alerts.
-Optional sounds, popup notifications, and unread indicators.
-Supported Olympus Wanted context and OlympusMute-related observations.
-Alert history and configurable notification preferences.
-
-## ShieldWarden — Contact Protection
-
-Protection from qualifying repeated whispers, trades, invitations, and duel requests.
-Automatic and manual shielding.
-Configurable thresholds and durations.
-Personal allowlists and contact history.
-Reviewable incidents and supported player-menu actions.
-Warden — Unified Olympus Interface
-Central dashboard with recent highlights and activity.
-Search across supported saved records.
-Quick access to Chronicle, Intel, and protection tools.
-Recording, filtering, and connection status.
-Compact Olympus launcher and custom Greek-inspired artwork.
-
-## Privacy & Data
-
-Optional, local Chronicle recording.
-Separate consent for duel recording.
-Private notes, watchlists, and history.
-Pause recording without deleting saved records.
-Original event browser and backup tools.
-No automatic Warden history uploads or expiration.
+*Olympus Fireside — Keep the Fire Alive.*
 
 ## Olympus Integration
 
