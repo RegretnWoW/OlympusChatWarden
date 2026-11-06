@@ -47,7 +47,7 @@ ns.Checked=function(v)return v==true end
 ns.WardenWorldScale={Request=function()return true end}
 ns.AetherLive={World={active=false,NPCs={},NPC=function()end}}
 ns.WardenShelfShowcase={Render=function()end,ResetCamera=function()end}
-load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Background.lua');load('World3D/Scene.lua');load('World3D/EditorCamera.lua');load('World3D/Catalog.lua')
+load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Background.lua');load('World3D/Scene.lua');load('World3D/Hitboxes.lua');load('World3D/HitboxEditor.lua');load('World3D/EditorCamera.lua');load('World3D/Catalog.lua')
 local count=0
 ns.WardenNativeScene.Create=function(parent,shot)
  count=count+1

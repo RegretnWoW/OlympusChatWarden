@@ -49,8 +49,9 @@ function W.Bind(engine)
 end
 -- Fit the same plane homography used by N.FloorPoint, using four actual native projections.
 -- Once per frame, no mathematical-FOV fallback and no camera-sensitive actor changes.
-function W.FloorMap(frame,shot)
- local function project(x,y)return N.ProjectNative(frame,shot,x,y,W.FLOOR_Z)end
+function W.FloorMap(frame,shot,height)
+ height=height or W.FLOOR_Z
+ local function project(x,y)return N.ProjectNative(frame,shot,x,y,height)end
  local x0,y0=project(0,0);local x1,y1=project(2,0);local x2,y2=project(0,2);local x3,y3=project(2,2)
  if not(x0 and x1 and x2 and x3)then return nil,'Native floor projection unavailable' end
  local ax,bx,cx=x1-x3,x2-x3,x0-x1+x3-x2
@@ -70,7 +71,7 @@ function W.FloorMap(frame,shot)
   -- Bound the background plane; there is no navigation or shadow in screen coordinates.
   if x~=x or y~=y or math.abs(x)>512 or math.abs(y)>512 then return end
   -- A projective inverse also describes the plane behind the eye; reject that branch.
-  local depth=((x-eye[1])*fx+(y-eye[2])*fy+(W.FLOOR_Z-eye[3])*fz)/length
+  local depth=((x-eye[1])*fx+(y-eye[2])*fy+(height-eye[3])*fz)/length
   if depth<=.01 then return end
   return x,y
  end

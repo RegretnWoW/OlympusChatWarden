@@ -106,16 +106,17 @@ end
 F.HomeWalls=homeWalls
 function F.Navigation(v,s,a)
  local nav={ground=true,continuous=true,floor=0,radius=a.spec.navigationRadius or .3,boundary=F.bounds,obstacles={}}
- for _,spec in ipairs(ns.WardenWorldScenes.Props(s))do if not spec.support and spec.collision~=false then
+ for _,spec in ipairs(ns.WardenWorldScenes.Props(s))do
   local actor=s.native.actors[spec.id]
+  if not spec.support and spec.collision~=false or actor and actor.collider then
   -- Wait for pending bounds, but let an explicitly failed/hidden model keep
   -- its native error report without freezing movement across the whole demo.
   local omitted=actor and(actor.failed or actor.retired or actor.editorHidden)
   if spec.house3D and not omitted and(not actor or not actor.ready)then return nil,'Waiting for neighborhood house bounds: '..spec.id end
   if actor and actor.ready and not(actor.failed or actor.retired or actor.editorHidden or actor.awaitHome)then
-   local box=N.Footprint(s.shot,actor)
-   if box then
-    if actor.id=='player-home'and box.halfX then for _,b in ipairs(homeWalls(box))do nav.obstacles[#nav.obstacles+1]=b end
+   local boxes=F.Hitboxes and F.Hitboxes.Footprints(s.shot,actor)or{N.Footprint(s.shot,actor)}
+   for _,box in ipairs(boxes)do
+    if actor.id=='player-home'and not actor.collider and box.halfX then for _,b in ipairs(homeWalls(box))do nav.obstacles[#nav.obstacles+1]=b end
     else nav.obstacles[#nav.obstacles+1]=box end
    end
   end

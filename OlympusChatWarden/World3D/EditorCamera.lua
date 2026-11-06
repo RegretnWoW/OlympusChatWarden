@@ -15,7 +15,8 @@ function E.Surface(v)return E.DriverActive(v)and v.world3DEditSurface or v:Activ
 function E.Allowed(v,capturedLook)
  if not E.Active(v)or ns.UI2.locked or ns.MainStorageBlocked or InCombatLockdown()then return false end
  local editor=ns.WardenSceneEditor
- if editor.dragging or editor.popup and editor.popup:IsShown()then return false end
+ if editor.dragging or editor.firesideBoxDragging or editor.popup and editor.popup:IsShown()then return false end
+ if not capturedLook and F.HitboxEditor and F.HitboxEditor.Hover(v)then return false end
  local panel=editor.panel and editor.panel.frame
  if not capturedLook and panel and panel:IsVisible()and panel:IsMouseOver()then return false end
  return v.frame:IsVisible()and(capturedLook or E.Surface(v):IsMouseOver())
@@ -60,6 +61,10 @@ function E.Toolbar(v)
  help:SetText('Editor camera: WASD fly | Q/E down/up | Shift faster | Right-drag look | Wheel dolly')
  local reset=CreateFrame('Button',nil,bar,'UIPanelButtonTemplate');reset:SetPoint('TOPLEFT',8,-29);reset:SetSize(112,22);reset:SetText('Reset camera')
  reset:SetScript('OnClick',function()E.Reset(v)end)
+ if F.HitboxEditor then
+  local boxes=CreateFrame('Button',nil,bar,'UIPanelButtonTemplate');boxes:SetPoint('TOPLEFT',310,-29);boxes:SetSize(150,22);boxes:SetText('Edit hitboxes')
+  boxes:SetScript('OnClick',function()F.HitboxEditor.Open(v)end);bar.editHitboxes=boxes
+ end
  if F.preferredBuilding then
   local add=CreateFrame('Button',nil,bar,'UIPanelButtonTemplate');add:SetPoint('TOPLEFT',128,-29);add:SetSize(170,22);add:SetText(F.preferredBuilding.buttonLabel or'Add model test')
   add:SetScript('OnClick',function()
@@ -109,7 +114,7 @@ function E.SyncInput(v)
  if surface.SetFixedFrameLevel then surface:SetFixedFrameLevel(false)end
  surface:SetFrameStrata(panel and panel:GetFrameStrata()or'FULLSCREEN_DIALOG')
  surface:SetFrameLevel(math.max(v.frame:GetFrameLevel()+1,panel and panel:GetFrameLevel()-4 or v:ActiveRoom().groundClick:GetFrameLevel()+10))
- local usable=active and not(editor.dragging or editor.popup and editor.popup:IsShown())and not InCombatLockdown()and not ns.UI2.locked and not ns.MainStorageBlocked
+ local usable=active and not(editor.dragging or editor.firesideBoxDragging or editor.popup and editor.popup:IsShown())and not InCombatLockdown()and not ns.UI2.locked and not ns.MainStorageBlocked
  surface:EnableMouse(usable==true);surface:EnableMouseWheel(usable==true);surface:EnableKeyboard(usable==true)
  v.frame:EnableKeyboard(not active);surface:SetPropagateKeyboardInput(true)
  if not usable then E.Clear(v)end

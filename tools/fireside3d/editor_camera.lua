@@ -40,7 +40,7 @@ local focus,combat,shift,right=false,false,false,false;local x,y=0,0
 GetCurrentKeyBoardFocus=function()return focus end;InCombatLockdown=function()return combat end
 IsShiftKeyDown=function()return shift end;IsMouseButtonDown=function()return right end
 GetCursorPosition=function()return x,y end
-load('WardenNativeScene.lua');load('World3D/Scene.lua');load('World3D/EditorCamera.lua')
+load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Scene.lua');load('World3D/Hitboxes.lua');load('World3D/HitboxEditor.lua');load('World3D/EditorCamera.lua')
 local F,EC=ns.Fireside3D,ns.Fireside3D.EditorCamera
 F.IsScene=function(s)return s.definition.world3D==true end
 local player={ready=true,position={0,-4,0},scale=1.85}
@@ -99,13 +99,13 @@ right=true;step(0);yaw=c.yaw;x=90;step(0);assert(c.yaw~=yaw)
 GetMouseDelta=function()return 4,2 end;yaw=c.yaw;step(0);assert(c.yaw~=yaw,'captured cursor can report relative motion without absolute movement');GetMouseDelta=nil
 right=false;step(0)
 start=copy(c.position);surface.scripts.OnMouseWheel(surface,1);assert(math.abs(d(start,c.position)-2)<1e-8)
-for _,block in ipairs({'focus','popup','objectdrag','combat','panel','storage'})do
+for _,block in ipairs({'focus','popup','objectdrag','boxdrag','combat','panel','storage'})do
  key('W',true);start=copy(c.position)
- if block=='focus'then focus=true elseif block=='popup'then editor.popup=frame()elseif block=='objectdrag'then editor.dragging=true
+ if block=='focus'then focus=true elseif block=='popup'then editor.popup=frame()elseif block=='objectdrag'then editor.dragging=true elseif block=='boxdrag'then editor.firesideBoxDragging=true
  elseif block=='combat'then combat=true elseif block=='panel'then editor.panel.frame.hover=true else ns.MainStorageBlocked=true end
  step();assert(d(start,c.position)==0 and not next(c.keys),'guard: '..block)
- if block=='popup'or block=='objectdrag'or block=='combat'or block=='storage'then assert(not surface.wheel and not surface.keyboard)end
- focus=false;editor.popup=nil;editor.dragging=false;combat=false;editor.panel.frame.hover=false;ns.MainStorageBlocked=false;step(0)
+ if block=='popup'or block=='objectdrag'or block=='boxdrag'or block=='combat'or block=='storage'then assert(not surface.wheel and not surface.keyboard)end
+ focus=false;editor.popup=nil;editor.dragging=false;editor.firesideBoxDragging=nil;combat=false;editor.panel.frame.hover=false;ns.MainStorageBlocked=false;step(0)
 end
 local oldCalls=engine.frame.cameraCalls;for i=1,20 do step(0)end;assert(engine.frame.cameraCalls==oldCalls,'idle editor cannot reset native camera every frame')
 for turn=0,359 do c.yaw=turn*math.pi/180;step(0);assert(d(engine.frame.eye,c.position)<1e-8)end

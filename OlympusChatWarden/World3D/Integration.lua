@@ -89,10 +89,11 @@ ns.WardenRealm.Attach=function(...)
  end
  local report=v.Report
  v.Report=function(self,...)
-  local out=report(self,...);out.fireside3D={version=F.VERSION,scene=F.PRIMARY,coordinateSpace='world XYZ',instances=#self:Scenes(),houses=#F.houses,nativeViewportCount=1,legacyTravel=false,base=F.BASE,visualQualification='User-reported working Furbolg tent; camp placement needs client review',colliderQualification='Open tent shell has no box collider; furniture uses existing collision',elwynn=F.BuildingReport(self:ActiveRoom()),rightDragStarts=self.world3DInput.rightDragStarts,lastDragSource=self.world3DInput.lastDragSource};return out
+  local out=report(self,...);out.fireside3D={version=F.VERSION,scene=F.PRIMARY,coordinateSpace='world XYZ',instances=#self:Scenes(),houses=#F.houses,nativeViewportCount=1,legacyTravel=false,base=F.BASE,visualQualification='User-reported working forest camp',colliderQualification='Automatic defaults; explicit single or compound boxes override per object, including the tent',elwynn=F.BuildingReport(self:ActiveRoom()),rightDragStarts=self.world3DInput.rightDragStarts,lastDragSource=self.world3DInput.lastDragSource};return out
  end
  F.Catalog.BindExistingEditor()
  F.EditorCamera.BindExistingEditor()
+ F.HitboxEditor.BindExistingEditor()
  return v
 end
 -- Direct 3D landing; regular feature tabs still open the existing UI over it.
@@ -127,7 +128,7 @@ end
 -- The old fixed-scene cinematic is not part of the unified world. Consent/setup UI remains unchanged.
 if ns.WardenWelcomeGuide then ns.WardenWelcomeGuide.NeedsWelcome=function()return false end end
 ns.OpenWelcome=function()ns.Print('Welcome home. Close Menu to explore; WASD moves and right-drag rotates the 3D camera.');return true end
-local event=CreateFrame('Frame');event:RegisterEvent('ADDON_LOADED');event:SetScript('OnEvent',function()F.Catalog.BindExistingEditor();F.EditorCamera.BindExistingEditor()end)
+local event=CreateFrame('Frame');event:RegisterEvent('ADDON_LOADED');event:SetScript('OnEvent',function()F.Catalog.BindExistingEditor();F.EditorCamera.BindExistingEditor();F.HitboxEditor.BindExistingEditor()end)
 
 for _,entry in ipairs(U.destinations or{})do if entry[1]=='journey'then entry[2]='My Home'end end
 local ensure=U.Ensure

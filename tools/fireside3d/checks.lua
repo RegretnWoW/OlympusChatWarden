@@ -4,7 +4,7 @@ local function load(path)return assert(loadfile('OlympusChatWarden/'..path))('te
 load('WardenRoomCatalogue.lua');local C=ns.WardenRoomCatalogue
 for _,key in ipairs({'hall','square'})do assert(C.RegisterRoom(key,{label=key,layoutSlot=key,shot={position={0,-18,8},target={0,0,1},fov=.85},navigation={floor=0,floorUV={0,0,1,1}},plates={},props={},residents={}}))end
 C.onRegister=function(key,d)ns.WardenWorldScenes.props[key]=d.props;ns.WardenWorldScenes.residents[key]=d.residents;ns.WardenWorldScenes.outside[key]=d.outside;ns.WardenWorldScenes.navigation[key]=d.navigation end
-load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Scene.lua')
+load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Scene.lua');load('World3D/Hitboxes.lua');load('World3D/HitboxEditor.lua')
 local F,N=ns.Fireside3D,ns.WardenNativeScene
 assert(#F.houses==1 and #F.buildingCandidates==6 and not F.manualBuildingTests and F.PRIMARY=='square')
 assert(F.preferredBuilding.fileID==202016 and F.preferredBuilding.renderEvidence=='USER_REPORT'and not F.preferredBuilding.layoutVerified,'user-confirmed render does not verify the new camp arrangement')
