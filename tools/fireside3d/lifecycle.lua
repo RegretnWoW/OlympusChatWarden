@@ -13,6 +13,8 @@ function methods:SetSize(w,h)self.width=w;self.height=h end
 function methods:SetHeight(h)self.height=h end
 function methods:SetWidth(w)self.width=w end
 function methods:SetFrameLevel(n)self.level=n end
+function methods:SetParent(p)self.parent=p end
+function methods:RegisterForDrag(...)self.dragButtons={...}end
 function methods:CreateTexture()return frame(self)end
 function methods:CreateFontString()return frame(self)end
 function methods:SetScript(k,v)self.scripts[k]=v end

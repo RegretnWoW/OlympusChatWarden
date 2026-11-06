@@ -1,35 +1,35 @@
 diff --git a/Fireside3DAssets/Fireside3DAssets.toc b/Fireside3DAssets/Fireside3DAssets.toc
 new file mode 100644
-index 0000000..8fac4aa
+index 0000000..143f6ba
 --- /dev/null
 +++ b/Fireside3DAssets/Fireside3DAssets.toc
 @@ -0,0 +1,6 @@
 +## Interface: 16001
-+## Title: Fireside 3D Classic Assets
-+## Notes: Optional Classic M2 and existing Forever references. Loaded only when browsing the scene editor.
++## Title: Fireside 3D Elwynn Assets
++## Notes: Elwynn WMO candidates (render unverified) and existing Forever props. Loaded only when browsing the scene editor.
 +## LoadOnDemand: 1
 +## Dependencies: OlympusChatWarden
 +Index.lua
 diff --git a/Fireside3DAssets/Index.lua b/Fireside3DAssets/Index.lua
 new file mode 100644
-index 0000000..ca6c17b
+index 0000000..76a2af4
 --- /dev/null
 +++ b/Fireside3DAssets/Index.lua
 @@ -0,0 +1,15 @@
-+-- Explicit Classic-era M2 / existing Forever references only.
++-- Elwynn world-building candidates and existing Classic/Forever props.
 +-- ID/path resolution is not an installed-client or render certification.
 +Fireside3DAssetIndex={
-+ {["fileID"]=190430,["label"]="Swamp water hut 1",["category"]="Houses",["height"]=7.0,["path"]="world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut01.m2",["era"]="CLASSIC",["status"]="USER_REPORTED_PROTOTYPE_DEFAULT",["installed"]="USER_REPORTED",["format"]="M2"},
-+ {["fileID"]=190431,["label"]="Swamp water hut 2",["category"]="Houses",["height"]=7.0,["path"]="world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut02.m2",["era"]="CLASSIC",["status"]="CLASSIC_REFERENCE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["format"]="M2"},
-+ {["fileID"]=203656,["label"]="Arathi farmhouse 1",["category"]="Houses",["height"]=7.0,["path"]="world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse01.m2",["era"]="CLASSIC",["status"]="CLASSIC_REFERENCE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["format"]="M2"},
-+ {["fileID"]=203657,["label"]="Arathi farmhouse 2",["category"]="Houses",["height"]=7.0,["path"]="world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse02.m2",["era"]="CLASSIC",["status"]="CLASSIC_REFERENCE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["format"]="M2"},
-+ {["fileID"]=198603,["label"]="Inn table",["category"]="Tables",["height"]=0.9,["path"]="world/generic/human/passive doodads/tables/inntable.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["format"]="M2"},
-+ {["fileID"]=198114,["label"]="High-end human chair",["category"]="Seats",["height"]=1.55,["path"]="world/generic/human/passive doodads/chairs/generalchairhighend01.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["format"]="M2"},
-+ {["fileID"]=200912,["label"]="Animated journal book",["category"]="Decor",["height"]=0.65,["path"]="world/goober/g_bookopenmediumbrown.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["format"]="M2"},
-+ {["fileID"]=189705,["label"]="Elwynn campfire",["category"]="Lighting fixtures",["height"]=0.8,["path"]="world/azeroth/elwynn/passivedoodads/campfire/elwynncampfire.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["format"]="M2"},
-+ {["fileID"]=189923,["label"]="Elwynn fir tree",["category"]="Trees and plants",["height"]=7.0,["path"]="world/azeroth/elwynn/passivedoodads/trees/elwynnfirtree01.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["format"]="M2"},
-+ {["fileID"]=198049,["label"]="Wide abbey bookshelf",["category"]="Shelves",["height"]=2.3,["path"]="world/generic/human/passive doodads/bookshelves/abbeyshelf02.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["format"]="M2"},
-+ {["fileID"]=242995,["label"]="Existing earned-badge shelf",["category"]="Shelves",["height"]=2.3,["path"]="world/expansion02/doodads/dalaran/dalaran_bookcase_empty_01.m2",["era"]="FOREVER_REFERENCE",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["format"]="M2"}
++ {["fileID"]=106851,["label"]="Goldshire Inn",["category"]="Elwynn buildings",["height"]=10.0,["path"]="world/wmo/azeroth/buildings/goldshireinn/goldshireinn.wmo",["era"]="CLASSIC",["status"]="ELWYNN_WMO_RENDER_UNVERIFIED",["installed"]="NOT_CHECKED",["zone"]="Elwynn Forest",["format"]="WMO"},
++ {["fileID"]=106965,["label"]="Elwynn farmhouse",["category"]="Elwynn buildings",["height"]=7.0,["path"]="world/wmo/azeroth/buildings/human_farm/farm.wmo",["era"]="CLASSIC",["status"]="ELWYNN_WMO_RENDER_UNVERIFIED",["installed"]="NOT_CHECKED",["zone"]="Elwynn Forest",["format"]="WMO"},
++ {["fileID"]=106848,["label"]="Goldshire blacksmith",["category"]="Elwynn buildings",["height"]=7.0,["path"]="world/wmo/azeroth/buildings/goldshireblacksmith/goldshireblacksmith.wmo",["era"]="CLASSIC",["status"]="ELWYNN_WMO_RENDER_UNVERIFIED",["installed"]="NOT_CHECKED",["zone"]="Elwynn Forest",["format"]="WMO"},
++ {["fileID"]=107232,["label"]="Elwynn stables",["category"]="Elwynn buildings",["height"]=7.0,["path"]="world/wmo/azeroth/buildings/stable/stable.wmo",["era"]="CLASSIC",["status"]="ELWYNN_WMO_RENDER_UNVERIFIED",["installed"]="NOT_CHECKED",["zone"]="Elwynn Forest",["format"]="WMO"},
++ {["fileID"]=198603,["label"]="Inn table",["category"]="Tables",["height"]=0.9,["path"]="world/generic/human/passive doodads/tables/inntable.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["zone"]="",["format"]="M2"},
++ {["fileID"]=198114,["label"]="High-end human chair",["category"]="Seats",["height"]=1.55,["path"]="world/generic/human/passive doodads/chairs/generalchairhighend01.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["zone"]="",["format"]="M2"},
++ {["fileID"]=200912,["label"]="Animated journal book",["category"]="Decor",["height"]=0.65,["path"]="world/goober/g_bookopenmediumbrown.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["zone"]="",["format"]="M2"},
++ {["fileID"]=189705,["label"]="Elwynn campfire",["category"]="Lighting fixtures",["height"]=0.8,["path"]="world/azeroth/elwynn/passivedoodads/campfire/elwynncampfire.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["zone"]="",["format"]="M2"},
++ {["fileID"]=189923,["label"]="Elwynn fir tree",["category"]="Trees and plants",["height"]=7.0,["path"]="world/azeroth/elwynn/passivedoodads/trees/elwynnfirtree01.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["zone"]="",["format"]="M2"},
++ {["fileID"]=198049,["label"]="Wide abbey bookshelf",["category"]="Shelves",["height"]=2.3,["path"]="world/generic/human/passive doodads/bookshelves/abbeyshelf02.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["zone"]="",["format"]="M2"},
++ {["fileID"]=242995,["label"]="Existing earned-badge shelf",["category"]="Shelves",["height"]=2.3,["path"]="world/expansion02/doodads/dalaran/dalaran_bookcase_empty_01.m2",["era"]="FOREVER_REFERENCE",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["zone"]="",["format"]="M2"}
 +}
 diff --git a/OlympusChatWarden/AetherLiveWorld92.lua b/OlympusChatWarden/AetherLiveWorld92.lua
 index a942936..be7b73d 100644
@@ -3476,7 +3476,7 @@ literal 0
 HcmV?d00001
 
 diff --git a/OlympusChatWarden/OlympusChatWarden.toc b/OlympusChatWarden/OlympusChatWarden.toc
-index 4627a66..d6c83bc 100644
+index 4627a66..5221cb6 100644
 --- a/OlympusChatWarden/OlympusChatWarden.toc
 +++ b/OlympusChatWarden/OlympusChatWarden.toc
 @@ -2,7 +2,7 @@
@@ -3484,7 +3484,7 @@ index 4627a66..d6c83bc 100644
  ## Notes: Chronicle, player intelligence, chat, protection and RelayWarden support for Olympus.
  ## Author: Regretn
 -## Version: 1.1.4-unified-2.11.8-integrated110-startup1
-+## Version: 1.1.4-unified-2.11.8-integrated110-startup1-3d-home-candidate2
++## Version: 1.1.4-unified-2.11.8-integrated110-startup1-3d-home-candidate3
  ## SavedVariables: OlympusWardenPrivacyDB, OlympusChatWardenDB, OlympusWardenRelayDB, OlympusWardenStartupDB, OlympusWardenConversationDB, OlympusWardenJournalDB, OlympusWardenRecollectionsDB, OlympusWardenExchangeDB
  ## OptionalDeps: Olympus, OlympusWardenAthenaLab
  ## Dependencies: FiresideRecovery
@@ -3520,7 +3520,7 @@ index 559975b..7ab0766 100644
   local key=table.concat({scene.key,w,h,mix,unpack(shot.position)},':')..':'..table.concat(shot.target,':')
   if v.readingCameraKey~=key then
 diff --git a/OlympusChatWarden/WardenRoomCatalogue.lua b/OlympusChatWarden/WardenRoomCatalogue.lua
-index 01f2594..840fd03 100644
+index 01f2594..f4cbbd3 100644
 --- a/OlympusChatWarden/WardenRoomCatalogue.lua
 +++ b/OlympusChatWarden/WardenRoomCatalogue.lua
 @@ -38,7 +38,7 @@ local function installRoom(key,spec,revision)
@@ -3528,7 +3528,7 @@ index 01f2594..840fd03 100644
   if d.layoutSlot and not id(d.layoutSlot)then return false,'Invalid private layout slot'end
   d.layoutSlot=d.layoutSlot or key
 - if revision and d.layoutSlot~=rooms[key].layoutSlot then return false,'A bundled revision must retain its private layout slot'end
-+ if revision and d.layoutSlot~=rooms[key].layoutSlot and not(d.world3D==true and key=='square'and d.layoutSlot=='fireside-3d')then return false,'A bundled revision must retain its private layout slot'end
++ if revision and d.layoutSlot~=rooms[key].layoutSlot and not(d.world3D==true and key=='square'and(d.layoutSlot=='fireside-3d'or d.layoutSlot=='fireside-3d-elwynn'))then return false,'A bundled revision must retain its private layout slot'end
   for other,room in pairs(rooms)do if other~=key and room.layoutSlot==d.layoutSlot then return false,'Each room needs a separate private layout slot'end end
   local layers={};for _,layer in ipairs(ns.WardenWorldScenes.layers)do layers[layer]=true end
   local plateIDs={};for _,p in ipairs(d.plates)do
@@ -3776,15 +3776,20 @@ index 0000000..daa7b47
 +end
 diff --git a/OlympusChatWarden/World3D/Catalog.lua b/OlympusChatWarden/World3D/Catalog.lua
 new file mode 100644
-index 0000000..d990736
+index 0000000..5f34120
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Catalog.lua
-@@ -0,0 +1,56 @@
-+-- Optional Classic/Forever M2 references; no private editor implementation.
+@@ -0,0 +1,62 @@
++-- Elwynn-only building candidates plus existing Classic/Forever furniture.
 +local _,ns=...
 +local C={};ns.Fireside3D.Catalog=C
 +function C.Compatible(r)
 + return type(r)=='table'and r.format=='M2'and(r.era=='CLASSIC'or r.era=='FOREVER_REFERENCE')
++end
++function C.IsCandidate(r)
++ local elwynn={[106851]=true,[106965]=true,[106848]=true,[107232]=true}
++ return type(r)=='table'and r.format=='WMO'and r.zone=='Elwynn Forest'
++  and elwynn[r.fileID]and r.status=='ELWYNN_WMO_RENDER_UNVERIFIED'or false
 +end
 +function C.Load()
 + if C.rows then return C.rows end
@@ -3793,10 +3798,11 @@ index 0000000..d990736
 + local ok,why=load('Fireside3DAssets');if not ok then return nil,why end
 + local rows=rawget(_G,'Fireside3DAssetIndex')
 + if type(rows)~='table'or #rows>512 then return nil,'Invalid candidate index'end
-+ local compatible={};for _,r in ipairs(rows)do if C.Compatible(r)then compatible[#compatible+1]=r end end
++ local compatible={};for _,r in ipairs(rows)do if C.Compatible(r)or C.IsCandidate(r)then compatible[#compatible+1]=r end end
 + C.rows=compatible;return compatible
 +end
 +function C.Label(r)
++ if C.IsCandidate(r)then return r.label..' (Elwynn WMO; unverified)'end
 + return r.label..(r.era=='CLASSIC'and' (Classic M2)'or' (existing Forever reference)')
 +end
 +function C.Merge(editor)
@@ -3812,7 +3818,7 @@ index 0000000..d990736
 + local rows,why=C.Load();if not rows then return nil,why end
 + local out={};query=tostring(query or''):lower():sub(1,100)
 + for _,r in ipairs(rows)do
-+  local text=(r.label..' '..r.category..' '..tostring(r.fileID or'')..' '..r.path):lower()
++  local text=(r.label..' '..r.category..' '..tostring(r.fileID or'')..' '..r.path..' '..(r.zone or'')):lower()
 +  if(not category or category=='all'or r.category==category)and(query==''or text:find(query,1,true))then out[#out+1]=r;if #out==100 then break end end
 + end
 + return out
@@ -3911,50 +3917,51 @@ index 0000000..42f520b
 +end
 diff --git a/OlympusChatWarden/World3D/Definitions.lua b/OlympusChatWarden/World3D/Definitions.lua
 new file mode 100644
-index 0000000..9267f6c
+index 0000000..d040d67
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Definitions.lua
-@@ -0,0 +1,34 @@
+@@ -0,0 +1,35 @@
 +-- One shipped neighborhood. square keeps the existing Live scene wire identity;
 +-- the existing geometry digest rejects clients with different world definitions.
 +local _,ns=...
-+local F={VERSION=2,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
++local F={VERSION=3,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
 +local C=ns.WardenRoomCatalogue
 +F.homeDoor={side='negative-y',width=2.2,wallThickness=.2}
-+F.bounds={-36,-28,36,32}
-+-- Original Classic M2 references, not retail housing or WMO roots. Only the
-+-- original home has a user-reported render test; qualify the new models in-client.
++F.bounds={-40,-34,40,42}
++-- Actual Elwynn world buildings. Their WMO files contain interiors in the game
++-- world; ModelScene rendering and alignment MUST be qualified on Forever.
++-- Do not substitute the rejected huts or mark accepted bounds as render proof.
 +F.houses={
-+ {id='player-home',fileID=190430,label='Your Home — Swamp water hut 1',at={0,14,0}},
-+ {id='house-west',fileID=203656,label='Arathi farmhouse 1',at={-17,14,0}},
-+ {id='house-east',fileID=203657,label='Arathi farmhouse 2',at={17,14,0}},
-+ {id='house-southwest',fileID=190431,label='Swamp water hut 2',at={0,-16,0}},
++ {id='player-home',fileID=106851,label='Your Home — Goldshire Inn',width=24,at={0,23,0}},
++ {id='house-west',fileID=106965,label='Elwynn farmhouse',width=14,at={-26,12,0}},
++ {id='house-east',fileID=106848,label='Goldshire blacksmith',width=14,at={26,12,0}},
++ {id='house-southwest',fileID=107232,label='Elwynn stables',width=18,at={0,-22,0}},
 +}
 +local props={}
-+for _,h in ipairs(F.houses)do props[#props+1]={id=h.id,fileID=h.fileID,label=h.label,width=12,at=h.at,yaw=0,worldYaw=0,house3D=true,collision=true}end
++for _,h in ipairs(F.houses)do props[#props+1]={id=h.id,fileID=h.fileID,label=h.label,width=h.width,at=h.at,yaw=0,worldYaw=0,house3D=true,collision=true,zone='Elwynn Forest',format='WMO',assetStatus='ELWYNN_WMO_RENDER_UNVERIFIED'}end
 +local function add(row)props[#props+1]=row end
-+add({id='desk',fileID=198603,label='Home table',height=.9,at={0,14,0},yaw=0})
-+add({id='room-book',fileID=200912,label='Athena Journal',width=.65,at={0,14,.915},support='desk',supportOffset={0,0,.015},probeObject=true,animations={0,146,147,148,149},interaction='journal',collision=false})
-+add({id='chair',fileID=198114,label='Home chair',height=1.55,at={2,12,0},yaw=0,interaction='chair',seatFraction=.29,seatHeightOffset=.3})
-+add({id='shelf-right',fileID=242995,label='Badge and memento shelf',height=2.3,at={2.4,16,0},yaw=math.pi,worldYaw=math.pi,interaction='showcase',showcaseSupport=true})
++add({id='desk',fileID=198603,label='Home table',height=.9,at={0,21,0},yaw=0,homeInterior=true})
++add({id='room-book',fileID=200912,label='Athena Journal',width=.65,at={0,21,.915},support='desk',supportOffset={0,0,.015},probeObject=true,animations={0,146,147,148,149},interaction='journal',collision=false,homeInterior=true})
++add({id='chair',fileID=198114,label='Home chair',height=1.55,at={2,19,0},yaw=0,interaction='chair',seatFraction=.29,seatHeightOffset=.3,homeInterior=true})
++add({id='shelf-right',fileID=242995,label='Badge and memento shelf',height=2.3,at={4.4,25,0},yaw=math.pi,worldYaw=math.pi,interaction='showcase',showcaseSupport=true,homeInterior=true})
 +add({id='firepit',fileID=189705,label='Gathering fire',width=1.3,at={0,-1,0},interaction='fire',nativeEffects=true,collisionRadius=.65})
 +for i,p in ipairs({{-5,-2},{5,-2}})do add({id='public-chair-'..i,fileID=198114,label='Gathering chair',height=1.55,at={p[1],p[2],0},yaw=i==1 and 0 or math.pi,interaction='chair',seatFraction=.29,seatHeightOffset=.3})end
 +for i,p in ipairs({{-30,25},{30,25},{-30,-23},{30,-23}})do add({id='tree-'..i,fileID=189923,label='Evergreen',height=7,at={p[1],p[2],0},collisionRadius=.8})end
-+F.npcPaths={{{-7,-2},{-7,3},{-4,5}},{{7,-2},{7,3},{4,5}},{{-2,16},{-2,13},{-3,12}}}
++F.npcPaths={{{-7,-2},{-7,3},{-4,5}},{{7,-2},{7,3},{4,5}},{{-4,25},{-4,22},{-3,20}}}
 +F.props=props
-+local d={label='Fireside — The New Home',interior=false,world3D=true,reader=true,layoutSlot='fireside-3d',shot={id='fireside-3d-world-v2',position={0,-18,8},target={0,0,1},fov=.85},
-+ navigation={floor=0,floorUV={0,0,1,1},worldBounds=F.bounds,coordinateSpace='WORLD_XYZ_3D_V1',npcPaths=F.npcPaths,homeDoor=F.homeDoor,houseModels={190430,203656,203657,190431}},
-+ props=props,residents={{id='attendant',unit='player',controlled=true,height=1.85,at={0,-7,0},animations={0,4,5,96,97,98,102,103,104},navigationRadius=.3}},outside={},plates={},routes={},airOccluders={},flags={},book={offset={0,0,.015},wideScale=.65},musicScene='forest',walkSpeed=4,artRevision='3d-neighborhood-v2'}
++local d={label='Fireside — Elwynn Home Test',interior=false,world3D=true,reader=true,layoutSlot='fireside-3d-elwynn',shot={id='fireside-3d-world-v3',position={0,-18,8},target={0,0,1},fov=.85},
++ navigation={floor=0,floorUV={0,0,1,1},worldBounds=F.bounds,coordinateSpace='WORLD_XYZ_3D_V1',npcPaths=F.npcPaths,homeDoor=F.homeDoor,houseModels={106851,106965,106848,107232},buildingZone='Elwynn Forest'},
++ props=props,residents={{id='attendant',unit='player',controlled=true,height=1.85,at={0,-7,0},animations={0,4,5,96,97,98,102,103,104},navigationRadius=.3}},outside={},plates={},routes={},airOccluders={},flags={},book={offset={0,0,.015},wideScale=.65},musicScene='forest',walkSpeed=4,artRevision='3d-neighborhood-v3'}
 +assert(C.ReviseBundledRoom(F.PRIMARY,d))
 +function F.IsScene(s)return s and s.definition and s.definition.world3D==true end
 +-- Old links stay recoverable as shipped metadata but are not active 3D travel.
 +function F.SceneKey()return F.PRIMARY end
 diff --git a/OlympusChatWarden/World3D/EditorCamera.lua b/OlympusChatWarden/World3D/EditorCamera.lua
 new file mode 100644
-index 0000000..ef61c8c
+index 0000000..de66ecd
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/EditorCamera.lua
-@@ -0,0 +1,104 @@
+@@ -0,0 +1,100 @@
 +-- Optional adapter for the existing editor. Camera state is transient and local;
 +-- no actor transform, layout record, character state or Live packet is changed.
 +local _,ns=...
@@ -3967,11 +3974,11 @@ index 0000000..ef61c8c
 + return editor and editor.active and not editor.closing and F.IsScene(v:ActiveRoom())
 +  and(editor.scene==F.PRIMARY)and(not editor.Realm or editor.Realm()==v)or false
 +end
-+function E.Allowed(v)
++function E.Allowed(v,capturedLook)
 + if not E.Active(v)or ns.UI2.locked or ns.MainStorageBlocked or InCombatLockdown()then return false end
 + local editor=ns.WardenSceneEditor
 + if editor.dragging or editor.popup and editor.popup:IsShown()then return false end
-+ return v.frame:IsVisible()and v:ActiveRoom().groundClick:IsMouseOver()
++ return v.frame:IsVisible()and(capturedLook or v:ActiveRoom().groundClick:IsMouseOver())
 +  and not(GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus())
 +end
 +function E.FollowView(v)
@@ -4023,13 +4030,9 @@ index 0000000..ef61c8c
 + end
 + local c=E.State(v);local bar=E.Toolbar(v)
 + bar:SetFrameLevel(v:ActiveRoom().groundClick:GetFrameLevel()+4);bar:Show()
-+ if not E.Allowed(v)then c.keys={};c.dragging=false;return end
-+ if c.dragging then
-+  if not IsMouseButtonDown('RightButton')then c.dragging=false else
-+   local x,y=GetCursorPosition();c.yaw=(c.yaw-(x-c.x)*.006)%(2*math.pi)
-+   c.pitch=clamp(c.pitch+(y-c.y)*.006,-1.50,1.50);c.x,c.y=x,y
-+  end
-+ end
++ if not E.Allowed(v,c.dragging)then c.keys={};c.dragging=false;return end
++ F.Look(c,-1.50,1.50)
++ if not E.Allowed(v)then c.keys={};return end
 + local keys=c.keys;local forward=(keys.W and 1 or 0)-(keys.S and 1 or 0)
 + local right=(keys.D and 1 or 0)-(keys.A and 1 or 0);local up=(keys.E and 1 or 0)-(keys.Q and 1 or 0)
 + local fx,fy,fz=direction(c)
@@ -4061,10 +4064,10 @@ index 0000000..ef61c8c
 +end
 diff --git a/OlympusChatWarden/World3D/Integration.lua b/OlympusChatWarden/World3D/Integration.lua
 new file mode 100644
-index 0000000..5b445f2
+index 0000000..3d69efc
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Integration.lua
-@@ -0,0 +1,135 @@
+@@ -0,0 +1,138 @@
 +-- Only the scene integration changes. Existing Journal, badge ownership, Live trust,
 +-- protocol, reconnection and session limits remain authoritative.
 +local _,ns=...
@@ -4115,6 +4118,7 @@ index 0000000..5b445f2
 +  return shelf.Open(v)
 + end
 + local function approach(id)
++  local home=s.native.actors['player-home'];if not home or not home.ready or home.failed then return false,'Goldshire Inn must load before using its interior objects'end
 +  local a=s.native.actors.attendant;local prop=s.native.actors[id]
 +  if not a or not a.ready or not prop or not prop.ready then return false,'Wait for the object and your character'end
 +  if a.seating then return v:LeavePlayerSeat(s,a)end
@@ -4143,6 +4147,8 @@ index 0000000..5b445f2
 + local bindReader=v.BindReader
 + v.BindReader=function(self,...)local result=bindReader(self,...);self.ClickScene=click3D;return result end
 + v.InteractPlayer=function(self,scene,id)
++  local prop=scene.native.actors[id];local home=scene.native.actors['player-home']
++  if prop and prop.spec.homeInterior and(not home or not home.ready or home.failed or prop.awaitHome)then return false,'The Elwynn home is unavailable'end
 +  if id=='room-book'or id=='shelf-right'then return approach(id)end
 +  return interact(self,scene,id)
 + end
@@ -4153,7 +4159,7 @@ index 0000000..5b445f2
 + end
 + local report=v.Report
 + v.Report=function(self,...)
-+  local out=report(self,...);out.fireside3D={version=F.VERSION,scene=F.PRIMARY,coordinateSpace='world XYZ',instances=#self:Scenes(),houses=#F.houses,nativeViewportCount=1,legacyTravel=false,base=F.BASE,visualQualification='Prototype mechanics user-tested; expanded neighborhood requires native testing',colliderQualification='Bounds-based home shell; use existing editor to align doorway/hitbox with hut'};return out
++  local out=report(self,...);out.fireside3D={version=F.VERSION,scene=F.PRIMARY,coordinateSpace='world XYZ',instances=#self:Scenes(),houses=#F.houses,nativeViewportCount=1,legacyTravel=false,base=F.BASE,visualQualification='Elwynn WMO buildings and interior require native render verification',colliderQualification='Bounds-based doorway; align against the actual visible Goldshire Inn',elwynn=F.BuildingReport(self:ActiveRoom()),rightDragStarts=self.world3DInput.rightDragStarts,lastDragSource=self.world3DInput.lastDragSource};return out
 + end
 + F.Catalog.BindExistingEditor()
 + F.EditorCamera.BindExistingEditor()
@@ -4179,7 +4185,7 @@ index 0000000..5b445f2
 + if ns.WardenSceneEditor and ns.WardenSceneEditor.active or ns.UI2LayoutEditor and ns.UI2LayoutEditor.tx then return false,'Finish editing before walking home'end
 + if InCombatLockdown()then return false,'Walk home after combat'end
 + U.Ensure();local v=U.realm;local s=v:ActiveRoom();local a=s.native.actors.attendant;local home=s.native.actors['player-home']
-+ if not a or not a.ready or not home or not home.ready then return false,'Wait for your home and character'end
++ if not a or not a.ready or not home or not home.ready or home.failed then return false,'Wait for your home and character; check the Elwynn building load status'end
 + local box=N.Footprint(s.shot,home);local nav,why=v:GroundNavigation(s,a);if not nav then return false,why end
 + local path;path,why=N.WalkPath(a.position,home.position[1],box.near-1,nav);if not path then return false,why end
 + a.pendingInteraction=nil;local ok;ok,why=s.native:Route(a,path,math.max(2,path.length/4),4,nav)
@@ -4202,20 +4208,45 @@ index 0000000..5b445f2
 +end
 diff --git a/OlympusChatWarden/World3D/Scene.lua b/OlympusChatWarden/World3D/Scene.lua
 new file mode 100644
-index 0000000..275ef12
+index 0000000..cbf42d2
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Scene.lua
-@@ -0,0 +1,234 @@
+@@ -0,0 +1,319 @@
 +-- Unified scene adapter. Loading, animation, routes, real Journal/showcase and Live remain owned by existing systems.
 +local _,ns=...
 +local F,N=ns.Fireside3D,ns.WardenNativeScene
 +local pi,sin,cos=math.pi,math.sin,math.cos
 +local function clamp(n,a,b)return math.max(a,math.min(b,n))end
++function F.PlayCameraAllowed(v)
++ local U=ns.UI2
++ return v.frame:IsVisible()and not U.locked and not ns.MainStorageBlocked and U.menuHidden
++  and not(v.shelfFocus or v.journalReading or v.roomBookMotion)
++  and not(ns.WardenSceneEditor and ns.WardenSceneEditor.active)and not InCombatLockdown()
++  and not(GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus())
++end
++function F.Look(state,low,high)
++ if not state.dragging then return end
++ if not IsMouseButtonDown('RightButton')then state.dragging=false;return end
++ local x,y=GetCursorPosition();local dx,dy=x-state.x,y-state.y
++ state.yaw=(state.yaw-dx*.006)%(2*pi);state.pitch=clamp(state.pitch+dy*.006,low,high)
++ state.x,state.y=x,y;state.lastLookDelta={dx,dy}
++end
 +function F.InertEngine(real)
 + return {actors={},order={},views={},shot=real.shot,metrics={},clock=0,status='One shared 3D viewport; no outside pass',
 + Show=function()end,Pause=function()end,Tick=function()end,Lighting=function()end,RenderFrames=function()return{}end,Report=function()return{status='No second viewport'}end}
 +end
 +function F.ActorReady(v,s,a)
++ if a.spec.house3D then
++  local ok,loaded=N.Call(a.actor,'GetModelFileID')
++  if N.BundledPlaceholder(a.bounds)or ok and type(loaded)=='number'and loaded>0 and loaded~=a.spec.fileID then
++   s.native:Error(a,'Elwynn building was replaced by a missing/other model; WMO rendering is unverified');return
++  end
++ end
++ if a.spec.homeInterior then
++  local home=s.native.actors['player-home']
++  if not home or not home.ready or home.failed then a.awaitHome=true;N.Call(a.actor,'Hide');return end
++ end
++ a.awaitHome=nil
 + local p=a.spec.at or{0,0,0}
 + if a.spec.controlled and s.pendingArrival then p=s.pendingArrival;s.pendingArrival=nil;a.spawnChecked=nil end
 + if a.spec.support then
@@ -4228,6 +4259,28 @@ index 0000000..275ef12
 + if a.spec.controlled then v:EnsurePlayerSpawn(s,a)end
 + if a.id=='room-book'then a.engine:Animate(a,147,1)end
 + for _,other in ipairs(s.native.order)do if other.awaitSupport and other.spec.support==a.id then v:ActorReady(s,other)end end
++ if a.id=='player-home'then for _,other in ipairs(s.native.order)do if other.awaitHome then v:ActorReady(s,other)end end end
++end
++function F.BuildingReport(s)
++ local out={zone='Elwynn Forest',interiorTarget='Goldshire Inn',visualVerified=false,buildings={}}
++ for _,h in ipairs(F.houses)do
++  local a=s.native.actors[h.id]
++  out.buildings[#out.buildings+1]={id=h.id,fileID=h.fileID,label=h.label,format='WMO',status=not a and'not requested'or a.failed and a.status or a.ready and'bounds ready; visible WMO/interior not verified'or'loading'}
++ end
++ return out
++end
++function F.BuildingNotice(v,s)
++ if not v.buildingNotice then
++  local f=CreateFrame('Frame',nil,v.frame);f:SetPoint('BOTTOMLEFT',12,32);f:SetSize(640,44);f:SetFrameLevel(s.groundClick:GetFrameLevel()+3)
++  local bg=f:CreateTexture(nil,'BACKGROUND');bg:SetAllPoints();bg:SetColorTexture(.035,.025,.015,.88)
++  f.text=f:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');f.text:SetPoint('TOPLEFT',8,-7);f.text:SetPoint('BOTTOMRIGHT',-8,7);f.text:SetJustifyH('LEFT');v.buildingNotice=f
++ end
++ local home=s.native.actors['player-home'];local text
++ if not home or not home.ready then text=home and home.failed and'Goldshire Inn did not load in ModelScene. Interior placement is unavailable; export the scene report.'or'Loading Elwynn world buildings. Goldshire Inn WMO/interior needs a native render check.'
++ elseif home.failed then text='Goldshire Inn did not load in ModelScene. Interior placement is unavailable; export the scene report.'
++ else text='Goldshire Inn bounds loaded. Verify its visible interior and align the entrance/furniture in the editor; WMO rendering is not certified.'end
++ if v.buildingNotice.lastText~=text then v.buildingNotice.text:SetText(text);v.buildingNotice.lastText=text end
++ v.buildingNotice:SetFrameLevel(s.groundClick:GetFrameLevel()+3);v.buildingNotice:Show()
 +end
 +local function homeWalls(box)
 + local out={};local t=F.homeDoor.wallThickness;local hx,hy=box.halfX,box.halfY;local door=math.min(F.homeDoor.width/2,hx*.65)
@@ -4247,7 +4300,7 @@ index 0000000..275ef12
 +  -- its native error report without freezing movement across the whole demo.
 +  local omitted=actor and(actor.failed or actor.retired or actor.editorHidden)
 +  if spec.house3D and not omitted and(not actor or not actor.ready)then return nil,'Waiting for neighborhood house bounds: '..spec.id end
-+  if actor and actor.ready and not(actor.failed or actor.retired or actor.editorHidden)then
++  if actor and actor.ready and not(actor.failed or actor.retired or actor.editorHidden or actor.awaitHome)then
 +   local box=N.Footprint(s.shot,actor)
 +   if box then
 +    if actor.id=='player-home'and box.halfX then for _,b in ipairs(homeWalls(box))do nav.obstacles[#nav.obstacles+1]=b end
@@ -4288,7 +4341,8 @@ index 0000000..275ef12
 + return result
 +end
 +function F.Shadow(v,s,a)
-+ if not a.ready or not a.position or a.failed or a.retired or a.editorHidden or a.spec.support then return end
++ if a.awaitHome then if s.shadows[a.id]then s.shadows[a.id]:Hide()end;return end
++ if not a.ready or not a.position or a.failed or a.retired or a.editorHidden or a.spec.support or a.awaitHome then return end
 + local old=s.shadows[a.id]
 + if not old then old=CreateFrame('Frame',nil,s.layers['contact-shadows']);old:SetAllPoints();old.texture=old:CreateTexture(nil,'ARTWORK');old.texture:SetTexture(ns.WardenWorldArt.assets['contact-shadow42'].tiles[1].path);s.shadows[a.id]=old end
 + local x,y=a.position[1],a.position[2];local hx,hy
@@ -4364,8 +4418,12 @@ index 0000000..275ef12
 + for _,a in ipairs(s.native.order)do
 +  if a.ready and not(a.failed or a.retired or a.editorHidden or a.sceneHidden)then
 +   if a.awaitSupport then F.ActorReady(v,s,a)end
++   if a.spec.homeInterior then
++    local home=s.native.actors['player-home'];if not home or not home.ready or home.failed then a.awaitHome=true;N.Call(a.actor,'Hide')
++    elseif a.awaitHome then F.ActorReady(v,s,a)end
++   end
 +   if a.spec.controlled and not a.spawnChecked then v:EnsurePlayerSpawn(s,a)end
-+   if not(a.awaitSpawn or a.awaitSupport)then N.Call(a.actor,'SetAlpha',1);N.Call(a.actor,'Show')end
++   if not(a.awaitSpawn or a.awaitSupport or a.awaitHome)then N.Call(a.actor,'SetAlpha',1);N.Call(a.actor,'Show')end
 +   if a.spec.liveRemote and a.world3DTarget then F.StepRemote(v,s,a,dt)end
 +   if a.seating then v:UpdatePlayerSeat(s,a,dt)end
 +  elseif a.actor and(a.retired or a.editorHidden or a.sceneHidden)then N.Call(a.actor,'Hide');if s.shadows[a.id]then s.shadows[a.id]:Hide()end end
@@ -4373,12 +4431,8 @@ index 0000000..275ef12
 + local input=v.world3DInput;local U=ns.UI2;local editor=ns.WardenSceneEditor
 + local allowed=input and not U.locked and not ns.MainStorageBlocked and U.menuHidden and not(v.shelfFocus or v.journalReading or v.roomBookMotion)and not(editor and editor.active)and not InCombatLockdown()and ns.DB.livingRealmAmbience~=false
 + local a=s.native.actors.attendant
++ if input and F.PlayCameraAllowed(v)then F.Look(input,-.3,1.2)end
 + if allowed and a and a.ready and not a.awaitSpawn then
-+  if input.dragging then
-+   if not IsMouseButtonDown('RightButton')then input.dragging=false else
-+    local x,y=GetCursorPosition();input.yaw=(input.yaw-(x-input.x)*.006)%(2*pi);input.pitch=clamp(input.pitch+(y-input.y)*.006,-.3,1.2);input.x,input.y=x,y
-+   end
-+  end
 +  if not s.groundClick:IsMouseOver()or(GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus())then input.keys={}end
 +  local forward=(input.keys.W and 1 or 0)-(input.keys.S and 1 or 0);local right=(input.keys.D and 1 or 0)-(input.keys.A and 1 or 0)
 +  local length=math.sqrt(forward*forward+right*right);local moved=false
@@ -4392,18 +4446,39 @@ index 0000000..275ef12
 +  end
 +  a.manualMovement=moved
 +  if not a.route and not a.seating then s.native:Animate(a,moved and 4 or 0,1)end
-+ else if input then input.keys={};input.dragging=false end;if a then a.manualMovement=false end end
++ else if input then input.keys={};if not F.PlayCameraAllowed(v)then input.dragging=false end end;if a then a.manualMovement=false end end
 + F.EditorCamera.Tick(v,dt)
 + local W=ns.AetherLive and ns.AetherLive.World
 + if W and not W.active and not(editor and editor.active)then for _,def in ipairs(W.NPCs)do if def.scene==s.key then W.NPC(v,s,def,dt)end end end
 + F.Camera(v);paths(v,s);F.Pose(v,ns.DB.journalReducedMotion~=true)
++ F.BuildingNotice(v,s)
 + for _,actor in ipairs(s.native.order)do if actor.ready and not(actor.retired or actor.editorHidden or actor.sceneHidden)then F.Shadow(v,s,actor)end end
 +end
 +function F.BindInput(v,U)
-+ local s=v.forest;local input={keys={},yaw=-pi/2,pitch=.35,distance=14};v.world3DInput=input
++ local s=v.forest;local input={keys={},yaw=pi/2,pitch=.35,distance=14,surfaceBaseLevel=v.forest.groundClick:GetFrameLevel()};v.world3DInput=input
 + local EC=F.EditorCamera
 + local function clear()input.keys={};input.dragging=false;EC.Clear(v);v.frame:SetPropagateKeyboardInput(true)end
-+ function v:RefreshFieldInput()s.groundClick:SetShown(s.active);s.groundClick:EnableMouse(EC.Active(self)or U.menuHidden and not self.shelfFocus and not self.journalReading and not self.roomBookMotion)end
++ function v:StackFieldInput()
++  local floor=s.groundClick;local highest=s.layers and s.layers.native:GetFrameLevel()or input.surfaceBaseLevel
++  local count=0
++  local function visit(frame)
++   if not frame or frame==floor or frame==v.world3DCameraBar or frame.ChatWardenModal then return end
++   count=count+1;if count>2048 then return end
++   highest=math.max(highest,frame:GetFrameLevel())
++   if frame.GetChildren then for _,child in ipairs({frame:GetChildren()})do visit(child)end end
++  end
++  visit(U.stage);visit(s.frame)
++  if U.window and U.stage then
++   floor:SetParent(U.window);floor:ClearAllPoints();floor:SetPoint('TOPLEFT',U.stage,'TOPLEFT',0,-35);floor:SetPoint('BOTTOMRIGHT',U.stage,'BOTTOMRIGHT')
++  end
++  if floor.SetFixedFrameLevel then floor:SetFixedFrameLevel(false)end
++  floor:SetFrameLevel(highest+1)
++  if floor.SetFixedFrameLevel then floor:SetFixedFrameLevel(true)end
++ end
++ function v:RefreshFieldInput()
++  s.groundClick:SetShown(s.active);s.groundClick:EnableMouse(EC.Active(self)or U.menuHidden and not self.shelfFocus and not self.journalReading and not self.roomBookMotion)
++  self:StackFieldInput()
++ end
 + v.frame:EnableKeyboard(true);v.frame:SetPropagateKeyboardInput(true)
 + v.frame:SetScript('OnKeyDown',function(_,key)
 +  if EC.Active(v)then
@@ -4419,17 +4494,34 @@ index 0000000..275ef12
 +  local c=v.world3DEditCamera;local held=input.keys[key]or c and c.keys[key];input.keys[key]=nil;if c then c.keys[key]=nil end
 +  v.frame:SetPropagateKeyboardInput(not held)
 + end)
-+ s.groundClick:SetScript('OnMouseDown',function(_,button)
-+  if button~='RightButton'then return end
-+  if EC.Active(v)then if EC.Allowed(v)then local c=EC.State(v);c.dragging=true;c.x,c.y=GetCursorPosition()end
-+  elseif U.menuHidden and not U.locked and not ns.MainStorageBlocked and not InCombatLockdown()then input.dragging=true;input.x,input.y=GetCursorPosition()end
-+ end)
-+ s.groundClick:SetScript('OnMouseUp',function()input.dragging=false;local c=v.world3DEditCamera;if c then c.dragging=false end end)
++ local function begin(source)
++  local state
++  if EC.Active(v)then if EC.Allowed(v)then state=EC.State(v)end
++  elseif F.PlayCameraAllowed(v)and s.groundClick:IsMouseOver()then state=input end
++  if state then state.dragging=true;state.x,state.y=GetCursorPosition();input.rightDragStarts=(input.rightDragStarts or 0)+1;input.lastDragSource=source end
++ end
++ local function finish()input.dragging=false;local c=v.world3DEditCamera;if c then c.dragging=false end end
++ -- Register the actual right-button gesture. The old floor only registered
++ -- LeftButtonUp; directly calling its callbacks in tests missed this boundary.
++ s.groundClick:RegisterForClicks('LeftButtonUp','RightButtonDown','RightButtonUp')
++ s.groundClick:RegisterForDrag('RightButton')
++ if s.groundClick.SetPropagateMouseClicks then s.groundClick:SetPropagateMouseClicks(false)end
++ if s.groundClick.SetPropagateMouseMotion then s.groundClick:SetPropagateMouseMotion(false)end
++ s.groundClick:SetScript('OnClick',function(_,button,down)if button=='LeftButton'and not down then return v:CursorSceneClick(s,'3D floor')end end)
++ s.groundClick:SetScript('OnMouseDown',function(_,button)if button=='RightButton'then begin('mouse down')end end)
++ s.groundClick:SetScript('OnMouseUp',function(_,button)if button=='RightButton'then finish()end end)
++ s.groundClick:SetScript('OnDragStart',function()begin('registered right drag')end)
++ s.groundClick:SetScript('OnDragStop',finish)
 + s.groundClick:EnableMouseWheel(true);s.groundClick:SetScript('OnMouseWheel',function(_,delta)
 +  if EC.Active(v)then EC.Scroll(v,delta)
 +  elseif U.menuHidden and not U.locked and not ns.MainStorageBlocked and not InCombatLockdown()then input.distance=clamp(input.distance-delta,2,55)end
 + end)
-+ s.groundClick:SetScript('OnLeave',clear)
++ s.groundClick:SetScript('OnLeave',function()
++  -- A captured right drag may leave the floor rectangle. Release keys there;
++  -- release look on button-up, hide, combat or a blocking editor form.
++  input.keys={};local c=v.world3DEditCamera;if c then c.keys={}end
++  if not IsMouseButtonDown('RightButton')then finish()end;v.frame:SetPropagateKeyboardInput(true)
++ end)
 + v.frame:HookScript('OnHide',clear)
 + function v:CursorSceneClick(scene,source)
 +  local scale=scene.frame:GetEffectiveScale();local x,y=GetCursorPosition();local left,top=scene.frame:GetLeft(),scene.frame:GetTop()
@@ -4438,91 +4530,84 @@ index 0000000..275ef12
 +  local ok,why=self:ClickScene(scene,u,q);self.lastWalkStatus=ok and'Character interaction'or why
 +  self.lastSceneClick={scene=scene.key,u=u,v=q,accepted=ok==true,reason=why,source=source};return ok,why
 + end
-+ function v:StackFieldInput()end
 +end
 diff --git a/tools/fireside3d/README.md b/tools/fireside3d/README.md
 new file mode 100644
-index 0000000..31ef656
+index 0000000..bebad93
 --- /dev/null
 +++ b/tools/fireside3d/README.md
-@@ -0,0 +1,87 @@
-+# Fireside 3D — New Home candidate 2
+@@ -0,0 +1,81 @@
++# Fireside 3D — Elwynn candidate 3
 +
-+Branch: `feature/fireside-3d`. Production base: `e4cc9f8da008fd065d933e6d142dde854108d53a` (the updated hotfix with Aether Live). Main and CurseForge are unchanged.
++Branch: `feature/fireside-3d`. Public production base: `e4cc9f8da008fd065d933e6d142dde854108d53a`. Main and CurseForge are unchanged.
 +
 +## Install
 +
-+Close WoW and keep your normal closed-client WTF backup. Install the exact public base above, then extract **Fireside-3D-candidate2-overlay.zip** into `Interface/AddOns/`, allowing replacement of the public addon code and the `Fireside3DAssets` catalog. You can also apply this overlay to candidate 1 when it uses that same base media. Do not overlay a later stability build; integrate the source changes against it instead. The overlay includes public Lua/XML/TOC code, the optional catalog, existing recovery code and the grass tile. Retain the base's approximately 1.4 GB media library. Do not install the standalone prototype alongside this build.
++Close WoW and retain your normal WTF backup. Extract **Fireside-3D-candidate3-overlay.zip** into `Interface/AddOns/`, replacing public code and the `Fireside3DAssets` catalog. Use the exact base above or candidate 1/2 installed with that same base media. Retain the base's approximately 1.4 GB media library; the overlay includes code, the lazy catalog, existing recovery code and the grass tile. Do not overlay a later stability build; integrate the source changes against it instead. Do not install the standalone prototype alongside it.
 +
-+The private development addon is **not included**. Keep it local. Its existing editor is optional for gameplay; public adapters extend that editor when installed. No private archive, implementation, credentials or configuration is committed or packaged.
++The private development addon is **not included**. Keep it local. Public adapters extend its existing editor when installed; no private implementation, archive, credentials or configuration is packaged or committed.
 +
-+Open `/fireside`. WASD moves your character while the pointer is over the world, right-drag rotates/pitches, and wheel zooms. Menus, typing, editing and combat release player input. The My Home action walks to the home entrance within the same world. Open Menu retains the normal Journal, Atlas, Agora, settings and other services.
++Open `/fireside`. WASD moves your character over the scene; right-drag rotates/pitches and wheel zooms. Open Menu retains the normal services. The My Home action walks toward the home entrance in the same world.
 +
-+## Four different Classic house models
++## Only Elwynn buildings
 +
-+| Building | FileDataID | Original model path |
++| Requested building | FileDataID | Actual world asset |
 +| --- | --- | --- |
-+| Player home: Swamp water hut 1 | 190430 | `world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut01.m2` |
-+| West: Arathi farmhouse 1 | 203656 | `world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse01.m2` |
-+| East: Arathi farmhouse 2 | 203657 | `world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse02.m2` |
-+| South: Swamp water hut 2 | 190431 | `world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut02.m2` |
++| Player home / interior target: Goldshire Inn | 106851 | `world/wmo/azeroth/buildings/goldshireinn/goldshireinn.wmo` |
++| Elwynn farmhouse | 106965 | `world/wmo/azeroth/buildings/human_farm/farm.wmo` |
++| Goldshire blacksmith | 106848 | `world/wmo/azeroth/buildings/goldshireblacksmith/goldshireblacksmith.wmo` |
++| Elwynn stables | 107232 | `world/wmo/azeroth/buildings/stable/stable.wmo` |
 +
-+These are four distinct original Classic-era M2 references. The new selections add two farmhouse models and a different hut, retaining the original tested home. Their ID/path pairs were resolved against the public wowdev listfile. This verifies the reference, **not installation or visible rendering in the running Forever client**. The three newly selected models still need a native check for availability, appearance, dimensions and openings. No WMO root or retail housing model is requested by these four buildings. There is no silent substitution of the original hut for a missing model.
++All four earlier Arathi/swamp selections are removed. These are Classic Elwynn world-building references, not retail housing. Goldshire Inn's actual game-world asset contains an interior. **It is not yet established that Forever's UI ModelScene can render that WMO and its interior.** Public listfile resolution verifies only the IDs/paths. A successful API call or loaded bounding box is not visual certification. All four entries remain `ELWYNN_WMO_RENDER_UNVERIFIED` in the catalog and scene report.
 +
-+Only the player home has the explicit wall/door shell and interactive interior. The other three buildings have solid bounds-based collision. House rotation, size and collider alignment remain adjustable in the existing editor. The original hut/collider mismatch is not claimed fixed by selecting the other models; inspect and align it natively. Stairs, mesh navigation, camera-wall collision and terrain elevation are outside this prototype.
++This is a native Elwynn WMO test build, not a claim of a finished or verified walkable inn. It uses the existing `SetModelByFileID` path; no WMO extraction/conversion, custom building mesh or replacement renderer is introduced. There is no fallback to the rejected huts. If ModelScene cannot load the inn, actual interior furnishing remains blocked; resolve that native capability before treating the home as usable.
 +
-+Pending house bounds pause player movement until loading resolves. A model explicitly reported failed or hidden is omitted from collision rather than freezing the entire demo; its native error remains in the scene report. It is not replaced with an invisible building collider or another hut.
++The scene shows the home load status. Native failures and missing-model cubes cannot become a giant house-shaped box: recognized placeholders/mismatched model identities are rejected. Until the home has actual native bounds, its table, book, chair and showcase remain hidden and interior interactions are unavailable. An explicitly failed building is omitted from collision, allowing the rest of the demo to continue. Pending bounds pause walking until loading resolves. The report lists each building's requested ID, loading/error status and the unverified interior status.
 +
-+## Scene editor free camera
++## Interior placement
 +
-+Open the existing editor with local test mode enabled. Its older Study/Fields launch buttons now target the single 3D world. The editor opens over the wide scene. Fly-camera controls appear at the top left:
++The home retains the real animated Journal book/table, chair and earned-badge/memento showcase. They have provisional placements around the inn's central ground-floor area. Their final position, orientation, doorway and floor alignment need the first native interior pass. Do not assume the WMO's lowest bounding-box point is its actual ground-floor walking surface.
 +
-+- **W/S:** fly forward/back along the view direction.
-+- **A/D:** strafe left/right.
-+- **Q/E:** lower/raise the camera.
-+- **Right-drag:** look around through 360 degrees and pitch up/down.
-+- **Shift:** move three times faster; **wheel:** dolly forward/back.
-+- **Reset camera:** return the editor view to the character's normal follow viewpoint.
++Use the existing editor's object, position, height, rotation and collider controls after confirming the inn is visibly rendered. The home still uses the prototype's explicit bounds-based wall/door shell and flat world floor. It does not implement the inn's internal wall mesh, stairs, basement/upper-floor navigation or camera-wall collision. A rendered inn plus an approximate outer collider is not mesh-perfect collision. The other three buildings remain environmental structures with solid bounds collision.
 +
-+Keep the pointer over the scene for movement. Typing, forms, object dragging, combat and leaving the viewport release camera input. Left-dragging the existing object handle still edits the selected object. Camera flight passes through walls and does not move the character, alter colliders/scales, save a layout transform or publish player movement. Camera position is transient; closing the editor restores character follow. The existing editor's NPC pause remains active and normal NPC updates resume on close. Trust, local test-mode and Live editing guards remain in the existing editor.
++The new `fireside-3d-elwynn` layout slot starts this arrangement independently of old candidate/hut placements. Previous 3D and 2.5D saved layouts remain intact; no migration or overwrite occurs. Keep private editor exports local.
 +
-+## Compatible prop catalog
++## Right-drag and editor camera
 +
-+The lazy `Fireside3DAssets` addon now contains **11 explicit M2 references**: ten Classic-era models plus the existing Forever earned-badge shelf. The broader retail/expansion WMO research entries are removed from the runtime catalog. The pre-existing Forever object library remains available. New references are merged into the existing editor's category, search and selection lookup; choosing a farmhouse fills the actual model fields.
++The scene input now explicitly registers right-button press/release **and right-button dragging**, with separate left-click interaction. It stacks above stale scene input frames and stops propagation to WoW's world camera. A captured right drag can leave the floor rectangle and ends on right-button release, drag-stop, hide, combat or a blocking form. Left-button release does not cancel a right drag. Mouse state is polled so a missed mouse-up cannot strand the camera.
 +
-+The Dalaran shelf (242995) is retained because the public production showcase already identifies it as an installed Forever mesh and calibrates its badge ledges. It is an existing Forever reference, not labeled original Classic or newly native-certified. Keeping it preserves the real earned showcase. Other placed furniture uses the existing Classic table, chair, animated book, Elwynn fire and fir tree references.
++Open the existing editor with local test mode enabled. Older Study/Fields launch buttons target this single world. Camera controls remain:
 +
-+`classic-assets.csv` is the explicit source for the new catalog. Rebuild it with:
++- **WASD:** fly/strafe; **Q/E:** down/up.
++- **Right-drag:** look through 360 degrees and pitch up/down.
++- **Shift:** three times faster; **wheel:** dolly.
++- **Reset camera:** return to the character's follow viewpoint.
++
++Keep the pointer over the scene to begin a drag or fly with keys. Forms, typing, object dragging and combat release camera movement. The existing left-drag object handle remains separate. Editor flight does not move/resize the character, change collision, save a layout transform or publish Live movement. NPCs remain paused during editing and resume on close. Closing the editor restores character follow. Existing test-mode, trust and Live editing guards remain authoritative.
++
++## Catalog and retained systems
++
++The lazy catalog contains four explicitly unverified Elwynn WMO entries and seven existing Classic/Forever prop references. Its source is `tools/fireside3d/elwynn-assets.csv`; regenerate with:
 +
 +```
 +python3 tools/fireside3d/build_classic_catalog.py --listfile /path/to/community-listfile.csv
 +```
 +
-+The supplied broader `research-candidates.csv` and original research script remain offline research inputs under `tools/fireside3d/`. They are not loaded by the client or offered as compatible props. Listfile resolution and source metadata never count as a render test.
++Only those four WMO IDs/zone/status combinations are admitted as candidates. They are not classified as compatible/verified M2 props. The broader supplied research CSV remains offline and is not loaded by the client. Existing Forever furniture remains available in the editor. Selecting a candidate fills its real model ID in the existing form. The Dalaran showcase shelf remains the base's existing Forever reference with calibrated badge ledges; it is not a building or labeled original Classic.
 +
-+## Retained integration
++One native depth buffer holds actors in camera-independent world XYZ. Painted-depth size corrections and old scene instances/travel remain inactive. Ground, paths and contact shadows are projected world-plane presentation. Real Journal permissions/history, earned inventory, reader place and badge save paths remain authoritative. No synthetic history, grants, SavedVariables declaration, schema, database root or credential flow is added.
 +
-+One native ModelScene/depth buffer holds buildings, furniture, your character, existing NPCs and Live peers in a fixed world XYZ basis. Placement has no painted-depth scale or floor-UV correction. Ground, paths and contact shadows project world planes through the actual camera; they are not native mesh terrain or physical shadow maps. Fields, Study and old Town instances/travel remain inactive. Legacy source/resources remain recoverable, and the `fireside-3d` layout slot preserves old 2.5D layouts without migration. Existing saved 3D overrides can still affect the revised buildings; inspect them with the editor before resetting an object.
++Aether Live retains protocol **2**, scene `square` / wire code `a`, certificate trust, native sender binding, appearance reconstruction, existing coalesced movement/recovery and eight remote slots. Both clients must use **candidate 3**: the existing geometry digest changes for the Elwynn buildings, bounds and NPC paths. NPCs keep the base's deterministic schedule. Storage, recovery, collectors and authentication/transport source match the recorded base.
 +
-+The home book and shelf use existing collision-checked approach routes, real Journal/history permissions and actual earned inventory. Existing save, reader-place and badge recipe behavior remains authoritative. No synthetic pages, rewards or grants are shipped.
++## Native test session
 +
-+Aether Live retains the base's protocol **2**, certificate/session trust, native sender binding, P2P transport, appearance reconstruction, coalesced movement channel, recovery and eight remote actor slots. Scene `square` keeps wire code `a`. The existing geometry digest includes the revised buildings, bounds, coordinate mode, doorway and NPC world paths, so **both clients must run candidate 2**; candidate 1 geometry is incompatible. Manual player updates keep the existing six-Hz coalesced M cadence and immediate final idle update. Camera flight never enters that state. NPCs retain the existing deterministic clock/path routine with world points, not a new authority or packet system.
++1. Open `/fireside`; test right-drag before and after building loading. Check orbit/pitch, wheel, full sky and stable actor alignment. Verify left clicks still move/interact, releasing right drag outside the scene stops it, and Open Menu remains clickable.
++2. Inspect each Elwynn building. **First verify that Goldshire Inn visibly renders both outside and inside.** A blank viewport, placeholder or only accepted bounds is a failure. Read the load message and export the scene report; do not proceed as if an interior exists when it does not.
++3. With the private editor installed locally, fly inside the visible inn using WASD/Q/E/right-drag. Inspect the true doorway and ground floor; align the home and housing objects with the existing fields and collider controls. Test object dragging, typing in forms, camera Reset/Close and NPC pause/resume. Do not certify stair/internal-wall collision that this build does not implement.
++4. Once the home is visibly aligned, test walking through the entrance, chair sit/stand, your real Journal and the earned showcase. Empty history/inventory stays empty; check reopening and normal saves. If inn rendering or floor alignment fails, the interior acceptance test remains blocked.
++5. Connect two consenting clients on candidate 3 through the existing Live controls; check geometry, appearance, movement, seating and reconnect. Leave Live before editing. Older candidates/legacy geometry must be incompatible.
 +
-+Storage, recovery, collectors, authentication and transport source files match the recorded base. No SavedVariables declaration, schema, migration, database root or credential flow is added.
-+
-+## One native test session
-+
-+1. Open `/fireside` and inspect **four different models**: the two Arathi farmhouses and two water huts. Check the full sky, ground, paths and gathering area. Report any missing/placeholder building with its FileDataID.
-+2. Move your character while rotating 360 degrees, pitching and zooming. Check stable world size, floor contacts, shadows and colliders. Open/close normal content, type in chat and enter/leave combat to verify input release.
-+3. Enter the player home through the negative-Y entrance; inspect the wall/door alignment. Sit/stand in its chair. Open your real Journal, use the page/cover controls and return. Inspect/edit earned badges/mementos; empty inventories stay empty. Reopen to check the existing save path.
-+4. With the private editor installed locally, open it from its existing launcher. Fly away from the character, move vertically, rotate fully around all four buildings and dolly inside the home. Verify the character remains in place, NPCs pause, object handles still place correctly, forms accept typing, and Reset/Close restores the expected camera. Browse Houses, select an Arathi farmhouse and verify its ID fills correctly. Keep private exports local.
-+5. Connect a second client using the existing Aether controls and explicit Live participation. Both clients must use candidate 2. Compare geometry revision; inspect movement, appearance, NPC paths, seating and disconnect/reconnect. A candidate 1 or legacy-layout client must be incompatible. Leave Live before editing, as the existing guard requires.
-+
-+The earlier prototype mechanics were user-reported successful. The revised three house models, editor camera in the private editor, expanded native rendering and two-client delivery have **not** been visually qualified in Codex Cloud. Code/call-recording checks do not certify those behaviors.
-+
-+## Automated checks and integration
-+
-+Run from repository root with Lua 5.1:
++## Checks and integration
 +
 +```
 +lua5.1 tools/fireside3d/checks.lua
@@ -4530,12 +4615,12 @@ index 0000000..31ef656
 +lua5.1 tools/fireside3d/editor_camera.lua
 +```
 +
-+Checks cover four distinct model selections, one native viewport, real Journal laziness, doorway/rotated collision, camera-independent actor placement, Live codec/geometry/coalescing, Classic catalog filtering/selection, editor launch mapping, fly/strafe/height/look/dolly, camera reset/follow restoration, input guards, player-state isolation and NPC pause/resume. Packaging uses explicit public Git paths and checks private-reference exclusion and ZIP integrity. Lua syntax, TOC paths and protected-source bytes are checked separately.
++Checks cover Elwynn-only selection, candidate-vs-verified status, missing-home furniture/placeholder handling, logical collision, layout isolation, camera-independent placement, retained Live codec/coalescing, one-viewport lifecycle, registered right-drag and click separation, stale-frame stacking, captured-drag release, editor movement/input guards and NPC pause/resume. They record Lua/API boundaries; they do not render WoW models or qualify actual mouse dispatch in Forever. Native interior and two-client checks remain pending.
 +
-+The changed-files ZIP and patch contain the full integration against `e4cc9f8`, including candidate 2. For newer stability builds, reconcile the scene-gated realm, camera, catalogue, travel, layer, Live presentation and TOC changes; do not replace newer authentication/storage/network files with prototype copies. Review before merging or publishing a production release.
++The changed-files ZIP and patch contain the full integration against `e4cc9f8`, including candidate 3. Reconcile the scene-gated changes against newer stability work rather than overwriting newer authentication/storage/network files. Review before merging or publishing a production release.
 diff --git a/tools/fireside3d/build_candidate.py b/tools/fireside3d/build_candidate.py
 new file mode 100755
-index 0000000..9305178
+index 0000000..32c7a0b
 --- /dev/null
 +++ b/tools/fireside3d/build_candidate.py
 @@ -0,0 +1,58 @@
@@ -4544,7 +4629,7 @@ index 0000000..9305178
 +from pathlib import Path
 +import argparse, hashlib, json, subprocess, zipfile
 +BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'
-+CANDIDATE='candidate2'
++CANDIDATE='candidate3'
 +
 +def tracked():
 +    return subprocess.check_output(['git','ls-files','-z']).decode().split('\0')[:-1]
@@ -4599,12 +4684,12 @@ index 0000000..9305178
 +if __name__=='__main__':main()
 diff --git a/tools/fireside3d/build_classic_catalog.py b/tools/fireside3d/build_classic_catalog.py
 new file mode 100644
-index 0000000..e35c005
+index 0000000..d4ed832
 --- /dev/null
 +++ b/tools/fireside3d/build_classic_catalog.py
-@@ -0,0 +1,43 @@
+@@ -0,0 +1,47 @@
 +#!/usr/bin/env python3
-+"""Resolve an explicit Classic/Forever M2 allowlist, never a retail-wide scan.
++"""Resolve explicit Elwynn WMO candidates and Classic/Forever M2 references.
 +
 +The listfile proves an ID/path mapping, not installation or native rendering.
 +"""
@@ -4617,7 +4702,7 @@ index 0000000..e35c005
 +def main():
 +    ap = argparse.ArgumentParser(description=__doc__)
 +    ap.add_argument('--listfile', type=Path, required=True)
-+    ap.add_argument('--source', type=Path, default=Path('tools/fireside3d/classic-assets.csv'))
++    ap.add_argument('--source', type=Path, default=Path('tools/fireside3d/elwynn-assets.csv'))
 +    ap.add_argument('--out', type=Path, default=Path('Fireside3DAssets/Index.lua'))
 +    args = ap.parse_args()
 +    with args.source.open(newline='') as f:
@@ -4633,25 +4718,29 @@ index 0000000..e35c005
 +    assert found == expected, 'An explicit model ID/path mapping is absent or has changed'
 +    rows = []
 +    for r in selected:
-+        assert r['era'] in {'CLASSIC', 'FOREVER_REFERENCE'} and r['path'].endswith('.m2')
-+        row = dict(r, fileID=int(r['fileID']), height=float(r['height']), format='M2')
++        fmt = r['path'].rsplit('.', 1)[1].upper()
++        assert r['era'] in {'CLASSIC', 'FOREVER_REFERENCE'}
++        assert fmt == 'M2' or (fmt == 'WMO' and r['zone'] == 'Elwynn Forest'
++                               and r['status'] == 'ELWYNN_WMO_RENDER_UNVERIFIED'
++                               and int(r['fileID']) in {106851,106965,106848,107232})
++        row = dict(r, fileID=int(r['fileID']), height=float(r['height']), format=fmt)
 +        rows.append(row)
 +    def lua(row):
 +        return '{' + ','.join('[' + json.dumps(k) + ']=' + json.dumps(v) for k, v in row.items()) + '}'
-+    args.out.write_text('-- Explicit Classic-era M2 / existing Forever references only.\n'
++    args.out.write_text('-- Elwynn world-building candidates and existing Classic/Forever props.\n'
 +                        '-- ID/path resolution is not an installed-client or render certification.\n'
 +                        'Fireside3DAssetIndex={\n ' + ',\n '.join(map(lua, rows)) + '\n}\n')
-+    print(f'{len(rows)} explicit M2 references resolved; no WMO or retail housing candidates.')
++    print(f'{len(rows)} references resolved; Elwynn WMO candidates remain render-unverified.')
 +
 +
 +if __name__ == '__main__':
 +    main()
 diff --git a/tools/fireside3d/checks.lua b/tools/fireside3d/checks.lua
 new file mode 100644
-index 0000000..1c494f2
+index 0000000..a9b62a8
 --- /dev/null
 +++ b/tools/fireside3d/checks.lua
-@@ -0,0 +1,89 @@
+@@ -0,0 +1,104 @@
 +-- Pure world/codec checks. No saved data, credentials, auth, networking or private addon is executed.
 +local ns={WardenWorldScenes={layers={'native','contact-shadows'},props={},residents={},outside={},navigation={}}}
 +local function load(path)return assert(loadfile('OlympusChatWarden/'..path))('test',ns)end
@@ -4662,8 +4751,9 @@ index 0000000..1c494f2
 +local F,N=ns.Fireside3D,ns.WardenNativeScene
 +assert(#F.houses==4 and F.PRIMARY=='square')
 +local models={};for _,h in ipairs(F.houses)do assert(not models[h.fileID],'each house must use a different model');models[h.fileID]=true end
-+assert(models[190430]and models[190431]and models[203656]and models[203657],'retain home and add both Classic farmhouse models')
-+local d=C.Room('square');assert(d.world3D and d.reader and #d.plates==0 and #d.outside==0 and #d.flags==0 and d.layoutSlot=='fireside-3d')
++assert(models[106851]and models[106965]and models[106848]and models[107232],'only the requested Elwynn buildings may be selected')
++local d=C.Room('square');assert(d.world3D and d.reader and #d.plates==0 and #d.outside==0 and #d.flags==0 and d.layoutSlot=='fireside-3d-elwynn')
++for _,p in ipairs(d.props)do if p.house3D then assert(p.zone=='Elwynn Forest'and p.format=='WMO'and p.assetStatus=='ELWYNN_WMO_RENDER_UNVERIFIED')end end
 +assert(C.Room('hall').layoutSlot=='hall','old layout metadata must remain recoverable')
 +assert(#d.props+#d.residents+3+8<=N.MAX_ACTORS,'include existing eight Live peer slots in actor budget')
 +local wall=F.HomeWalls({centerX=0,centerY=14,halfX=6,halfY=4,cos=1,sin=0})
@@ -4679,6 +4769,18 @@ index 0000000..1c494f2
 +ns.WardenWorldScenes.Props=function(s)return s.definition.props end
 +assert(F.Navigation({},sampleScene,{spec={controlled=true}}),'a reported missing house must not freeze all player movement')
 +failed.failed=nil;assert(not F.Navigation({},sampleScene,{spec={controlled=true}}),'pending house bounds must still block unsafe movement')
++-- No furniture-in-an-empty-lot success when an Elwynn WMO fails to render.
++local home={id='player-home',spec=house,ready=false,bounds={-12,-10,0,12,10,8},actor={GetModelFileID=function()return 106851 end}}
++local seatSpec;for _,p in ipairs(d.props)do if p.id=='chair'then seatSpec=p end end
++local seat={id='chair',spec=seatSpec,ready=true,actor={Hide=function(self)self.hidden=true end}}
++local interiors={actors={['player-home']=home,chair=seat},order={home,seat},Place=function(_,a,x,y,z)a.position={x,y,z}end,Error=function(_,a,why)a.failed=true;a.status=why end}
++home.engine=interiors;seat.engine=interiors
++local room={native=interiors};local realm={};realm.ActorReady=function(_,s,a)return F.ActorReady(realm,s,a)end
++F.ActorReady(realm,room,seat);assert(seat.awaitHome and seat.actor.hidden and not seat.position)
++home.ready=true;F.ActorReady(realm,room,home);assert(not seat.awaitHome and seat.position[1]==seatSpec.at[1],'furniture can be placed once the home has actual native bounds')
++local rejected={id='player-home',spec=house,ready=true,bounds={-.14,-.14,-.14,.14,.14,.14},actor={},engine=interiors}
++F.ActorReady(realm,room,rejected);assert(rejected.failed,'missing-model cubes must not masquerade as an interior')
++local report=F.BuildingReport(room);assert(not report.visualVerified and #report.buildings==4,'bounds acceptance must never certify visible WMO rendering')
 +local engine=F.Coordinates.Bind({metrics={moves=0}})
 +local native={};function native:SetPosition(x,y,z)self.position={x,y,z}end
 +function native:SetYaw(yaw)self.yaw=yaw end;function native:SetPitch()end;function native:SetRoll()end
@@ -4700,21 +4802,23 @@ index 0000000..1c494f2
 +load('World3D/Catalog.lua');assert(not F.Catalog.rows and not Fireside3DAssetIndex)
 +local requested=0
 +LoadAddOn=function(name)assert(name=='Fireside3DAssets');requested=requested+1;assert(loadfile('Fireside3DAssets/Index.lua'))();return true end
-+local rows=assert(F.Catalog.Search('203656'));assert(#rows==1 and rows[1].status=='CLASSIC_REFERENCE_NOT_RENDER_TESTED')
++local rows=assert(F.Catalog.Search('106851'));assert(#rows==1 and rows[1].status=='ELWYNN_WMO_RENDER_UNVERIFIED')
 +assert(F.Catalog.Search('house')and requested==1,'lazy catalog should load only once')
-+for _,r in ipairs(Fireside3DAssetIndex)do assert(F.Catalog.Compatible(r))end
-+assert(not F.Catalog.Compatible({format='WMO',era='CLASSIC'}),'WMO roots must not appear as loadable editor props')
++for _,r in ipairs(Fireside3DAssetIndex)do assert(F.Catalog.Compatible(r)or F.Catalog.IsCandidate(r))end
++assert(not F.Catalog.Compatible(rows[1])and F.Catalog.IsCandidate(rows[1]),'Elwynn WMO entries remain candidates, not compatible/verified props')
++assert(#F.Catalog.Search('203656')==0 and #F.Catalog.Search('190430')==0,'remove rejected Arathi and swamp building references')
++assert(not F.Catalog.IsCandidate({fileID=106851,format='WMO',zone='Other zone',status='ELWYNN_WMO_RENDER_UNVERIFIED'}))
 +assert(not F.Catalog.Compatible({format='M2',era='RETAIL'}),'retail housing must not appear in the Forever catalog')
 +local editor={ObjectCatalogue={{198049,'Existing shelf',2.3,0,'Shelves'}},FilterObjects=function()return{}end}
 +editor.AddObjectForm=function()
-+ local found=false;for _,r in ipairs(editor.ObjectCatalogue)do if r[1]==203656 then assert(r[3]==7);found=true end end
++ local found=false;for _,r in ipairs(editor.ObjectCatalogue)do if r[1]==106851 then assert(r[3]==10 and r[2]:find('unverified',1,true));found=true end end
 + assert(found,'dropdown choices must also exist in the editor selection lookup');return 'original form'
 +end
 +ns.WardenSceneEditor=editor;assert(F.Catalog.BindExistingEditor());assert(editor.AddObjectForm()=='original form')
 +local count=#editor.ObjectCatalogue;editor.AddObjectForm();assert(#editor.ObjectCatalogue==count,'do not append duplicates on reopening')
-+assert(#editor.FilterObjects('Houses','arathifarmhouse01')==1,'search supports the Classic model path')
++assert(#editor.FilterObjects('Elwynn buildings','goldshireinn.wmo')==1,'search supports the actual Elwynn model path')
 +ns.WardenSceneEditor=nil
-+print('PASS: four distinct Classic house references, no old plates/air scene, layout isolation, doorway/rotated collision, 360 transform invariance, actor budget with Live slots, shipped protocol-2 codec, geometry compatibility, lazy Classic catalog and existing-editor selection')
++print('PASS: four Elwynn-only WMO candidates, missing-home furniture gate/placeholder rejection, unverified status retained, no old plates/air scene, layout isolation, logical doorway/rotated collision, 360 transform invariance, Live slots/codec/geometry, lazy catalog and existing-editor selection')
 +-- Existing Live publisher: no handshake/transport is run. Verify manual movement
 +-- uses the same M state/codec and coalescing, with a bounded six-Hz signature.
 +ns.WardenRealm={Attach=function()return{}end};ns.WardenCanonicalPlayer={Save=function()return true end};ns.SafeCall=function(fn,...)if fn then return fn(...)end end
@@ -4741,30 +4845,12 @@ index 0000000..1c494f2
 +remote.world3DTarget.animation=0;F.StepRemote({}, {native=rendered},remote,.05);assert(remote.animation==0)
 +F.Navigation=oldNavigation
 +print('PASS: floor-decal clipping and world-space rendering convergence of already-validated Live movement states')
-diff --git a/tools/fireside3d/classic-assets.csv b/tools/fireside3d/classic-assets.csv
-new file mode 100644
-index 0000000..f11bcb9
---- /dev/null
-+++ b/tools/fireside3d/classic-assets.csv
-@@ -0,0 +1,12 @@
-+fileID,label,category,height,path,era,status,installed
-+190430,Swamp water hut 1,Houses,7,world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut01.m2,CLASSIC,USER_REPORTED_PROTOTYPE_DEFAULT,USER_REPORTED
-+190431,Swamp water hut 2,Houses,7,world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut02.m2,CLASSIC,CLASSIC_REFERENCE_NOT_RENDER_TESTED,NOT_CHECKED
-+203656,Arathi farmhouse 1,Houses,7,world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse01.m2,CLASSIC,CLASSIC_REFERENCE_NOT_RENDER_TESTED,NOT_CHECKED
-+203657,Arathi farmhouse 2,Houses,7,world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse02.m2,CLASSIC,CLASSIC_REFERENCE_NOT_RENDER_TESTED,NOT_CHECKED
-+198603,Inn table,Tables,0.9,world/generic/human/passive doodads/tables/inntable.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA
-+198114,High-end human chair,Seats,1.55,world/generic/human/passive doodads/chairs/generalchairhighend01.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA
-+200912,Animated journal book,Decor,0.65,world/goober/g_bookopenmediumbrown.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA
-+189705,Elwynn campfire,Lighting fixtures,0.8,world/azeroth/elwynn/passivedoodads/campfire/elwynncampfire.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA
-+189923,Elwynn fir tree,Trees and plants,7,world/azeroth/elwynn/passivedoodads/trees/elwynnfirtree01.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA
-+198049,Wide abbey bookshelf,Shelves,2.3,world/generic/human/passive doodads/bookshelves/abbeyshelf02.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA
-+242995,Existing earned-badge shelf,Shelves,2.3,world/expansion02/doodads/dalaran/dalaran_bookcase_empty_01.m2,FOREVER_REFERENCE,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA
 diff --git a/tools/fireside3d/editor_camera.lua b/tools/fireside3d/editor_camera.lua
 new file mode 100644
-index 0000000..b2f3282
+index 0000000..86e1ae3
 --- /dev/null
 +++ b/tools/fireside3d/editor_camera.lua
-@@ -0,0 +1,85 @@
+@@ -0,0 +1,113 @@
 +-- Exercise the actual scene input adapter and native camera calls at recorded
 +-- API boundaries. No private addon, network or saved state is executed.
 +local ns={UI2={menuHidden=true},Fireside3D={PRIMARY='square'},WardenRoomCatalogue={HasRoom=function(k)return k=='hall'or k=='study'or k=='square'end}}
@@ -4780,12 +4866,19 @@ index 0000000..b2f3282
 +function methods:IsMouseOver()return self.hover end
 +function methods:CreateTexture()return frame()end
 +function methods:CreateFontString()return frame()end
-+function methods:GetFrameLevel()return 10 end
++function methods:GetFrameLevel()return self.level or 10 end
++function methods:SetFrameLevel(value)self.level=value end
++function methods:GetChildren()return unpack(self.children or{})end
++function methods:SetParent(value)self.parent=value end
++function methods:RegisterForClicks(...)self.clicks={};for _,button in ipairs({...})do self.clicks[button]=true end end
++function methods:RegisterForDrag(...)self.dragButtons={};for _,button in ipairs({...})do self.dragButtons[button]=true end end
++function methods:SetPropagateMouseClicks(value)self.propagateClicks=value end
++function methods:SetPropagateMouseMotion(value)self.propagateMotion=value end
 +function methods:SetPropagateKeyboardInput(value)self.propagate=value end
 +function methods:EnableMouse(value)self.mouse=value end
 +function methods:SetCameraPosition(x,y,z)self.eye={x,y,z}end
 +function methods:SetCameraOrientationByYawPitchRoll(yaw,pitch,roll)self.angles={yaw,pitch,roll}end
-+for _,k in ipairs({'SetPoint','SetSize','SetAllPoints','SetColorTexture','SetText','SetFrameLevel','SetShown','EnableKeyboard','EnableMouseWheel','SetCameraFieldOfView','SetCameraNearClip','SetCameraFarClip'})do methods[k]=function()end end
++for _,k in ipairs({'SetPoint','ClearAllPoints','SetSize','SetAllPoints','SetColorTexture','SetText','SetShown','EnableKeyboard','EnableMouseWheel','SetCameraFieldOfView','SetCameraNearClip','SetCameraFarClip'})do methods[k]=function()end end
 +CreateFrame=function()return frame()end
 +local focus,combat,shift,mouse=false,false,false,false
 +local cursorX,cursorY=0,0
@@ -4803,6 +4896,16 @@ index 0000000..b2f3282
 +local s={definition={world3D=true},native=engine,groundClick=frame(),active=true};s.shot=engine.shot
 +local v={frame=frame(),forest=s,cameraMix=0};function v:ActiveRoom()return s end
 +F.BindInput(v,ns.UI2)
++local initial=EC.FollowView(v);assert(initial.target[2]>initial.position[2],'initial view faces north toward the Elwynn home')
++local floor=s.groundClick
++assert(floor.clicks.RightButtonDown and floor.clicks.RightButtonUp and floor.dragButtons.RightButton,'the actual floor must register the right-button gesture')
++assert(floor.propagateClicks==false and floor.propagateMotion==false,'the addon camera gesture must not leak into the game world camera')
++local clicks=0;v.CursorSceneClick=function()clicks=clicks+1 end
++floor.scripts.OnClick(floor,'RightButton',false);floor.scripts.OnClick(floor,'RightButton',true);assert(clicks==0)
++floor.scripts.OnClick(floor,'LeftButton',false);assert(clicks==1,'left-click interaction stays separate from right drag')
++local higher=frame();higher:SetFrameLevel(70);s.frame=frame();s.frame.children={higher,floor}
++v:RefreshFieldInput();assert(floor:GetFrameLevel()==71,'the scenic input must cover higher stale scene frames')
++v:RefreshFieldInput();assert(floor:GetFrameLevel()==71,'restacking must not continually raise frame levels')
 +local opened,failOpen
 +local editor={active=false,Realm=function()return v end,Open=function(key)opened=key;return not failOpen,'existing result'end}
 +ns.WardenSceneEditor=editor
@@ -4825,9 +4928,17 @@ index 0000000..b2f3282
 +key('Q',true);EC.Tick(v,.05);key('Q',false);assert(distance(start,c.position)<1e-8)
 +-- Look through 360 degrees using the real native camera API wrapper.
 +for turn=0,359 do c.yaw=turn*math.pi/180;F.Camera(v);assert(distance(engine.frame.eye,c.position)<1e-8)end
-+local yaw=c.yaw;mouse=true;s.groundClick.scripts.OnMouseDown(s.groundClick,'RightButton')
++local yaw=c.yaw;mouse=true
++-- Dispatch a drag only after native-style registration, rather than testing
++-- an isolated OnMouseDown callback that WoW might never deliver to this floor.
++assert(floor.dragButtons.RightButton);floor.scripts.OnDragStart(floor,'RightButton')
 +cursorX,cursorY=80,30;EC.Tick(v,0);assert(c.yaw~=yaw and c.pitch>-.35)
-+mouse=false;s.groundClick.scripts.OnMouseUp();assert(not c.dragging)
++floor.scripts.OnMouseUp(floor,'LeftButton');assert(c.dragging,'left button-up cannot cancel a captured right drag')
++floor.hover=false;floor.scripts.OnLeave();yaw=c.yaw;cursorX=100;EC.Tick(v,0)
++assert(c.dragging and c.yaw~=yaw,'captured right drag continues after leaving the floor rectangle')
++mouse=false;EC.Tick(v,0);assert(not c.dragging,'physical release ends look even when OnMouseUp is missed');floor.hover=true
++mouse=true;floor.scripts.OnMouseDown(floor,'RightButton');assert(c.dragging)
++floor.scripts.OnDragStop(floor);assert(not c.dragging);mouse=false
 +local followDistance=v.world3DInput.distance;start=copy(c.position)
 +s.groundClick.scripts.OnMouseWheel(s.groundClick,1);assert(math.abs(distance(start,c.position)-2)<1e-8)
 +assert(v.world3DInput.distance==followDistance,'editor dolly cannot change the player follow camera')
@@ -4847,9 +4958,30 @@ index 0000000..b2f3282
 +assert(not next(v.world3DInput.keys),'fly keys must never enter player movement')
 +editor.active=false;EC.Tick(v,.05);assert(not v.world3DEditCamera and not v.world3DCameraBar:IsShown())
 +F.Camera(v);assert(distance(engine.frame.eye,follow.position)==0,'closing editor restores the character follow camera')
++local input=v.world3DInput;local playYaw=input.yaw;mouse=true
++floor.scripts.OnDragStart(floor,'RightButton');cursorX=160;F.Look(input,-.3,1.2);assert(input.yaw~=playYaw,'the same registered right drag also controls play-camera orbit')
++floor.scripts.OnMouseUp(floor,'RightButton');assert(not input.dragging);mouse=false
 +key('W',true);assert(v.world3DInput.keys.W,'normal player input resumes');key('W',false)
 +s.definition.world3D=false;editor.active=true;assert(not EC.Active(v),'legacy scenes never use the fly-camera adapter')
-+print('PASS: independent editor fly/strafe/height/look/dolly, 360 native camera calls, reset/follow restoration, actor/Live state isolation, focus/popup/drag/combat/input release, scene gating and existing-editor launch mapping')
++print('PASS: registered right-button drag in editor/play, mouse propagation and stale-frame stacking, capture/release outside floor, separate left clicks, fly/strafe/height/look/dolly, 360 camera calls, reset/follow, actor/Live isolation and focus/form/combat guards')
+diff --git a/tools/fireside3d/elwynn-assets.csv b/tools/fireside3d/elwynn-assets.csv
+new file mode 100644
+index 0000000..eb9e131
+--- /dev/null
++++ b/tools/fireside3d/elwynn-assets.csv
+@@ -0,0 +1,12 @@
++fileID,label,category,height,path,era,status,installed,zone
++106851,Goldshire Inn,Elwynn buildings,10,world/wmo/azeroth/buildings/goldshireinn/goldshireinn.wmo,CLASSIC,ELWYNN_WMO_RENDER_UNVERIFIED,NOT_CHECKED,Elwynn Forest
++106965,Elwynn farmhouse,Elwynn buildings,7,world/wmo/azeroth/buildings/human_farm/farm.wmo,CLASSIC,ELWYNN_WMO_RENDER_UNVERIFIED,NOT_CHECKED,Elwynn Forest
++106848,Goldshire blacksmith,Elwynn buildings,7,world/wmo/azeroth/buildings/goldshireblacksmith/goldshireblacksmith.wmo,CLASSIC,ELWYNN_WMO_RENDER_UNVERIFIED,NOT_CHECKED,Elwynn Forest
++107232,Elwynn stables,Elwynn buildings,7,world/wmo/azeroth/buildings/stable/stable.wmo,CLASSIC,ELWYNN_WMO_RENDER_UNVERIFIED,NOT_CHECKED,Elwynn Forest
++198603,Inn table,Tables,0.9,world/generic/human/passive doodads/tables/inntable.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA,
++198114,High-end human chair,Seats,1.55,world/generic/human/passive doodads/chairs/generalchairhighend01.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA,
++200912,Animated journal book,Decor,0.65,world/goober/g_bookopenmediumbrown.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA,
++189705,Elwynn campfire,Lighting fixtures,0.8,world/azeroth/elwynn/passivedoodads/campfire/elwynncampfire.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA,
++189923,Elwynn fir tree,Trees and plants,7,world/azeroth/elwynn/passivedoodads/trees/elwynnfirtree01.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA,
++198049,Wide abbey bookshelf,Shelves,2.3,world/generic/human/passive doodads/bookshelves/abbeyshelf02.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA,
++242995,Existing earned-badge shelf,Shelves,2.3,world/expansion02/doodads/dalaran/dalaran_bookcase_empty_01.m2,FOREVER_REFERENCE,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA,
 diff --git a/tools/fireside3d/fireside_build_asset_index.py b/tools/fireside3d/fireside_build_asset_index.py
 new file mode 100644
 index 0000000..26a897b
@@ -4936,10 +5068,10 @@ index 0000000..26a897b
 +if __name__=='__main__':main()
 diff --git a/tools/fireside3d/lifecycle.lua b/tools/fireside3d/lifecycle.lua
 new file mode 100644
-index 0000000..36b96a2
+index 0000000..4f065b1
 --- /dev/null
 +++ b/tools/fireside3d/lifecycle.lua
-@@ -0,0 +1,89 @@
+@@ -0,0 +1,91 @@
 +-- Call-recording realm boundary: validates construction/lifecycle, not native rendering.
 +local ns={WardenWorldScenes={layers={'contact-shadows','native','outside-native','book','shelf-badges'},props={},residents={},outside={},navigation={},shots={},lighting={},clouds={}},DB={livingRealmAmbience=true},UI2={}}
 +local function load(p)return assert(loadfile('OlympusChatWarden/'..p))('test',ns)end
@@ -4955,6 +5087,8 @@ index 0000000..36b96a2
 +function methods:SetHeight(h)self.height=h end
 +function methods:SetWidth(w)self.width=w end
 +function methods:SetFrameLevel(n)self.level=n end
++function methods:SetParent(p)self.parent=p end
++function methods:RegisterForDrag(...)self.dragButtons={...}end
 +function methods:CreateTexture()return frame(self)end
 +function methods:CreateFontString()return frame(self)end
 +function methods:SetScript(k,v)self.scripts[k]=v end

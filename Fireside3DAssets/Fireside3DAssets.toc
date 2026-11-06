@@ -1,6 +1,6 @@
 ## Interface: 16001
-## Title: Fireside 3D Classic Assets
-## Notes: Optional Classic M2 and existing Forever references. Loaded only when browsing the scene editor.
+## Title: Fireside 3D Elwynn Assets
+## Notes: Elwynn WMO candidates (render unverified) and existing Forever props. Loaded only when browsing the scene editor.
 ## LoadOnDemand: 1
 ## Dependencies: OlympusChatWarden
 Index.lua

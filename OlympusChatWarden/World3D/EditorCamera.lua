@@ -10,11 +10,11 @@ function E.Active(v)
  return editor and editor.active and not editor.closing and F.IsScene(v:ActiveRoom())
   and(editor.scene==F.PRIMARY)and(not editor.Realm or editor.Realm()==v)or false
 end
-function E.Allowed(v)
+function E.Allowed(v,capturedLook)
  if not E.Active(v)or ns.UI2.locked or ns.MainStorageBlocked or InCombatLockdown()then return false end
  local editor=ns.WardenSceneEditor
  if editor.dragging or editor.popup and editor.popup:IsShown()then return false end
- return v.frame:IsVisible()and v:ActiveRoom().groundClick:IsMouseOver()
+ return v.frame:IsVisible()and(capturedLook or v:ActiveRoom().groundClick:IsMouseOver())
   and not(GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus())
 end
 function E.FollowView(v)
@@ -66,13 +66,9 @@ function E.Tick(v,dt)
  end
  local c=E.State(v);local bar=E.Toolbar(v)
  bar:SetFrameLevel(v:ActiveRoom().groundClick:GetFrameLevel()+4);bar:Show()
- if not E.Allowed(v)then c.keys={};c.dragging=false;return end
- if c.dragging then
-  if not IsMouseButtonDown('RightButton')then c.dragging=false else
-   local x,y=GetCursorPosition();c.yaw=(c.yaw-(x-c.x)*.006)%(2*math.pi)
-   c.pitch=clamp(c.pitch+(y-c.y)*.006,-1.50,1.50);c.x,c.y=x,y
-  end
- end
+ if not E.Allowed(v,c.dragging)then c.keys={};c.dragging=false;return end
+ F.Look(c,-1.50,1.50)
+ if not E.Allowed(v)then c.keys={};return end
  local keys=c.keys;local forward=(keys.W and 1 or 0)-(keys.S and 1 or 0)
  local right=(keys.D and 1 or 0)-(keys.A and 1 or 0);local up=(keys.E and 1 or 0)-(keys.Q and 1 or 0)
  local fx,fy,fz=direction(c)

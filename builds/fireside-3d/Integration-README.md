@@ -1,80 +1,74 @@
-# Fireside 3D — New Home candidate 2
+# Fireside 3D — Elwynn candidate 3
 
-Branch: `feature/fireside-3d`. Production base: `e4cc9f8da008fd065d933e6d142dde854108d53a` (the updated hotfix with Aether Live). Main and CurseForge are unchanged.
+Branch: `feature/fireside-3d`. Public production base: `e4cc9f8da008fd065d933e6d142dde854108d53a`. Main and CurseForge are unchanged.
 
 ## Install
 
-Close WoW and keep your normal closed-client WTF backup. Install the exact public base above, then extract **Fireside-3D-candidate2-overlay.zip** into `Interface/AddOns/`, allowing replacement of the public addon code and the `Fireside3DAssets` catalog. You can also apply this overlay to candidate 1 when it uses that same base media. Do not overlay a later stability build; integrate the source changes against it instead. The overlay includes public Lua/XML/TOC code, the optional catalog, existing recovery code and the grass tile. Retain the base's approximately 1.4 GB media library. Do not install the standalone prototype alongside this build.
+Close WoW and retain your normal WTF backup. Extract **Fireside-3D-candidate3-overlay.zip** into `Interface/AddOns/`, replacing public code and the `Fireside3DAssets` catalog. Use the exact base above or candidate 1/2 installed with that same base media. Retain the base's approximately 1.4 GB media library; the overlay includes code, the lazy catalog, existing recovery code and the grass tile. Do not overlay a later stability build; integrate the source changes against it instead. Do not install the standalone prototype alongside it.
 
-The private development addon is **not included**. Keep it local. Its existing editor is optional for gameplay; public adapters extend that editor when installed. No private archive, implementation, credentials or configuration is committed or packaged.
+The private development addon is **not included**. Keep it local. Public adapters extend its existing editor when installed; no private implementation, archive, credentials or configuration is packaged or committed.
 
-Open `/fireside`. WASD moves your character while the pointer is over the world, right-drag rotates/pitches, and wheel zooms. Menus, typing, editing and combat release player input. The My Home action walks to the home entrance within the same world. Open Menu retains the normal Journal, Atlas, Agora, settings and other services.
+Open `/fireside`. WASD moves your character over the scene; right-drag rotates/pitches and wheel zooms. Open Menu retains the normal services. The My Home action walks toward the home entrance in the same world.
 
-## Four different Classic house models
+## Only Elwynn buildings
 
-| Building | FileDataID | Original model path |
+| Requested building | FileDataID | Actual world asset |
 | --- | --- | --- |
-| Player home: Swamp water hut 1 | 190430 | `world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut01.m2` |
-| West: Arathi farmhouse 1 | 203656 | `world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse01.m2` |
-| East: Arathi farmhouse 2 | 203657 | `world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse02.m2` |
-| South: Swamp water hut 2 | 190431 | `world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut02.m2` |
+| Player home / interior target: Goldshire Inn | 106851 | `world/wmo/azeroth/buildings/goldshireinn/goldshireinn.wmo` |
+| Elwynn farmhouse | 106965 | `world/wmo/azeroth/buildings/human_farm/farm.wmo` |
+| Goldshire blacksmith | 106848 | `world/wmo/azeroth/buildings/goldshireblacksmith/goldshireblacksmith.wmo` |
+| Elwynn stables | 107232 | `world/wmo/azeroth/buildings/stable/stable.wmo` |
 
-These are four distinct original Classic-era M2 references. The new selections add two farmhouse models and a different hut, retaining the original tested home. Their ID/path pairs were resolved against the public wowdev listfile. This verifies the reference, **not installation or visible rendering in the running Forever client**. The three newly selected models still need a native check for availability, appearance, dimensions and openings. No WMO root or retail housing model is requested by these four buildings. There is no silent substitution of the original hut for a missing model.
+All four earlier Arathi/swamp selections are removed. These are Classic Elwynn world-building references, not retail housing. Goldshire Inn's actual game-world asset contains an interior. **It is not yet established that Forever's UI ModelScene can render that WMO and its interior.** Public listfile resolution verifies only the IDs/paths. A successful API call or loaded bounding box is not visual certification. All four entries remain `ELWYNN_WMO_RENDER_UNVERIFIED` in the catalog and scene report.
 
-Only the player home has the explicit wall/door shell and interactive interior. The other three buildings have solid bounds-based collision. House rotation, size and collider alignment remain adjustable in the existing editor. The original hut/collider mismatch is not claimed fixed by selecting the other models; inspect and align it natively. Stairs, mesh navigation, camera-wall collision and terrain elevation are outside this prototype.
+This is a native Elwynn WMO test build, not a claim of a finished or verified walkable inn. It uses the existing `SetModelByFileID` path; no WMO extraction/conversion, custom building mesh or replacement renderer is introduced. There is no fallback to the rejected huts. If ModelScene cannot load the inn, actual interior furnishing remains blocked; resolve that native capability before treating the home as usable.
 
-Pending house bounds pause player movement until loading resolves. A model explicitly reported failed or hidden is omitted from collision rather than freezing the entire demo; its native error remains in the scene report. It is not replaced with an invisible building collider or another hut.
+The scene shows the home load status. Native failures and missing-model cubes cannot become a giant house-shaped box: recognized placeholders/mismatched model identities are rejected. Until the home has actual native bounds, its table, book, chair and showcase remain hidden and interior interactions are unavailable. An explicitly failed building is omitted from collision, allowing the rest of the demo to continue. Pending bounds pause walking until loading resolves. The report lists each building's requested ID, loading/error status and the unverified interior status.
 
-## Scene editor free camera
+## Interior placement
 
-Open the existing editor with local test mode enabled. Its older Study/Fields launch buttons now target the single 3D world. The editor opens over the wide scene. Fly-camera controls appear at the top left:
+The home retains the real animated Journal book/table, chair and earned-badge/memento showcase. They have provisional placements around the inn's central ground-floor area. Their final position, orientation, doorway and floor alignment need the first native interior pass. Do not assume the WMO's lowest bounding-box point is its actual ground-floor walking surface.
 
-- **W/S:** fly forward/back along the view direction.
-- **A/D:** strafe left/right.
-- **Q/E:** lower/raise the camera.
-- **Right-drag:** look around through 360 degrees and pitch up/down.
-- **Shift:** move three times faster; **wheel:** dolly forward/back.
-- **Reset camera:** return the editor view to the character's normal follow viewpoint.
+Use the existing editor's object, position, height, rotation and collider controls after confirming the inn is visibly rendered. The home still uses the prototype's explicit bounds-based wall/door shell and flat world floor. It does not implement the inn's internal wall mesh, stairs, basement/upper-floor navigation or camera-wall collision. A rendered inn plus an approximate outer collider is not mesh-perfect collision. The other three buildings remain environmental structures with solid bounds collision.
 
-Keep the pointer over the scene for movement. Typing, forms, object dragging, combat and leaving the viewport release camera input. Left-dragging the existing object handle still edits the selected object. Camera flight passes through walls and does not move the character, alter colliders/scales, save a layout transform or publish player movement. Camera position is transient; closing the editor restores character follow. The existing editor's NPC pause remains active and normal NPC updates resume on close. Trust, local test-mode and Live editing guards remain in the existing editor.
+The new `fireside-3d-elwynn` layout slot starts this arrangement independently of old candidate/hut placements. Previous 3D and 2.5D saved layouts remain intact; no migration or overwrite occurs. Keep private editor exports local.
 
-## Compatible prop catalog
+## Right-drag and editor camera
 
-The lazy `Fireside3DAssets` addon now contains **11 explicit M2 references**: ten Classic-era models plus the existing Forever earned-badge shelf. The broader retail/expansion WMO research entries are removed from the runtime catalog. The pre-existing Forever object library remains available. New references are merged into the existing editor's category, search and selection lookup; choosing a farmhouse fills the actual model fields.
+The scene input now explicitly registers right-button press/release **and right-button dragging**, with separate left-click interaction. It stacks above stale scene input frames and stops propagation to WoW's world camera. A captured right drag can leave the floor rectangle and ends on right-button release, drag-stop, hide, combat or a blocking form. Left-button release does not cancel a right drag. Mouse state is polled so a missed mouse-up cannot strand the camera.
 
-The Dalaran shelf (242995) is retained because the public production showcase already identifies it as an installed Forever mesh and calibrates its badge ledges. It is an existing Forever reference, not labeled original Classic or newly native-certified. Keeping it preserves the real earned showcase. Other placed furniture uses the existing Classic table, chair, animated book, Elwynn fire and fir tree references.
+Open the existing editor with local test mode enabled. Older Study/Fields launch buttons target this single world. Camera controls remain:
 
-`classic-assets.csv` is the explicit source for the new catalog. Rebuild it with:
+- **WASD:** fly/strafe; **Q/E:** down/up.
+- **Right-drag:** look through 360 degrees and pitch up/down.
+- **Shift:** three times faster; **wheel:** dolly.
+- **Reset camera:** return to the character's follow viewpoint.
+
+Keep the pointer over the scene to begin a drag or fly with keys. Forms, typing, object dragging and combat release camera movement. The existing left-drag object handle remains separate. Editor flight does not move/resize the character, change collision, save a layout transform or publish Live movement. NPCs remain paused during editing and resume on close. Closing the editor restores character follow. Existing test-mode, trust and Live editing guards remain authoritative.
+
+## Catalog and retained systems
+
+The lazy catalog contains four explicitly unverified Elwynn WMO entries and seven existing Classic/Forever prop references. Its source is `tools/fireside3d/elwynn-assets.csv`; regenerate with:
 
 ```
 python3 tools/fireside3d/build_classic_catalog.py --listfile /path/to/community-listfile.csv
 ```
 
-The supplied broader `research-candidates.csv` and original research script remain offline research inputs under `tools/fireside3d/`. They are not loaded by the client or offered as compatible props. Listfile resolution and source metadata never count as a render test.
+Only those four WMO IDs/zone/status combinations are admitted as candidates. They are not classified as compatible/verified M2 props. The broader supplied research CSV remains offline and is not loaded by the client. Existing Forever furniture remains available in the editor. Selecting a candidate fills its real model ID in the existing form. The Dalaran showcase shelf remains the base's existing Forever reference with calibrated badge ledges; it is not a building or labeled original Classic.
 
-## Retained integration
+One native depth buffer holds actors in camera-independent world XYZ. Painted-depth size corrections and old scene instances/travel remain inactive. Ground, paths and contact shadows are projected world-plane presentation. Real Journal permissions/history, earned inventory, reader place and badge save paths remain authoritative. No synthetic history, grants, SavedVariables declaration, schema, database root or credential flow is added.
 
-One native ModelScene/depth buffer holds buildings, furniture, your character, existing NPCs and Live peers in a fixed world XYZ basis. Placement has no painted-depth scale or floor-UV correction. Ground, paths and contact shadows project world planes through the actual camera; they are not native mesh terrain or physical shadow maps. Fields, Study and old Town instances/travel remain inactive. Legacy source/resources remain recoverable, and the `fireside-3d` layout slot preserves old 2.5D layouts without migration. Existing saved 3D overrides can still affect the revised buildings; inspect them with the editor before resetting an object.
+Aether Live retains protocol **2**, scene `square` / wire code `a`, certificate trust, native sender binding, appearance reconstruction, existing coalesced movement/recovery and eight remote slots. Both clients must use **candidate 3**: the existing geometry digest changes for the Elwynn buildings, bounds and NPC paths. NPCs keep the base's deterministic schedule. Storage, recovery, collectors and authentication/transport source match the recorded base.
 
-The home book and shelf use existing collision-checked approach routes, real Journal/history permissions and actual earned inventory. Existing save, reader-place and badge recipe behavior remains authoritative. No synthetic pages, rewards or grants are shipped.
+## Native test session
 
-Aether Live retains the base's protocol **2**, certificate/session trust, native sender binding, P2P transport, appearance reconstruction, coalesced movement channel, recovery and eight remote actor slots. Scene `square` keeps wire code `a`. The existing geometry digest includes the revised buildings, bounds, coordinate mode, doorway and NPC world paths, so **both clients must run candidate 2**; candidate 1 geometry is incompatible. Manual player updates keep the existing six-Hz coalesced M cadence and immediate final idle update. Camera flight never enters that state. NPCs retain the existing deterministic clock/path routine with world points, not a new authority or packet system.
+1. Open `/fireside`; test right-drag before and after building loading. Check orbit/pitch, wheel, full sky and stable actor alignment. Verify left clicks still move/interact, releasing right drag outside the scene stops it, and Open Menu remains clickable.
+2. Inspect each Elwynn building. **First verify that Goldshire Inn visibly renders both outside and inside.** A blank viewport, placeholder or only accepted bounds is a failure. Read the load message and export the scene report; do not proceed as if an interior exists when it does not.
+3. With the private editor installed locally, fly inside the visible inn using WASD/Q/E/right-drag. Inspect the true doorway and ground floor; align the home and housing objects with the existing fields and collider controls. Test object dragging, typing in forms, camera Reset/Close and NPC pause/resume. Do not certify stair/internal-wall collision that this build does not implement.
+4. Once the home is visibly aligned, test walking through the entrance, chair sit/stand, your real Journal and the earned showcase. Empty history/inventory stays empty; check reopening and normal saves. If inn rendering or floor alignment fails, the interior acceptance test remains blocked.
+5. Connect two consenting clients on candidate 3 through the existing Live controls; check geometry, appearance, movement, seating and reconnect. Leave Live before editing. Older candidates/legacy geometry must be incompatible.
 
-Storage, recovery, collectors, authentication and transport source files match the recorded base. No SavedVariables declaration, schema, migration, database root or credential flow is added.
-
-## One native test session
-
-1. Open `/fireside` and inspect **four different models**: the two Arathi farmhouses and two water huts. Check the full sky, ground, paths and gathering area. Report any missing/placeholder building with its FileDataID.
-2. Move your character while rotating 360 degrees, pitching and zooming. Check stable world size, floor contacts, shadows and colliders. Open/close normal content, type in chat and enter/leave combat to verify input release.
-3. Enter the player home through the negative-Y entrance; inspect the wall/door alignment. Sit/stand in its chair. Open your real Journal, use the page/cover controls and return. Inspect/edit earned badges/mementos; empty inventories stay empty. Reopen to check the existing save path.
-4. With the private editor installed locally, open it from its existing launcher. Fly away from the character, move vertically, rotate fully around all four buildings and dolly inside the home. Verify the character remains in place, NPCs pause, object handles still place correctly, forms accept typing, and Reset/Close restores the expected camera. Browse Houses, select an Arathi farmhouse and verify its ID fills correctly. Keep private exports local.
-5. Connect a second client using the existing Aether controls and explicit Live participation. Both clients must use candidate 2. Compare geometry revision; inspect movement, appearance, NPC paths, seating and disconnect/reconnect. A candidate 1 or legacy-layout client must be incompatible. Leave Live before editing, as the existing guard requires.
-
-The earlier prototype mechanics were user-reported successful. The revised three house models, editor camera in the private editor, expanded native rendering and two-client delivery have **not** been visually qualified in Codex Cloud. Code/call-recording checks do not certify those behaviors.
-
-## Automated checks and integration
-
-Run from repository root with Lua 5.1:
+## Checks and integration
 
 ```
 lua5.1 tools/fireside3d/checks.lua
@@ -82,6 +76,6 @@ lua5.1 tools/fireside3d/lifecycle.lua
 lua5.1 tools/fireside3d/editor_camera.lua
 ```
 
-Checks cover four distinct model selections, one native viewport, real Journal laziness, doorway/rotated collision, camera-independent actor placement, Live codec/geometry/coalescing, Classic catalog filtering/selection, editor launch mapping, fly/strafe/height/look/dolly, camera reset/follow restoration, input guards, player-state isolation and NPC pause/resume. Packaging uses explicit public Git paths and checks private-reference exclusion and ZIP integrity. Lua syntax, TOC paths and protected-source bytes are checked separately.
+Checks cover Elwynn-only selection, candidate-vs-verified status, missing-home furniture/placeholder handling, logical collision, layout isolation, camera-independent placement, retained Live codec/coalescing, one-viewport lifecycle, registered right-drag and click separation, stale-frame stacking, captured-drag release, editor movement/input guards and NPC pause/resume. They record Lua/API boundaries; they do not render WoW models or qualify actual mouse dispatch in Forever. Native interior and two-client checks remain pending.
 
-The changed-files ZIP and patch contain the full integration against `e4cc9f8`, including candidate 2. For newer stability builds, reconcile the scene-gated realm, camera, catalogue, travel, layer, Live presentation and TOC changes; do not replace newer authentication/storage/network files with prototype copies. Review before merging or publishing a production release.
+The changed-files ZIP and patch contain the full integration against `e4cc9f8`, including candidate 3. Reconcile the scene-gated changes against newer stability work rather than overwriting newer authentication/storage/network files. Review before merging or publishing a production release.

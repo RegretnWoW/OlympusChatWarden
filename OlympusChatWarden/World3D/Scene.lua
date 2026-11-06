@@ -3,11 +3,36 @@ local _,ns=...
 local F,N=ns.Fireside3D,ns.WardenNativeScene
 local pi,sin,cos=math.pi,math.sin,math.cos
 local function clamp(n,a,b)return math.max(a,math.min(b,n))end
+function F.PlayCameraAllowed(v)
+ local U=ns.UI2
+ return v.frame:IsVisible()and not U.locked and not ns.MainStorageBlocked and U.menuHidden
+  and not(v.shelfFocus or v.journalReading or v.roomBookMotion)
+  and not(ns.WardenSceneEditor and ns.WardenSceneEditor.active)and not InCombatLockdown()
+  and not(GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus())
+end
+function F.Look(state,low,high)
+ if not state.dragging then return end
+ if not IsMouseButtonDown('RightButton')then state.dragging=false;return end
+ local x,y=GetCursorPosition();local dx,dy=x-state.x,y-state.y
+ state.yaw=(state.yaw-dx*.006)%(2*pi);state.pitch=clamp(state.pitch+dy*.006,low,high)
+ state.x,state.y=x,y;state.lastLookDelta={dx,dy}
+end
 function F.InertEngine(real)
  return {actors={},order={},views={},shot=real.shot,metrics={},clock=0,status='One shared 3D viewport; no outside pass',
  Show=function()end,Pause=function()end,Tick=function()end,Lighting=function()end,RenderFrames=function()return{}end,Report=function()return{status='No second viewport'}end}
 end
 function F.ActorReady(v,s,a)
+ if a.spec.house3D then
+  local ok,loaded=N.Call(a.actor,'GetModelFileID')
+  if N.BundledPlaceholder(a.bounds)or ok and type(loaded)=='number'and loaded>0 and loaded~=a.spec.fileID then
+   s.native:Error(a,'Elwynn building was replaced by a missing/other model; WMO rendering is unverified');return
+  end
+ end
+ if a.spec.homeInterior then
+  local home=s.native.actors['player-home']
+  if not home or not home.ready or home.failed then a.awaitHome=true;N.Call(a.actor,'Hide');return end
+ end
+ a.awaitHome=nil
  local p=a.spec.at or{0,0,0}
  if a.spec.controlled and s.pendingArrival then p=s.pendingArrival;s.pendingArrival=nil;a.spawnChecked=nil end
  if a.spec.support then
@@ -20,6 +45,28 @@ function F.ActorReady(v,s,a)
  if a.spec.controlled then v:EnsurePlayerSpawn(s,a)end
  if a.id=='room-book'then a.engine:Animate(a,147,1)end
  for _,other in ipairs(s.native.order)do if other.awaitSupport and other.spec.support==a.id then v:ActorReady(s,other)end end
+ if a.id=='player-home'then for _,other in ipairs(s.native.order)do if other.awaitHome then v:ActorReady(s,other)end end end
+end
+function F.BuildingReport(s)
+ local out={zone='Elwynn Forest',interiorTarget='Goldshire Inn',visualVerified=false,buildings={}}
+ for _,h in ipairs(F.houses)do
+  local a=s.native.actors[h.id]
+  out.buildings[#out.buildings+1]={id=h.id,fileID=h.fileID,label=h.label,format='WMO',status=not a and'not requested'or a.failed and a.status or a.ready and'bounds ready; visible WMO/interior not verified'or'loading'}
+ end
+ return out
+end
+function F.BuildingNotice(v,s)
+ if not v.buildingNotice then
+  local f=CreateFrame('Frame',nil,v.frame);f:SetPoint('BOTTOMLEFT',12,32);f:SetSize(640,44);f:SetFrameLevel(s.groundClick:GetFrameLevel()+3)
+  local bg=f:CreateTexture(nil,'BACKGROUND');bg:SetAllPoints();bg:SetColorTexture(.035,.025,.015,.88)
+  f.text=f:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');f.text:SetPoint('TOPLEFT',8,-7);f.text:SetPoint('BOTTOMRIGHT',-8,7);f.text:SetJustifyH('LEFT');v.buildingNotice=f
+ end
+ local home=s.native.actors['player-home'];local text
+ if not home or not home.ready then text=home and home.failed and'Goldshire Inn did not load in ModelScene. Interior placement is unavailable; export the scene report.'or'Loading Elwynn world buildings. Goldshire Inn WMO/interior needs a native render check.'
+ elseif home.failed then text='Goldshire Inn did not load in ModelScene. Interior placement is unavailable; export the scene report.'
+ else text='Goldshire Inn bounds loaded. Verify its visible interior and align the entrance/furniture in the editor; WMO rendering is not certified.'end
+ if v.buildingNotice.lastText~=text then v.buildingNotice.text:SetText(text);v.buildingNotice.lastText=text end
+ v.buildingNotice:SetFrameLevel(s.groundClick:GetFrameLevel()+3);v.buildingNotice:Show()
 end
 local function homeWalls(box)
  local out={};local t=F.homeDoor.wallThickness;local hx,hy=box.halfX,box.halfY;local door=math.min(F.homeDoor.width/2,hx*.65)
@@ -39,7 +86,7 @@ function F.Navigation(v,s,a)
   -- its native error report without freezing movement across the whole demo.
   local omitted=actor and(actor.failed or actor.retired or actor.editorHidden)
   if spec.house3D and not omitted and(not actor or not actor.ready)then return nil,'Waiting for neighborhood house bounds: '..spec.id end
-  if actor and actor.ready and not(actor.failed or actor.retired or actor.editorHidden)then
+  if actor and actor.ready and not(actor.failed or actor.retired or actor.editorHidden or actor.awaitHome)then
    local box=N.Footprint(s.shot,actor)
    if box then
     if actor.id=='player-home'and box.halfX then for _,b in ipairs(homeWalls(box))do nav.obstacles[#nav.obstacles+1]=b end
@@ -80,7 +127,8 @@ local function quad(s,points)
  return result
 end
 function F.Shadow(v,s,a)
- if not a.ready or not a.position or a.failed or a.retired or a.editorHidden or a.spec.support then return end
+ if a.awaitHome then if s.shadows[a.id]then s.shadows[a.id]:Hide()end;return end
+ if not a.ready or not a.position or a.failed or a.retired or a.editorHidden or a.spec.support or a.awaitHome then return end
  local old=s.shadows[a.id]
  if not old then old=CreateFrame('Frame',nil,s.layers['contact-shadows']);old:SetAllPoints();old.texture=old:CreateTexture(nil,'ARTWORK');old.texture:SetTexture(ns.WardenWorldArt.assets['contact-shadow42'].tiles[1].path);s.shadows[a.id]=old end
  local x,y=a.position[1],a.position[2];local hx,hy
@@ -156,8 +204,12 @@ function F.Advance(v,elapsed)
  for _,a in ipairs(s.native.order)do
   if a.ready and not(a.failed or a.retired or a.editorHidden or a.sceneHidden)then
    if a.awaitSupport then F.ActorReady(v,s,a)end
+   if a.spec.homeInterior then
+    local home=s.native.actors['player-home'];if not home or not home.ready or home.failed then a.awaitHome=true;N.Call(a.actor,'Hide')
+    elseif a.awaitHome then F.ActorReady(v,s,a)end
+   end
    if a.spec.controlled and not a.spawnChecked then v:EnsurePlayerSpawn(s,a)end
-   if not(a.awaitSpawn or a.awaitSupport)then N.Call(a.actor,'SetAlpha',1);N.Call(a.actor,'Show')end
+   if not(a.awaitSpawn or a.awaitSupport or a.awaitHome)then N.Call(a.actor,'SetAlpha',1);N.Call(a.actor,'Show')end
    if a.spec.liveRemote and a.world3DTarget then F.StepRemote(v,s,a,dt)end
    if a.seating then v:UpdatePlayerSeat(s,a,dt)end
   elseif a.actor and(a.retired or a.editorHidden or a.sceneHidden)then N.Call(a.actor,'Hide');if s.shadows[a.id]then s.shadows[a.id]:Hide()end end
@@ -165,12 +217,8 @@ function F.Advance(v,elapsed)
  local input=v.world3DInput;local U=ns.UI2;local editor=ns.WardenSceneEditor
  local allowed=input and not U.locked and not ns.MainStorageBlocked and U.menuHidden and not(v.shelfFocus or v.journalReading or v.roomBookMotion)and not(editor and editor.active)and not InCombatLockdown()and ns.DB.livingRealmAmbience~=false
  local a=s.native.actors.attendant
+ if input and F.PlayCameraAllowed(v)then F.Look(input,-.3,1.2)end
  if allowed and a and a.ready and not a.awaitSpawn then
-  if input.dragging then
-   if not IsMouseButtonDown('RightButton')then input.dragging=false else
-    local x,y=GetCursorPosition();input.yaw=(input.yaw-(x-input.x)*.006)%(2*pi);input.pitch=clamp(input.pitch+(y-input.y)*.006,-.3,1.2);input.x,input.y=x,y
-   end
-  end
   if not s.groundClick:IsMouseOver()or(GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus())then input.keys={}end
   local forward=(input.keys.W and 1 or 0)-(input.keys.S and 1 or 0);local right=(input.keys.D and 1 or 0)-(input.keys.A and 1 or 0)
   local length=math.sqrt(forward*forward+right*right);local moved=false
@@ -184,18 +232,39 @@ function F.Advance(v,elapsed)
   end
   a.manualMovement=moved
   if not a.route and not a.seating then s.native:Animate(a,moved and 4 or 0,1)end
- else if input then input.keys={};input.dragging=false end;if a then a.manualMovement=false end end
+ else if input then input.keys={};if not F.PlayCameraAllowed(v)then input.dragging=false end end;if a then a.manualMovement=false end end
  F.EditorCamera.Tick(v,dt)
  local W=ns.AetherLive and ns.AetherLive.World
  if W and not W.active and not(editor and editor.active)then for _,def in ipairs(W.NPCs)do if def.scene==s.key then W.NPC(v,s,def,dt)end end end
  F.Camera(v);paths(v,s);F.Pose(v,ns.DB.journalReducedMotion~=true)
+ F.BuildingNotice(v,s)
  for _,actor in ipairs(s.native.order)do if actor.ready and not(actor.retired or actor.editorHidden or actor.sceneHidden)then F.Shadow(v,s,actor)end end
 end
 function F.BindInput(v,U)
- local s=v.forest;local input={keys={},yaw=-pi/2,pitch=.35,distance=14};v.world3DInput=input
+ local s=v.forest;local input={keys={},yaw=pi/2,pitch=.35,distance=14,surfaceBaseLevel=v.forest.groundClick:GetFrameLevel()};v.world3DInput=input
  local EC=F.EditorCamera
  local function clear()input.keys={};input.dragging=false;EC.Clear(v);v.frame:SetPropagateKeyboardInput(true)end
- function v:RefreshFieldInput()s.groundClick:SetShown(s.active);s.groundClick:EnableMouse(EC.Active(self)or U.menuHidden and not self.shelfFocus and not self.journalReading and not self.roomBookMotion)end
+ function v:StackFieldInput()
+  local floor=s.groundClick;local highest=s.layers and s.layers.native:GetFrameLevel()or input.surfaceBaseLevel
+  local count=0
+  local function visit(frame)
+   if not frame or frame==floor or frame==v.world3DCameraBar or frame.ChatWardenModal then return end
+   count=count+1;if count>2048 then return end
+   highest=math.max(highest,frame:GetFrameLevel())
+   if frame.GetChildren then for _,child in ipairs({frame:GetChildren()})do visit(child)end end
+  end
+  visit(U.stage);visit(s.frame)
+  if U.window and U.stage then
+   floor:SetParent(U.window);floor:ClearAllPoints();floor:SetPoint('TOPLEFT',U.stage,'TOPLEFT',0,-35);floor:SetPoint('BOTTOMRIGHT',U.stage,'BOTTOMRIGHT')
+  end
+  if floor.SetFixedFrameLevel then floor:SetFixedFrameLevel(false)end
+  floor:SetFrameLevel(highest+1)
+  if floor.SetFixedFrameLevel then floor:SetFixedFrameLevel(true)end
+ end
+ function v:RefreshFieldInput()
+  s.groundClick:SetShown(s.active);s.groundClick:EnableMouse(EC.Active(self)or U.menuHidden and not self.shelfFocus and not self.journalReading and not self.roomBookMotion)
+  self:StackFieldInput()
+ end
  v.frame:EnableKeyboard(true);v.frame:SetPropagateKeyboardInput(true)
  v.frame:SetScript('OnKeyDown',function(_,key)
   if EC.Active(v)then
@@ -211,17 +280,34 @@ function F.BindInput(v,U)
   local c=v.world3DEditCamera;local held=input.keys[key]or c and c.keys[key];input.keys[key]=nil;if c then c.keys[key]=nil end
   v.frame:SetPropagateKeyboardInput(not held)
  end)
- s.groundClick:SetScript('OnMouseDown',function(_,button)
-  if button~='RightButton'then return end
-  if EC.Active(v)then if EC.Allowed(v)then local c=EC.State(v);c.dragging=true;c.x,c.y=GetCursorPosition()end
-  elseif U.menuHidden and not U.locked and not ns.MainStorageBlocked and not InCombatLockdown()then input.dragging=true;input.x,input.y=GetCursorPosition()end
- end)
- s.groundClick:SetScript('OnMouseUp',function()input.dragging=false;local c=v.world3DEditCamera;if c then c.dragging=false end end)
+ local function begin(source)
+  local state
+  if EC.Active(v)then if EC.Allowed(v)then state=EC.State(v)end
+  elseif F.PlayCameraAllowed(v)and s.groundClick:IsMouseOver()then state=input end
+  if state then state.dragging=true;state.x,state.y=GetCursorPosition();input.rightDragStarts=(input.rightDragStarts or 0)+1;input.lastDragSource=source end
+ end
+ local function finish()input.dragging=false;local c=v.world3DEditCamera;if c then c.dragging=false end end
+ -- Register the actual right-button gesture. The old floor only registered
+ -- LeftButtonUp; directly calling its callbacks in tests missed this boundary.
+ s.groundClick:RegisterForClicks('LeftButtonUp','RightButtonDown','RightButtonUp')
+ s.groundClick:RegisterForDrag('RightButton')
+ if s.groundClick.SetPropagateMouseClicks then s.groundClick:SetPropagateMouseClicks(false)end
+ if s.groundClick.SetPropagateMouseMotion then s.groundClick:SetPropagateMouseMotion(false)end
+ s.groundClick:SetScript('OnClick',function(_,button,down)if button=='LeftButton'and not down then return v:CursorSceneClick(s,'3D floor')end end)
+ s.groundClick:SetScript('OnMouseDown',function(_,button)if button=='RightButton'then begin('mouse down')end end)
+ s.groundClick:SetScript('OnMouseUp',function(_,button)if button=='RightButton'then finish()end end)
+ s.groundClick:SetScript('OnDragStart',function()begin('registered right drag')end)
+ s.groundClick:SetScript('OnDragStop',finish)
  s.groundClick:EnableMouseWheel(true);s.groundClick:SetScript('OnMouseWheel',function(_,delta)
   if EC.Active(v)then EC.Scroll(v,delta)
   elseif U.menuHidden and not U.locked and not ns.MainStorageBlocked and not InCombatLockdown()then input.distance=clamp(input.distance-delta,2,55)end
  end)
- s.groundClick:SetScript('OnLeave',clear)
+ s.groundClick:SetScript('OnLeave',function()
+  -- A captured right drag may leave the floor rectangle. Release keys there;
+  -- release look on button-up, hide, combat or a blocking editor form.
+  input.keys={};local c=v.world3DEditCamera;if c then c.keys={}end
+  if not IsMouseButtonDown('RightButton')then finish()end;v.frame:SetPropagateKeyboardInput(true)
+ end)
  v.frame:HookScript('OnHide',clear)
  function v:CursorSceneClick(scene,source)
   local scale=scene.frame:GetEffectiveScale();local x,y=GetCursorPosition();local left,top=scene.frame:GetLeft(),scene.frame:GetTop()
@@ -230,5 +316,4 @@ function F.BindInput(v,U)
   local ok,why=self:ClickScene(scene,u,q);self.lastWalkStatus=ok and'Character interaction'or why
   self.lastSceneClick={scene=scene.key,u=u,v=q,accepted=ok==true,reason=why,source=source};return ok,why
  end
- function v:StackFieldInput()end
 end

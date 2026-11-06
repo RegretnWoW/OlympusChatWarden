@@ -38,7 +38,7 @@ local function installRoom(key,spec,revision)
  if d.shot.position[1]==d.shot.target[1]and d.shot.position[2]==d.shot.target[2]and d.shot.position[3]==d.shot.target[3]then return false,'Degenerate room camera'end
  if d.layoutSlot and not id(d.layoutSlot)then return false,'Invalid private layout slot'end
  d.layoutSlot=d.layoutSlot or key
- if revision and d.layoutSlot~=rooms[key].layoutSlot and not(d.world3D==true and key=='square'and d.layoutSlot=='fireside-3d')then return false,'A bundled revision must retain its private layout slot'end
+ if revision and d.layoutSlot~=rooms[key].layoutSlot and not(d.world3D==true and key=='square'and(d.layoutSlot=='fireside-3d'or d.layoutSlot=='fireside-3d-elwynn'))then return false,'A bundled revision must retain its private layout slot'end
  for other,room in pairs(rooms)do if other~=key and room.layoutSlot==d.layoutSlot then return false,'Each room needs a separate private layout slot'end end
  local layers={};for _,layer in ipairs(ns.WardenWorldScenes.layers)do layers[layer]=true end
  local plateIDs={};for _,p in ipairs(d.plates)do

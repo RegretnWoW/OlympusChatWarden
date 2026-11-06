@@ -8,8 +8,9 @@ load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3
 local F,N=ns.Fireside3D,ns.WardenNativeScene
 assert(#F.houses==4 and F.PRIMARY=='square')
 local models={};for _,h in ipairs(F.houses)do assert(not models[h.fileID],'each house must use a different model');models[h.fileID]=true end
-assert(models[190430]and models[190431]and models[203656]and models[203657],'retain home and add both Classic farmhouse models')
-local d=C.Room('square');assert(d.world3D and d.reader and #d.plates==0 and #d.outside==0 and #d.flags==0 and d.layoutSlot=='fireside-3d')
+assert(models[106851]and models[106965]and models[106848]and models[107232],'only the requested Elwynn buildings may be selected')
+local d=C.Room('square');assert(d.world3D and d.reader and #d.plates==0 and #d.outside==0 and #d.flags==0 and d.layoutSlot=='fireside-3d-elwynn')
+for _,p in ipairs(d.props)do if p.house3D then assert(p.zone=='Elwynn Forest'and p.format=='WMO'and p.assetStatus=='ELWYNN_WMO_RENDER_UNVERIFIED')end end
 assert(C.Room('hall').layoutSlot=='hall','old layout metadata must remain recoverable')
 assert(#d.props+#d.residents+3+8<=N.MAX_ACTORS,'include existing eight Live peer slots in actor budget')
 local wall=F.HomeWalls({centerX=0,centerY=14,halfX=6,halfY=4,cos=1,sin=0})
@@ -25,6 +26,18 @@ local sampleScene={definition={props={house}},native={actors={[house.id]=failed}
 ns.WardenWorldScenes.Props=function(s)return s.definition.props end
 assert(F.Navigation({},sampleScene,{spec={controlled=true}}),'a reported missing house must not freeze all player movement')
 failed.failed=nil;assert(not F.Navigation({},sampleScene,{spec={controlled=true}}),'pending house bounds must still block unsafe movement')
+-- No furniture-in-an-empty-lot success when an Elwynn WMO fails to render.
+local home={id='player-home',spec=house,ready=false,bounds={-12,-10,0,12,10,8},actor={GetModelFileID=function()return 106851 end}}
+local seatSpec;for _,p in ipairs(d.props)do if p.id=='chair'then seatSpec=p end end
+local seat={id='chair',spec=seatSpec,ready=true,actor={Hide=function(self)self.hidden=true end}}
+local interiors={actors={['player-home']=home,chair=seat},order={home,seat},Place=function(_,a,x,y,z)a.position={x,y,z}end,Error=function(_,a,why)a.failed=true;a.status=why end}
+home.engine=interiors;seat.engine=interiors
+local room={native=interiors};local realm={};realm.ActorReady=function(_,s,a)return F.ActorReady(realm,s,a)end
+F.ActorReady(realm,room,seat);assert(seat.awaitHome and seat.actor.hidden and not seat.position)
+home.ready=true;F.ActorReady(realm,room,home);assert(not seat.awaitHome and seat.position[1]==seatSpec.at[1],'furniture can be placed once the home has actual native bounds')
+local rejected={id='player-home',spec=house,ready=true,bounds={-.14,-.14,-.14,.14,.14,.14},actor={},engine=interiors}
+F.ActorReady(realm,room,rejected);assert(rejected.failed,'missing-model cubes must not masquerade as an interior')
+local report=F.BuildingReport(room);assert(not report.visualVerified and #report.buildings==4,'bounds acceptance must never certify visible WMO rendering')
 local engine=F.Coordinates.Bind({metrics={moves=0}})
 local native={};function native:SetPosition(x,y,z)self.position={x,y,z}end
 function native:SetYaw(yaw)self.yaw=yaw end;function native:SetPitch()end;function native:SetRoll()end
@@ -46,21 +59,23 @@ local before=G.GeometryWire(C);local changed=C.Room('square');changed.navigation
 load('World3D/Catalog.lua');assert(not F.Catalog.rows and not Fireside3DAssetIndex)
 local requested=0
 LoadAddOn=function(name)assert(name=='Fireside3DAssets');requested=requested+1;assert(loadfile('Fireside3DAssets/Index.lua'))();return true end
-local rows=assert(F.Catalog.Search('203656'));assert(#rows==1 and rows[1].status=='CLASSIC_REFERENCE_NOT_RENDER_TESTED')
+local rows=assert(F.Catalog.Search('106851'));assert(#rows==1 and rows[1].status=='ELWYNN_WMO_RENDER_UNVERIFIED')
 assert(F.Catalog.Search('house')and requested==1,'lazy catalog should load only once')
-for _,r in ipairs(Fireside3DAssetIndex)do assert(F.Catalog.Compatible(r))end
-assert(not F.Catalog.Compatible({format='WMO',era='CLASSIC'}),'WMO roots must not appear as loadable editor props')
+for _,r in ipairs(Fireside3DAssetIndex)do assert(F.Catalog.Compatible(r)or F.Catalog.IsCandidate(r))end
+assert(not F.Catalog.Compatible(rows[1])and F.Catalog.IsCandidate(rows[1]),'Elwynn WMO entries remain candidates, not compatible/verified props')
+assert(#F.Catalog.Search('203656')==0 and #F.Catalog.Search('190430')==0,'remove rejected Arathi and swamp building references')
+assert(not F.Catalog.IsCandidate({fileID=106851,format='WMO',zone='Other zone',status='ELWYNN_WMO_RENDER_UNVERIFIED'}))
 assert(not F.Catalog.Compatible({format='M2',era='RETAIL'}),'retail housing must not appear in the Forever catalog')
 local editor={ObjectCatalogue={{198049,'Existing shelf',2.3,0,'Shelves'}},FilterObjects=function()return{}end}
 editor.AddObjectForm=function()
- local found=false;for _,r in ipairs(editor.ObjectCatalogue)do if r[1]==203656 then assert(r[3]==7);found=true end end
+ local found=false;for _,r in ipairs(editor.ObjectCatalogue)do if r[1]==106851 then assert(r[3]==10 and r[2]:find('unverified',1,true));found=true end end
  assert(found,'dropdown choices must also exist in the editor selection lookup');return 'original form'
 end
 ns.WardenSceneEditor=editor;assert(F.Catalog.BindExistingEditor());assert(editor.AddObjectForm()=='original form')
 local count=#editor.ObjectCatalogue;editor.AddObjectForm();assert(#editor.ObjectCatalogue==count,'do not append duplicates on reopening')
-assert(#editor.FilterObjects('Houses','arathifarmhouse01')==1,'search supports the Classic model path')
+assert(#editor.FilterObjects('Elwynn buildings','goldshireinn.wmo')==1,'search supports the actual Elwynn model path')
 ns.WardenSceneEditor=nil
-print('PASS: four distinct Classic house references, no old plates/air scene, layout isolation, doorway/rotated collision, 360 transform invariance, actor budget with Live slots, shipped protocol-2 codec, geometry compatibility, lazy Classic catalog and existing-editor selection')
+print('PASS: four Elwynn-only WMO candidates, missing-home furniture gate/placeholder rejection, unverified status retained, no old plates/air scene, layout isolation, logical doorway/rotated collision, 360 transform invariance, Live slots/codec/geometry, lazy catalog and existing-editor selection')
 -- Existing Live publisher: no handshake/transport is run. Verify manual movement
 -- uses the same M state/codec and coalescing, with a bounded six-Hz signature.
 ns.WardenRealm={Attach=function()return{}end};ns.WardenCanonicalPlayer={Save=function()return true end};ns.SafeCall=function(fn,...)if fn then return fn(...)end end

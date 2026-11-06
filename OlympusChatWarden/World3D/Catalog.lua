@@ -1,8 +1,13 @@
--- Optional Classic/Forever M2 references; no private editor implementation.
+-- Elwynn-only building candidates plus existing Classic/Forever furniture.
 local _,ns=...
 local C={};ns.Fireside3D.Catalog=C
 function C.Compatible(r)
  return type(r)=='table'and r.format=='M2'and(r.era=='CLASSIC'or r.era=='FOREVER_REFERENCE')
+end
+function C.IsCandidate(r)
+ local elwynn={[106851]=true,[106965]=true,[106848]=true,[107232]=true}
+ return type(r)=='table'and r.format=='WMO'and r.zone=='Elwynn Forest'
+  and elwynn[r.fileID]and r.status=='ELWYNN_WMO_RENDER_UNVERIFIED'or false
 end
 function C.Load()
  if C.rows then return C.rows end
@@ -11,10 +16,11 @@ function C.Load()
  local ok,why=load('Fireside3DAssets');if not ok then return nil,why end
  local rows=rawget(_G,'Fireside3DAssetIndex')
  if type(rows)~='table'or #rows>512 then return nil,'Invalid candidate index'end
- local compatible={};for _,r in ipairs(rows)do if C.Compatible(r)then compatible[#compatible+1]=r end end
+ local compatible={};for _,r in ipairs(rows)do if C.Compatible(r)or C.IsCandidate(r)then compatible[#compatible+1]=r end end
  C.rows=compatible;return compatible
 end
 function C.Label(r)
+ if C.IsCandidate(r)then return r.label..' (Elwynn WMO; unverified)'end
  return r.label..(r.era=='CLASSIC'and' (Classic M2)'or' (existing Forever reference)')
 end
 function C.Merge(editor)
@@ -30,7 +36,7 @@ function C.Search(query,category)
  local rows,why=C.Load();if not rows then return nil,why end
  local out={};query=tostring(query or''):lower():sub(1,100)
  for _,r in ipairs(rows)do
-  local text=(r.label..' '..r.category..' '..tostring(r.fileID or'')..' '..r.path):lower()
+  local text=(r.label..' '..r.category..' '..tostring(r.fileID or'')..' '..r.path..' '..(r.zone or'')):lower()
   if(not category or category=='all'or r.category==category)and(query==''or text:find(query,1,true))then out[#out+1]=r;if #out==100 then break end end
  end
  return out
