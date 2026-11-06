@@ -10,4 +10,5 @@ fileID,label,category,height,path,era,status,installed,zone
 189923,Elwynn fir tree,Trees and plants,7,world/azeroth/elwynn/passivedoodads/trees/elwynnfirtree01.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA,
 198049,Wide abbey bookshelf,Shelves,2.3,world/generic/human/passive doodads/bookshelves/abbeyshelf02.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA,
 242995,Existing earned-badge shelf,Shelves,2.3,world/expansion02/doodads/dalaran/dalaran_bookcase_empty_01.m2,FOREVER_REFERENCE,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA,
-328178,Night Elf tent,Shelters,3.2,world/generic/nightelf/passive doodads/tent/nightelfsingletent01.m2,LEGACY,M2_RENDER_UNVERIFIED,NOT_CHECKED,
+328178,Night Elf tent,Shelters,3.2,world/generic/nightelf/passive doodads/tent/nightelfsingletent01.m2,LEGACY,USER_REPORTED_NATIVE_RENDER,USER_REPORTED,
+202016,Furbolg forest tent,Shelters,3.2,world/kalimdor/kalidar/passivedoodads/furbolgtent/furbolgtent.m2,CLASSIC,M2_RENDER_UNVERIFIED,NOT_CHECKED,

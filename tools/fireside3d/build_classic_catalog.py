@@ -31,7 +31,7 @@ def main():
                 farm_groups[int(number)] = path
     assert found == expected, 'An explicit model ID/path mapping is absent or has changed'
     assert farm_groups == {106966:farm_stem+'000.wmo',106967:farm_stem+'001.wmo'}, 'Farm group-file research needs review'
-    selected.sort(key=lambda r: int(r['fileID']) != 328178)
+    selected.sort(key=lambda r: int(r['fileID']) != 202016)
     rows = []
     for r in selected:
         fmt = r['path'].rsplit('.', 1)[1].upper()
@@ -44,7 +44,9 @@ def main():
             row.update(requestedLayout='one storey one room one entrance', layoutVerified=False,
                        listfileGroupCount=len(farm_groups), groupFileIDs='106966,106967')
         if row['fileID'] == 328178:
-            row.update(preferredTest=True, layoutVerified=False, requestedLayout='stock native M2 tent')
+            row.update(layoutVerified=False, requestedLayout='stock native M2 tent', renderEvidence='USER_REPORT')
+        if row['fileID'] == 202016:
+            row.update(preferredTest=True, layoutVerified=False, requestedLayout='woodland forest tent open entrance')
         rows.append(row)
     def lua(row):
         return '{' + ','.join('[' + json.dumps(k) + ']=' + json.dumps(v) for k, v in row.items()) + '}'

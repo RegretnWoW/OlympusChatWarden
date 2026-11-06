@@ -1,6 +1,6 @@
 -- Exercise the actual scene input adapter and native camera calls at recorded
 -- API boundaries. No private addon, network or saved state is executed.
-local ns={UI2={menuHidden=true},Fireside3D={PRIMARY='square',preferredBuilding={fileID=328178,label='Night Elf tent',buttonLabel='Add tent test'}},WardenRoomCatalogue={HasRoom=function(k)return k=='hall'or k=='study'or k=='square'end}}
+local ns={UI2={menuHidden=true},Fireside3D={PRIMARY='square',preferredBuilding={fileID=202016,label='Furbolg forest tent',buttonLabel='Add forest tent'}},WardenRoomCatalogue={HasRoom=function(k)return k=='hall'or k=='study'or k=='square'end}}
 local function load(p)return assert(loadfile('OlympusChatWarden/'..p))('test',ns)end
 local methods={};local mt={__index=methods}
 local function frame()return setmetatable({scripts={},visible=true,hover=true},mt)end

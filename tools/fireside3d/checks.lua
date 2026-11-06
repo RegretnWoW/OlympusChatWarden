@@ -6,8 +6,8 @@ for _,key in ipairs({'hall','square'})do assert(C.RegisterRoom(key,{label=key,la
 C.onRegister=function(key,d)ns.WardenWorldScenes.props[key]=d.props;ns.WardenWorldScenes.residents[key]=d.residents;ns.WardenWorldScenes.outside[key]=d.outside;ns.WardenWorldScenes.navigation[key]=d.navigation end
 load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Scene.lua')
 local F,N=ns.Fireside3D,ns.WardenNativeScene
-assert(#F.houses==0 and #F.buildingCandidates==5 and F.manualBuildingTests and F.PRIMARY=='square')
-assert(F.preferredBuilding.fileID==328178 and not F.preferredBuilding.layoutVerified,'the tent test must remain unverified')
+assert(#F.houses==0 and #F.buildingCandidates==6 and F.manualBuildingTests and F.PRIMARY=='square')
+assert(F.preferredBuilding.fileID==202016 and not F.preferredBuilding.layoutVerified,'the tent test must remain unverified')
 local models={};for _,h in ipairs(F.buildingCandidates)do assert(not models[h.fileID],'each candidate must use a different model');models[h.fileID]=true;assert(N.ActorAllowed({roomKey='fireside-3d'},h),'manual Elwynn requests must remain allowed')end
 assert(models[106851]and models[106965]and models[106848]and models[107232],'only the requested Elwynn buildings may be selected')
 local d=C.Room('square');assert(d.world3D and d.reader and #d.plates==0 and #d.outside==0 and #d.flags==0 and d.layoutSlot=='fireside-3d-elwynn-manual')
@@ -47,8 +47,8 @@ for i,h in ipairs(F.buildingCandidates)do
  assert(calls[i]==h.fileID and a.buildingAttempt.fileID==h.fileID and a.buildingAttempt.sequence==i,'diagnostics must retain every manual request and its native path')
  assert(a.buildingAttempt.phase=='native request returned; waiting for bounds')
 end
-assert(#calls==5 and #messages==5,'no hard one-building limit, quarantine, replacement or duplicate request')
-local report=F.BuildingReport({native=diagnostic});assert(not report.visualVerified and report.automaticBuildings==false and #report.buildings==5 and report.lastAttempt.fileID==107232)
+assert(#calls==6 and #messages==6,'no hard one-building limit, quarantine, replacement or duplicate request')
+local report=F.BuildingReport({native=diagnostic});assert(not report.visualVerified and report.automaticBuildings==false and #report.buildings==6 and report.lastAttempt.fileID==107232)
 ns.Print=nil
 local engine=F.Coordinates.Bind({metrics={moves=0}})
 local native={};function native:SetPosition(x,y,z)self.position={x,y,z}end
@@ -76,8 +76,9 @@ assert(F.Catalog.Search('house')and requested==1,'lazy catalog should load only 
 for _,r in ipairs(Fireside3DAssetIndex)do assert(F.Catalog.Compatible(r)or F.Catalog.IsCandidate(r))end
 assert(not F.Catalog.Compatible(rows[1])and F.Catalog.IsCandidate(rows[1]),'Elwynn WMO entries remain candidates, not compatible/verified props')
 assert(#F.Catalog.Search('','Elwynn buildings')==4,'all four buildings must remain available in the existing editor')
-local preferred=F.Catalog.Search('328178')[1]
-assert(preferred and preferred.fileID==328178 and preferred.preferredTest and preferred.format=='M2'and preferred.status=='M2_RENDER_UNVERIFIED'and preferred.layoutVerified==false,'searchable research metadata must distinguish the desired layout from proof')
+local preferred=F.Catalog.Search('202016')[1]
+assert(preferred and preferred.fileID==202016 and preferred.preferredTest and preferred.format=='M2'and preferred.status=='M2_RENDER_UNVERIFIED'and preferred.layoutVerified==false,'searchable research metadata must distinguish the desired layout from proof')
+local known=F.Catalog.Search('328178')[1];assert(known and known.status=='USER_REPORTED_NATIVE_RENDER'and F.Catalog.Label(known):find('reported working',1,true),'retain user-confirmed tent separately from the new unverified candidate')
 assert(#F.Catalog.Search('203656')==0 and #F.Catalog.Search('190430')==0,'remove rejected Arathi and swamp building references')
 assert(not F.Catalog.IsCandidate({fileID=106851,format='WMO',zone='Other zone',status='ELWYNN_WMO_RENDER_UNVERIFIED'}))
 assert(not F.Catalog.Compatible({format='M2',era='RETAIL'}),'retail housing must not appear in the Forever catalog')
@@ -94,7 +95,7 @@ local view={ActiveRoom=function()return{definition=d}end};local added
 editor.scene=F.PRIMARY;editor.Realm=function()return view end;editor.active=true
 editor.AddObject=function(...)added={...};return true,'existing editor slot'end
 local ok,slot=F.Catalog.SpawnPreferred(view)
-assert(ok and slot=='existing editor slot'and added[1]==328178 and added[2]=='Night Elf tent'and added[3]==3.2 and added[4]==false and added[5]==0,'tent shortcut must use the existing AddObject with preview collision')
+assert(ok and slot=='existing editor slot'and added[1]==202016 and added[2]=='Furbolg forest tent'and added[3]==3.2 and added[4]==false and added[5]==0,'tent shortcut must use the existing AddObject with preview collision')
 added=nil;editor.active=false;assert(not F.Catalog.SpawnPreferred(view)and added==nil,'the shortcut cannot spawn outside the existing editor')
 editor.active=true;InCombatLockdown=function()return true end;assert(not F.Catalog.SpawnPreferred(view)and added==nil,'combat must retain input isolation')
 InCombatLockdown=function()return false end;editor.active=false

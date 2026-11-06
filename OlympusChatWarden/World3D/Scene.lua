@@ -63,7 +63,7 @@ function F.BuildingReport(s)
   for _,a in ipairs(s.native.order)do if a.spec.fileID==h.fileID and not a.retired then
    instances[#instances+1]={slot=a.id,status=a.failed and a.status or a.ready and'bounds ready; inspect visible model'or'loading'}
   end end
-  out.buildings[#out.buildings+1]={fileID=h.fileID,label=h.label,format=h.fileID==328178 and'M2'or'WMO',instances=instances,status=#instances==0 and'not spawned'or'manually placed'}
+  out.buildings[#out.buildings+1]={fileID=h.fileID,label=h.label,format=(h.fileID==328178 or h.fileID==202016)and'M2'or'WMO',instances=instances,status=#instances==0 and'not spawned'or'manually placed'}
  end
  return out
 end
@@ -75,7 +75,7 @@ function F.BuildingNotice(v,s)
  end
  local attempt=F.lastBuildingAttempt
  local text=attempt and('Model test #'..attempt.sequence..': '..attempt.label..' ['..attempt.fileID..'] — '..attempt.phase)
-  or'No automatic building loads. Use Add tent test in the editor for Night Elf tent [328178], a stock M2 reference.'
+  or'No automatic building loads. Use Add forest tent in the editor for Furbolg forest tent [202016]; inspect its entrance.'
  if v.buildingNotice.lastText~=text then v.buildingNotice.text:SetText(text);v.buildingNotice.lastText=text end
  v.buildingNotice:SetFrameLevel(s.groundClick:GetFrameLevel()+3);v.buildingNotice:Show()
 end
