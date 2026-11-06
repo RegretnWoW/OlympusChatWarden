@@ -2,6 +2,7 @@
 -- preserve route, world pose and animation phase while the cached model reloads.
 local _,ns=...;local A={VERSION=81};ns.WardenSceneLayers81=A
 function A.Stage(v,a,layer)
+ if a and a.engine.world3D then return true end
  if not a or not a.ready or a.layerRestore or not a.position or not a.engine.SetLayer or(a.renderLayer or'native')==layer then return false end
  local state={position={unpack(a.position)},yaw=a.yaw or 0,route=a.route,specAt=a.spec.at,anchor=a.floorAnchorHeld,
   animation=a.animation,rate=a.lastAnimationRate,clock=a.animationClock,notify=a.spec.socialVisitor and a.visit and a.visit.phase=='loading'}

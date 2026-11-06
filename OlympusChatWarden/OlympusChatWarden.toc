@@ -2,7 +2,7 @@
 ## Title: Fireside
 ## Notes: Chronicle, player intelligence, chat, protection and RelayWarden support for Olympus.
 ## Author: Regretn
-## Version: 1.1.4-unified-2.11.8-integrated110-startup1
+## Version: 1.1.4-unified-2.11.8-integrated110-startup1-3d-home-candidate1
 ## SavedVariables: OlympusWardenPrivacyDB, OlympusChatWardenDB, OlympusWardenRelayDB, OlympusWardenStartupDB, OlympusWardenConversationDB, OlympusWardenJournalDB, OlympusWardenRecollectionsDB, OlympusWardenExchangeDB
 ## OptionalDeps: Olympus, OlympusWardenAthenaLab
 ## Dependencies: FiresideRecovery
@@ -415,6 +415,10 @@ WardenHearth.lua
 WardenRoomTravel.lua
 WardenNativeSceneAudio.lua
 WardenWorldScale82.lua
+World3D\Definitions.lua
+World3D\Coordinates.lua
+World3D\Background.lua
+World3D\Scene.lua
 WardenAgoraLayout92.lua
 WardenFieldsLayout100.lua
 WardenLocations81.lua
@@ -484,3 +488,5 @@ WardenWelcomeGuide67.lua
 FiresideRecoveryUI.lua
 
 FiresideStartupStages109.lua
+World3D\Catalog.lua
+World3D\Integration.lua

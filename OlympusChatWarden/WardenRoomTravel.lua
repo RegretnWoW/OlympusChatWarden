@@ -6,6 +6,7 @@ local N,C=ns.WardenNativeScene,ns.WardenRoomCatalogue
 local function inside(u,v,b)return u and v and u>=b[1]and u<=b[3]and v>=b[2]and v<=b[4]end
 local function ease(q)q=math.max(0,math.min(1,q));return q*q*(3-2*q)end
 function T.Navigate(v,route)
+ if ns.Fireside3D then return false end
  if not v or not v.roomTravel or not ns.Membership.Allowed()or ns.Checked(ns.SafeCall(InCombatLockdown))then return false end
  if v.campfireWelcome and route.page=='journey'then return true,false,'Finish or skip the campfire welcome before hearthing'end
  local t=v.roomTravel;local from=v:ActiveRoom().key;local to=route.page=='journey'and'study'or'hall'
@@ -191,6 +192,7 @@ function T.Bind(v,U)
   self:Fade(self.state);return true
  end
  function t:Observe(dt,pendingDriver)
+  if ns.Fireside3D then return end -- One world; Live presentation transitions keep their own existing driver.
   local scene=v:ActiveRoom();local state=self.state
   local pending=self.pendingTabArrival
   if pending and not state then

@@ -74,7 +74,7 @@ function R.Apply(v,w,h,mix)
  if not scene.native.frame then v.readingCameraStatus='Native viewport unavailable; simulator cannot render the desk camera';return false end
  local target,why=R.Target(scene,w/h);if not target then R.Reset(v);v.readingCameraStatus=why;return false end
  if v.nativeReadingScene and v.nativeReadingScene~=scene then R.Reset(v)end
- local base=scene.worldCalibration and scene.worldCalibration.camera or scene.shot;local shot={position={},target={},fov=base.fov}
+ local base=v.world3DWideShot or(scene.worldCalibration and scene.worldCalibration.camera or scene.shot);local shot={position={},target={},fov=base.fov}
  for i=1,3 do shot.position[i]=lerp(base.position[i],target.position[i],mix);shot.target[i]=lerp(base.target[i],target.target[i],mix)end
  local key=table.concat({scene.key,w,h,mix,unpack(shot.position)},':')..':'..table.concat(shot.target,':')
  if v.readingCameraKey~=key then

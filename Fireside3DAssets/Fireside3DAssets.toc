@@ -1,0 +1,6 @@
+## Interface: 16001
+## Title: Fireside 3D Asset Candidates
+## Notes: Optional research metadata. Loaded only when browsing the scene editor.
+## LoadOnDemand: 1
+## Dependencies: OlympusChatWarden
+Index.lua

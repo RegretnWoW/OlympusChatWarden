@@ -65,8 +65,8 @@ function S.ApplyCamera(v,aspect)
  tx,ty,tz=tx-math.sin(face)*tuning.x,ty+math.cos(face)*tuning.x,tz+tuning.y
  local distance=math.max(1,height)/(2*math.tan((base.fov or .75)/2)*.78)*tuning.distance
  local yaw=face+math.rad(tuning.yaw);local target={position={tx+math.cos(yaw)*distance,ty+math.sin(yaw)*distance,tz+distance*math.tan(math.rad(tuning.pitch))+tuning.height},target={tx,ty,tz},fov=base.fov}
- local q=v.shelfFocus.mix or 0;local shot={position={},target={},fov=base.fov}
- for i=1,3 do shot.position[i]=base.position[i]+(target.position[i]-base.position[i])*q;shot.target[i]=base.target[i]+(target.target[i]-base.target[i])*q end
+ local q=v.shelfFocus.mix or 0;local from=v.world3DWideShot or base;local shot={position={},target={},fov=base.fov}
+ for i=1,3 do shot.position[i]=from.position[i]+(target.position[i]-from.position[i])*q;shot.target[i]=from.target[i]+(target.target[i]-from.target[i])*q end
  local key=table.concat(shot.position,':')..':'..table.concat(shot.target,':')
  if v.nativeShelfCameraKey~=key then
   if not N.ViewCamera(s.native,shot)then v.shelfCameraStatus='Native shelf camera unavailable; wide scene retained';return false end

@@ -23,7 +23,7 @@ local function species(index)
 end
 function R.Attach(U,host)
  if U.realm then return U.realm end
- local v={VERSION=16,currentRoomKey='hall',scenes={},sceneOrder={},age=0,cameraMix=0,metrics={events=0,updates=0},flags={},visitors={},plants={},clock={},resolved={},nextSpecies=1};U.realm=v
+ local v={VERSION=16,currentRoomKey=ns.Fireside3D and ns.Fireside3D.PRIMARY or'hall',scenes={},sceneOrder={},age=0,cameraMix=0,metrics={events=0,updates=0},flags={},visitors={},plants={},clock={},resolved={},nextSpecies=1};U.realm=v
  local root=G.Frame(host,0);v.frame=root;root:SetClipsChildren(true)
  local quiet=root:CreateTexture(nil,'BACKGROUND');quiet:SetAllPoints();quiet:SetTexture(ns.WardenArt.Path('TempleBackdrop'));quiet:SetVertexColor(.6,.65,.72,1)
  local plane=G.Frame(root,0);v.readingPlane=plane
@@ -40,7 +40,8 @@ function R.Attach(U,host)
    s.objects[o.id]=o
   end
   s.shadows={};s.native=N.Create(s.layers.native,s.shot);s.native.roomKey=key;s.pending={};s.requested={};s.routeAt={}
-  s.nativeAir=N.Create(s.layers['outside-native'],s.shot);s.nativeAir.roomKey=key
+  s.nativeAir=ns.Fireside3D and ns.Fireside3D.IsScene(s)and ns.Fireside3D.InertEngine(s.native)or N.Create(s.layers['outside-native'],s.shot);s.nativeAir.roomKey=key
+  if ns.Fireside3D and ns.Fireside3D.IsScene(s)then ns.Fireside3D.Coordinates.Bind(s.native);s.background3D=ns.Fireside3D.Background.New(s.frame)end
   s.nativeAir.projectionSource=s.native -- One measured lens for every native pass.
   s.native.lightOverride=clone(definition.lighting);s.nativeAir.lightOverride=clone(definition.lighting)
   s.native.layers=s.layers;s.native.baseLayer='native';s.nativeAir.layers=s.layers;s.nativeAir.baseLayer='outside-native'
@@ -95,7 +96,7 @@ function R.Attach(U,host)
  end
  function v:Scenes()return self.sceneOrder end
  function v:ActiveRoom()return self.scenes[self.currentRoomKey]or self.forest end
- v.forest=set('hall');v.studyScene=set('study');v.outdoor=v.forest.frame;v.study=v.studyScene.frame;v.room=v.study;v.homeScene=v.studyScene;v.study:Hide()
+ v.forest=set(ns.Fireside3D and ns.Fireside3D.PRIMARY or'hall');v.studyScene=ns.Fireside3D and v.forest or set('study');v.outdoor=v.forest.frame;v.study=v.studyScene.frame;v.room=v.study;v.homeScene=v.studyScene;if not ns.Fireside3D then v.study:Hide()end
  -- Cat removed from the Study at the owner's request. Reference assets remain unused.
  v.candle={IsVisible=function()
   local a=v.studyScene.native.actors.candle
@@ -139,6 +140,7 @@ function R.Attach(U,host)
   return px or .5,py or .68,z
  end
  function v:SyncCloseupVisibility()
+  if ns.Fireside3D then return end
   local mode=not self.campfireWelcome and(self.shelfFocus and'shelf'or self.reading and(self.journalReading or self.roomBookMotion or self.cameraMix>.001)and'journal')or nil
   self.closeupMode=mode
   for _,scene in ipairs(self:Scenes())do for _,engine in ipairs({scene.native,scene.nativeAir})do for _,a in ipairs(engine.order)do
@@ -151,6 +153,7 @@ function R.Attach(U,host)
   end end end
  end
  local function layout(self)
+  if ns.Fireside3D and ns.Fireside3D.IsScene(self:ActiveRoom())then return ns.Fireside3D.Layout(self)end
   self:SyncCloseupVisibility()
   local w,h=root:GetWidth(),root:GetHeight();if w<1 or h<1 then return end
   local baseW=math.max(w,h*S.aspect);local baseH=baseW/S.aspect
@@ -279,6 +282,7 @@ function R.Attach(U,host)
   for key in pairs(s.pending)do if self.resolved[key]then s.pending[key]=nil end end;self:Prepare(s)
  end
  function v:ActorReady(s,a)
+  if ns.Fireside3D and ns.Fireside3D.IsScene(s)then return ns.Fireside3D.ActorReady(self,s,a)end
   if a.spec.showcaseSupport and a.engine.SetLayer then
    a.engine:SetLayer(a,a.renderLayer or'native');if not a.ready then return end
   end
@@ -356,6 +360,7 @@ function R.Attach(U,host)
  -- One continuous soft footprint per object, dark at its center. Native
  -- projection keeps the contact on the same floor as the model and colliders.
  function v:Shadow(s,a)
+  if ns.Fireside3D and ns.Fireside3D.IsScene(s)then return ns.Fireside3D.Shadow(self,s,a)end
   if a.closeupHidden or a.sceneHidden then if s.shadows[a.id]then s.shadows[a.id]:Hide()end;return end
   local r=a.shadow
   if a.editorHidden or r and r.enabled==false or a.spec.effect or a.spec.flying or a.spec.support or not a.ready or a.awaitRegistration or not a.position then if s.shadows[a.id]then s.shadows[a.id]:Hide()end;return end
@@ -454,6 +459,7 @@ function R.Attach(U,host)
   return nil,a.motionStatus or'No clear approach to firepit'
  end
  function v:GroundNavigation(s,a)
+  if ns.Fireside3D and ns.Fireside3D.IsScene(s)then return ns.Fireside3D.Navigation(self,s,a)end
   local floor=S.navigation[s.key];local width=math.max(a.bounds[4]-a.bounds[1],a.bounds[5]-a.bounds[2])*a.scale
   local nav={floor=floor.floor,ground=true,continuous=true,radius=((a.spec.controlled or a.spec.socialVisitor or a.spec.liveRemote or a.spec.canonicalNPC)and(a.spec.navigationRadius or .4)or math.max(a.spec.navigationRadius or .34,math.min(.9,width*.5)))+.12,obstacles={}}
   nav.polygon=N.FloorFence(a.engine.frame,s.shot,floor.floorUV)
@@ -576,11 +582,13 @@ function R.Attach(U,host)
  end
  for _,scene in ipairs(v:Scenes())do groundInput(scene)end
  function v:EnsureRoom(key)
+  if ns.Fireside3D then return self.forest end
   if self.scenes[key]then return self.scenes[key]end
   if not ns.WardenRoomCatalogue.HasRoom(key)then return nil,'Unknown room'end
   local scene=set(key);groundInput(scene);if self.BindScenicFloor then self:BindScenicFloor(scene)end;self:AddRoomFlags(scene);scene:SetLighting(self.timeOfDay or'day');scene.frame:Hide();return scene
  end
  function v:OpenRoom(key,arrival)
+  if ns.Fireside3D then key=ns.Fireside3D.PRIMARY end
   if ns.WardenSceneEditor and ns.WardenSceneEditor.active then return false,'Close the scene editor before travelling'end
   if self.roomBookMotion or self.reader and self.reader.turnState or self.reading and self.cameraMix>.001 or ns.Checked(ns.SafeCall(InCombatLockdown))then return false,'Finish the current interaction before travelling'end
   if arrival then if type(arrival)~='table'or #arrival~=3 then return false,'Invalid arrival'end;for i=1,3 do local n=arrival[i];if type(n)~='number'or n~=n or math.abs(n)>(i==3 and 8 or 80)then return false,'Invalid arrival'end end end
@@ -658,6 +666,7 @@ function R.Attach(U,host)
   if yes then self.metrics.events=self.metrics.events+1 end;return yes
  end
  function v:Pose(animated)
+  if ns.Fireside3D then return ns.Fireside3D.Pose(self,animated)end
   for _,s in ipairs(self:Scenes())do if s.active and s.drawWidth then
    for _,entry in ipairs({{'cloud-far-a',0,1.15,.00065},{'cloud-far-b',1,1.15,.00065},{'cloud-near-a',0,1.45,.00105},{'cloud-near-b',1,1.45,.00105}})do
     local o=s.objects[entry[1]];if o then local base=o.baseBox;local x=base[1]
@@ -674,6 +683,7 @@ function R.Attach(U,host)
   if self.headerFlame and U.header:IsVisible()then local b=ns.WardenArt.headerFlame;self.headerFlame:Draw(b.width,b.height,self.age,1,animated)end
  end
  function v:Advance(dt)
+  if ns.Fireside3D then return ns.Fireside3D.Advance(self,dt)end
   if not root:IsVisible()then return end;dt=math.max(0,math.min(.25,dt));self.age=self.age+dt;self.metrics.updates=self.metrics.updates+1
   self:SyncCloseupVisibility()
   if self.rememberedVisitors then self.rememberedVisitors:CheckPrivacy()end
@@ -749,7 +759,7 @@ function R.Attach(U,host)
  function v:Select(route,reading,immersive)
   local q=ns.WardenSanctuary;if q and q.preview and not q.previewSwitch and q.previewRoute and q.previewRoute~=route then q.ExitPreview()end
   if self.previewRoute and self.previewRoute~=route then self.previewRoute=nil end
-  local key=self.pendingRoomKey or(q and q.previewSwitch and route.sceneRoom)or self.currentRoomKey or'hall'
+  local key=ns.Fireside3D and ns.Fireside3D.PRIMARY or self.pendingRoomKey or(q and q.previewSwitch and route.sceneRoom)or self.currentRoomKey or'hall'
   local selected=assert(self:EnsureRoom(key),'Unknown current scene');local roomChanged=self.currentRoomKey~=key
   if roomChanged and self.rememberedVisitors and self.rememberedVisitors.SceneChanged then self.rememberedVisitors:SceneChanged(selected)end
   self.currentRoomKey=key
@@ -766,7 +776,7 @@ function R.Attach(U,host)
   root:ClearAllPoints();root:SetPoint('TOPLEFT',0,0);root:SetPoint('BOTTOMRIGHT',0,30)
   for _,scene in ipairs(self:Scenes())do scene.frame:SetShown(scene==selected)end
   if session and self.sceneSession~=session then self:ApplyLighting(ns.WardenSceneLighting.Open())end;self.sceneSession=session
-  if self.reading and not U.journalHost and U.CreateJournalHost then U.CreateJournalHost()end
+  if self.reading and(not ns.Fireside3D or self.journalReading)and not U.journalHost and U.CreateJournalHost then U.CreateJournalHost()end
   if home and U.journalHost then
    if changed then U.journalHost.reader.closedBookSide='front';self.cameraMix=0 end
    self:BindReader(U.journalHost.reader)
@@ -817,7 +827,7 @@ function R.Attach(U,host)
  end)
  for _,name in ipairs({'header','navigationFrame','contextFrame','stage'})do if U[name]then U[name]:SetFrameLevel(host:GetFrameLevel()+(name=='stage'and 64 or 90))end end
  if U.torchLogo then local f=G.Frame(U.header,2);f:SetPoint('TOPLEFT',U.torchLogo,'TOPLEFT');f:SetSize(300,75);if f.SetClipsChildren then f:SetClipsChildren(false)end;v.headerFlameHost=f;v.headerFlame=ns.WardenFlame.Surface(f,'brand',0);if v.headerFlame.frame.SetClipsChildren then v.headerFlame.frame:SetClipsChildren(false)end;local b=ns.WardenArt.headerFlame;G.Place(v.headerFlame.frame,f,b.x,b.y,b.width,b.height)end
- v.rememberedVisitors=ns.WardenSceneVisitors.Create(v,v.forest)
- v:ApplyLighting(ns.WardenSceneLighting.Open());v:Layout();ns.WardenScenicInput.Attach(v,U)
+ if not ns.Fireside3D then v.rememberedVisitors=ns.WardenSceneVisitors.Create(v,v.forest)end
+ v:ApplyLighting(ns.WardenSceneLighting.Open());v:Layout();if ns.Fireside3D then ns.Fireside3D.BindInput(v,U)else ns.WardenScenicInput.Attach(v,U)end
  return v
 end

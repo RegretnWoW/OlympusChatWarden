@@ -254,7 +254,7 @@ function W.NPC(v,s,def,dt)
  if not r then r={};W.npcState[def.id]=r end
  local id='canonical-'..def.id;local a=s.native.actors[id]
  if not a or a.retired then
-  local x,y=N.AuthoredFloorPoint(s.native.frame,s.shot,def.points[1][1],def.points[1][2],0);if not x then return end
+  local x,y;if def.worldPoints then x,y=unpack(def.worldPoints[1])else x,y=N.AuthoredFloorPoint(s.native.frame,s.shot,def.points[1][1],def.points[1][2],0)end;if not x then return end
   local oldLabel=a and a.liveLabel
   a=s.native:Reuse({id=id,canonicalNPC=true,label=def.name,appearance={raceID=def.raceID,sex=def.sex},height=1.85,navigationRadius=.4,at={x,y,0},animations=animations})
   if not a then return end;a.liveLabel=oldLabel;r.actor=a;r.paths=nil;W.metrics.created=W.metrics.created+1
@@ -263,7 +263,7 @@ function W.NPC(v,s,def,dt)
  if not r.paths then
   if now()<(r.nextPlan or 0)then return end;r.nextPlan=now()+3
   local nav=staticNav(v,s,a);if not nav then return end
-  local points={};for _,uv in ipairs(def.points)do local x,y=N.AuthoredFloorPoint(s.native.frame,s.shot,uv[1],uv[2],0);if not x then return end;points[#points+1]={x,y,0}end
+  local points={};for _,uv in ipairs(def.points)do local x,y;if def.worldPoints then x,y=unpack(def.worldPoints[#points+1])else x,y=N.AuthoredFloorPoint(s.native.frame,s.shot,uv[1],uv[2],0)end;if not x then return end;points[#points+1]={x,y,0}end
   local paths,cycle={},0
   for i,p in ipairs(points)do local q=points[i%#points+1];local path=N.WalkPath(p,q[1],q[2],nav);if not path then return end
    local duration=math.max(1,path.length/ns.WardenWorldScale.WALK_SPEED);paths[#paths+1]={path=path,duration=duration,begin=cycle};cycle=cycle+duration+def.wait
@@ -434,11 +434,12 @@ function W.Publish(v,s,client)
  if not a or not a.ready or not a.position or a.awaitRegistration or a.awaitSpawn then return end
  local route=a.route;local seat=a.seating
  local signature=(route and tostring(route)or'idle')..'/'..s.key..'/'..(seat and seat.phase..seat.id or'')..'/'..(a.animation or 0)
+ if s.definition.world3D and a.manualMovement then signature=signature..'/wasd/'..math.floor(now()*6)end
  if signature==W.lastRoute and now()<(W.nextCorrection or 0)then return end
  W.lastRoute=signature;W.nextCorrection=now()+8
  local p=seat and seat.approach or a.position;local goal=route and route.path.samples[#route.path.samples]
  local state={scene=s.key,revision=G.SCENE_REVISION,position=copy(p),destination=goal and{goal.x,goal.y,goal.z}or copy(p),
-  yaw=a.yaw or 0,duration=route and math.max(0,route.duration-route.elapsed)or 0,animation=route and route.animation or 0,seat=seat and seat.phase=='hold'and seat.id or nil}
+  yaw=a.yaw or 0,duration=route and math.max(0,route.duration-route.elapsed)or 0,animation=route and route.animation or(a.manualMovement and 4 or 0),seat=seat and seat.phase=='hold'and seat.id or nil}
  -- Periodic idle state must also remain fresh. Retain the observation time
  -- through the send queue, so a delayed destination can be caught up locally.
  client.localScene=s.key;client:Publish('M',G.StateEncode(state),true)
