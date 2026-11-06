@@ -4194,10 +4194,10 @@ index 0000000..029589f
 +end
 diff --git a/OlympusChatWarden/World3D/HitboxEditor.lua b/OlympusChatWarden/World3D/HitboxEditor.lua
 new file mode 100644
-index 0000000..78dbeb2
+index 0000000..6d3566b
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/HitboxEditor.lua
-@@ -0,0 +1,241 @@
+@@ -0,0 +1,248 @@
 +-- Optional public adapter to the existing local Scene Editor. No private source
 +-- or separate persistence store: normal Set/Save/Undo/Export own every change.
 +local _,ns=...
@@ -4275,7 +4275,7 @@ index 0000000..78dbeb2
 +end
 +function T.EndDrag(v,cancel)
 + local s=v.world3DHitboxTool;local d=s and s.drag;if not d then return end
-+ s.drag=nil;local e=editor();e.firesideBoxDragging=nil
++ s.drag=nil;s.panel:EnableKeyboard(false);local e=editor();e.firesideBoxDragging=nil
 + if cancel and e.scene==d.target.scene and e.selected==d.target.id and T.Allowed(v)then e.Set(d.target.id,d.target.record,true)end
 +end
 +function T.BeginDrag(v,index,face)
@@ -4291,7 +4291,7 @@ index 0000000..78dbeb2
 + else
 +  d.axis=H.AxisMap(frame,target.row.engine.shot,origin,axis);if not d.axis then message('Rotate the camera to see this side before dragging it');return end
 + end
-+ editor().Push();s.drag=d;editor().firesideBoxDragging=true;F.EditorCamera.Clear(v)
++ editor().Push();s.drag=d;editor().firesideBoxDragging=true;s.panel:EnableKeyboard(true);s.panel:SetPropagateKeyboardInput(true);F.EditorCamera.Clear(v)
 +end
 +function T.Handle(b,face,kind)
 + local z=kind=='collider'and b.bottom+.04 or(b.bottom+b.top)*.5
@@ -4351,6 +4351,13 @@ index 0000000..78dbeb2
 +  if not F.EditorCamera.Active(v)then T.EndDrag(v,false);panel:Hide();overlay:Hide();return end
 +  s.clock=(s.clock or 0)+dt;if s.clock<.04 then return end;s.clock=0;T.Drag(v);T.Draw(v)
 + end)
++ panel:EnableKeyboard(false);panel:SetPropagateKeyboardInput(true)
++ panel:SetScript('OnKeyDown',function(self,key)
++  local cancel=s.drag and key=='ESCAPE'
++  self:SetPropagateKeyboardInput(not cancel)
++  if cancel then T.EndDrag(v,true);self:SetPropagateKeyboardInput(false)end
++ end)
++ panel:SetScript('OnKeyUp',function(self)self:SetPropagateKeyboardInput(true)end)
 + panel:HookScript('OnHide',function()T.EndDrag(v,false);overlay:Hide()end)
 + panel:Hide();overlay:Hide();return s
 +end
@@ -5627,10 +5634,10 @@ index 0000000..26a897b
 +if __name__=='__main__':main()
 diff --git a/tools/fireside3d/hitboxes.lua b/tools/fireside3d/hitboxes.lua
 new file mode 100644
-index 0000000..3e55fb1
+index 0000000..8dae395
 --- /dev/null
 +++ b/tools/fireside3d/hitboxes.lua
-@@ -0,0 +1,161 @@
+@@ -0,0 +1,162 @@
 +-- Regression at public editor/native API boundaries; never executes private code.
 +local ns={UI2={menuHidden=true},Fireside3D={PRIMARY='square',bounds={-32,-24,32,34}},WardenWorldScenes={}}
 +local function load(p)return assert(loadfile('OlympusChatWarden/'..p))('test',ns)end
@@ -5650,6 +5657,7 @@ index 0000000..3e55fb1
 +function methods:GetFrameStrata()return self.strata end;function methods:SetFrameStrata(v)self.strata=v end
 +function methods:CreateTexture()return frame(self)end;function methods:CreateFontString()return frame(self)end;function methods:CreateLine()return frame(self)end
 +function methods:SetText(v)self.text=v end
++function methods:EnableKeyboard(v)self.keyboard=v end;function methods:SetPropagateKeyboardInput(v)self.propagate=v end
 +for _,key in ipairs({'SetPoint','SetAllPoints','ClearAllPoints','SetColorTexture','EnableMouse','SetJustifyH','RegisterForClicks','RegisterForDrag','SetStartPoint','SetEndPoint','SetThickness'})do methods[key]=function()end end
 +CreateFrame=function(_,_,parent)return frame(parent)end
 +local cursor={0,0};local left,escape,combat,focus=false,false,false,false
@@ -5777,7 +5785,7 @@ index 0000000..3e55fb1
 +local r=H.Boxes(a,'collider')[1];b=H.Shape(shot,a,r);origin=T.Handle(b,'move','collider');mouseAt(origin);left=true
 +T.BeginDrag(v,1,'move');mouseAt({origin[1]+1,origin[2]+.5,origin[3]});T.Drag(v)
 +assert(math.abs(a.collider.boxes[1].x-r.x-1)<1e-6 and math.abs(a.collider.boxes[1].y-r.y-.5)<1e-6)
-+escape=true;T.Drag(v);escape=false;left=false;assert(math.abs(a.collider.boxes[1].x-r.x)<1e-6)
++s.panel.scripts.OnKeyDown(s.panel,'ESCAPE');left=false;assert(not s.panel.keyboard and s.panel.propagate==false and math.abs(a.collider.boxes[1].x-r.x)<1e-6,'Escape must cancel locally rather than close the editor')
 +-- Save/export/reload retains compound data; legacy version-5 layouts still validate.
 +local exported=e.Export();assert(exported.version==6);saved=assert(e.Validate(exported))
 +work={};apply();local validated=assert(e.Validate(saved));work=H.Copy(validated.objects);apply();assert(#a.collider.boxes==1)

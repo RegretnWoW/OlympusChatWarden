@@ -75,7 +75,7 @@ function T.Cursor(frame)
 end
 function T.EndDrag(v,cancel)
  local s=v.world3DHitboxTool;local d=s and s.drag;if not d then return end
- s.drag=nil;local e=editor();e.firesideBoxDragging=nil
+ s.drag=nil;s.panel:EnableKeyboard(false);local e=editor();e.firesideBoxDragging=nil
  if cancel and e.scene==d.target.scene and e.selected==d.target.id and T.Allowed(v)then e.Set(d.target.id,d.target.record,true)end
 end
 function T.BeginDrag(v,index,face)
@@ -91,7 +91,7 @@ function T.BeginDrag(v,index,face)
  else
   d.axis=H.AxisMap(frame,target.row.engine.shot,origin,axis);if not d.axis then message('Rotate the camera to see this side before dragging it');return end
  end
- editor().Push();s.drag=d;editor().firesideBoxDragging=true;F.EditorCamera.Clear(v)
+ editor().Push();s.drag=d;editor().firesideBoxDragging=true;s.panel:EnableKeyboard(true);s.panel:SetPropagateKeyboardInput(true);F.EditorCamera.Clear(v)
 end
 function T.Handle(b,face,kind)
  local z=kind=='collider'and b.bottom+.04 or(b.bottom+b.top)*.5
@@ -151,6 +151,13 @@ function T.Ensure(v)
   if not F.EditorCamera.Active(v)then T.EndDrag(v,false);panel:Hide();overlay:Hide();return end
   s.clock=(s.clock or 0)+dt;if s.clock<.04 then return end;s.clock=0;T.Drag(v);T.Draw(v)
  end)
+ panel:EnableKeyboard(false);panel:SetPropagateKeyboardInput(true)
+ panel:SetScript('OnKeyDown',function(self,key)
+  local cancel=s.drag and key=='ESCAPE'
+  self:SetPropagateKeyboardInput(not cancel)
+  if cancel then T.EndDrag(v,true);self:SetPropagateKeyboardInput(false)end
+ end)
+ panel:SetScript('OnKeyUp',function(self)self:SetPropagateKeyboardInput(true)end)
  panel:HookScript('OnHide',function()T.EndDrag(v,false);overlay:Hide()end)
  panel:Hide();overlay:Hide();return s
 end

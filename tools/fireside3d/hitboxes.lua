@@ -17,6 +17,7 @@ function methods:GetFrameLevel()return self.level end;function methods:SetFrameL
 function methods:GetFrameStrata()return self.strata end;function methods:SetFrameStrata(v)self.strata=v end
 function methods:CreateTexture()return frame(self)end;function methods:CreateFontString()return frame(self)end;function methods:CreateLine()return frame(self)end
 function methods:SetText(v)self.text=v end
+function methods:EnableKeyboard(v)self.keyboard=v end;function methods:SetPropagateKeyboardInput(v)self.propagate=v end
 for _,key in ipairs({'SetPoint','SetAllPoints','ClearAllPoints','SetColorTexture','EnableMouse','SetJustifyH','RegisterForClicks','RegisterForDrag','SetStartPoint','SetEndPoint','SetThickness'})do methods[key]=function()end end
 CreateFrame=function(_,_,parent)return frame(parent)end
 local cursor={0,0};local left,escape,combat,focus=false,false,false,false
@@ -144,7 +145,7 @@ a.scale=1;a.worldYaw=0
 local r=H.Boxes(a,'collider')[1];b=H.Shape(shot,a,r);origin=T.Handle(b,'move','collider');mouseAt(origin);left=true
 T.BeginDrag(v,1,'move');mouseAt({origin[1]+1,origin[2]+.5,origin[3]});T.Drag(v)
 assert(math.abs(a.collider.boxes[1].x-r.x-1)<1e-6 and math.abs(a.collider.boxes[1].y-r.y-.5)<1e-6)
-escape=true;T.Drag(v);escape=false;left=false;assert(math.abs(a.collider.boxes[1].x-r.x)<1e-6)
+s.panel.scripts.OnKeyDown(s.panel,'ESCAPE');left=false;assert(not s.panel.keyboard and s.panel.propagate==false and math.abs(a.collider.boxes[1].x-r.x)<1e-6,'Escape must cancel locally rather than close the editor')
 -- Save/export/reload retains compound data; legacy version-5 layouts still validate.
 local exported=e.Export();assert(exported.version==6);saved=assert(e.Validate(exported))
 work={};apply();local validated=assert(e.Validate(saved));work=H.Copy(validated.objects);apply();assert(#a.collider.boxes==1)
