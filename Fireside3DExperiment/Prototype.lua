@@ -8,7 +8,7 @@ local candidates = {
     {191492, 'Ogrila hut', 'world/expansion01/doodads/bladesedge/ogrila/ogrilahut/ogrila_hut.m2'},
     {106965, 'Human farmhouse (WMO probe)', 'world/wmo/azeroth/buildings/human_farm/farm.wmo'},
 }
-local window, engine, house, player, furniture, background, chair, interaction, scene
+local window, engine, house, player, furniture, background, chair, interaction, scene, library
 local navigation, clickChair
 local keys, dragging, active = {}, false, false
 local index, yaw, pitch, distance, houseFloor = 1, -pi / 2, .35, 18, 0
@@ -33,6 +33,7 @@ local function camera()
     if background then background:Update(engine.frame,shot) end
 end
 local function probe()
+    if library then library:Close(true);library=nil end
     active=false; clearInput(); houseFloor=0; halfX=nil; halfY=nil
     house=nil; player=nil; furniture=nil; chair=nil; interaction=nil; scene=nil
     if engine and engine.frame then engine:Show(false) end
@@ -45,6 +46,8 @@ local function probe()
     ns.ExperimentWorldSpace.Bind(engine)
     engine.onReady=function(a)
         visibleActor(a)
+        if library and(a.id=='room-book'or a.id=='table')then library:Support() end
+        if a.id=='room-book'then engine:Animate(a,147,1)end
         if a.id=='house' then
             halfX=(a.bounds[4]-a.bounds[1])*a.scale/2
             halfY=(a.bounds[5]-a.bounds[2])*a.scale/2
@@ -64,7 +67,10 @@ local function accept()
     if not engine or not engine.frame or not house or not house.ready or house.failed then say('Wait for a loaded house. Use /fs3d next if it fails.'); return end
     -- Explicit human observation, never inferred from IsLoaded/bounds.
     house.visualConfirmed=true
+    library=ns.ExperimentLibrary.New(window,engine,shot,function()clearInput();if player then player.route=nil;player.pendingInteraction=nil;if not player.seating then engine:Animate(player,0,1)end end end)
     furniture=engine:Add({id='table',fileID=198603,height=.9,at={0,0,0},yaw=0})
+    engine:Add({id='room-book',fileID=200912,width=.65,at={0,0,.915},yaw=0,collision=false,probeObject=true,animations={0,146,147,148,149}})
+    engine:Add({id='shelf-right',fileID=242995,height=2.3,at={halfX*.6,halfY*.5,0},yaw=pi})
     chair=engine:Add({id='chair',fileID=198114,height=1.55,seatFraction=.29,seatHeightOffset=.3,interaction='chair',at={-3,-halfY-2,0},yaw=0})
     -- Same BodyDisplay/appearance/native actor path used by Fireside's scenic people.
     -- These are generic demo NPCs, not captures of any real player.
@@ -75,13 +81,14 @@ local function accept()
     engine.onRouteEnd=function(a)
         if a==player and a.pendingInteraction then
             local intent=a.pendingInteraction;a.pendingInteraction=nil
-            local yes=interaction:SeatPlayer(scene,a,intent)
+            local yes
+            if intent.kind=='chair'then yes=interaction:SeatPlayer(scene,a,intent)else yes=library:Open(intent.id)end
             if not yes then say(a.motionStatus or 'Seat unavailable') end
         end
     end
     engine.onRouteBlocked=function(a) if a==player then a.pendingInteraction=nil;say(a.motionStatus or 'Chair approach blocked') end end
     active=true; distance=12
-    text('WASD while pointer is inside viewport; right-drag orbit/pitch; wheel zoom. Left-click chair to approach/sit; WASD stands up. /fs3d report. Solid house collision; /fs3d interior enables approximate doorway trial.')
+    text('WASD while pointer is inside viewport; right-drag orbit/pitch; wheel zoom. Click chair, journal or shelf to approach/use; WASD stands up. /fs3d report. Solid house collision; /fs3d interior enables approximate doorway trial.')
 end
 local interior=false
 local function obstacles()
@@ -98,26 +105,39 @@ local function obstacles()
     end
     if furniture and furniture.ready then rows[#rows+1]=N.Footprint(shot,furniture) end
     if chair and chair.ready then rows[#rows+1]=N.Footprint(shot,chair) end
+    local shelf=engine.actors['shelf-right'];if shelf and shelf.ready then rows[#rows+1]=N.Footprint(shot,shelf)end
     return rows
 end
 navigation=function(a)
     return N.PeopleNavigation({ground=true,continuous=true,floor=0,radius=.3,boundary={-24,-24,24,24},obstacles=obstacles()},engine,a)
 end
 clickChair=function()
-    if not active or not player or not player.ready or not chair or not chair.ready then return end
+    if not active or not player or not player.ready or library:IsModal() then return end
     local x,y=GetCursorPosition();local scale=window.viewport:GetEffectiveScale()
     local u=(x/scale-window.viewport:GetLeft())/window.viewport:GetWidth()
     local v=(window.viewport:GetTop()-y/scale)/window.viewport:GetHeight()
-    local C=ns.WardenSceneObjectControls
-    if not C.ContainsPick(C.ProjectPick(engine,shot,chair),u,v) then return end
-    if player.seating then if player.seating.phase~='leaving' then interaction:LeavePlayerSeat(scene,player) end;return end
-    -- Clicking the same target twice must not restart its native walk animation.
-    if player.pendingInteraction then return end
-    local yes,why=interaction:InteractPlayer(scene,'chair')
-    if not yes then say(why) end
+    local id=ns.ExperimentLibrary.Pick(engine,shot,{'room-book','shelf-right','chair'},u,v)
+    if not id then return end
+    if player.seating then
+        if player.seating.phase~='leaving'then interaction:LeavePlayerSeat(scene,player)end
+        say('Standing up; click the object again when ready.');return
+    end
+    if player.pendingInteraction and player.pendingInteraction.id==id then return end
+    player.route=nil;player.pendingInteraction=nil
+    if id=='chair'then
+        local yes,why=interaction:InteractPlayer(scene,id);if not yes then say(why)end;return
+    end
+    if not player.capabilities[4]then say('Native walking animation unavailable');return end
+    local nav=navigation(player)
+    local path,why=ns.ExperimentLibrary.Approach(engine,shot,player,id,nav)
+    if path==false then library:Open(id);return end
+    if not path then say(why);return end
+    player.pendingInteraction={kind='library',id=id}
+    local yes;yes,why=engine:Route(player,path,math.max(2,path.length/N.WALK_SPEED+.65),4,nav)
+    if not yes then player.pendingInteraction=nil;say(why)end
 end
 local function move(dt)
-    if not active or not player or not player.ready then return end
+    if not active or not player or not player.ready or library and library:IsModal()then return end
     if not (house.ready and furniture and furniture.ready) then return end
     local forward=(keys.W and 1 or 0)-(keys.S and 1 or 0)
     local right=(keys.D and 1 or 0)-(keys.A and 1 or 0)
@@ -131,7 +151,7 @@ local function move(dt)
     if length>0 then player.route=nil;player.pendingInteraction=nil
     elseif player.route then return end
     if length>0 then
-        -- N.World's fixed shot maps authored right/depth to native X/Y. Camera changes never alter this basis.
+        -- Movement is world X/Y; the native camera never rewrites actor or collider coordinates.
         local dx=(cos(yaw)*forward+sin(yaw)*right)/length*4*dt
         local dy=(sin(yaw)*forward-cos(yaw)*right)/length*4*dt
         local p=player.position
@@ -155,14 +175,14 @@ local function create()
     window.viewport=CreateFrame('Frame',nil,window); window.viewport:SetPoint('TOPLEFT',8,-70); window.viewport:SetPoint('BOTTOMRIGHT',-8,8)
     background=ns.ExperimentBackground.New(window.viewport)
     window.viewport:EnableMouse(true); window.viewport:EnableMouseWheel(true)
-    window.viewport:SetScript('OnMouseDown',function(_,button) if button=='RightButton' then dragging=true; orbitX,orbitY=GetCursorPosition() elseif button=='LeftButton' then clickChair() end end)
+    window.viewport:SetScript('OnMouseDown',function(_,button) if library and library:IsModal()then return end; if button=='RightButton' then dragging=true; orbitX,orbitY=GetCursorPosition() elseif button=='LeftButton' then clickChair() end end)
     window.viewport:SetScript('OnMouseUp',function() dragging=false end)
-    window.viewport:SetScript('OnMouseWheel',function(_,delta) distance=clamp(distance-delta,2,70) end)
+    window.viewport:SetScript('OnMouseWheel',function(_,delta) if library and library:IsModal()then return end;distance=clamp(distance-delta,2,70) end)
     window.viewport:SetScript('OnLeave',clearInput)
-    window:SetScript('OnHide',function() clearInput(); if player and player.route then player.route=nil;player.pendingInteraction=nil;engine:Animate(player,0,1) end; if engine and engine.frame then engine:Show(false) end end)
+    window:SetScript('OnHide',function() clearInput();if library then library:Close(true)end; if player and player.route then player.route=nil;player.pendingInteraction=nil;engine:Animate(player,0,1) end; if engine and engine.frame then engine:Show(false) end end)
     window:SetScript('OnKeyDown',function(_,key)
-        if key=='ESCAPE' then clearInput(); window:Hide(); return end
-        local capture=active and window.viewport:IsMouseOver() and (key=='W' or key=='A' or key=='S' or key=='D') and not (GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus()) and not InCombatLockdown()
+        if key=='ESCAPE' then if library and library:IsModal()then library:Close(true);clearInput();window:SetPropagateKeyboardInput(false);return end;clearInput();window:Hide();return end
+        local capture=active and not(library and library:IsModal())and window.viewport:IsMouseOver() and (key=='W' or key=='A' or key=='S' or key=='D') and not (GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus()) and not InCombatLockdown()
         window:SetPropagateKeyboardInput(not capture)
         if capture then keys[key]=true end
     end)
@@ -172,6 +192,7 @@ local function create()
         if not engine or not engine.frame or index>#candidates then return end
         local dt=clamp(elapsed,0,.05)
         engine:Tick(dt,true)
+        if library then library:Tick(dt)end
         if house and house.failed then text('House request FAILED: '..house.status..'. /fs3d next (maximum three candidates).') end
         if dragging then
             if not IsMouseButtonDown('RightButton') then dragging=false
@@ -188,9 +209,10 @@ SlashCmdList.FIRESIDE3DEXPERIMENT=function(input)
     local command,arg=(input or ''):match('^(%S*)%s*(.-)$')
     if not window then create() end
     if command=='report' then
-        say('World-space scene v0.3.1; base 9bc2326f67532c548102caa831b20af2234d6bfe; candidate '..index..'; visual house confirmation='..tostring(house and house.visualConfirmed==true))
+        say('Journal/showcase scene v0.4; base 9bc2326f67532c548102caa831b20af2234d6bfe; candidate '..index..'; visual house confirmation='..tostring(house and house.visualConfirmed==true))
         if index<=#candidates then say(candidates[index][1]..' '..candidates[index][3]) end
         for _,a in ipairs(engine and engine.order or {}) do say(a.id..': '..a.status..'; world='..(a.position and table.concat(a.position,',') or 'none')..'; scale='..tostring(a.scale)..'; bounds='..(a.bounds and table.concat(a.bounds,',') or 'none')) end
+        if library then say('Journal/shelf opens='..library.opens..'; native book opening pose supported='..tostring(library.nativeBookPose)..'; data=synthetic session-only')end
         say('Coordinates=world XYZ; camera-only perspective; legacy corrections/shadows disabled; ground='..(background and background.registration or 'unavailable'))
         if player then say('Chair state='..(player.seating and player.seating.phase or player.pendingInteraction and 'approaching' or 'free')..'; sit supported='..tostring(player.capabilities[102] or player.capabilities[103] or player.capabilities[104] or false)) end
         say('Sky+wood ground; interior trial='..tostring(interior)..'; house floor offset='..houseFloor..'; rendered appearance/depth require human inspection.')

@@ -128,3 +128,44 @@ for _,scale in ipairs({.25,1,3})do
  end
 end
 print('PASS: moving world contacts/colliders during follow-camera changes at three fixed model scales')
+assert(loadfile('Fireside3DExperiment/Vendor/WardenComposition.lua'))('test',ns)
+assert(loadfile('Fireside3DExperiment/Vendor/AthenaBookMotion.lua'))('test',ns)
+assert(loadfile('Fireside3DExperiment/SampleCatalogue.lua'))('test',ns)
+assert(loadfile('Fireside3DExperiment/ShelfState.lua'))('test',ns)
+assert(loadfile('Fireside3DExperiment/Library.lua'))('test',ns)
+local L,SS=ns.ExperimentLibrary,ns.ExperimentShelfState
+local saved=L.DefaultShelf();local work=assert(SS.Validate(saved))
+local first,second=work.slots[1],work.slots[2]
+assert(SS.Swap(work,1,2)and work.slots[1]==second and work.slots[2]==first)
+assert(saved.slots[1]==first,'editing must not mutate the committed session layout')
+work.slots[3]=work.slots[1];assert(not SS.Validate(work),'duplicate badge rejected')
+work=assert(SS.Validate(saved));work.slots[3]=nil;assert(SS.Validate(work),'empty slot permitted')
+for _,id in ipairs(ns.ExperimentSampleIDs)do
+ local pieces=ns.WardenComposition.Pieces({art=id,stage=5,charms=ns.ExperimentSampleCharms[id]},3)
+ local mementos=0
+ for _,piece in ipairs(pieces)do
+  local relative=assert(piece.art.path:match('Interface\\AddOns\\Fireside3DExperiment\\(.+)')):gsub('\\','/')
+  local file=assert(io.open('Fireside3DExperiment/'..relative,'rb'));file:close()
+  if piece.role=='memento'then mementos=mementos+1 end
+ end
+ assert(mementos==2,'existing regional mementos should be included')
+end
+-- Approach uses support geometry for the table-top book, never its screen position.
+local objectEngine={actors={table={id='table',spec={},ready=true,position={0,0,0},bounds={-1,-1,0,1,1,.9},scale=1},['room-book']={ready=true}}}
+local walker={position={0,-5,0}}
+local objectNav={ground=true,floor=0,radius=.3,boundary={-10,-10,10,10},obstacles={N.Footprint(shot,objectEngine.actors.table)}}
+local path=assert(L.Approach(objectEngine,shot,walker,'room-book',objectNav));assert(N.CheckPath(path,objectNav))
+local last=path.samples[#path.samples];walker.position={last.x,last.y,0}
+assert(L.Approach(objectEngine,shot,walker,'room-book',objectNav)==false,'already approached must open without a zero-length route')
+objectNav.obstacles[#objectNav.obstacles+1]={id='closed house',left=-3,right=3,near=-3,far=3};walker.position={0,-5,0}
+assert(not L.Approach(objectEngine,shot,walker,'room-book',objectNav),'blocked interior must not teleport to journal')
+-- Existing journal page-motion controller: callback boundary only, no rendered UI.
+local stamp=0;GetTimePreciseSec=function()return stamp end
+local clockHost={};function clockHost:SetScript(key,fn)self[key]=fn end
+function clockHost:HookScript(key,fn)self[key]=fn end
+local reader={book=clockHost};local completed=false;local maxQ=0
+local motion=ns.AthenaBookMotion.For(reader)
+assert(motion:Start('page',clockHost,1.08,function(q)assert(q>=maxQ);maxQ=q end,function()completed=true end))
+for i=1,100 do stamp=stamp+1/30;if clockHost.OnUpdate then clockHost.OnUpdate()end end
+assert(completed and maxQ==1 and not motion.active,'page turn must finish')
+print('PASS: session-only shelf copy/swap/remove/validation, seven badge recipes with regional mementos, asset references, journal approach/blocked route, existing page-motion completion')
