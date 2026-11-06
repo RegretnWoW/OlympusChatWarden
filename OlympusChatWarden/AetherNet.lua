@@ -488,7 +488,7 @@ build=function(options)
   if type(options.send)~='function' then return false,'LIVE_SERVICE_BLOCKED' end
   if not budget('out',240) then return false,'SEND_RATE_LIMIT' end
   self.sequence=self.sequence+1
-  local packet={protocol='AETHER_NET_5',kind=kind,sender=self.principal,recipient=peer,id=self.session..'-'..self.sequence,at=now(),body=body}
+  local packet={protocol='AETHER_NET_5',kind=kind,sender=options.envelopePrincipal or self.principal,recipient=peer,id=self.session..'-'..self.sequence,at=now(),body=body}
   local wire=B.Encode({packet});if #wire>N.MAX_WIRE then return false,'WIRE_BOUND' end
   local outer=B.Encode({{wire=wire,signature=options.sign(wire)}});if #outer>N.MAX_WIRE then return false,'WIRE_BOUND' end
   self.metrics.bytesOut=self.metrics.bytesOut+#outer;return options.send(peer,outer)==true
@@ -502,6 +502,7 @@ build=function(options)
   if self.inventoryCache and self.inventoryCache.stamp==stamp then return self.inventoryCache end
   local groups={}
   for _,entries in ipairs({self.records,self.floors}) do for id,row in pairs(entries) do
+   if options.checkpoint then options.checkpoint()end
    local r=row.record or (B.DecodeChunk(row.pair.wire) or {})[1]
    if r and(r.subjectType~='ROOM'or roomPeer)and self:Wanted(r.subjectType,r.subjectKey)and (entries==self.floors or r.expiresAt>now()) and (not options.canRelay or options.canRelay(row,peer)) then
     local key=subject(r.subjectType,r.subjectKey);local g=groups[key]
@@ -578,7 +579,7 @@ build=function(options)
   local outer=B.DecodeChunk(wire);local signed=array(outer,1) and #outer==1 and outer[1]
   if not exact(signed,keys('wire signature')) or type(signed.wire)~='string' or not token(signed.signature,256) or not options.verify(peer,signed.wire,signed.signature) then return false,'PEER_SIGNATURE' end
   local rows=B.DecodeChunk(signed.wire);local p=array(rows,1) and #rows==1 and rows[1]
-  if not exact(p,keys('protocol kind sender recipient id at body')) or p.protocol~='AETHER_NET_5' or p.sender~=peer or p.recipient~=self.principal
+  if not exact(p,keys('protocol kind sender recipient id at body')) or p.protocol~='AETHER_NET_5' or p.sender~=peer or p.recipient~=(options.envelopePrincipal or self.principal)
    or not token(p.id) or not integer(p.at,now()-(options.packetTTL or 30),now()+5) or type(p.body)~='table' then return false,'PACKET_POLICY' end
   local packetID=peer..'/'..p.id
   if self.seen[packetID] then return true,'DUPLICATE_PACKET' end
@@ -678,14 +679,25 @@ build=function(options)
   if self.coverage[subjectID] then self.coverage[subjectID].state='Canceled · Partial' end;return true
  end
  function c:Compact()
-  for id,row in pairs(self.records) do if row.record.expiresAt<=now() then
+  local at=now()
+  if self.compactRevision==self.revision and self.compactRecords==self.records and self.compactFloors==self.floors and at<(self.compactDue or 0)then return true end
+  local due=math.huge
+  for id,row in pairs(self.records) do if options.checkpoint then options.checkpoint()end;if row.record.expiresAt<=at then
    if count(self.floors)>=N.MAX_RECORDS then return false,'FLOOR_CAPACITY' end
    self.floors[id]={revision=row.record.revision,record=row.record,pair=row.pair,alternate=row.alternate,bytes=row.bytes};self.floorBytes=self.floorBytes+row.bytes;self.records[id]=nil;self.bytes=self.bytes-row.bytes;self.revision=self.revision+1
-  end end
+  else due=math.min(due,row.record.expiresAt)end end
   for id,floor in pairs(self.floors) do
-   local decoded=B.DecodeChunk(floor.pair.wire);local r=decoded and decoded[1]
-   if r and r.issuedAt+N.TTL+N.TOMBSTONE_TTL<now() then self.floorBytes=self.floorBytes-floor.bytes;self.floors[id]=nil end
+   if options.checkpoint then options.checkpoint()end
+   local r=floor.record;if not r then local decoded=B.DecodeChunk(floor.pair.wire);r=decoded and decoded[1]end
+   -- Revocation evidence protects persistent issuer grants too. Retain it;
+   -- expiry must never silently re-authorize a previously revoked key.
+   if r and r.kind~='KEY_REVOCATION'then
+    local expires=r.issuedAt+N.TTL+N.TOMBSTONE_TTL+1
+    if expires<=at then self.floorBytes=self.floorBytes-floor.bytes;self.floors[id]=nil;self.revision=self.revision+1
+    else due=math.min(due,expires)end
+   end
   end
+  self.compactRevision,self.compactDue,self.compactRecords,self.compactFloors=self.revision,due,self.records,self.floors
   return true
  end
  function c:Snapshot()
@@ -786,7 +798,7 @@ build=function(options)
    if checkpoint then checkpoint()end
   end
   for id,row in pairs(staged.records)do if row.record.expiresAt<=now()then staged.floors[id]={revision=row.record.revision,record=row.record,pair=row.pair,alternate=row.alternate,bytes=row.bytes};staged.floorBytes=staged.floorBytes+row.bytes;staged.records[id]=nil;staged.bytes=staged.bytes-row.bytes end;if checkpoint then checkpoint()end end
-  for id,row in pairs(staged.floors)do if row.record.issuedAt+N.TTL+N.TOMBSTONE_TTL<now()then staged.floorBytes=staged.floorBytes-row.bytes;staged.floors[id]=nil end;if checkpoint then checkpoint()end end
+  for id,row in pairs(staged.floors)do if row.record.kind~='KEY_REVOCATION'and row.record.issuedAt+N.TTL+N.TOMBSTONE_TTL<now()then staged.floorBytes=staged.floorBytes-row.bytes;staged.floors[id]=nil end;if checkpoint then checkpoint()end end
   self:Leave();self.queries={};self.coverage={};self.seen={}
   local prepared;if self.BuildSaveView then prepared=self:BuildSaveView(checkpoint,staged.records,staged.floors,self.revision+1,math.max(self.sequence,snapshot.sequence))end
   self.records=staged.records;self.floors=staged.floors;self.bytes=staged.bytes;self.floorBytes=staged.floorBytes;self.sequence=math.max(self.sequence,snapshot.sequence);self.revision=self.revision+1;if prepared then prepared.sequence=self.sequence;prepared.snapshot.sequence=self.sequence;self.snapshotView=prepared end;return true

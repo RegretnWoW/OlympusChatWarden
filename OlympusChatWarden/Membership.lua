@@ -35,6 +35,7 @@ function M.InstallAccessGuards()
                         if command=='privacy stop' then return ns.Privacy.Stop() end
                         if command=='privacy withdraw' then return ns.Privacy.Withdraw() end
                         if command=='privacy' or command=='recording privacy' then return ns.UI2.ShowPrivacy() end
+                        if (command=='diagnostics' or command=='aether diagnostics') and ns.AetherLive and ns.AetherLive.CopyDiagnostics then return ns.AetherLive.CopyDiagnostics() end
                         if command=='chronicle off' then return ns.Privacy.Stop() end
                         if command=='chronicle clear' or command=='chronicle clear confirm' then return ns.UI2.ShowPrivacy() end
                         -- Private testing commands never bypass the public verification lock.

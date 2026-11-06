@@ -1,3 +1,3 @@
 -- Packaging metadata only. Retail testing does not confer Olympus affiliation.
 local _,ns=...
-ns.ClientBuild={target='forever',localTesting=false,revision='Integrated76-AthenasSafeguard6'}
+ns.ClientBuild={target='forever',localTesting=false,revision='Fireside110-Startup1',releaseChannel='public',aetherRelayPaused=true,aetherUnified=true}

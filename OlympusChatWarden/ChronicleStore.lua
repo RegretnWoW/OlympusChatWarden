@@ -285,8 +285,14 @@ function S.Event(t,owner,checkpoint)
     elseif t.snapshot~=nil then return Invalid('INVALID_SCHEMA','snapshot.unexpected') end
     local capture
     if t.kind=='native_snapshot' then
-        capture=ns.ChronicleCapture and ns.ChronicleCapture.Validate(t.capture)
-        if not capture or details.family~=capture.family or not ns.ChronicleCapture.MatchesHash(capture,details.contentID,checkpoint and function() checkpoint('checksum blocks',1) end) then return Invalid('INVALID_FIELD','capture.content_hash') end
+        local x=ns.ChronicleCapture
+        if x and checkpoint then
+            capture=x.ValidateForRestore(t.capture,details.contentID,function()checkpoint('checksum blocks',1)end)
+        else
+            capture=x and x.Validate(t.capture)
+            if capture and not x.MatchesHash(capture,details.contentID)then capture=nil end
+        end
+        if not capture or details.family~=capture.family then return Invalid('INVALID_FIELD','capture.content_hash') end
     elseif t.capture~=nil then return Invalid('INVALID_SCHEMA','capture.unexpected') end
     for _,key in ipairs({'gearRef','traitRef','appearanceRef','cardRef','contentID'}) do
         if details[key]~=nil and (not S.Text(details[key],64) or #details[key]~=64 or details[key]:find('[^a-f0-9]')) then return Invalid('INVALID_FIELD','capture.reference_hash') end
@@ -705,6 +711,7 @@ local function LoadProgress(finished)
     end
 end
 local function Complete(clean,reason)
+    if ns.FiresideStartupTiming then ns.FiresideStartupTiming.Finish('saved history validation and restore',S.startupTiming,clean~=nil);S.startupTiming=nil end
     local preferences=S.preferencesChanged and S.PreferenceRoot()
     loadFrame:SetScript('OnUpdate',nil);loadJob=nil;loadSource=nil;S.loading=false
     S.loadError=reason;S.revision=S.revision+1
@@ -727,6 +734,7 @@ local function Complete(clean,reason)
     return true
 end
 function S.Initialize(cooperative)
+    if ns.FiresideStartupTiming then S.startupTiming=ns.FiresideStartupTiming.Begin('saved history validation and restore',true)end
     if ns.ChronicleStartup then ns.ChronicleStartup.Cancel() end
     loadEpoch=loadEpoch+1;loadFrame:SetScript('OnUpdate',nil);loadJob=nil;loadSource=nil
     S.loading=false;S.loadError=nil;S.preferencesChanged=nil;S.loadProgress={chunks=0,totalChunks=0,records=0,checksumBlocks=0,pumps=0};S.db=nil;S.blocked=true
@@ -768,6 +776,12 @@ function S.Initialize(cooperative)
     if loaded and ns.ChronicleStartup then ns.ChronicleStartup.Merge() end
     return loaded
 end
+local function RecordLoadSlice(progress,timer,start)
+    if start then
+        local used=math.max(0,timer()-start);progress.cpuMS=(progress.cpuMS or 0)+used
+        progress.maxSliceMS=math.max(progress.maxSliceMS or 0,used)
+    end
+end
 function S.PumpLoad()
     if not loadJob then return end
     if not ns.DB or ns.DB.chronicle~=loadSource then Complete(nil,'Saved history changed during loading; original data was not replaced.');return end
@@ -782,12 +796,15 @@ function S.PumpLoad()
     local p=S.loadProgress;local now=ns.SafeCall(GetTime);local window=ns.Workspace and ns.Workspace.window
     if window and window:IsShown() then p.openPumps=(p.openPumps or 0)+1 else p.closedPumps=(p.closedPumps or 0)+1 end
     if now then p.longestInterval=math.max(p.longestInterval or 0,p.lastPump and now-p.lastPump or 0);p.lastPump=now end
-    -- Startup validation gets a small extra budget outside combat. Keep the
-    -- tighter budget in combat and a bounded fallback without a native clock.
-    local budget=type(InCombatLockdown)=='function' and InCombatLockdown() and 2 or 4
+    -- Only the initial, readiness-blocking restore gets this bounded budget.
+    -- Full validation remains cooperative; combat retains its 2 ms cooperative budget.
+    local budget=type(InCombatLockdown)=='function' and InCombatLockdown() and 2 or 12
+    p.budgetMS=budget
     for _=1,(start and 128 or 8) do
+        p.resumes=(p.resumes or 0)+1
         local ok,clean=coroutine.resume(loadJob)
         if not ok or coroutine.status(loadJob)=='dead' then
+            RecordLoadSlice(p,timer,start)
             local loaded=Complete(ok and clean or nil,not ok and 'History validation raised an error; original saved data is preserved.' or not clean and (S.validationFailure or 'History validation failed; original saved data is preserved.') or nil)
             if loaded and ns.Chronicle and ns.Chronicle.Loaded then ns.Chronicle.Loaded() end
             local panel=ns.ChronicleOptionsPanel;if panel and panel.Refresh then pcall(panel.Refresh,panel) end
@@ -796,6 +813,7 @@ function S.PumpLoad()
         end
         if start and timer()-start>=budget then break end
     end
+    RecordLoadSlice(p,timer,start)
     LoadProgress(false)
 end
 function S.LoadStatus()
@@ -803,7 +821,7 @@ function S.LoadStatus()
     return {loading=S.loading==true,chunks=p.chunks or 0,totalChunks=p.totalChunks or 0,pumps=p.pumps or 0,
         openPumps=p.openPumps or 0,closedPumps=p.closedPumps or 0,longestInterval=p.longestInterval or 0,
         elapsed=now and p.started and math.max(0,(S.loading and now or p.finished or p.lastPump or now)-p.started) or nil,
-        currentOwner=p.owner,sampledPeakKiB=p.sampledPeakKiB,
+        currentOwner=p.owner,sampledPeakKiB=p.sampledPeakKiB,cpuMS=p.cpuMS or 0,maxSliceMS=p.maxSliceMS or 0,resumes=p.resumes or 0,budgetMS=p.budgetMS,
         sinceLastPump=S.loading and now and p.lastPump and math.max(0,now-p.lastPump) or nil,
         workerShown=loadFrame:IsShown(),backgroundFPS=ns.SafeCall(C_CVar and C_CVar.GetCVar or GetCVar,'maxFPSBk')}
 end

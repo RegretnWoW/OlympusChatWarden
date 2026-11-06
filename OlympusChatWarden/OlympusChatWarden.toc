@@ -2,13 +2,14 @@
 ## Title: Fireside
 ## Notes: Chronicle, player intelligence, chat, protection and RelayWarden support for Olympus.
 ## Author: Regretn
-## Version: 1.1.4-unified-2.11.8-integrated77-media1
+## Version: 1.1.4-unified-2.11.8-integrated110-startup1
 ## SavedVariables: OlympusWardenPrivacyDB, OlympusChatWardenDB, OlympusWardenRelayDB, OlympusWardenStartupDB, OlympusWardenConversationDB, OlympusWardenJournalDB, OlympusWardenRecollectionsDB, OlympusWardenExchangeDB
 ## OptionalDeps: Olympus, OlympusWardenAthenaLab
 ## Dependencies: FiresideRecovery
 ## IconTexture: Interface\AddOns\OlympusChatWarden\Media\Warden\FiresideTorch65.tga
 ## Category: Miscellaneous
 
+FiresideStartupTiming.lua
 ClientBuild.lua
 ClientCompat.lua
 FiresideSavedData.lua
@@ -234,6 +235,7 @@ AthenaQuestChains.lua
 AthenaQuestCompleteArcs.lua
 AthenaKnowledge.lua
 AthenaLoreCodexData.lua
+AthenaLoreBuildIndex.lua
 AthenaStoryContributions.lua
 Metis\Bootstrap.lua
 AthenaRecollections.lua
@@ -394,6 +396,7 @@ WardenWildlife.lua
 WardenRoomDefinitions.lua
 WardenPortalOverrides.lua
 WardenSceneVisitors.lua
+WardenScenePopulation81.lua
 WardenRoomBook.lua
 WardenWorldArt.lua
 WardenWorldArt49.lua
@@ -402,14 +405,23 @@ WardenWorldArt51.lua
 WardenWorldArt52.lua
 WardenWorldArt68.lua
 WardenMediaPolicy77.lua
+WardenSharedSky84.lua
+WardenTownArt82.lua
+WardenTownSquare81.lua
+WardenSceneNavigation81.lua
 WardenScenicInput.lua
 WardenWorldRealm.lua
 WardenHearth.lua
 WardenRoomTravel.lua
 WardenNativeSceneAudio.lua
+WardenWorldScale82.lua
+WardenAgoraLayout92.lua
+WardenFieldsLayout100.lua
+WardenLocations81.lua
 WardenSceneHover.lua
 WardenShelfShowcase.lua
 WardenCanonicalPlayer.lua
+WardenSceneLayers81.lua
 UI2Shell.lua
 UI2Forms.lua
 UI2Routes.lua
@@ -425,7 +437,18 @@ AetherCrypto.lua
 AetherIssuerKeys.lua
 AetherCertificates.lua
 AetherEnrollment.lua
+AetherAutomaticIssuerGrants86.lua
+AetherAutomaticEnrollment86.lua
 AetherNative.lua
+AetherRelayLaunch83.lua
+AetherLive91.lua
+AetherLiveGameplay92.lua
+AetherLiveSession94.lua
+AetherLiveUI91.lua
+AetherLiveWorld92.lua
+AetherLiveUI92.lua
+AetherServices94.lua
+AetherUnified107.lua
 DirectNative.lua
 
 UI2LayoutEditor.lua
@@ -450,6 +473,7 @@ WardenBookbinder.lua
 WardenStudio.lua
 UI2Agora.lua
 UI2Startup.lua
+UI2RecordingSetup85.lua
 ChronicleReplay.lua
 WardenBugReport.lua
 WardenCampfireWelcome.lua
@@ -458,3 +482,5 @@ WardenMenu.lua
 WardenReadingCamera62.lua
 WardenWelcomeGuide67.lua
 FiresideRecoveryUI.lua
+
+FiresideStartupStages109.lua

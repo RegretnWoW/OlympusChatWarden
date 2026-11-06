@@ -83,14 +83,14 @@ function V.Create(realm,scene)
  end
  function m:Portal(side)
   -- The endpoint is genuinely outside the same native viewport, not a fade.
-  return N.FloorPoint(scene.native.frame,scene.shot,side<0 and-.22 or 1.22,.69,0)
+  return N.AuthoredFloorPoint(scene.native.frame,scene.shot,side<0 and-.22 or 1.22,.69,0)
  end
  function m:Route(a,x,y,phase,portal)
   local nav,why=realm:GroundNavigation(scene,a);if not nav then a.motionStatus=why;return false end
   if portal then local base={};for k,v in pairs(nav.base or nav)do base[k]=v end;base.polygon=nil;base.boundary=nil;base.base=nil;nav=N.PeopleNavigation(base,scene.native,a)end -- only entry/exit may leave the visible floor
   local path;path,why=N.WalkPath(a.position,x,y,nav)
   if not path then a.motionStatus=why;return false end
-  local ok;ok,why=scene.native:Route(a,path,math.max(2,path.length/N.WALK_SPEED+.65),4,nav)
+  local ok;ok,why=scene.native:Route(a,path,N.WalkDuration(a,path),4,nav)
   if ok then a.visit.phase=phase;a.motionStatus='Private remembered visitor · '..phase else a.motionStatus=why end
   return ok
  end
@@ -109,7 +109,7 @@ function V.Create(realm,scene)
  function m:Ready(a)
   if not a.spec.socialVisitor then return end
   if not a.capabilities[4]then self.metrics.unsupported=self.metrics.unsupported+1;self:Retire(a,true);return end
-  local x,y=N.FloorPoint(scene.native.frame,scene.shot,a.visit.side<0 and .22 or .78,.69,0)
+  local x,y=N.AuthoredFloorPoint(scene.native.frame,scene.shot,a.visit.side<0 and .22 or .78,.69,0)
   if not x or not self:Route(a,x,y,'entering',true)then self:Retire(a,true)end
  end
  function m:Ended(a)
@@ -134,9 +134,9 @@ function V.Create(realm,scene)
      else
       local nav=realm:GroundNavigation(scene,a);local path
       if nav and a.capabilities[97]and not visit.sat then path=realm:FirePath(scene,a,nav)end
-      if path and scene.native:Route(a,path,math.max(2,path.length/N.WALK_SPEED+.65),4,nav)then visit.phase='to-fire';visit.sat=true
+      if path and scene.native:Route(a,path,N.WalkDuration(a,path),4,nav)then visit.phase='to-fire';visit.sat=true
       else
-       local x,y=N.FloorPoint(scene.native.frame,scene.shot,self:Random(.28,.73),self:Random(.63,.81),0)
+       local x,y=N.AuthoredFloorPoint(scene.native.frame,scene.shot,self:Random(.28,.73),self:Random(.63,.81),0)
        if not x or not self:Route(a,x,y,'roaming')then visit.next=self.clock+8 end
       end
      end

@@ -165,13 +165,17 @@ function P.HistoryManifest(main,expected,checkpoint)
   assert(not prior or prior.literal==nil or prior.accepted~=nil,'Literal membership lacks accepted history')
   local literals,literalCount=literalIDs(prior and prior.literal,key,checkpoint)
   local accepted=prior and prior.accepted~=nil and intervals(prior.accepted,prior.events-literalCount,checkpoint);local ids,words={},{}
+  -- Every accepted ID proves this exact owner prefix below. Hash that fixed
+  -- prefix once per owner, then continue the same two hashes over each suffix.
+  local prefix=key..':';local ownerHash,ownerHash2=0,5381
+  for i=1,#prefix do local b=prefix:byte(i);ownerHash=(ownerHash*33+b)%4294967291;ownerHash2=(ownerHash2*65599+b*b*131+b)%4294967291 end
   local function event(e)
-   assert(type(e.id)=='string'and e.id:sub(1,#key+1)==key..':','Invalid history identity')
+   assert(type(e.id)=='string'and type(key)=='string'and e.id:sub(1,#prefix)==prefix,'Invalid history identity')
    local suffix=e.id:sub(#key+2);local sequence=tonumber(suffix)
    assert(#e.id<=256 and suffix:match('^%d+$')and integer(sequence)and sequence>=1,'Invalid history sequence')
    local canonical=suffix==tostring(sequence)
    if canonical then ids[#ids+1]=sequence else words[#words+1]=suffix end
-   local h,h2=0,5381;for i=1,#e.id do local b=e.id:byte(i);h=(h*33+b)%4294967291;h2=(h2*65599+b*b*131+b)%4294967291 end
+   local h,h2=ownerHash,ownerHash2;for i=#prefix+1,#e.id do local b=e.id:byte(i);h=(h*33+b)%4294967291;h2=(h2*65599+b*b*131+b)%4294967291 end
    row.identity=(row.identity+h)%4294967291;row.identity2=(row.identity2+h2)%4294967291;row.events=row.events+1
    if prior and(accepted and(canonical and member(accepted,sequence)or not canonical and literals[suffix])or not accepted and sequence<=prior.sequence)then row.prefixEvents=row.prefixEvents+1;row.prefixIdentity=(row.prefixIdentity+h)%4294967291;row.prefixIdentity2=(row.prefixIdentity2+h2)%4294967291 end
    if checkpoint and row.events%32==0 then checkpoint()end
@@ -390,9 +394,19 @@ function P.ValidateGeneration(generation,retainedExchange)
   assert(ns.AthenaReadingSnapshots and ns.AthenaReadingSnapshots.ValidateSaved,'Saved reading validator unavailable')
   ns.AthenaReadingSnapshots.ValidateSaved(reading,history)
  end
- -- Complex private archive validators run during their normal cooperative
- -- load. Do not call these snapshots fully validated or arm a partial restore.
- for _,base in ipairs({'OlympusWardenConversationDB','OlympusWardenRecollectionsDB','OlympusWardenExchangeDB'})do
+ local conversations=roots.OlympusWardenConversationDB
+ if conversations then
+  assert(ns.AthenaConversations and ns.AthenaConversations.ValidateSaved,'Conversation recovery validator unavailable')
+  ns.AthenaConversations.ValidateSaved(conversations)
+ end
+ local recollections=roots.OlympusWardenRecollectionsDB
+ if recollections then
+  assert(ns.AthenaRecollections and ns.AthenaRecollections.ValidateSaved,'Recollection recovery validator unavailable')
+  ns.AthenaRecollections.ValidateSaved(recollections,history)
+ end
+ -- Sharing credentials and replay counters are still retained from the
+ -- current root; historical recovery must never roll them back.
+ for _,base in ipairs({'OlympusWardenExchangeDB'})do
   local r=roots[base];local records=r and(r.owners or r.pages or r.characters)
   assert(base=='OlympusWardenExchangeDB'and retainedExchange or not records or next(records)==nil,'Checkpoint has private records requiring application recovery; original files retained')
   if base=='OlympusWardenExchangeDB'and r and not retainedExchange then for _,field in ipairs({'netClients','netLocal','aetherCredentials','extensionActivities'})do assert(not r[field]or not r[field].owners or next(r[field].owners)==nil,'Network identity must be retained from the current save; rollback refused')end end

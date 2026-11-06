@@ -77,7 +77,7 @@ S.plates={hall={
  {'gatehouse','a2-gatehouse','gatehouse',{0,0,1,1}},
  {'ground','a2-ground','shell',{0,0,1,1}},
 },study={
- {'sky','home51-sky','sky',{0,0,1,1}},
+ {'sky','a2-sky','sky',{0,0,1,1}},
  {'cloud-far-a','a2-cloud-far-left','cloud-far',{.14,.12,.18,.10}},
  {'cloud-far-b','a2-cloud-far-right','cloud-far',{.66,.10,.19,.10}},
  {'cloud-near-a','a2-cloud-near-left','cloud-near',{.37,.025,.21,.10}},

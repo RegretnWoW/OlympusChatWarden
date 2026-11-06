@@ -20,7 +20,7 @@ function E.Entitlement(route,template)
   -- cached claims and fixture owns() callbacks are deliberately not consulted.
   local owner=ns.Permissions.Owner();local own=owner and owner:match('/(Player%-.+)$')
   if guid(own) and route.key==own and (not route.owner or route.owner==owner) then return {kind='CHARACTER',key=own,owner=owner,source='LOCAL_GUID',scope='PRIVATE_NOT_PUBLISHED'} end
-  return nil,'Only this GUID-bound character may edit its private profile design.'
+  return nil,'Only this character can change its private profile layout.'
  elseif template=='intel.guild' or route.originGuild then
   return nil,'Guild design editing awaits an approved guild leadership authority. Names, rank labels and cached claims cannot grant it.'
  end

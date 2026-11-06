@@ -21,6 +21,11 @@ Q.rewards={
  {id='wizard',title='Sanctuary Wizard',track='Wizard',reason='Qualify every dungeon badge with a native instance-completion result.'},
 }
 Q.byID={};for _,r in ipairs(Q.rewards)do Q.byID[r.id]=r end
+local ambient={cat=true,owl=true,rabbit=true,bird=true,moth=true,fox=true,stag=true,squirrel=true}
+function Q.IsAmbient(id)return ambient[id]==true end
+function Q.CollectionRewards()
+ local out={};for _,r in ipairs(Q.rewards)do if not ambient[r.id]or r.id=='cat'or r.id=='rabbit'or r.id=='stag'or r.id=='squirrel'then out[#out+1]=r end end;return out
+end
 -- IDs name documented companion NPCs, not arbitrary wild owls/rabbits. Native
 -- ownership is still required. Source qualification is retained in the build.
 Q.petCreatures={ [7553]='owl',[7555]='owl',[7560]='rabbit',[7389]='bird',[7390]='bird' }
@@ -59,6 +64,7 @@ local function notify(owner,notice,silent)
  if Q.Pump then Q.Pump()end
 end
 local function grant(owner,id,e,reason,silent)
+ if Q.IsAmbient(id)then return false end -- Ambient fauna is no longer an entitlement. Retained historical awards are untouched.
  local r=state(owner,true);if not r or r.earned[id]or not Q.byID[id]then return false end
  r.earned[id]={at=e and e.at or stamp(),ref=e and e.id,reason=reason,criterion=1}
  notify(owner,{key='actor/'..id,id=id,title=Q.byID[id].title,reason=reason},silent)
@@ -131,7 +137,7 @@ function Q.Owned(id,owner)
  local r=state(owner or current(),false);return r and r.earned[id]~=nil or false
 end
 function Q.Available(id)
- return ns.ClientCompat and ns.ClientCompat.IsRetailTest()or Q.preview or Q.ActiveBypass()or Q.Owned(id)
+ return Q.IsAmbient(id)or ns.ClientCompat and ns.ClientCompat.IsRetailTest()or Q.preview or Q.ActiveBypass()or Q.Owned(id)
 end
 function Q.ActiveBypass()return Q.labBypass and ns.WardenSimLab and ns.WardenSimLab.Enabled()or false end
 function Q.SetLabBypass(value)
@@ -227,7 +233,11 @@ end
 function Q.Pump()
  if not Q.popup or Q.popup:IsShown()or not ns.UI2.window:IsShown()or not permitted()or not enabled()then return end
  local r=state(current(),false);if not r or #r.pending==0 then return end
- local n=table.remove(r.pending,1);if n.owner==current()then Q.ShowNotice(n)end
+ -- Consume obsolete queued animal notices without changing earned keepsakes or
+ -- their historical references. Natural fauna no longer announces an unlock.
+ for _=1,math.min(#r.pending,Q.queueLimit)do local n=table.remove(r.pending,1)
+  if type(n)=='table'and n.owner==current()and not Q.IsAmbient(n.id)then Q.ShowNotice(n);return end
+ end
 end
 function Q.TestPopup(id)
  if not(ns.WardenSimLab and ns.WardenSimLab.Enabled())then return false end
@@ -244,16 +254,19 @@ function Q.OpenCollection()
  M.Request(current());Q.Reconcile(current())
  local f=Q.collection
  if not f then
-  f=ns.UI2Forms.Form({title='Athena’s Sanctuary',help='Your companions and standards are private cosmetic rewards. Preview never awards progress.',fields={},cancelLabel='Close'});if not f then return false end;Q.collection=f;f:SetHeight(700);f:SetWidth(720)
+  f=ns.UI2Forms.Form({title='Athena’s Sanctuary',help='Wildlife visits the fields naturally; cats wander Pyragore. Standards remain private keepsakes.',fields={},cancelLabel='Close'});if not f then return false end;Q.collection=f;f:SetHeight(700);f:SetWidth(720)
   local body=f.scroll:GetScrollChild();body:SetHeight(870)
-  f.tiles={};for i,r in ipairs(Q.rewards)do
+  f.tiles={};for i,r in ipairs(Q.CollectionRewards())do
    local tile=ns.UI2Components.Card(body,r.title,true);tile:SetSize(312,148);tile:SetPoint('TOPLEFT',12+(i-1)%2*328,-12-math.floor((i-1)/2)*165)
    local art=CreateFrame('Frame',nil,tile);art:SetSize(80,80);art:SetPoint('TOPLEFT',8,-44);Q.Art(art,{id=r.id})
    tile.label=ns.UI2Components.Text(tile,'',12,{.18,.13,.07});tile.label:SetPoint('TOPLEFT',96,-43);tile.label:SetWidth(202);tile.label:SetHeight(94);tile.label:SetJustifyH('LEFT');tile.label:SetWordWrap(true);f.tiles[i]=tile
   end
   ns.UI2Components.Button(f,'Preview Sanctuary',function()f:Hide();Q.Preview('realm')end,210):SetPoint('BOTTOMLEFT',18,18)
  end
- for i,r in ipairs(Q.rewards)do f.tiles[i].label:SetText((Q.Owned(r.id)and(r.permanent and'Permanent resident'or'Unlocked')or'Locked')..'\n'..r.reason)end
+ for i,r in ipairs(Q.CollectionRewards())do
+  local message=Q.IsAmbient(r.id)and(r.id=='cat'and'Wanders Pyragore at natural intervals.'or'Visits the fields at natural intervals.')or(Q.Owned(r.id)and(r.permanent and'Always available'or'Unlocked')or'Locked')..'\n'..r.reason
+  f.tiles[i].label:SetText(message)
+ end
  if ns.UI2Forms.active and ns.UI2Forms.active~=f then ns.UI2Forms.active:Hide()end;ns.UI2Forms.active=f;f:Show();return true
 end
 function Q.ResetRuntime()

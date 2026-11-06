@@ -18,6 +18,7 @@ function E.Register(name,specs)
 end
 function E.Template(route)
  route=route or {};local page=route.page or 'overview'
+ if page=='intel'and route.subsection=='live-players'then return'intel.live-players'end
  if page=='intel'and route.subsection=='agora'then return'agora'end
  if page=='intel'and route.kind=='player'and route.extension then return 'intel.extension'end
  if page=='intel' then return route.kind=='player' and (route.projection=='public' and 'intel.public' or 'intel.player') or route.kind=='guild' and 'intel.guild' or route.kind=='group' and 'intel.group' or 'intel.browse' end

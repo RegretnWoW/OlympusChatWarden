@@ -3,6 +3,7 @@
 local _,ns=...
 local N,U,M,L,F=ns.AetherNet,ns.UI2,ns.UI2Models,ns.UI2Layouts,ns.UI2Forms
 function N.Active()
+ if ns.AetherNative and ns.AetherNative.RelayPaused()and not(ns.AetherUnified and ns.AetherUnified.Available())then return end
  local c=N.Current;if not c or not c:Joined() then return end
  if c.nativeController then return c.nativeController.enabled and c or nil end
  return WARDEN_SIMULATOR_ISOLATED==true and c.options.fixture==true and c or nil
@@ -11,13 +12,26 @@ local current=N.Active
 -- An authorized local publication is not a network request. Bootstrap the
 -- existing durable native ledger without requiring a connected peer or target.
 function N.PublicationClient()
+ if ns.AetherNative.RelayPaused()and not(ns.AetherUnified and ns.AetherUnified.Available())then return nil,ns.AetherNative.RelayPauseMessage end
+ if not ns.Permissions.Decide('UIAccess')then return nil,'Profile access is not authorized.'end
+ if ns.MainStorageBlocked then return nil,'Your saved data needs attention before community sharing can start.'end
+ if ns.AetherServices and not ns.AetherCertificates.LocalCertificate(N.Cached())then
+  ns.AetherServices.Require('relay','publish');return nil,'Your community identity is being prepared. Keep Aether Live connected; your offline pages and drafts remain available.'
+ end
+ if ns.AetherUnified and ns.AetherUnified.Available()and not N.Preference()then ns.AetherServices.RequireSharing('community-action');return nil,'Choose community sharing before publishing. Your draft is kept.'end
  local c=current();if c then return c end
  if not ns.Permissions.Decide('UIAccess') then return nil,'Profile access is not authorized.' end
- if not N.Preference() or ns.Permissions.Denied('network') then return nil,'Aether participation is off. Enable it in Aether tools → Participation, privacy & sharing.' end
+ if not N.Preference() or ns.Permissions.Denied('network') then
+  if ns.AetherServices then ns.AetherServices.RequireSharing('community-action')end
+  return nil,'Your character is enrolled. Review Relay sharing choices in Settings to use this action.'
+ end
  if ns.AetherNative and ns.AetherNative.EnsureLocal then return ns.AetherNative.EnsureLocal() end
- return nil,'The local Aether ledger adapter is unavailable; existing drafts are kept.'
+ return nil,'Aether is not available right now. Your drafts are safely kept on this computer.'
 end
+function N.CanAttemptPublication()return(not ns.AetherNative.RelayPaused()or ns.AetherUnified and ns.AetherUnified.Available())and ns.Permissions.Decide('UIAccess')and not ns.MainStorageBlocked end
 function N.PublicationAvailable()
+ if ns.AetherUnified and ns.AetherUnified.Available()and not N.Preference()then return false end
+ if ns.AetherNative.RelayPaused()and not(ns.AetherUnified and ns.AetherUnified.Available())then return false end
  return current()~=nil or ns.Permissions.Decide('UIAccess') and N.Preference() and not ns.Permissions.Denied('network') and ns.PlayerCard.Own()~=nil and not ns.MainStorageBlocked or false
 end
 local function subjectType(key) return N.Subject('WIKI',key) and 'WIKI' or N.Subject('EVENT',key) and 'EVENT' or N.Subject('GUILD',key) and 'GUILD' or 'CHARACTER' end
@@ -29,6 +43,8 @@ function N.Cached()
  c.displayOwner=own;return c
 end
 function N.ConnectionState()
+ if ns.AetherUnified and ns.AetherUnified.Available()then return ns.AetherUnified.status end
+ if ns.AetherNative.RelayPaused()then return'PAUSED_FOR_THIS_BUILD'end
  local c=N.Current;if c and c.nativeController then return c.nativeController.status end
  if current() then return 'SIMULATION_ONLY' end
  if N.Preference and N.Preference() then return 'AUTH_PENDING · TRANSPORT_UNAVAILABLE' end
@@ -37,17 +53,19 @@ end
 -- Read-only view of the existing transport. A queued record, cached activity,
 -- discovery advertisement or simulated peer cannot create Connected status.
 function N.ArtIndicator()
- if not N.Preference()then return 'OFF','Aether Beta · Off','Participation is off. Your private books and saved drafts remain available.'end
+ if ns.AetherUnified and ns.AetherUnified.Available()then local status,title,detail=ns.AetherLive.Status();return status,title,detail end
+ if ns.AetherNative.RelayPaused()then return'PAUSED','Aether Relay · Taking a break',ns.AetherNative.RelayPauseMessage end
+ if not N.Preference()then return 'OFF','Join Aether','Connect with Fireside players. Your private books and saved drafts remain available.'end
  local c=N.Cached();local adapter=c and c.nativeController
- if c and not adapter then return 'LIMITED','Aether Beta · Simulation','This isolated client is a simulator, not a verified native connection.'end
+ if c and not adapter then return 'LIMITED','Aether Beta · Simulation','Preview only · this does not connect to other players.'end
  local cap=ns.AetherNative.Capabilities(adapter)
  if cap.readiness=='UNENROLLED'then return 'LIMITED','Aether Beta · Limited','Enrollment is pending. Local creation remains available; authenticated propagation requires a verified certificate.'end
- if not cap.transportAPIAvailable then return 'UNAVAILABLE','Aether Beta · Unavailable','The required native transport is unavailable. This does not remove locally retained community content.'end
+ if not cap.transportAPIAvailable then return 'UNAVAILABLE','Aether Beta · Unavailable','This connection is not available on your client. Your saved community content is still here.'end
  local stale=false
  if adapter and adapter.enabled and adapter.WardenReachability then
   for guid in pairs(adapter.bindings or{})do
    local reach=adapter:WardenReachability(guid)
-   if reach.status=='ONLINE'then return 'CONNECTED','Aether Beta · Connected','A recently acknowledged, GUID-bound peer is reachable. This is not proof of worldwide delivery or completed native qualification.'end
+   if reach.status=='ONLINE'then return 'CONNECTED','Aether Beta · Connected','Another Aether player has answered recently. Some players may still be out of reach.'end
    if reach.status=='LAST_SEEN'then stale=true end
   end
  end
@@ -55,18 +73,22 @@ function N.ArtIndicator()
  return 'READY','Aether Beta · Ready','The client is eligible to seek peers. No currently reachable peer has been confirmed.'
 end
 function N.ServiceState()
+ if ns.AetherUnified and ns.AetherUnified.Available()then return'Aether · '..ns.AetherUnified.status end
+ if ns.AetherNative.RelayPaused()then return ns.AetherNative.RelayPauseMessage end
+ if ns.AetherServices and ns.AetherServices.Desired('relay')then local _,detail=ns.AetherServices.RelayStatus();return'Aether Relay · '..detail end
  if not N.Preference()then return 'Aether community · Participation off · Your drafts are kept'end
  local c=N.Cached();local cert=ns.AetherCertificates and ns.AetherCertificates.LocalCertificate(c)
  return cert and 'Aether community · Enrolled · original-author signatures'or'Aether community · Enrollment pending · local posts and ratings remain available'
 end
 function N.ReadSubject(t,key)
+ if ns.AetherUnified then ns.AetherUnified.Freshness(t,key)end
  local c=N.Cached();local view=c and c.options.identity(t,key) and c:View(t,key)
  if view then
   for _,row in pairs(c.records) do local r=row.record;if r.subjectType==t and r.subjectKey==key and r.origin~=c.principal and row.receivedAt and (not view.lastSynced or row.receivedAt>view.lastSynced) then view.lastSynced=row.receivedAt end end
   local muted=N.MutedAuthors and N.MutedAuthors() or {}
   for _,field in ipairs({'wall','feedback'}) do local visible={};for _,entry in ipairs(view[field] or {}) do if not muted[entry.author] then visible[#visible+1]=entry end end;view[field]=visible end
   for _,entry in ipairs(view.wall or {}) do entry.publicationState=entry.author==c.principal and 'locally-committed' or 'received';entry.delivery='No global delivery guarantee' end
-  view.offline=not current();view.scope=view.offline and (c.nativeController and 'Cached · Last known · Native session attribution unverified' or 'Cached · Partial · simulation only') or view.scope;return view
+  view.offline=not current();view.scope=view.offline and (c.nativeController and 'Saved information · may be out of date' or 'Cached · Partial · simulation only') or view.scope;return view
  end
  return {subjectType=t,key=key,identity={},wall={},matches={},members={},events={},blocks={},current={},conflicts={},rating={count=0,maximum=t=='GUILD' and 10 or 5,scope='No synchronized ratings available'},unresolvedObservations=0,scope='Not yet synchronized',offline=true,claimed=false}
 end
@@ -88,7 +110,7 @@ function N.Vote(t,key,score)
 end
 function N.Voting(guid)
  if not ns.ChronicleStore.GUID(guid) then return {enabled=false,reason='An exact character identity is required.'} end
- local c=current();if not c then return {enabled=N.PublicationAvailable() and guid~=ns.PlayerCard.Own(),reason=guid==ns.PlayerCard.Own() and 'You cannot rate your own character.' or N.PublicationAvailable() and 'Rate this player in the Aether community.' or 'Aether participation is off. Enable it in Aether tools → Participation, privacy & sharing.'} end
+ local c=current();if not c then return {enabled=guid~=ns.PlayerCard.Own(),reason=guid==ns.PlayerCard.Own() and 'You cannot rate your own character.' or N.PublicationAvailable() and 'Rate this player in the Aether community.' or 'Choose a rating to see how to join Aether and share your thoughts. Saved pages remain available offline.'} end
  local entry=c.records['CHARACTER/'..guid..'/PLAYER_VOTE/'..c.principal..'/vote']
  local own=c.options.owns(c.principal,'CHARACTER',guid)
  return {enabled=not own,stars=entry and not entry.record.removed and entry.record.data.score,
@@ -105,7 +127,7 @@ end
 function N.EditOwner(key)
  local c=N.PublicationClient();if not c or not c.options.owns(c.principal,'CHARACTER',key) then return false,'Verified character-owner proof required.' end
  local v=c:View('CHARACTER',key);local owner=v.owner or {}
- return F.Form({title='Your public profile',help='Share text and, only if selected below, your current character appearance. Missing customization details remain unknown. Private Intel notes and history are never copied here. Authenticated peer forwarding requires an enrolled character certificate; native delivery remains unverified.',
+ return F.Form({title='Your public profile',help='Share your introduction and, if you choose below, your available character appearance. Some appearance details may be missing. Private notes and adventure history are never copied here. Your character must join Aether before other participants can receive these updates.',
   fields={{key='about',label='About Me · 500 characters',value=owner.about or '',multiline=true,height=110},
 
    {key='appearance',label='Share my current character appearance',value=owner.appearance and'yes'or'no',choices={{'no','Do not share appearance'},{'yes','Share my body and visible equipment'}}},
@@ -203,9 +225,9 @@ local function draftState()
   if state.wiki~=nil and (not N.ValidateWikiLocal or not N.ValidateWikiLocal(state.wiki)) then return nil,'Local Wiki moderation needs recovery; kept unchanged.' end
   if state.native~=nil then
    local p=state.native
-   if not shape(p,'version routes shareIdentity sharePresence') or p.version~=1 or type(p.routes)~='table' or getmetatable(p.routes) or #p.routes>20 or type(p.shareIdentity)~='boolean' or type(p.sharePresence)~='boolean' then return nil,'Native peer preferences need recovery.' end
-   local n=0;for k,r in pairs(p.routes) do n=n+1;if type(k)~='number' or k%1~=0 or k<1 or k>#p.routes or not shape(r,'name channel') or not ns.CanRead(r.name) or #r.name>180 or not ({WHISPER=true,PARTY=true,RAID=true,INSTANCE_CHAT=true,GUILD=true})[r.channel] then return nil,'Native routes need recovery.' end end
-   if n~=#p.routes then return nil,'Native route array needs recovery.' end
+   if not shape(p,'version routes shareIdentity sharePresence') or p.version~=1 or type(p.routes)~='table' or getmetatable(p.routes) or #p.routes>20 or type(p.shareIdentity)~='boolean' or type(p.sharePresence)~='boolean' then return nil,'Your saved connection preferences need recovery. Their original values are kept.' end
+   local n=0;for k,r in pairs(p.routes) do n=n+1;if type(k)~='number' or k%1~=0 or k<1 or k>#p.routes or not shape(r,'name channel') or not ns.CanRead(r.name) or #r.name>180 or not ({WHISPER=true,PARTY=true,RAID=true,INSTANCE_CHAT=true,GUILD=true})[r.channel] then return nil,'Your saved contacts need recovery. The original information is kept.' end end
+   if n~=#p.routes then return nil,'Your saved contact list needs recovery. The original information is kept.' end
   end
   if state.muted~=nil then
    if type(state.muted)~='table' or getmetatable(state.muted) or ns.Athena2.Count(state.muted)>32 then return nil,'Local content preferences require recovery.' end
@@ -256,10 +278,11 @@ function N.NativePolicy(value,explicit)
  return saveLocal(root,author,state)
 end
 function N.SetPreference(value)
+ if ns.AetherNative.RelayPaused()and not(ns.AetherUnified and ns.AetherUnified.Available())then return false,ns.AetherNative.RelayPauseMessage end
  if type(value)~='boolean' then return false,'Choose On or Off.' end
  -- Withdrawal must stop a live session even if saved local preferences are
  -- malformed or current author identity is temporarily unavailable.
- if not value then ns.Permissions.Deny('network');if N.Current then N.Current:Leave() end
+ if not value then if N.Current then N.Current:Leave() end
  elseif not ns.Permissions.Resume('network',true) then return false,'Verified explicit participation action required.' end
  local root,why=draftState();if not root then return false,why end
  local state,author=ownerDraftState(root);if not state then return false,author end
@@ -268,6 +291,7 @@ function N.SetPreference(value)
  if ok then
   -- This existing opt-in authorizes automatic community synchronization.
   -- It never commits drafts, publishes an About Me edit or enables capture.
+  if value and ns.AetherAutomaticEnrollment then local ready,why=ns.AetherAutomaticEnrollment.EnsureKey();ns.AetherAutomaticEnrollment.lastError=not ready and why or nil end
   if value and ns.AetherNative and ns.AetherNative.EnsureLocal and (not N.Current or N.Current.nativeController) then ns.AetherNative.EnsureLocal() end
   changed()
  end;return ok,reason or 'Preference saved. Drafts remain private until explicitly published.'
@@ -306,7 +330,7 @@ function N.Presence(guid)
  local cached=N.Cached();local adapter=cached and cached.nativeController
  local reach=adapter and adapter.WardenReachability and adapter:WardenReachability(guid) or {status='UNKNOWN',label='Unknown'}
  local p=N.ReadSubject('CHARACTER',guid).current.PRESENCE;local now=ns.SafeCall(GetServerTime) or 0
- local out={label='Activity unknown',activityKnown=false,wardenStatus=reach.label,online=reach.status,lastSeen=reach.at,expiresAt=reach.expiresAt,scope='Reachability requires an acknowledged, GUID-bound peer session; no offline status is inferred.',group={}}
+ local out={label='Activity unknown',activityKnown=false,wardenStatus=reach.label,online=reach.status,lastSeen=reach.at,expiresAt=reach.expiresAt,scope='A player is shown as connected only after they answer. No answer does not tell us whether they are offline.',group={}}
  local d=p and p.value
  if not d or p.state=='Conflict' or type(d.observedAt)~='number' or type(d.validUntil)~='number' or d.observedAt>now or d.validUntil<=now or d.validUntil>d.observedAt+90 then return out end
  local label=({idle='Available',dungeon='Currently in a dungeon',raid='Currently Raiding',battleground='Currently in a battleground',arena='Currently in an arena',crafting='Currently Crafting'})[d.activity]

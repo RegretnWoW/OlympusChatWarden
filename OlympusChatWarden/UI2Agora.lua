@@ -77,7 +77,7 @@ function A.ProfileRows(guid)
  if own then rows[#rows+1]=row('Create a post','Choose one Agora room',function()A.Composer()end,{height=44});rows[#rows+1]=row('Share an Athena adventure','Review a limited card first',function()A.ActivityChooser()end,{height=44})end
  local feed=c and A.Query(c,{guid=guid,limit=3});for _,p in ipairs(feed and feed.items or{})do rows[#rows+1]=row(p.body~=''and p.body:sub(1,90)or p.doodle and'A shared drawing'or'An Athena observation',(R.Get(p.room)and R.Get(p.room).title or'')..' · '..stamp(p.createdAt),function()open({room=p.room,post=p.postID})end,{stacked=true,height=68})end
  if not feed or #feed.items==0 then rows[#rows+1]=caption('No known Agora posts for this character. Profiles do not have public Walls.')end
- rows[#rows+1]=row(own and'My Posts in the Agora'or'Explore the Agora','The same canonical room records',function()open({view='author',authorGUID=guid})end,{height=44});return rows
+ rows[#rows+1]=row(own and'My Posts in the Agora'or'Explore the Agora','Explore the same places in Aetheria',function()open({view='author',authorGUID=guid})end,{height=44});return rows
 end
 function A.Blocks(route)
  R.Ensure();local c=cache();local room=R.Valid(route.room)and route.room or'world';local prefs,preferenceError=A.Preferences(true)
@@ -133,11 +133,11 @@ function A.Blocks(route)
   for i=offset+1,math.min(#history,offset+10)do local v=history[i].value;local raw=ns.ChronicleBackup.DecodeChunk(v.pair.wire);raw=raw and raw[1];local text=raw and raw.data and raw.data.body;local id=history[i].id;rows[#rows+1]=row(text and text~=''and text or'Attachment/removal snapshot',v.room..' · Retained owner publication history',nil,{stacked=true,height=80});rows[#rows+1]={actions={{title='Export archive copy',activate=function()F.Copy('My retained public post',ns.ChronicleBackup.Encode({v.pair}))end},{title='Remove archive copy',activate=function()F.Confirm('Remove my archive copy?','Only this retained copy is removed. This does not remove the public post or recall copies held by peers.',function()local ok,why=A.ForgetHistory(id,true);if ok then refresh()end;return ok,why end)end}},height=74}end
   if #history>offset+10 then rows[#rows+1]=row('More retained posts',nil,function()open({view='archive',cursor=tostring(offset+10)})end)end;title='My retained publication history'end
  if not prefs then rows[#rows+1]=caption('Local Agora preferences need recovery; originals were retained.')end
- local pulse=A.Pulse and A.Pulse(room)or{status='Unavailable',scope='Recorded by participating Fireside clients · no supported projection available'}
+ local pulse=A.Pulse and A.Pulse(room)or{status='Unavailable',scope='Shared by participating Fireside players · nothing available to show yet'}
  local pulseRows={caption(pulse.scope),row('Coverage',pulse.status,nil,{height=42})};for _,kind in ipairs({'dungeon','raid','battleground','arena','duel','boss'})do if pulse.counts then pulseRows[#pulseRows+1]=row(kind,tostring(pulse.counts[kind]or 0),nil,{height=34})end end
  pulseRows[#pulseRows+1]=caption('Freshness: '..stamp(pulse.at)..'. Counts do not describe the server population. P2P aggregate totals are unavailable.')
  local tools={};for _,choice in ipairs(U.aetherToolChoices)do local id=choice[1];tools[#tools+1]=row(choice[2],nil,function()return U.OpenAetherTool(id)end,{height=52,wrap=true})end
- return{{id='nav',title='The Agora',x=0,y=0,w=.25,rows=navigation},{id='feed',title=title,x=.25,y=0,w=.5,rows=rows},{id='pulse',title='World Pulse',x=.75,y=0,w=.25,rows=pulseRows},{id='community',title='Aether community status',x=.75,y=540,w=.25,rows={caption(A.Status(c)),row('My player profile','Same canonical Aether profile',function()U.OpenAetherProfile()end)}},{id='aether-tools',title='Aether tools',x=.75,y=700,w=.25,rows=tools}}
+ return{{id='nav',title='The Agora',x=0,y=0,w=.25,rows=navigation},{id='feed',title=title,x=.25,y=0,w=.5,rows=rows},{id='pulse',title='World Pulse',x=.75,y=0,w=.25,rows=pulseRows},{id='community',title='Aether community status',x=.75,y=540,w=.25,rows={caption(A.Status(c)),row('My player profile','Open this person’s Aether profile',function()U.OpenAetherProfile()end)}},{id='aether-tools',title='Aether tools',x=.75,y=700,w=.25,rows=tools}}
 end
 -- Private owner-approved projections: no raw Chronicle links in public cards.
 local labels={dungeon='Dungeon expedition',raid='Raid expedition',battleground='Battleground',arena='Arena match',duel='Duel',boss='World encounter',guild='Guild event',world='Adventure',group='Shared adventure'}

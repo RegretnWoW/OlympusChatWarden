@@ -1,22 +1,21 @@
 -- Three bounded native woodland visitors. No legacy 2D / flying spawners.
-local _,ns=...;local W={VERSION=2};ns.WardenWildlife=W
+local _,ns=...;local W={VERSION=3};ns.WardenWildlife=W
 local N,S=ns.WardenNativeScene,ns.WardenWorldScenes
 local player=S.residents.hall[1]
 S.residents.hall={player,
- {id='stag',npcID=883,displayID=347,height=1.5,navigationRadius=.42,reward='stag',wildlife=true,at={-30,3,0},animations={0,4,5}},
- {id='rabbit',displayID=328,height=.4,reward='rabbit',wildlife=true,at={-30,3,0},animations={0,4,5}},
- {id='squirrel',npcID=1412,height=.3,reward='squirrel',wildlife=true,at={-30,3,0},animations={0,4,5}},
+ {id='stag',npcID=883,displayID=347,height=1.5,navigationRadius=.42,wildlife=true,at={-30,3,0},animations={0,4,5}},
+ {id='rabbit',displayID=328,height=.4,wildlife=true,at={-30,3,0},animations={0,4,5}},
+ {id='squirrel',npcID=1412,height=.3,wildlife=true,at={-30,3,0},animations={0,4,5}},
 }
 S.outside.hall={};S.outside.study={}
 for _,id in ipairs({'bird','owl','fox','moth'})do S.paths[id]=nil;S.routes.study[id]=nil end
 for _,id in ipairs({'stag','rabbit','squirrel'})do S.paths[id]={wildlife=true,firstDelay=id=='stag'and 5 or id=='rabbit'and 3 or 8,persistent=false}end
--- Squirrel replaces the old five-companion woodland visitor. The already-
--- earned Fox milestone remains intact and is the explicit shared entitlement.
+-- Keep the old award IDs readable without gating natural wildlife visits.
 local Q=ns.WardenSanctuary
-Q.rewards[#Q.rewards+1]={id='squirrel',title='Squirrel Visitor',track='Squirrel',reason='Uses the existing five-companion woodland unlock; prior Fox unlock is retained.'};Q.byID.squirrel=Q.rewards[#Q.rewards]
+Q.rewards[#Q.rewards+1]={id='squirrel',title='Squirrel Visitor',track='Squirrel',reason='Ambient woodland visitor.'};Q.byID.squirrel=Q.rewards[#Q.rewards]
 local owned=Q.Owned
 Q.Owned=function(id,owner)return owned(id=='squirrel'and'fox'or id,owner)end
-W.rules={stag={wait={45,95},speed=.58},rabbit={wait={22,58},speed=.48},squirrel={wait={28,75},speed=.52}}
+W.rules={stag={wait={75,150},speed=.58},rabbit={wait={45,105},speed=.48},squirrel={wait={55,135},speed=.52},['town-cat']={wait={90,180},speed=.46}}
 -- Per-realm deterministic PRNG: no global math.randomseed and no saved-state
 -- writes. Tests can supply a seed; normal sessions vary with their start time.
 function W.Random(v)
@@ -74,7 +73,8 @@ function W.Combine(legs)
  for i,d in ipairs(out.stops)do out.stops[i]=d/out.length end;return out
 end
 function W.Start(v,s,a)
- if s.key~='hall'or not a.ready or a.failed or not Q.Available(a.spec.reward)then return false,'Wildlife unavailable'end
+ if s.key=='square'and a.spec.domestic then return W.TownStart(v,s,a)end
+ if s.key~='hall'or not a.ready or a.failed then return false,'Wildlife unavailable'end
  if a.route then return true end
  local m=metric(v,a);m.attempts=m.attempts+1
  local function retry(why,delay)m.rejected=m.rejected+1;m.reason=why;a.motionStatus=why;s.routeAt[a.id]=v.age+(delay or 6);return false,why end
@@ -83,7 +83,7 @@ function W.Start(v,s,a)
  for attempt=1,6 do
   local right=W.Random(v)>.5;local depth=.65+W.Random(v)*.18
   local uv={{right and 1.24 or -.24,depth},{.25+W.Random(v)*.5,.65+W.Random(v)*.19},{.25+W.Random(v)*.5,.65+W.Random(v)*.19},{right and .28 or .72,.65+W.Random(v)*.19},{right and -.24 or 1.24,.65+W.Random(v)*.18}}
-  local points={};for _,p in ipairs(uv)do local x,y=N.FloorPoint(a.engine.frame,s.shot,p[1],p[2],0);if not x then break end;points[#points+1]={x,y,0}end
+  local points={};for _,p in ipairs(uv)do local x,y=N.AuthoredFloorPoint(a.engine.frame,s.shot,p[1],p[2],0);if not x then break end;points[#points+1]={x,y,0}end
   if #points==5 then
    if a.wildlifeRecover then points[1]={unpack(a.position)}end
    local legs={};for i=2,#points do local path,err=N.WalkPath(points[i-1],points[i][1],points[i][2],nav)
@@ -120,4 +120,20 @@ function W.BeforeTick(engine,a,r,dt)
   a.motionStatus='Woodland visitor · resting';if v then local m=metric(v,a);m.stops=m.stops+1 end;return true
  end;return false
 end
-function W.Report(v)return{version=W.VERSION,species=v.wildlifeMetrics or{},seed=v.wildlifeSeed,policy='Unlocked native deer, rabbit and squirrel; bounded private scene routes'}end
+function W.TownStart(v,s,a)
+ if not a.ready or a.failed or a.route then return false,'Domestic model unavailable or already walking'end
+ local m=metric(v,a);m.attempts=m.attempts+1
+ local function retry(why)m.rejected=m.rejected+1;m.reason=why;a.motionStatus=why;s.routeAt[a.id]=v.age+12;return false,why end
+ if not a.capabilities[4]then return retry('Installed domestic walk animation unavailable')end
+ local nav,why=ns.WardenSceneNavigation81.PortalNavigation(v,s,a,nil,{-.3,.40,1.3,.985});if not nav then return retry(why)end
+ local targets={{1.24,.90},{.94,.89},{.795,.84},{.70,.64},{.51,.70},{.79,.84},{1.24,.90}}
+ local points={};for i,p in ipairs(targets)do local x,y=N.AuthoredFloorPoint(s.native.frame,s.shot,p[1],p[2],0);if not x then return retry('Waiting for domestic entrance projection')end;points[i]={x,y,0}end
+ if a.wildlifeRecover then points[1]={unpack(a.position)}end
+ local legs={};for i=2,#points do local leg;leg,why=N.WalkPath(points[i-1],points[i][1],points[i][2],nav);if not leg then return retry(why)end;legs[#legs+1]=leg end
+ local path;path,why=W.Combine(legs);if not path or not N.CheckPath(path,nav)then return retry(why or'No safe domestic street route')end
+ if not a.wildlifeRecover then N.Call(a.actor,'Hide');a.spec.worldYaw=nil;a.engine:Place(a,unpack(points[1]))end
+ local ok;ok,why=a.engine:Route(a,path,math.max(3,path.length/W.rules[a.id].speed),4,nav)
+ if not ok then return retry(why)end
+ a.wildlifeRecover=nil;a.wildlifeRealm=v;a.route.stops=path.stops;a.route.nextStop=1;s.routeAt[a.id]=nil;m.starts=m.starts+1;a.motionStatus='Town cat · wandering and resting';return true
+end
+function W.Report(v)return{version=W.VERSION,species=v.wildlifeMetrics or{},seed=v.wildlifeSeed,policy='Ambient animals always available; woodland species in Fields, domestic cat in Town Square; natural bounded visit intervals'}end

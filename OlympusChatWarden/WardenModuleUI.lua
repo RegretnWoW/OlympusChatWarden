@@ -50,7 +50,7 @@ function U.BuildPerformance(parent)
             blocks[#blocks+1]={kind='heading',text='World & Quest references'}
             blocks[#blocks+1]={text=version.version..' • '..(reference and reference.knownSourceIDs or version.knownSourceIDs)..' known source quests. Coverage is partial; reference data is separate from personal history.'}
         end
-        blocks[#blocks+1]={kind='body',text='Clear unused caches leaves active dictionaries, protection thresholds and history views intact. Loaded source and SavedVariables stay in memory. No saved history, notes, imports or consent is deleted. Native memory savings depend on your configuration and retained data.'}
+        blocks[#blocks+1]={kind='body',text='Clear temporary views and other unused information from memory. Your saved history, notes, imports and privacy choices are kept. How much memory is freed depends on what you have opened.'}
         self.document:SetBlocks(blocks)
     end
     function p:Activate() ns.Workspace.CommandTabs('performance');self:Refresh() end

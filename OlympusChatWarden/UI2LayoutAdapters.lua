@@ -33,9 +33,3 @@ function panel.Layout(page)
   if not features.hidden then for _,f in ipairs(v.features) do if f:IsShown() then local _,_,_,x,y=f:GetPoint();f:ClearAllPoints();f:SetPoint('TOPLEFT',x,-(86+height)) end end end
  end
 end
-local buildPanel=panel.Build
-function panel.Build(page)
- buildPanel(page);if page.warden and not page.warden.editLayout then
-  local b=ns.UI2Components.Button(page.warden.content,'Edit Layout',function() U.Open({page='settings',category='appearance'});ns.UI2LayoutEditor.Begin('olympus.panel') end,104);b:SetPoint('TOPRIGHT',-132,-10);page.warden.editLayout=b
- end
-end

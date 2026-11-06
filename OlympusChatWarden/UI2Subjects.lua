@@ -20,9 +20,9 @@ function U.LiveAppearance(m)
  if m.owner~=ns.Chronicle.Owner() or not ns.Modules.Enabled('intel') or not ns.Membership.Allowed() then return F.Feedback(false,'Live appearance is available only in your enabled local Intel view.') end
  if InCombatLockdown and InCombatLockdown() then return F.Feedback(false,'Live appearance is available after combat.') end
  local unit=G.Resolve(m.key);if not unit then return F.Feedback(false,'This exact player is not currently visible. Their recorded history remains available; an offline face is not invented.') end
- local form=F.Form({title='Live appearance · '..m.title,help='Shows the currently visible, GUID-matched person. It is not a reconstruction of historical gear. This view never requests an inspection or changes equipment.',cancelLabel='Close'})
+ local form=F.Form({title='Live appearance · '..m.title,help='Shows the player WoW can currently display. This is their current appearance, not old recorded gear. Opening this view does not inspect them or change equipment.',cancelLabel='Close'})
  form:SetHeight(620);local ok,model=pcall(CreateFrame,'PlayerModel',nil,form)
- if not ok or not model or type(model.SetUnit)~='function' then form.status:SetText('The client model API is unavailable. Native rendering remains unverified.');return form end
+ if not ok or not model or type(model.SetUnit)~='function' then form.status:SetText('Your client cannot display this character model here.');return form end
  model:SetPoint('TOPLEFT',20,-112);model:SetPoint('BOTTOMRIGHT',-20,102);model:EnableMouse(true);model:EnableMouseWheel(true)
  local zoom,angle,dragX=1,0,nil
  local function visible() return not (InCombatLockdown and InCombatLockdown()) and G.Resolve(m.key)==unit and ns.Modules.Enabled('intel') and ns.Membership.Allowed() end
@@ -30,8 +30,8 @@ function U.LiveAppearance(m)
  local function reset() if not visible() then return end;zoom=1;angle=0;call('SetPortraitZoom',0);call('SetCamDistanceScale',zoom);call('SetPosition',0,0,0);call('SetRotation',angle) end
  local function change(delta) if not visible() then return end;zoom=math.max(.35,math.min(2.8,zoom-delta*.15));call('SetCamDistanceScale',zoom) end
  call('SetKeepModelOnHide',true);model:Show();local bound=pcall(model.SetUnit,model,unit)
- if not bound or not visible() then model:Hide();call('ClearModel');form.status:SetText('The native model could not be bound to this exact player.');return form end
- reset();form.status:SetText('Drag to rotate; mouse wheel or buttons to zoom. Native visual fidelity requires an in-game check.')
+ if not bound or not visible() then model:Hide();call('ClearModel');form.status:SetText('WoW could not display this exact player’s current model.');return form end
+ reset();form.status:SetText('Drag to rotate. Use the mouse wheel or zoom buttons to look closer.')
  model:SetScript('OnMouseWheel',function(_,delta) change(delta) end)
  model:SetScript('OnMouseDown',function(_,button) if button=='LeftButton' then dragX=ns.SafeNumber(ns.SafeCall(GetCursorPosition)) end end)
  model:SetScript('OnMouseUp',function() dragX=nil end)
@@ -97,7 +97,7 @@ function L.PlayerSections(m,route,b)
   return selected
  end
  local function shared(rows,kind)
-  if ns.AetherNet.PublicationAvailable() and ns.AetherNet.ProjectCurrent(m,kind) then
+  if ns.AetherNet.CanAttemptPublication() and ns.AetherNet.ProjectCurrent(m,kind) then
    rows[#rows+1]=act('INT.NET.PUBLISH.'..kind,'Review latest '..(kind=='GEAR' and 'equipment' or 'talents')..' for sharing','Latest observation only · explicit confirmation',function() ns.AetherNet.ReviewCurrent(m,kind) end)
   end
   local current=m.aetherNet and m.aetherNet.current and m.aetherNet.current[kind]
@@ -109,7 +109,7 @@ function L.PlayerSections(m,route,b)
   else
    rows[#rows+1]={title='Shared talent observation',detail=v.completeness..' · '..#v.choices..' readable choices',height=38}
    rows[#rows+1]={height=600,talentTree={values=v,objects={},at=stamp(current.observedAt),key='shared/'..m.key..'/'..tostring(current.observedAt)}}
-   if v.exportString then rows[#rows+1]=act('INT.NET.EXPORT','Copy latest shared export','Source-qualified current projection',function() F.Copy('Latest shared talent export',v.exportString) end) end
+   if v.exportString then rows[#rows+1]=act('INT.NET.EXPORT','Copy latest shared export','The latest available shared information',function() F.Copy('Latest shared talent export',v.exportString) end) end
   end
  end
  local function received(rows,family)
@@ -148,7 +148,7 @@ function L.PlayerSections(m,route,b)
    talents[#talents+1]=cap(values.exportString and 'Export only / partial. A complete historical tree was not captured.' or 'Partial talent observation. Missing layout and ranks remain unknown.')
    talents[#talents+1]={height=600,talentTree={values=values,objects=m.loadoutIndex.objects,at=stamp(build.at),key=m.owner..'/'..m.key..'/'..build.hash}}
   end
-  if values.exportString then talents[#talents+1]=act('INT.TALENT.EXPORT','Copy recorded native export','Original saved export · unchanged',function() F.Copy('Recorded talent export',values.exportString) end) end
+  if values.exportString then talents[#talents+1]=act('INT.TALENT.EXPORT','Copy recorded talent export','Original saved export · unchanged',function() F.Copy('Recorded talent export',values.exportString) end) end
  end
  talents[#talents+1]=act('INT.TALENT.HISTORY','All talent observations','Filtered Chronicle · same player',function() history('traits') end)
  received(talents,'traits')
@@ -166,7 +166,7 @@ function L.PlayerSections(m,route,b)
  append(b,'Captured history',{
   act('INT.HISTORY.OPEN','Open captured history','Same player and observer in Chronicle',function() history(nil) end),
   act('INT.HISTORY.CONSENT','Recording and capture preferences','Review existing consent · never enabled automatically',function() U.Open({page='settings',category='recording'}) end),
-  cap('Dated local captures survive network disable. A currently visible model is labeled Live appearance and must match this exact GUID; it cannot reconstruct past appearance.')},'history')
+  cap('Your dated observations stay saved when Aether is off. A current appearance is shown only for the matching visible player; it cannot recreate their past look.')},'history')
 
  local combat={act('INT.COMBAT.TOGGLE',route.combatOpen and 'Collapse combat history' or 'Explore combat history','This same player dossier · recorded source observations',function() move(route,'combatOpen',not route.combatOpen) end)}
  if route.combatOpen then

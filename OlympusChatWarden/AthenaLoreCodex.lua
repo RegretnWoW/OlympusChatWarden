@@ -78,6 +78,7 @@ end
 -- Bulk identity references cannot suppress its richer figure/place context.
 for _,e in ipairs(basicReferences) do Register(e) end
 table.sort(L.order,function(a,b) local x,y=L.byID[a],L.byID[b];return x.title==y.title and a<b or x.title<y.title end)
+if ns.AthenaLoreBuildIndex then ns.AthenaLoreBuildIndex.Release()end
 local function Mention(text,alias,person)
     if type(text)~='string' then return false end
     text=text:lower():gsub('’',"'");alias=alias:lower():gsub('’',"'");local at=1

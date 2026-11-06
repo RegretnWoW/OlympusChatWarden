@@ -3,6 +3,7 @@ local _,ns=...;local C=ns.WardenRoomCatalogue
 local get,list=C.Connection,C.Connections;local overrides={}
 function C.PortalDefaults(room)return list(room)end
 function C.PortalRectangle(room,id,field,r)
+ if ns.AetherLive and ns.AetherLive.World and ns.AetherLive.World.active then return false,'Live uses the official world geometry'end
  local link=get(id,room);if not link or not link.portal or(field~='clickUV'and field~='triggerUV')then return false,'Unknown entrance'end
  if r~=nil then
   if type(r)~='table'or getmetatable(r)then return false,'Invalid entrance box'end
@@ -13,6 +14,7 @@ function C.PortalRectangle(room,id,field,r)
  overrides[room]=overrides[room]or{};overrides[room][id]=overrides[room][id]or{};overrides[room][id][field]=r and{r.x,r.y,r.x+r.width*r.scale,r.y+r.height*r.scale,hidden=r.hidden==true}or nil;return true
 end
 local function apply(row)
+ if ns.AetherLive and ns.AetherLive.World and ns.AetherLive.World.active then return row end
  local values=overrides[row.from]and overrides[row.from][row.id];if not values or not row.portal then return row end
  for field,r in pairs(values)do
   if r.hidden then row.portal=nil;return row end

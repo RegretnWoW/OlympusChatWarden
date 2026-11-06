@@ -1,14 +1,59 @@
 -- Native actors and interacting props share ONE perspective/depth buffer.
 -- Scene-only presentation: no collectors, identity, rewards or saved history.
 local _,ns=...
-local N={VERSION=10,MAX_ACTORS=40,MAX_PATH_SAMPLES=129};ns.WardenNativeScene=N
+local N={VERSION=13,MAX_ACTORS=64,MAX_PATH_SAMPLES=129,FULL_OUTFIT_PUBLIC=false};ns.WardenNativeScene=N
+-- Bundled authored geometry is resolved only through this finite registry.
+-- Saved layouts cannot supply arbitrary native model paths.
+N.BundledModels={['olympus-cloth82']='Interface\\AddOns\\OlympusChatWarden\\Media\\NativeBanner82\\OlympusHanging82.m2'}
+N.BundledRetailModels={['olympus-cloth82']='Interface\\AddOns\\OlympusChatWarden\\Media\\NativeBanner82\\OlympusHangingRetail84.m2'}
+-- Forever build 70790 faulted inside SetModelByPath on OlympusHanging82.m2.
+-- pcall cannot contain a native access violation. Reject before actor creation
+-- and at the API boundary, including legacy layouts and editor/layer requests.
+N.QuarantinedModels={['olympus-cloth82']='Native banner quarantined after a client crash; placement retained'}
+function N.ModelQuarantine(spec)
+ return type(spec)=='table'and N.QuarantinedModels[spec.modelKey]or nil
+end
+function N.PathQuarantined(path)
+ return type(path)=='string'and path:gsub('\\','/'):lower():find('/media/nativebanner82/',1,true)~=nil
+end
+function N.BundledPlaceholder(bounds)
+ if type(bounds)~='table'then return false end
+ -- Observed Retail missing-model cube, not the authored thin cloth mesh.
+ for i=1,6 do if type(bounds[i])~='number'or math.abs(bounds[i]-(i<=3 and-.14 or .14))>.0001 then return false end end
+ return true
+end
+function N.BundledPath(spec)
+ local reason=N.ModelQuarantine(spec);if reason then return nil,reason end
+ if type(spec.modelKey)~='string'then return end
+ local retail=ns.ClientBuild and ns.ClientBuild.target=='retail-test'
+ return retail and N.BundledRetailModels[spec.modelKey]or N.BundledModels[spec.modelKey]
+end
+function N.ActorAllowed(engine,spec)
+ local reason=N.ModelQuarantine(spec);if reason then return false,reason end
+ local world=ns.AetherLive and ns.AetherLive.World
+ if world and world.active and world.IsPrivateActor({spec=spec})then return false,'Private remembered characters are paused in Aether Live'end
+ local town=ns.WardenTownSquare81
+ if engine.roomKey=='square'and town and town.definition.nativeObjectsPaused then
+  local editor=ns.WardenSceneEditor
+  if engine.calibrationPreview==true and editor and editor.calibrating and editor.scene=='square'then return true end
+  return type(spec)=='table'and spec.id=='attendant'and spec.unit=='player'and spec.controlled==true
+ end
+ return true
+end
 local pi,sqrt,sin,cos=math.pi,math.sqrt,math.sin,math.cos
 local function finite(v)return type(v)=='number'and v==v and v~=math.huge and v~=-math.huge end
 local function id(v)return finite(v)and v>0 and v<=1000000000 and v==math.floor(v)end
 local function clamp(v,a,b)return math.max(a,math.min(b,v))end
 function N.Call(o,key,...)
+ if key=='SetModelByPath'and N.PathQuarantined((...))then return false,'Native banner path quarantined after a client crash'end
  if not o or type(o[key])~='function'then return false,'Unavailable '..key end
  return pcall(o[key],o,...)
+end
+function N.SetUnitModel(actor,unit)
+ -- Ask for the character's current form, rather than forcing its native body.
+ local ok,value=N.Call(actor,'SetModelByUnit',unit,true,true,false,false)
+ if ok and value~=false then return ok,value end
+ return N.Call(actor,'SetModelByUnit',unit,true,true)
 end
 N.closeupActors={journal={desk=true,candle=true,['room-book']=true},shelf={['shelf-right']=true}}
 function N.CloseupHidden(mode,id,focusRoom)
@@ -27,6 +72,12 @@ function N.BodyDisplay(appearance)
  if appearance.sex~=2 and appearance.sex~=3 then return end
  local rows=ns.ClientCompat and ns.ClientCompat.client=='retail'and retailBodies or classicBodies
  local pair=rows[appearance.raceID];return pair and pair[appearance.sex-1]
+end
+function N.LiveDisplayAllowed(appearance)
+ if type(appearance)~='table'or(appearance.sex~=2 and appearance.sex~=3)then return false end
+ local rows=ns.ClientCompat and ns.ClientCompat.client=='retail'and retailBodies or classicBodies
+ local pair=rows[appearance.raceID]
+ return pair~=nil and appearance.nativeDisplayID==pair[appearance.sex-1]
 end
 function N.IsSimulator()
  return rawget(_G,'WARDEN_SIMULATOR_ISOLATED')==true or type(rawget(_G,'WardenSimulator'))=='table'and WardenSimulator.Host~=nil
@@ -48,6 +99,20 @@ function N.StandingPlayerBounds(a,b)
  local saved=a.standingGeometry
  if saved and saved.fileID==file then return saved.bounds end
  local bounds={unpack(b)};a.standingGeometry={fileID=file,bounds=bounds};return bounds
+end
+-- Installed Forever FDID189705 / skin494477: opaque stone/log triangles on
+-- static bone0. Flame billboards, additive ground planes and unused vertices
+-- are not physical contact. Match the observed header before applying this
+-- metadata; other clients/models keep their native bounds unchanged.
+-- Model SHA256 d79e6d98ac001f159701b90c4fd6189e83beabfb189a84cd19e0c196b6f5a4e8.
+local firepitHeader={-1.9666668176651,-1.9666668176651,-1.5994619131088257,1.9666668176651,1.9666668176651,2.333871841430664}
+local firepitSolid={-.8640407919883728,-1.0067994594573975,-.09937095642089844,1.1650465726852417,1.1288280487060547,.7115708589553833}
+function N.PhysicalPropBounds(a,b)
+ a.reportedNativeBounds=nil;a.boundsSource=nil
+ if a.spec.fileID~=189705 or not(ns.ClientCompat and ns.ClientCompat.client=='forever')then return b,b end
+ for i=1,6 do if math.abs(b[i]-firepitHeader[i])>.0001 then return b,b end end
+ a.reportedNativeBounds=b;a.boundsSource='Verified installed opaque campfire geometry; native sizing preserved'
+ return{unpack(firepitSolid)},b
 end
 function N.PropRenderLayer(engine,a,requested)
  if requested~=engine.baseLayer or not a.spec.fileID or a.spec.showcaseSupport or a.spec.support or a.spec.effect or a.id=='flagpole'then return requested end
@@ -115,7 +180,7 @@ function N.ProjectNative(scene,shot,x,y,z)
 end
 function N.ProjectInScene(engine,shot,x,y,z,aspect)
  if engine and engine.frame then local u,v,mode=N.ProjectNative(engine.frame,shot,x,y,z);if u then return u,v,mode end end
- local u,v=N.Project(engine and engine.viewShot or shot,x,y,z,aspect);return u,v,'mathematical fallback; native registration unverified'
+ local u,v=N.Project(engine and(engine.logicalViewShot or engine.viewShot)or shot,x,y,z,aspect);return u,v,'mathematical fallback; native registration unverified'
 end
 -- Register an authored floor contact against the client's actual projection.
 -- A bounded inverse solve avoids guessing field-of-view or pixel conventions.
@@ -162,14 +227,14 @@ end
 function N.FloorFence(scene,shot,box)
  local outline=type(box[1])=='table'and box or{{box[1],box[2]},{box[3],box[2]},{box[3],box[4]},{box[1],box[4]}}
  local points={};for _,p in ipairs(outline)do
-  local x,y=N.FloorPoint(scene,shot,p[1],p[2],0);if not x then return nil end;points[#points+1]={x,y}
+  local x,y=(N.AuthoredFloorPoint or N.FloorPoint)(scene,shot,p[1],p[2],0);if not x then return nil end;points[#points+1]={x,y}
  end;return points
 end
 -- Hoist registration uses a relative native projection around the same floor
 -- socket as the pole. Re-evaluate after rendering/resize, not just model load.
 function N.FlagSocket(engine,a,aspect,flagScale)
  if not a or not a.ready or a.awaitRegistration or not a.position then return end
- local p=a.position;local function project(r,d,h)local x,y,z=N.World(engine.shot,r,d,h);return N.ProjectNative(a.renderScene or engine.frame,engine.shot,x,y,z)end
+ local p=a.position;local function project(r,d,h)return ns.WardenWorldScale.ProjectPoint(engine,a,r,d,h)end
  local fu,fv=project(p[1],p[2],p[3]);local tu,tv,mode=project(p[1],p[2],p[3]+a.top*.98)
  local eu=project(p[1]+1.55,p[2],p[3]+a.top*.98)
  if not fu or not tu or not eu then return end
@@ -208,7 +273,7 @@ function N.Sample(path,q)
 end
 function N.Pace(t,duration)
  -- Integrate a short speed ramp. Frame cadence cannot change travel duration.
- duration=math.max(2,duration);t=clamp(t,0,duration);local a=math.min(.65,duration*.15);local distance,speed
+ duration=math.max(.65,duration);t=clamp(t,0,duration);local a=math.min(.65,duration*.15);local distance,speed
  local function integral(q)return q^3-.5*q^4 end
  local function ease(q)return q*q*(3-2*q)end
  if t<a then local q=t/a;distance=a*integral(q);speed=ease(q)
@@ -228,6 +293,9 @@ function N.Footprint(shot,a)
  end
  return ns.WardenSceneObjectControls.LocalBox(shot,a,{})
 end
+local function polygonOrientation(points)
+ local area=0;for i,a in ipairs(points)do local b=points[i%#points+1];area=area+a[1]*b[2]-a[2]*b[1]end;return area<0 and-1 or 1
+end
 function N.CheckPath(path,nav)
  if not nav then return true end
  local radius=nav.radius or .3;local boundary=nav.boundary;local checks=0;local polygon=nav.polygon;local orientation=1
@@ -240,7 +308,13 @@ function N.CheckPath(path,nav)
    if(dx*(y-a[2])-dy*(x-a[1]))*orientation<radius*sqrt(dx*dx+dy*dy)then return false,'Route leaves registered floor'end
   end end
   for _,b in ipairs(nav.obstacles or{})do
-   if b.circle then
+   if b.polygon then
+    local inside=true;local sign=polygonOrientation(b.polygon)
+    for i,a in ipairs(b.polygon)do local c=b.polygon[i%#b.polygon+1];local dx,dy=c[1]-a[1],c[2]-a[2]
+     if(dx*(y-a[2])-dy*(x-a[1]))*sign<=-radius*sqrt(dx*dx+dy*dy)then inside=false;break end
+    end
+    if inside then return false,'Route blocked by '..b.id end
+   elseif b.circle then
     if(x-b.x)^2+(y-b.y)^2<(b.radius+radius)^2-1e-8 then return false,'Route blocked by '..b.id end
    elseif b.centerX then
     local dx,dy=x-b.centerX,y-b.centerY;local lx,ly=dx*b.cos+dy*b.sin,-dx*b.sin+dy*b.cos
@@ -261,7 +335,7 @@ local function usableBounds(actor)
  if a and d>a and e>b and f>c then return{a,b,c,d,e,f}end
 end
 -- Small visibility graph over the existing floor/prop bounds. Temporary click
--- planning only: at most 146 nodes, no retry queue, and no gameplay movement API.
+-- planning only: at most 258 nodes, no retry queue, and no gameplay movement API.
 function N.WalkPath(from,x,y,nav)
  if not from or not finite(x)or not finite(y)then return nil,'Invalid ground point'end
  local function line(a,b)
@@ -273,8 +347,15 @@ function N.WalkPath(from,x,y,nav)
  if N.CheckPath(direct,nav)then return direct end
  local nodes={start,goal};local margin=(nav.radius or .3)+.025
  for _,b in ipairs(nav.obstacles or{})do
-  if #nodes+4>146 then return nil,'Scene navigation budget'end
-  if b.centerX then for _,p in ipairs({{-1,-1},{1,-1},{-1,1},{1,1}})do local x,y=p[1]*(b.halfX+margin),p[2]*(b.halfY+margin);nodes[#nodes+1]={b.centerX+x*b.cos-y*b.sin,b.centerY+x*b.sin+y*b.cos}end
+  if #nodes+4>258 then return nil,'Scene navigation budget'end
+  if b.polygon then
+   local points=b.polygon;local sign=polygonOrientation(points)
+   for i,v in ipairs(points)do local p,q=points[(i-2)%#points+1],points[i%#points+1]
+    local ax,ay=v[1]-p[1],v[2]-p[2];local bx,by=q[1]-v[1],q[2]-v[2];local al,bl=sqrt(ax*ax+ay*ay),sqrt(bx*bx+by*by)
+    local nx,ny,mx,my=sign*ay/al,-sign*ax/al,sign*by/bl,-sign*bx/bl;local d=1+nx*mx+ny*my
+    if d>1e-6 then nodes[#nodes+1]={v[1]+margin*(nx+mx)/d,v[2]+margin*(ny+my)/d}end
+   end
+  elseif b.centerX then for _,p in ipairs({{-1,-1},{1,-1},{-1,1},{1,1}})do local x,y=p[1]*(b.halfX+margin),p[2]*(b.halfY+margin);nodes[#nodes+1]={b.centerX+x*b.cos-y*b.sin,b.centerY+x*b.sin+y*b.cos}end
   else for _,p in ipairs({{b.left-margin,b.near-margin},{b.right+margin,b.near-margin},{b.left-margin,b.far+margin},{b.right+margin,b.far+margin}})do nodes[#nodes+1]=p end end
  end
  -- Straight visibility edges use analytic segment clearance. Building and
@@ -286,7 +367,15 @@ function N.WalkPath(from,x,y,nav)
   if not allowed[i]or not allowed[j]then return false end
   local a,b=nodes[i],nodes[j];local dx,dy=b[1]-a[1],b[2]-a[2];local len=dx*dx+dy*dy;local radius=nav.radius or .3
   for _,box in ipairs(nav.obstacles or{})do
-   if box.circle then
+   if box.polygon then
+    local low,high,intersects=0,1,true;local points=box.polygon;local sign=polygonOrientation(points)
+    for k,p in ipairs(points)do local q=points[k%#points+1];local ex,ey=q[1]-p[1],q[2]-p[2]
+     local origin=(ex*(a[2]-p[2])-ey*(a[1]-p[1]))*sign+radius*sqrt(ex*ex+ey*ey);local delta=(ex*dy-ey*dx)*sign
+     if math.abs(delta)<1e-10 then if origin<=0 then intersects=false;break end
+     else local t=-origin/delta;if delta>0 then low=math.max(low,t)else high=math.min(high,t)end;if low>=high then intersects=false;break end end
+    end
+    if intersects then return false end
+   elseif box.circle then
     local q=len>0 and clamp(((box.x-a[1])*dx+(box.y-a[2])*dy)/len,0,1)or 0
     if(a[1]+dx*q-box.x)^2+(a[2]+dy*q-box.y)^2<(box.radius+radius)^2-1e-8 then return false end
    else
@@ -326,7 +415,7 @@ end
 -- Scene-only body clearance; no game-unit movement, evidence or saved state.
 function N.IsPerson(a)
  local s=a and a.spec
- return s and not s.fileID and not s.flying and(s.controlled or s.socialVisitor or s.unit or s.appearance or s.npcID and not s.reward)and true or false
+ return s and not s.fileID and not s.flying and not s.wildlife and(s.controlled or s.socialVisitor or s.unit or s.appearance or s.npcID and not s.reward)and true or false
 end
 function N.PersonRadius(a)
  return clamp((a.spec.navigationRadius or(a.spec.wildlife and .18 or .4))*(a.scale and a.authoredBaseScale and a.scale/a.authoredBaseScale or 1),a.spec.wildlife and .12 or .2,1.2)
@@ -386,6 +475,7 @@ function N.Create(parent,shot)
  -- editor pass change uses a camera-matched viewport, not fake actor z-order.
  function s:SetLayer(a,layer)
   if not a then return false,'Missing actor'end
+  local blocked=N.ModelQuarantine(a.spec);if blocked then self:Error(a,blocked);return false,blocked end
   a.requestedRenderLayer=layer
   -- The wall display needs its mesh below the flat badge artwork, with the
   -- walking character/other props above both. Retained "native" shelf layouts
@@ -408,7 +498,8 @@ function N.Create(parent,shot)
   N.Call(a.actor,'Hide');N.Call(a.actor,'ClearModel');a.actor=actor;a.renderLayer=layer;a.renderScene=view
   N.Call(actor,'SetUseCenterForOrigin',false,false,false);N.Call(actor,'SetNormalizedScaleAggressiveness',0);N.Call(actor,'SetRequestedScale',1);N.Call(actor,'SetScale',1);N.Call(actor,'SetAlpha',0);N.Call(actor,'Show')
   local ok,result
-  if a.spec.unit=='player'then ok,result=N.Call(actor,'SetModelByUnit','player',true,true)
+  if a.spec.unit=='player'or a.spec.liveUnit then ok,result=N.SetUnitModel(actor,a.spec.liveUnit or'player')
+  elseif N.BundledPath(a.spec)then ok,result=N.Call(actor,'SetModelByPath',N.BundledPath(a.spec))
   elseif a.spec.fileID then ok,result=N.Call(actor,'SetModelByFileID',a.spec.fileID)
   elseif a.displayID then ok,result=N.Call(actor,'SetModelByCreatureDisplayID',a.displayID)
   else ok=true;a.requested=false end
@@ -418,10 +509,12 @@ function N.Create(parent,shot)
   local paused=self.paused;self:Lighting(self.lightState or'day',self.interior);self:Show(not self.hidden);self:Pause(paused);return true
  end
  function s:Add(spec)
+  local allowed,reason=N.ActorAllowed(self,spec);if not allowed then return nil,reason or'Agora scenery is temporarily paused'end
   if type(spec)~='table'or type(spec.id)~='string'or spec.id==''then return nil,'An authored actor ID is required'end
   if self.actors[spec.id]then return self.actors[spec.id]end
   if #self.order>=N.MAX_ACTORS then return nil,'Scene actor budget'end
-  if not(spec.unit=='player'or id(spec.fileID)or id(spec.displayID)or id(spec.npcID)or spec.appearance and id(spec.appearance.raceID)and(spec.appearance.sex==2 or spec.appearance.sex==3))then return nil,'A real installed model reference is required'end
+  if spec.modelKey and not N.BundledPath(spec)then return nil,'Unknown bundled native model'end
+  if not(spec.unit=='player'or N.BundledPath(spec)or id(spec.fileID)or id(spec.displayID)or id(spec.npcID)or spec.appearance and id(spec.appearance.raceID)and(spec.appearance.sex==2 or spec.appearance.sex==3))then return nil,'A real installed model reference is required'end
   N.serial=(N.serial or 0)+1;local yes,actor=N.Call(scene,'CreateActor','WardenWorldActor'..N.serial,'ModelSceneActorTemplate')
   if not yes or not actor then yes,actor=N.Call(scene,'CreateActor','WardenWorldActor'..N.serial,'')end
   if not yes or not actor then return nil,'Native actor creation failed'end
@@ -431,18 +524,21 @@ function N.Create(parent,shot)
   N.Call(actor,'SetUseCenterForOrigin',false,false,false);N.Call(actor,'SetNormalizedScaleAggressiveness',0);N.Call(actor,'SetRequestedScale',1);N.Call(actor,'SetScale',1);N.Call(actor,'SetAlpha',0);N.Call(actor,'Show')
   if spec.appearance then
    a.displayID=N.BodyDisplay(spec.appearance)
-   if not a.displayID then self:Error(a,'No installed race/sex body reference for this capture');return a end
+   if not a.displayID and not spec.liveUnit then self:Error(a,'No installed race/sex body reference for this capture');return a end
   end
-  if spec.fileID then
+  if N.BundledPath(spec)then
+   local loaded,result=N.Call(actor,'SetModelByPath',N.BundledPath(spec));if not loaded or result==false then self:Error(a,'Bundled native model unsupported or rejected on this client')end
+   a.capabilities[0]=true -- Authored and round-trip-validated loop 0; native appearance unverified.
+  elseif spec.fileID then
    local loaded,result=N.Call(actor,'SetModelByFileID',spec.fileID);if not loaded or result==false then self:Error(a,'Installed object request rejected')end
   end
-  if not spec.fileID or spec.probeObject then
+  if not(spec.fileID or N.BundledPath(spec))or spec.probeObject then
    local good,probe=pcall(CreateFrame,spec.appearance and'DressUpModel'or'PlayerModel',nil,parent)
    if not good or not probe then self:Error(a,'Native animation/identity probe unavailable');return a end
    a.probe=probe;probe:SetSize(1,1);probe:SetPoint('TOPLEFT');probe:SetAlpha(0);probe:EnableMouse(false);N.Call(probe,'SetModelAlpha',0);N.Call(probe,'SetKeepModelOnHide',true)
    N.Call(probe,'SetScript','OnModelLoaded',function()if not a.failed then a.probeLoadEvent=true end end);probe:Show()
-   if spec.unit=='player'then
-    a.requested=true;local accepted,result=N.Call(actor,'SetModelByUnit','player',true,true)
+   if spec.unit=='player'or spec.liveUnit then
+    a.requested=true;local accepted,result=N.SetUnitModel(actor,spec.liveUnit or'player')
     if not accepted or result==false then self:Error(a,'Current character model unavailable on this client')end
    elseif spec.displayID or a.displayID then
     a.displayID=spec.displayID or a.displayID;a.requested=true;local accepted,result=N.Call(actor,'SetModelByCreatureDisplayID',a.displayID)
@@ -450,14 +546,14 @@ function N.Create(parent,shot)
    end
    local loaded,result
    if spec.fileID then loaded,result=N.Call(probe,'SetModel',spec.fileID)
-   elseif spec.unit=='player'then loaded,result=N.Call(probe,'SetUnit','player')
+   elseif spec.unit=='player'or spec.liveUnit then loaded,result=N.Call(probe,'SetUnit',spec.liveUnit or'player')
    elseif spec.appearance then loaded,result=N.Call(probe,'SetDisplayInfo',a.displayID)
    else loaded,result=N.Call(probe,spec.displayID and'SetDisplayInfo'or'SetCreature',spec.displayID or spec.npcID,0)end
    if not loaded or result==false then self:Error(a,'Installed creature lookup rejected')end
   end
   return a
  end
- -- Two remembered-visitor slots are reused for the life of the scene. Retiring
+ -- Bounded remembered-visitor slots are reused for the life of the scene. Retiring
  -- clears all installed models/probes, never leaves a hidden retry queue.
  function s:Retire(a)
   if not a then return end;a.retired=true;a.ready=false;a.route=nil;a.seating=nil;a.pendingInteraction=nil;a.awaitSupport=nil;a.awaitRegistration=nil
@@ -465,11 +561,20 @@ function N.Create(parent,shot)
   if a.probe then a.probe:Hide();N.Call(a.probe,'ClearModel')end
  end
  function s:Reuse(spec)
+  local allowed,reason=N.ActorAllowed(self,spec);if not allowed then return nil,reason or'Agora scenery is temporarily paused'end
   local a=self.actors[spec.id];if not a then return self:Add(spec)end
   self:Retire(a)
   -- Reuse the original viewport slot; do not accumulate actors or probe frames.
   local reusable=a.probe;local fresh={reusableProbe=reusable,id=a.id,actor=a.actor,spec=spec,engine=self,status='loading remembered appearance',wait=0,capabilities={},scale=1,variants=a.variants,renderLayer=a.renderLayer,renderScene=a.renderScene}
   for k in pairs(a)do a[k]=nil end;for k,v in pairs(fresh)do a[k]=v end
+  -- Active native bounds include the actor's previous render scale/pose.
+  -- A room return reuses that actor: normalize it before loading/measuring
+  -- the next body, otherwise the old scale is divided into the new scale.
+  for _,actor in pairs(a.variants or{[self.baseLayer]=a.actor})do
+   N.Call(actor,'SetRequestedScale',1);N.Call(actor,'SetScale',1)
+   N.Call(actor,'SetPosition',0,0,0);N.Call(actor,'SetYaw',0);N.Call(actor,'SetPitch',0);N.Call(actor,'SetRoll',0)
+   N.Call(actor,'SetAnimation',0,0,1,0)
+  end
   N.Call(a.actor,'SetAlpha',0);N.Call(a.actor,'Show');self.loading=true;self.metrics.loads=self.metrics.loads+1
   -- Add's probe setup is shared through a temporary ID-free slot constructor.
   local probe=a.reusableProbe
@@ -478,15 +583,18 @@ function N.Create(parent,shot)
   N.Call(probe,'SetScript','OnModelLoaded',function()a.probeLoadEvent=true end);probe:Show()
   local ok,result
   a.displayID=N.BodyDisplay(spec.appearance)
-  if not a.displayID then self:Error(a,'No installed race/sex body reference for this capture');return a end
-  a.requested=true;ok,result=N.Call(a.actor,'SetModelByCreatureDisplayID',a.displayID)
+  if not a.displayID and not spec.liveUnit then self:Error(a,'No installed race/sex body reference for this capture');return a end
+  a.requested=true
+  if spec.liveUnit then ok,result=N.SetUnitModel(a.actor,spec.liveUnit)
+  else ok,result=N.Call(a.actor,'SetModelByCreatureDisplayID',a.displayID)end
   if not ok or result==false then self:Error(a,'Captured body model request rejected');return a end
-  ok,result=N.Call(probe,'SetDisplayInfo',a.displayID)
+  if spec.liveUnit then ok,result=N.Call(probe,'SetUnit',spec.liveUnit)else ok,result=N.Call(probe,'SetDisplayInfo',a.displayID)end
   if not ok or result==false then self:Error(a,'Captured body unavailable on this client')end
   return a
  end
  -- Editor objects reuse 24 stable slots, including after delete/undo/reload.
  function s:LoadProp(spec)
+  local allowed,reason=N.ActorAllowed(self,spec);if not allowed then return nil,reason or'Agora scenery is temporarily paused'end
   if not id(spec.fileID)or not spec.custom then return nil,'Invalid placed object'end
   local a=self.actors[spec.id];if not a then return self:Add(spec)end
   self:Retire(a)
@@ -502,30 +610,54 @@ function N.Create(parent,shot)
   end
   self.loading=true;self.metrics.loads=self.metrics.loads+1;return a
  end
+ local function rememberAppearanceMotion(a)
+  return{route=a.route,seating=a.seating,pendingInteraction=a.pendingInteraction,restStage=a.restStage,animation=a.animation,rate=a.lastAnimationRate,clock=a.animationClock,
+   position=a.position and{unpack(a.position)},yaw=a.yaw,at=s.clock,liveApplied=a.liveApplied,livePlaced=a.livePlaced}
+ end
+ function s:RefreshAppearance(a,spec)
+  if not a or not a.ready or a.retired or a.failed then return false end
+  if spec.liveUnit and a.spec.liveUnit==spec.liveUnit then a.spec=spec;return self:RefreshPlayer(a)end
+  if a.spec.liveUnit or spec.liveUnit or not a.spec.appearance or not spec.appearance then return false end
+  if N.BodyDisplay(a.spec.appearance)~=N.BodyDisplay(spec.appearance)then return false end
+  -- Update supported outfit geometry on the existing actor. Do not touch
+  -- its route, animation phase, floor registration, scale or seated state.
+  local previous=a.gearAppliedSlots or{};local slots={};for _,row in ipairs(spec.gear or{})do slots[row[1]]=row end
+  for slot in pairs(previous)do local row=slots[slot]
+   if row and row[2]=='empty'then N.Call(a.actor,'UndressSlot',slot);N.Call(a.probe,'UndressSlot',slot)end
+  end
+  a.spec=spec;a.gearAppliedSlots={};a.dressedItems=0;a.gearAttempts=0;a.gearRetryAt=self.clock+1;self:DressCaptured(a)
+  self.metrics.appearanceUpdates=(self.metrics.appearanceUpdates or 0)+1;return true
+ end
  function s:RefreshPlayer(a)
-  if not a or a.spec.unit~='player'then return false end
+  if not a or(a.spec.unit~='player'and not a.spec.liveUnit)then return false end
+  a.appearanceMotion=rememberAppearanceMotion(a)
   -- Native active bounds include the current pose/scale. A seated refresh
   -- must not size the standing body from a shorter, already scaled silhouette.
   N.Call(a.actor,'SetRequestedScale',1);N.Call(a.actor,'SetScale',1);N.Call(a.actor,'SetAnimation',0,0,1,0)
-  local ok,result=N.Call(a.actor,'SetModelByUnit','player',true,true)
+  local unit=a.spec.liveUnit or'player'
+  local ok,result=N.SetUnitModel(a.actor,unit)
   if not ok or result==false then self:Error(a,'Current character model unavailable on this client');return false end
   if a.position then a.spec.at={unpack(a.position)};a.spec.floorUV=nil;a.spec.yaw=a.yaw end
   a.retired=nil;a.editorCanonicalApplied=nil;a.ready=false;a.failed=nil;a.wait=0;a.probeReady=false;a.probeLoadEvent=false;a.route=nil;a.restStage=nil;a.animation=nil;a.lastAnimationRate=nil;a.status='loading current character';self.loading=true
   N.Call(a.actor,'SetAlpha',0)
-  if a.probe then a.probe:Show();local good,value=N.Call(a.probe,'SetUnit','player');if not good or value==false then self:Error(a,'Current character animation probe unavailable');return false end end
+  if a.probe then a.probe:Show();local good,value=N.Call(a.probe,'SetUnit',unit);if not good or value==false then self:Error(a,'Current character animation probe unavailable');return false end end
   return true
  end
  function s:Place(a,right,depth,height,yaw,pitch)
   if not a or not a.ready then return false end
   if a.spec.worldYaw then a.worldYaw=a.spec.worldYaw;N.Call(a.actor,'SetYaw',a.worldYaw)
   elseif yaw then local p,t=self.shot.position,self.shot.target;local base=math.atan2(t[2]-p[2],t[1]-p[1])-pi*.5;a.worldYaw=base+yaw;N.Call(a.actor,'SetYaw',a.worldYaw)end
-  local angle=a.worldYaw or 0;local cx=(a.bounds[1]+a.bounds[4])*.5*a.scale;local cy=(a.bounds[2]+a.bounds[5])*.5*a.scale
-  local x,y,z=N.World(self.shot,right,depth,height+(a.groundOffset or 0)-a.bounds[3]*a.scale)
+  local scale,factor=a.scale,1;local x,y,z
+  if ns.WardenWorldScale then x,y,z,scale,factor=ns.WardenWorldScale.Render(self,a,right,depth,height)
+  else x,y,z=N.World(self.shot,right,depth,height+(a.groundOffset or 0)-a.bounds[3]*a.scale)end
+  if a.renderScale~=scale then N.Call(a.actor,'SetRequestedScale',scale);N.Call(a.actor,'SetScale',scale);a.renderScale=scale end
+  a.presentationFactor=factor
+  local angle=a.worldYaw or 0;local cx=(a.bounds[1]+a.bounds[4])*.5*scale;local cy=(a.bounds[2]+a.bounds[5])*.5*scale
   x,y=x-cos(angle)*cx+sin(angle)*cy,y-sin(angle)*cx-cos(angle)*cy
   -- Actor translation is model-scaled. Keep authoring/collision coordinates in
   -- world units and convert only at this native boundary. Previously a small
   -- candle's desk-height translation shrank with its model scale.
-  local scale=math.max(.00001,a.scale);local nx,ny,nz=x/scale,y/scale,z/scale
+  scale=math.max(.00001,scale);local nx,ny,nz=x/scale,y/scale,z/scale
   local good=N.Call(a.actor,'SetPosition',nx,ny,nz);a.nativeOrigin={x,y,z};a.nativePosition={nx,ny,nz}
   if a.spec.flying then N.Call(a.actor,'SetPitch',pitch or 0)
   elseif a.uprightActor~=a.actor then a.uprightPitch=N.Call(a.actor,'SetPitch',0);a.uprightRoll=N.Call(a.actor,'SetRoll',0);a.uprightActor=a.actor end
@@ -559,7 +691,7 @@ function N.Create(parent,shot)
   if not clear then return false,why end
   local _,_,_,dx,dy=N.Sample(path,0);local target=math.atan2(dy,dx);local start=a.yaw or target
   local delta=(target-start+pi)%(2*pi)-pi
-  a.route={path=path,duration=math.max(2,duration),elapsed=0,animation=animation,clock=0,nav=nav and(nav.base or nav),avoidAttempts=0,turn=nav and nav.ground and math.abs(delta)>.35 and{elapsed=0,duration=.55,from=start,delta=delta}or nil};return true
+  a.route={path=path,duration=math.max(.65,duration),elapsed=0,animation=animation,clock=0,nav=nav and(nav.base or nav),avoidAttempts=0,turn=nav and nav.ground and math.abs(delta)>.35 and{elapsed=0,duration=.55,from=start,delta=delta}or nil};return true
  end
  function s:Lighting(state,interior)
   local colors={dawn={.82,.70,.57},day={1,1,1},dusk={.92,.63,.39},night={.42,.53,.75}};local c=colors[state]or colors.day
@@ -574,7 +706,7 @@ function N.Create(parent,shot)
   end
  end
  function s:DressCaptured(a)
-  if not a.spec.appearance or not a.probe then return end
+  if not a.spec.appearance or not a.probe or a.spec.liveUnit then return end
   a.gearAttempts=(a.gearAttempts or 0)+1;a.dressedItems=a.dressedItems or 0
   -- Keep the baked body material. Undress/recompositing an offline base body
   -- can erase its skin. Only standalone geometry can safely be reconstructed;
@@ -585,11 +717,18 @@ function N.Create(parent,shot)
    local slot=row[1]
    if not standalone[slot]then a.genericClothingSlots[#a.genericClothingSlots+1]=slot
    elseif not a.gearAppliedSlots[slot]then
+    local supplied
+    for _,visual in ipairs(a.spec.appearanceV2 and a.spec.appearanceV2.visuals or{})do
+     if visual[1]==slot and visual[2]>0 then supplied={appearanceID=visual[2],secondaryAppearanceID=visual[3],illusionID=visual[4]}end
+    end
     local item=row[4]~=false and row[4]or('item:'..row[3]);local hand=slot==16 and'MainHandSlot'or slot==17 and'SecondaryHandSlot'or nil
     local tried=N.Call(a.probe,'TryOn',item,hand)
     local good,info=N.Call(a.probe,'GetItemTransmogInfo',slot)
-    if tried and good and info then
-     local ok,result=N.Call(a.actor,'SetItemTransmogInfo',info,slot)
+    if supplied or tried and good and info then
+     local ok,result=N.Call(a.actor,'SetItemTransmogInfo',supplied or info,slot)
+     if supplied and(not ok or result~=true and result~=nil and result~=0)and tried and good and info then
+      ok,result=N.Call(a.actor,'SetItemTransmogInfo',info,slot)
+     end
      if ok and(result==true or result==nil or result==0)then a.dressedItems=a.dressedItems+1;a.gearAppliedSlots[slot]=true end
     end
    end
@@ -618,7 +757,7 @@ function N.Create(parent,shot)
       -- The actor's own loaded bounds permit a static book even on clients
       -- without object animation introspection. Unsupported poses stay false.
       a.probeReady=a.probeLoadEvent==true or hasFile and file==a.spec.fileID or a.wait>=2
-     elseif a.spec.unit=='player'then
+     elseif a.spec.unit=='player'or a.spec.liveUnit then
       a.probeReady=a.probeLoadEvent==true or hasFile and id(file)==true
      elseif yes and id(display)and a.displayID then
       if display~=a.displayID then self:Error(a,'Mismatched creature display')
@@ -626,14 +765,23 @@ function N.Create(parent,shot)
      end
     end
     local yes,loaded=N.Call(a.actor,'IsLoaded');a.actorLoaded=yes and loaded==true;local b=a.actorLoaded and usableBounds(a.actor)
+    if N.BundledPath(a.spec)and N.BundledPlaceholder(b)then
+     a.rejectedModelBounds=b;b=nil;N.Call(a.actor,'SetAlpha',0);N.Call(a.actor,'Hide')
+     if a.wait>=20 then self:Error(a,'Bundled cloth was replaced by the client missing-model placeholder')end
+    end
     if not b and a.actorLoaded and a.spec.effect then local ok,file=N.Call(a.actor,'GetModelFileID');if ok and file==a.spec.fileID then b={-.5,-.5,0,.5,.5,1};a.effectBoundsSource='authored unit extent; emitter has no usable native geometry bounds'end end
     if not a.failed and b and(not a.probe or a.probeReady)then
-     b=N.StandingPlayerBounds(a,b);a.bounds=b;local w=math.max(b[4]-b[1],b[5]-b[2]);local h=b[6]-b[3]
-     a.scale=a.spec.width and a.spec.width/w or a.spec.height and a.spec.height/h or a.spec.scale or 1
+     b=N.StandingPlayerBounds(a,b);local sizing
+     b,sizing=N.PhysicalPropBounds(a,b);a.bounds=b
+     -- Preserve the established intrinsic sizing basis and every authored
+     -- multiplier. Correcting physical contact must not resize the object.
+     local w=math.max(sizing[4]-sizing[1],sizing[5]-sizing[2]);local h=sizing[6]-sizing[3]
+     local height=ns.WardenWorldScale and ns.WardenWorldScale.IntrinsicHeight(a)or a.spec.height
+     a.scale=a.spec.width and a.spec.width/w or height and height/h or a.spec.scale or 1
      if a.spec.maxWidth then a.scale=math.min(a.scale,a.spec.maxWidth/w)end
      a.authoredBaseScale=a.scale;a.scale=a.scale*(a.spec.sizeMultiplier or 1)
      N.Call(a.actor,'SetRequestedScale',a.scale);N.Call(a.actor,'SetScale',a.scale)
-     a.ready=true;a.status='loaded';a.top=h*a.scale
+     a.renderScale=nil;a.ready=true;a.status='loaded';a.top=(b[6]-b[3])*a.scale
      if a.probe then
       for _,animation in ipairs(a.spec.animations or{0,4})do local good,present=N.Call(a.probe,'HasAnimation',animation);a.capabilities[animation]=good and present==true end
       a.probe:Hide()
@@ -643,8 +791,15 @@ function N.Create(parent,shot)
      if a.spec.appearance then a.gearAttempts=0;self:DressCaptured(a);a.gearRetryAt=self.clock+1 end
      local p=a.spec.at or{0,0,0};self:Place(a,p[1],p[2],p[3],a.spec.yaw or 0);self:Animate(a,0,1,0)
      if self.onReady then self.onReady(a)end
+     if a.appearanceMotion then
+      local saved=a.appearanceMotion;a.appearanceMotion=nil
+      a.route=saved.route;a.seating=saved.seating;a.pendingInteraction=saved.pendingInteraction;a.restStage=saved.restStage
+      a.liveApplied=saved.liveApplied;a.livePlaced=saved.livePlaced
+      if saved.position then self:Place(a,saved.position[1],saved.position[2],saved.position[3],saved.yaw or 0)end
+      if saved.animation and a.capabilities[saved.animation]then self:Animate(a,saved.animation,saved.rate or 1,saved.clock or 0)end
+     end
      if a.effect then ns.WardenNativeEffects.Apply(a,a.effect)end
-    elseif a.wait>=20 then self:Error(a,a.actorLoaded and'Creature model loaded; animation probe not ready after 20 visible seconds'or'Native model not ready after 20 visible seconds')end
+    elseif not a.failed and a.wait>=20 then self:Error(a,a.actorLoaded and'Creature model loaded; animation probe not ready after 20 visible seconds'or'Native model not ready after 20 visible seconds')end
    end
    if a.ready and not a.retired and a.spec.appearance and(a.gearAttempts or 0)<3 and self.clock>=(a.gearRetryAt or 0)then self:DressCaptured(a);a.gearRetryAt=self.clock+1 end
    if animate and not self.paused and a.ready and not a.retired and not a.failed then a.animationClock=(a.animationClock or 0)+dt*(a.lastAnimationRate or 1)end
@@ -693,7 +848,7 @@ function N.Create(parent,shot)
   if value then for _,a in ipairs(self.order)do if a.probe and not a.retired and not a.ready and not a.failed then a.probe:Show();N.Call(a.probe,'SetModelAlpha',0)end end end
  end
  function s:Report()
-  local out={version=N.VERSION,status=self.status,camera=self.camera,models={},errors=self.errors,metrics=self.metrics,visualVerification='Native visual inspection required; simulator cannot render models'}
+  local out={version=N.VERSION,status=self.status,camera=self.camera,models={},errors=self.errors,metrics=self.metrics,quarantinedModels=N.QuarantinedModels,visualVerification='Native visual inspection required; simulator cannot render models'}
   out.lightCapabilities=self.lightCapabilities;out.viewport={scene:GetWidth(),scene:GetHeight(),scene:GetEffectiveScale()};out.projectionSamples={}
   -- Record native projection output without guessing its units or claiming the
   -- mathematical registration surface proves final native art alignment.
@@ -704,6 +859,7 @@ function N.Create(parent,shot)
   local good,x,y,z=N.Call(scene,'GetCameraRight');if good then out.nativeRight={x,y,z}end
   good,x,y,z=N.Call(scene,'GetCameraUp');if good then out.nativeUp={x,y,z}end
   for _,a in ipairs(self.order)do out.models[#out.models+1]={id=a.id,renderer='native ModelSceneActor',renderLayer=a.renderLayer or self.baseLayer,groundOffset=a.groundOffset or 0,shadowLayer=a.shadowLayer or'contact-shadows',seating=a.seating and{kind=a.seating.kind,phase=a.seating.phase,approach=a.seating.approach}or nil,unit=a.spec.unit,fileID=a.spec.fileID,npcID=a.spec.npcID,displayID=a.displayID,status=a.status,ready=a.ready==true,requestIssued=a.requested==true,actorLoaded=a.actorLoaded==true,probeReady=a.probeReady==true,probeDisplayID=a.probeDisplayID,probeModelFileID=a.probeModelFileID,probeLoadEvent=a.probeLoadEvent==true,bounds=a.bounds,scale=a.scale,position=a.position,nativeOrigin=a.nativeOrigin,nativePosition=a.nativePosition,positionSpace="world to model-scaled translation",floorUV=a.spec.floorUV,registrationPending=a.awaitRegistration==true,floorAnchorStatus=a.floorAnchorStatus,registrationAttempts=a.registrationAttempts,worldYaw=a.worldYaw,animation=a.animation,animationClock=a.animationClock,animationRate=a.lastAnimationRate,motionStatus=a.motionStatus,collisionWait=a.collisionWait,visitor=a.spec.visitor==true,rememberedGUID=a.spec.rememberedGUID,appearanceSource=a.spec.appearanceSource,likeness=a.spec.appearance and'Generic textured race/sex body; captured standalone gear only; body clothing, face and hair are generic'or nil,dressedItems=a.dressedItems,genericClothingSlots=a.genericClothingSlots,retired=a.retired==true,restStage=a.restStage,route=a.route and{elapsed=a.route.elapsed,duration=a.route.duration,length=a.route.path.length}or nil,capabilities=a.capabilities,shadow=a.shadow,collider=a.collider,hitbox=a.hitbox,effect=a.effectReport}end
+  for _,model in ipairs(out.models)do local a=self.actors[model.id];model.modelKey=a.spec.modelKey;model.requestedModelPath=N.BundledPath(a.spec);model.rejectedModelBounds=a.rejectedModelBounds;model.reportedNativeBounds=a.reportedNativeBounds;model.boundsSource=a.boundsSource end
   return out
  end
  s.status='native camera accepted; models not yet loaded';return s

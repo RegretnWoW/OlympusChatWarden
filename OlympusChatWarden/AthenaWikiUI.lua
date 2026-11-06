@@ -103,7 +103,7 @@ local function Article(out,route)
  local sections={overview={},appearance={},history={},gameplay={}}
  sections.overview[1]=caption(article.summary)
  if article.locked then
-  sections.overview[#sections.overview+1]=caption('Some quest-derived passages are concealed by the current character’s stage, source eligibility, or spoiler settings.')
+  sections.overview[#sections.overview+1]=caption('Some quest details are hidden to respect your progress and spoiler preferences.')
   sections.overview[#sections.overview+1]={actions={{title='Spoiler settings',activate=revealReference}},height=40}
  end
  for _,part in ipairs(article.sections) do
@@ -132,7 +132,7 @@ local function Article(out,route)
   state.historyIndex=index;state.privateKey=article.key;state.privateOwner=ns.Chronicle.Owner()
   local rows,status,thread=W.Adventures(article.key,state.privateOwner);state.adventures=rows;state.adventureThread=thread;state.privateStatus=status
  end
- if not index or not ctx or not ns.Athena.Knowledge.ContextAllowed(ctx) then state.adventures={};privateRows[#privateRows+1]=caption('No eligible personal-history projection is currently available.')
+ if not index or not ctx or not ns.Athena.Knowledge.ContextAllowed(ctx) then state.adventures={};privateRows[#privateRows+1]=caption('There is no suitable passage from your own adventures to show here yet.')
  elseif state.adventureThread and coroutine.status(state.adventureThread)~='dead' then privateRows[#privateRows+1]=caption('Reading your permitted observations…')
  elseif #(state.adventures or {})==0 then privateRows[#privateRows+1]=caption('No matching source-backed interaction is present in the permitted archive.') end
  for _,fact in ipairs(state.adventures or {}) do local entry=fact
@@ -180,7 +180,7 @@ function P.Blocks(route)
  block(out,'results',(route.query and route.query~='' and ('Results for “'..route.query..'”') or 'Explore the encyclopedia')..' · '..state.job.total,rows)
  local explore={row('Choose a subject category',W.types[route.wikiKind] or 'All subjects',function() selectType(route) end)}
  for _,q in ipairs({'Stormwind','The Deadmines','Defias','Ragnaros'}) do local query=q;explore[#explore+1]=row(q,'Explore references',function() W.Open(nil,{query=query}) end) end
- if index.truncated then explore[#explore+1]=caption('This edition reached the search-index capacity. Exact installed reference keys remain bounded; additional content needs a reviewed capacity update.') end
+ if index.truncated then explore[#explore+1]=caption('This very large edition has reached its search limit. Its original reference entries are still kept.') end
  block(out,'navigation','Discover Azeroth',explore)
  return out,false
 end

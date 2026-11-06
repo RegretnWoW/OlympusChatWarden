@@ -96,7 +96,10 @@ function B.Bind(v,p,U)
   if not self.studyScene.definition.reader then self.roomBookMotion=nil;self.cameraMix=0;p:Hide();return false end
   local editing=ns.WardenSceneEditor and ns.WardenSceneEditor.active
   if editing then self.roomBookMotion=nil end
-  if self.roomBookMotion or p.turnState then return false end
+  if self.roomBookMotion then return false end
+  -- A cold journal/provider restore may have begun a folio turn during U.Open.
+  -- This explicit prop interaction owns the endpoint; settle that turn before
+  -- the normal cover preparation instead of requiring another mouse click.
   p:CancelPageTurn();p.document:FinishWordReveal();p.rightPage:FinishWordReveal()
   side=side=='back'and'back'or'front'
   -- Retain AthenaFinalBookUI's existing endpoint selection, saved back folio,
@@ -186,9 +189,12 @@ function B.Bind(v,p,U)
    if ok then
     local previousRoute,previousForward,previousBack=U.route,U.forward,{}
     for i,route in ipairs(U.back)do previousBack[i]=route end
-    self.journalReading=true;U.openingWorldJournal=true
+    self.journalReading=true;U.openingWorldJournal=true;self.preparingRoomEndpoint=true
     local called;called,ok,why=pcall(U.Open,{page='journey',sceneRoom=self.currentRoomKey})
-    U.openingWorldJournal=nil
+    -- A cold provider clears and typesets its reader during U.Open. Keep that
+    -- intermediate open folio from starting representation's recovery motion;
+    -- the explicit cover transition below owns this same first click.
+    self.preparingRoomEndpoint=nil;U.openingWorldJournal=nil
     if not called then self.lastBookError=tostring(ok);ok=false;why='Journal view could not be prepared'end
     if ok and U.route.bookOpened then
      local opened;opened,ok,why=pcall(self.OpenRoomBook,self,true,'front')

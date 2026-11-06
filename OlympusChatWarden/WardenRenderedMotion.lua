@@ -5,7 +5,7 @@ function G.RenderedFrame(asset,time)
  if not finite(time)then time=0 end
  return math.floor((math.max(0,time)%asset.duration)/asset.duration*asset.frames)+1
 end
-function G.RenderedSurface(parent,asset,phase)
+function G.RenderedSurface(parent,asset,phase,shape)
  assert(asset.renderedMotion and asset.frames>0 and asset.duration>0 and #asset.uv==asset.frames and #asset.sheets<=32,'Invalid rendered motion')
  local f=G.Frame(parent,1);f:SetAllPoints();f:EnableMouse(false)
  local r={frame=f,asset=asset,phase=phase or 0,kind='rendered-3d',cells={},sheets={},updates=0,textureBinds=0}
@@ -25,7 +25,10 @@ function G.RenderedSurface(parent,asset,phase)
    if target~=self.texture then self.texture:SetAlpha(0)end
    target:SetAlpha(1);self.texture=target;self.sheet=uv[1];self.index=index;self.updates=self.updates+1
   end
-  local w=math.min(math.max(0,width),math.max(0,height)*asset.aspect);local h=w/asset.aspect
+  -- Architectural banners reuse the proven cloth atlas with a taller panel.
+  -- The ordinary Fields/Home surface keeps its original proportions.
+  local aspect=shape and shape.aspect or asset.aspect
+  local w=math.min(math.max(0,width),math.max(0,height)*aspect);local h=w/aspect
   if not self.width or math.abs(w-self.width)>.05 or math.abs(h-self.height)>.05 then
    for _,t in ipairs(self.sheets)do G.Place(t,f,0,0,w,h)end;self.width,self.height=w,h
   end

@@ -5,6 +5,8 @@ local _,ns=...
 local N,W,B,S=ns.AetherNet,ns.RelayTransport.Aether,ns.ChronicleBackup,ns.ChronicleStore
 local C=ns.AetherCertificates
 local A={VERSION=3,PROTOCOL='S7',controllers=setmetatable({},{__mode='k'})};ns.AetherNative=A
+function A.RelayPaused()return ns.ClientBuild and ns.ClientBuild.aetherRelayPaused==true end
+A.RelayPauseMessage='Aether Relay is taking a short break while we improve performance. Your saved records and sharing choices are kept. Aether Live is still available.'
 A.DiscoveryLimits={peers=2,candidates=64,cooldowns=128,interval=120,replyWindow=180,advertisements=2}
 local function wake() if A.Wake then A.Wake() end end
 local function clock() return ns.SafeNumber(ns.SafeCall(GetServerTime)) or ns.SafeNumber(ns.SafeCall(time)) or 0 end
@@ -42,7 +44,7 @@ local function result(api,value,legacy)
  local e=Enum and Enum[api]
  if type(value)=='number' then
   if plain(e) then
-   if value==e.Success or api=='RegisterAddonMessagePrefixResult' and value==e.AlreadyRegistered then return true,'ENQUEUED_UNVERIFIED' end
+   if value==e.Success or api=='RegisterAddonMessagePrefixResult' and(value==e.DuplicatePrefix or value==e.AlreadyRegistered)then return true,'ENQUEUED_UNVERIFIED' end
    return false,'API_RESULT_'..value
   end
   -- Legacy number zero is documented success. Unknown nonzero codes fail.
@@ -73,19 +75,53 @@ local function chunks(wire)
 end
 local function restricted()
  if ns.Checked(ns.SafeCall(InCombatLockdown)) then return true,'COMBAT_PAUSED' end
+ local lockdown=C_ChatInfo and C_ChatInfo.InChatMessagingLockdown
+ if type(lockdown)=='function'then
+  local ok,v=safeCall(lockdown)
+  if not ok or not ns.Readable(v)or type(v)~='boolean'then return true,'CHAT_LOCKDOWN_UNREADABLE'end
+  if v then return true,'CHAT_LOCKDOWN'end
+ end
+ -- Forever 1.60 reports the realm-wide outgoing flag as true even where
+ -- native addon sends work. Its actual messaging lockdown and send results
+ -- decide availability. Keep the older flag as diagnostics, never as a
+ -- permanent pause on this client. Retail retains the conservative flag gate.
+ if ns.ClientCompat and ns.ClientCompat.client=='forever'then return false end
  local f=C_ChatInfo and C_ChatInfo.AreOutgoingAddonChatMessagesRestricted
  if f then local ok,v=safeCall(f);if not ok or not ns.Readable(v) or v==true then return true,'NATIVE_RESTRICTED' end end
  return false
 end
-local function register()
+local prefixes={}
+function A.EnsurePrefix(prefix)
+ if type(prefix)~='string'or #prefix<1 or #prefix>16 or prefix:find('[%c]')then return false,'INVALID_PREFIX'end
+ if prefixes[prefix]then return true,'PREFIX_ALREADY_REGISTERED'end
+ local probe=C_ChatInfo and C_ChatInfo.IsAddonMessagePrefixRegistered or IsAddonMessagePrefixRegistered
+ if type(probe)=='function'then local ok,v=safeCall(probe,prefix);if ok and ns.Readable(v)and v==true then prefixes[prefix]=true;return true,'PREFIX_ALREADY_REGISTERED'end end
  local f=C_ChatInfo and C_ChatInfo.RegisterAddonMessagePrefix or RegisterAddonMessagePrefix
- local ok,v=safeCall(f,W.PREFIX);if not ok then return false,v end
- return result('RegisterAddonMessagePrefixResult',v,C_ChatInfo==nil)
+ local ok,v=safeCall(f,prefix);if not ok then return false,v end
+ local accepted,why=result('RegisterAddonMessagePrefixResult',v,C_ChatInfo==nil)
+ -- The documented zero/one results are stable across Forever/legacy clients
+ -- even when the enumeration table is not exposed. Other failures stay closed.
+ if not accepted and ns.Readable(v)and v==1 then accepted=true;why='PREFIX_ALREADY_REGISTERED'end
+ if accepted then prefixes[prefix]=true end;return accepted,why
 end
-function A.TakeBudget(bytes)
+local function register()return A.EnsurePrefix(W.PREFIX)end
+function A.TakeBudget(bytes,service)
+ service=service or'relay'
  local at=elapsed();local b=A.byteBudget or {at=at,bytes=768,messages=2};A.byteBudget=b
  local dt=math.max(0,at-b.at);b.at=at;b.bytes=math.min(768,b.bytes+dt*480);b.messages=math.min(2,b.messages+dt*2)
- if b.bytes<bytes or b.messages<1 then return false end;b.bytes=b.bytes-bytes;b.messages=b.messages-1;return true
+ local live=ns.AetherLive and ns.AetherLive.Queued()
+ if live then
+  local isLive=service=='live'or service=='live-game'or service=='live-records'
+  if service=='live-records'and(ns.AetherLive.ControlQueued()or ns.AetherLive.runtime and #ns.AetherLive.runtime.gameOrder>0)then return false end
+  if service=='live-game'and ns.AetherLive.ControlQueued()then return false end
+  if isLive and(b.liveStreak or 0)>=3 then
+   for a in pairs(A.controllers)do if a.enabled and #a.queue>0 then return false end end
+  elseif not isLive and(b.liveStreak or 0)<3 then return false end
+ end
+ if b.bytes<bytes or b.messages<1 then return false end
+ b.bytes=b.bytes-bytes;b.messages=b.messages-1;b.liveStreak=(service=='live'or service=='live-game'or service=='live-records')and(b.liveStreak or 0)+1 or 0
+ A.traffic=A.traffic or{};local t=A.traffic[service]or{messages=0,bytes=0};A.traffic[service]=t;t.messages=t.messages+1;t.bytes=t.bytes+bytes
+ return true
 end
 function A.TransportCapabilities()
  local logged=type(C_ChatInfo and C_ChatInfo.SendAddonMessageLogged)=='function'
@@ -93,6 +129,20 @@ function A.TransportCapabilities()
  local registration=type(C_ChatInfo and C_ChatInfo.RegisterAddonMessagePrefix or RegisterAddonMessagePrefix)=='function'
  return {available=logged and registration,loggedAvailable=logged,sendAvailable=ordinary,registerAvailable=registration,
   reason=not logged and'LOGGED_API_UNAVAILABLE'or not registration and'PREFIX_API_UNAVAILABLE'or'API_AVAILABLE'}
+end
+-- Read only, on-demand diagnostics. Never includes packet bodies or credentials.
+function A.ConnectionDiagnostics()
+ local cap=A.TransportCapabilities();local paused,reason=restricted()
+ local f=C_ChatInfo and C_ChatInfo.AreOutgoingAddonChatMessagesRestricted
+ local restriction='API_ABSENT'
+ if type(f)=='function'then local ok,v=safeCall(f);restriction=not ok and'API_ERROR'or not ns.Readable(v)and'UNREADABLE'or v==true and'TRUE'or v==false and'FALSE'or'UNEXPECTED_RESULT'end
+ cap.paused=paused;cap.pauseReason=reason or'NONE';cap.outgoingRestricted=restriction
+ local lockdown=C_ChatInfo and C_ChatInfo.InChatMessagingLockdown;cap.chatLockdown='API_ABSENT'
+ if type(lockdown)=='function'then local ok,v=safeCall(lockdown);cap.chatLockdown=not ok and'API_ERROR'or not ns.Readable(v)and'UNREADABLE'or v==true and'TRUE'or v==false and'FALSE'or'UNEXPECTED_RESULT'end
+ cap.restrictionPolicy=ns.ClientCompat and ns.ClientCompat.client=='forever'and'FOREVER_LOCKDOWN_AND_SEND_RESULT'or'REALM_FLAG_AND_LOCKDOWN'
+ cap.combat=ns.Checked(ns.SafeCall(InCombatLockdown));cap.workerAttached=A.frame and A.frame:GetScript('OnUpdate')~=nil or false
+ cap.pumpCalls=A.pumpCalls or 0;cap.lastPumpAge=A.lastPumpAt and math.max(0,elapsed()-A.lastPumpAt)or nil
+ return cap
 end
 function A.Capabilities(controller)
  local c=controller and controller.client or N.Current;local material=C.LocalMaterial();local cert=C.LocalCertificate(c)
@@ -126,7 +176,7 @@ local function create(build,config)
  -- Prefer the canonical owner token: realm formatting can differ in API
  -- presentation but the verified local GUID and exact startup owner must hold.
  local localOwner=ns.Permissions.Owner()
- permission=function() return a.enabled and N.Preference() and not ns.Permissions.Denied('network') and ns.Permissions.Owner()==localOwner end
+ permission=function() return a.enabled and(N.Preference()or ns.AetherUnified and ns.AetherUnified.Active()) and not ns.Permissions.Denied('network') and ns.Permissions.Owner()==localOwner end
  local function author(principal)
   if principal=='Issuer/'..C.AUTHORITY then return {verified=true,eligible=true,principal=principal,name=C.LABEL,trustTier='PINNED_AUTHORITY'}end
   local cert=a.certified[principal];if cert then return {verified=true,eligible=true,principal=principal,name=cert.name..'-'..cert.realm,trustTier='CERTIFICATE_HISTORICAL_OR_CURRENT'}end
@@ -212,7 +262,7 @@ local function create(build,config)
    end
    if r.kind=='WIKI_REPORT'and r.subjectType~='WIKI'then return false,'WIKI_REPORT_SCOPE'end
    if r.kind=='IDENTITY'then local b=cert or binding(r.origin)
-    if not restoring and(not b or r.subjectKey~=b.guid or r.data.name~=(b.name or b.base)or r.data.realm~=b.realm)then return false,'CERTIFIED_GUID_NAME_BINDING_REQUIRED'end
+    if not restoring and(not b or r.subjectKey~=b.guid or r.data.name~=(b.base or b.name)or r.data.realm~=b.realm)then return false,'CERTIFIED_GUID_NAME_BINDING_REQUIRED'end
    end
    if(r.kind=='OWNER'or r.kind=='HIDE'or r.kind=='BLOCK')and not restoring then local b=cert or binding(r.origin)
     if r.subjectType~='CHARACTER'or not b or b.guid~=r.subjectKey or cert and not cert.scopes.self then return false,'CHARACTER_OWNER_SCOPE_REQUIRED'end
@@ -244,7 +294,7 @@ local function create(build,config)
     local supported=false;for _,p in pairs(a.peers)do if p.principal==peer and p.ready and p.expires>clock()and(p.artVersion or 0)>=(r.data.composition.catalog or 1)then supported=true;break end end
     if not supported then return false end
    end
-   if r.kind=='WALL'or r.kind==N.COMMUNITY_KIND then return false end
+   if r.kind=='WALL'or r.kind==N.COMMUNITY_KIND and not(ns.AetherUnified and ns.AetherUnified.Available())then return false end
    if r.origin=='Issuer/'..C.AUTHORITY then return C.VerifyIssuer(r.origin,row.pair.wire,row.pair.signature)~=nil end
    return C.VerifyRecord(r.origin,row.pair.wire,row.pair.signature,c)~=nil
   end,
@@ -356,11 +406,11 @@ local function create(build,config)
   local history={};for _,at in ipairs(self.beacons or {}) do if at+120>elapsed() then history[#history+1]=at end end;self.beacons=history
   if #history>=A.DiscoveryLimits.advertisements then return end
   local channel
-  if ns.ClientCompat.client=='forever' and (self.proximityRetryAt or 0)<=clock() then channel='SAY'
+  if channelAvailable('GUILD') then channel='GUILD'
   elseif channelAvailable('INSTANCE_CHAT') then channel='INSTANCE_CHAT'
   elseif channelAvailable('RAID') then channel='RAID'
   elseif channelAvailable('PARTY') then channel='PARTY'
-  elseif channelAvailable('GUILD') then channel='GUILD' end
+  elseif ns.ClientCompat.client=='forever' and (self.proximityRetryAt or 0)<=clock() then channel='SAY' end
   self.discoverySequence=self.discoverySequence+1
   self.nextBeacon=elapsed()+120+self:Jitter('beacon/'..self.discoverySequence,0,120)
   if not channel then return end
@@ -376,12 +426,14 @@ local function create(build,config)
   return self:Enqueue(id,'S7|H|'..self.session..'|'..(echo or '-'))
  end
  function a:OpenLedger(explicit)
+  if A.RelayPaused()then return false,A.RelayPauseMessage end
   if explicit~=true or not N.Preference() or ns.Permissions.Denied('network') or ns.MainStorageBlocked then return false,'EXPLICIT_NATIVE_POLICY_REQUIRED' end
   self.enabled=true
   local joined,err=c:Join(N.CONSENT,true);if not joined then self:Stop();return false,err end
   self.status='LOCAL_LEDGER_READY';return true
  end
  function a:Start(explicit)
+  if A.RelayPaused()then return false,A.RelayPauseMessage end
   if c.recovery and c.recovery.state~='READY'then self.status='LOCAL_LEDGER_RECOVERING';return true,self.status end
   local joined,err=self:OpenLedger(explicit);if not joined then return false,err end
   if self.registered then wake();return true,self.status end
@@ -479,6 +531,7 @@ local function create(build,config)
  end
  function a:PostStatus(id)local v=self.postTransfers and self.postTransfers[id];return v and v.at+600>clock()and ns.Athena.Copy(v)or{state='RECIPIENT_OR_ROOM_AVAILABILITY_UNKNOWN'}end
  function a:Pump()
+  if A.RelayPaused()then self:Stop();return false end
   if not permission() then self:Stop();return false end
   for k,r in pairs(self.incoming) do if r.expires<=clock() then self.incoming[k]=nil end end
   for k,t in pairs(self.seen) do if t<=clock() then self.seen[k]=nil end end
@@ -622,13 +675,17 @@ local function create(build,config)
   return true
  end
  if config.routes~=nil then if not plain(config.routes) or #config.routes>20 then return nil,'NATIVE_ROUTE_BOUND' end;for _,r in ipairs(config.routes) do if not plain(r) then return nil,'NATIVE_ROUTE_POLICY' end;local ok,err=a:Approve(r.name,r.channel,true);if not ok then return nil,err end end end
+ local perf=ns.WardenPerformance
+ if perf and perf.Wrap then perf.Wrap(a,'Pump','Aether transport');perf.Wrap(c,'Compact','Aether cache expiry')end
+ if ns.AetherUnified then ns.AetherUnified.Bind(c,a,options,function(peer)receiving=peer end)end
  A.controllers[a]=true;return c
 end
 assert(N.InstallProduction(function(build) return function(config) return create(build,config) end end))
 function W.NewNative(config) return N.NewProduction(config) end
 A.NativeName=name;A.NativeUnit=unit;A.SplitText=chunks;A.NativeResult=result;A.Restricted=restricted
 function A.EnsureLocal()
- if not N.Preference() or ns.Permissions.Denied('network') then return nil,'Aether participation is off. Your private drafts are kept.' end
+ if A.RelayPaused()and not(ns.AetherUnified and ns.AetherUnified.Available())then return nil,A.RelayPauseMessage end
+ if not(ns.AetherUnified and ns.AetherUnified.Active())and not N.Preference() or ns.Permissions.Denied('network') then return nil,'Aether participation is off. Your private drafts are kept.' end
  local own=ns.PlayerCard.Own();if not own then return nil,'Current local character identity is unavailable.' end
  local c=N.Current
  if c and (not c.nativeController or c.nativeController.owner~=own) then return nil,'The existing ledger belongs to a different authority; it is kept unchanged.' end
@@ -642,6 +699,7 @@ function A.EnsureLocal()
  return c
 end
 function A.Configure(policy,explicit)
+ if A.RelayPaused()then return false,A.RelayPauseMessage end
  if not ns.Permissions.Decide('UIAccess') or explicit~=true or not N.Preference() then return false,'EXPLICIT_NATIVE_SCOPE_REQUIRED' end
  local c,why=N.NewProduction({explicit=true,routes=policy and policy.routes,shareIdentity=policy and policy.shareIdentity,sharePresence=policy and policy.sharePresence});if not c then return false,why end
  local saved,reason=N.NativePolicy(policy,true);if not saved then return false,reason end
@@ -662,6 +720,9 @@ function A.EditPolicy()
    end})
 end
 function A.RestoreLocal()
+ if ns.AetherUnified and ns.AetherUnified.Available()then return ns.AetherUnified.Restore()end
+ -- Leave the saved ledger untouched and avoid its startup validation work.
+ if A.RelayPaused()then return end
  if N.Current or not ns.Permissions.Owner() then return end
  local policy=N.NativePolicy()
  local stored=ns.Storage.OlympusWardenExchangeDB
@@ -678,8 +739,10 @@ function A.RestoreLocal()
  end
 end
 local event=CreateFrame('Frame');A.frame=event
-for _,name in ipairs({'PLAYER_LOGIN','PLAYER_LOGOUT','PLAYER_ENTERING_WORLD','CHAT_MSG_ADDON','CHAT_MSG_ADDON_LOGGED','GROUP_ROSTER_UPDATE'}) do pcall(event.RegisterEvent,event,name) end
+for _,name in ipairs({'PLAYER_LOGIN','PLAYER_LOGOUT','PLAYER_ENTERING_WORLD','CHAT_MSG_ADDON','CHAT_MSG_ADDON_LOGGED','GROUP_ROSTER_UPDATE','GUILD_ROSTER_UPDATE','CHANNEL_ROSTER_UPDATE','CHANNEL_COUNT_UPDATE','CHANNEL_UI_UPDATE','CHAT_MSG_CHANNEL_NOTICE'}) do pcall(event.RegisterEvent,event,name) end
 event:SetScript('OnEvent',function(_,kind,...)
+ if ns.AetherLive then ns.AetherLive.Event(kind,...)end
+ if ns.AetherServices then ns.AetherServices.Event(kind,...)end
  if kind=='CHAT_MSG_ADDON' or kind=='CHAT_MSG_ADDON_LOGGED' then local prefix,text,channel,sender=...;if prefix~=W.PREFIX then return end
   for a in pairs(A.controllers) do if a.enabled then a:Ingress(prefix,text,channel,sender,kind) end end
  elseif kind=='PLAYER_LOGOUT' then for a in pairs(A.controllers) do if a.client.Save then a.client:Save() end;a.client:Leave() end
@@ -687,7 +750,7 @@ event:SetScript('OnEvent',function(_,kind,...)
  if kind=='PLAYER_ENTERING_WORLD' then for a in pairs(A.controllers) do a.candidates={};a.pendingDiscovery=nil;a.nextBeacon=elapsed()+a:Jitter('zone/'..clock(),15,90) end end
 end)
 local dt=0
-local function update(_,step) dt=dt+(step or 0);if dt<.35 then return end;dt=0;for a in pairs(A.controllers) do if a.enabled then a:Pump() end end end
-function A.Wake() local enabled=false;for a in pairs(A.controllers) do if a.enabled and (a.registered and (a.automatic or next(a.routes)) or a.shareIdentity or a.sharePresence) then enabled=true;break end end;event:SetScript('OnUpdate',enabled and update or nil) end
+local function update(_,step) dt=dt+(step or 0);if dt<.35 then return end;dt=0;A.pumpCalls=(A.pumpCalls or 0)+1;A.lastPumpAt=elapsed();if ns.AetherLive then ns.AetherLive.Pump()end;if ns.AetherServices then ns.AetherServices.Pump()end;for a in pairs(A.controllers) do if a.enabled then a:Pump() end end;if ns.AetherUnified and ns.AetherUnified.Available()and not(ns.AetherLive and ns.AetherLive.HasWork())then A.Wake()end end
+function A.Wake() local enabled=ns.AetherLive and(ns.AetherLive.HasWork and ns.AetherLive.HasWork()or ns.AetherLive.Active())or ns.AetherServices and ns.AetherServices.HasWork()or false;for a in pairs(A.controllers) do if a.enabled and (a.registered and (a.automatic or next(a.routes)) or a.shareIdentity or a.sharePresence) then enabled=true;break end end;event:SetScript('OnUpdate',enabled and update or nil) end
 local legacyCapabilities=W.Capabilities
 W.Capabilities=function() local c=legacyCapabilities();local native=A.Capabilities();for k,v in pairs(native) do c[k]=v end;c.status='NATIVE_UNVERIFIED';c.nativeStatus='CONSENT_DRIVEN_AUTOMATIC';c.identityModel='NATIVE_EVENT_SENDER_SESSION';return c end

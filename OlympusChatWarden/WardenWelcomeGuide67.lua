@@ -2,13 +2,24 @@
 -- One canonical character; no consent, history or layout changes from viewing.
 local _,ns=...
 local U,O,C=ns.UI2,ns.UI2Onboarding,ns.WardenCampfireWelcome
-local F={VERSION=1,BRAND_SECONDS=2.2,REVEAL_SECONDS=1,EXIT_SECONDS=.85};ns.WardenWelcomeGuide=F
+local F={VERSION=2,PATCH=106,AUTOMATIC=true,BRAND_SECONDS=2.2,REVEAL_SECONDS=1,EXIT_SECONDS=.85};ns.WardenWelcomeGuide=F
 local originalStop=C.Stop
 local function busy()return ns.Checked(ns.SafeCall(InCombatLockdown))end
 local function ease(q)q=math.max(0,math.min(1,q));return q*q*(3-2*q)end
 function F.Active()return F.state~=nil end
+function F.NeedsPatchWelcome()
+ local owner=ns.Chronicle.Owner();local r=ns.DB and ns.DB.firesideWelcomePatch
+ return owner and not(type(r)=='table'and r.version==1 and type(r.owners)=='table'and r.owners[owner]==F.PATCH)or false
+end
+local function markPatchWelcome()
+ if ns.MainStorageBlocked then return false end
+ local owner=ns.Chronicle.Owner();local r=ns.DB and ns.DB.firesideWelcomePatch
+ if not owner or r~=nil and(type(r)~='table'or r.version~=1 or type(r.owners)~='table')then return false end
+ r=r or{version=1,owners={}};r.owners[owner]=F.PATCH;ns.DB.firesideWelcomePatch=r;return true
+end
 function F.NeedsWelcome()
- return ns.DB and ns.Modules.config and(ns.Modules.needsWelcome or ns.Modules.config.onboardingDone~=true)and not O.deferred and not F.deferred
+ if not F.AUTOMATIC then return false end
+ return ns.DB and ns.Modules.config and(F.NeedsPatchWelcome()or ns.Modules.needsWelcome or ns.Modules.config.onboardingDone~=true or O.NeedsRecordingReview and O.NeedsRecordingReview())and not O.deferred and not F.deferred
 end
 local function hideIntro()
  if F.intro then F.intro:Hide()end
@@ -25,7 +36,9 @@ function F.Cancel(reason)
 end
 function F.Complete()
  F.state=nil;hideIntro();F.deferred=nil;O.deferred=nil
- ns.DB.firesideWelcomeGuide=O.VERSION;ns.DB.updateSeen=ns.UI2PatchNotes.version
+ ns.DB.firesideWelcomeGuide=O.VERSION
+ -- Required patch notes follow setup even when optional future notices are off.
+ if ns.UI2PatchNotes.Open()then markPatchWelcome()end
  F.last={status='Ready to explore',completed=true}
 end
 function F.ShowSetup(message)
@@ -35,6 +48,7 @@ function F.ShowSetup(message)
  if ns.UI2Forms.active then ns.UI2Forms.active:Hide()end
  local ok,why=U.OpenMenu();if ok then ok=O.Open(true)end;F.internal=nil
  if not ok then F.Cancel(why);return false end
+ if state.recordingReview then O.index=2;O.Render()end
  if message then O.message=message;O.Render()end;return true
 end
 function F.OnMovieStopped(reason)
@@ -50,15 +64,26 @@ function F.Skip()
  stopOwnTravel(state);state.phase='exit';state.elapsed=0;state.exitAlpha=F.black:GetAlpha();state.stopReason='Skipped'
  F.logoHost:SetAlpha(0);F.skip:Hide();F.status:SetText('');F.intro:Show();F.intro:EnableMouse(true);F.driver:Show()
 end
+local function firstStep(from,target)
+ local queue={{key=from}};local seen={[from]=true};local index=1
+ while queue[index]do
+  local current=queue[index];index=index+1
+  for _,link in ipairs(ns.WardenRoomCatalogue.Connections(current.key))do if link.portal and not seen[link.to]then
+   local first=current.first or link;if link.to==target then return first end
+   seen[link.to]=true;queue[#queue+1]={key=link.to,first=first}
+  end end
+ end
+end
 local function tryMovie(state)
  local v=U.realm;local room=v and v:ActiveRoom();if not room then return end
+ if state.travelState and not v.roomTravel.state then state.travelState=nil end
  if room.key~='hall'then
   if not state.travelState and not v.roomTravel.state then
-   local link;for _,candidate in ipairs(ns.WardenRoomCatalogue.Connections(room.key))do if candidate.to=='hall'and candidate.portal then link=candidate;break end end
-   if not link then state.message='Watch the campfire welcome from Olympus Fields whenever you are ready.';F.Skip();return end
+   local link=firstStep(room.key,'hall')
+   if not link then state.message='Watch the campfire welcome from Pyragore Fields whenever you are ready.';F.Skip();return end
    local ok,why=v.roomTravel:Request(link.id)
    if ok then state.travelState=v.roomTravel.state
-   elseif ns.DB.journalReducedMotion or ns.DB.livingRealmAmbience==false then state.message='You can watch the welcome from Olympus Fields. Your movement preferences have been kept.';F.Skip()
+   elseif ns.DB.journalReducedMotion or ns.DB.livingRealmAmbience==false then state.message='You can watch the welcome from Pyragore Fields. Your movement preferences have been kept.';F.Skip()
    else F.lastMovieError=why end
   end;return
  end
@@ -149,11 +174,14 @@ function F.Begin(force)
  if not ns.Membership.Allowed()then return false,ns.Membership.Status()end
  if F.state then return true,'Welcome already open'end
  if not force and not F.NeedsWelcome()then return false end
+ local patchWelcome=F.NeedsPatchWelcome()
+ local reviewOnly=not force and not patchWelcome and ns.Modules.config.onboardingDone==true and not ns.Modules.needsWelcome and O.NeedsRecordingReview and O.NeedsRecordingReview()
  if U.realm and(U.realm.campfireWelcome or U.realm.roomTravel.state or U.realm.roomBookMotion or U.realm.shelfFocus)then return false,'Finish the current interaction, then try the welcome again.'end
  U.Ensure();F.Bind();F.internal=true
  if not U.window:IsVisible()then U.OpenMenu()end
+ if reviewOnly then F.state={phase='setup',recordingReview=true};F.internal=nil;return F.ShowSetup('Please review your recording choices after this update. Missed events cannot be added later. Your current choices have been kept.')end
  U.StopMenuWalking();local ok,why=U.CloseMenu();F.internal=nil;if not ok then return false,why end
- F.deferred=nil;O.deferred=nil;F.state={phase='brand',elapsed=0,force=force==true}
+ F.deferred=nil;O.deferred=nil;F.state={phase='brand',elapsed=0,force=force==true or patchWelcome==true}
  F.age=0;F.black:SetAlpha(1);F.logoHost:SetAlpha(0);F.status:SetText('');F.skip:Show();F.intro:EnableMouse(true);F.intro:Show();F.escape:Show();F.driver:Show()
  if ns.WardenAudio then ns.WardenAudio.PreferencesChanged()end;return true
 end
@@ -176,7 +204,20 @@ function U.Open(...)
 end
 ns.OpenWelcome=function()return F.Begin(true)end
 ns.ModuleUI.Welcome=function()return false end
-ns.CheckWelcome=function()return false end
+ns.CheckWelcome=function()
+ if not F.AUTOMATIC then return false end
+ if not F.NeedsWelcome()or F.state then return false end
+ if ns.Initializing or ns.ChronicleStore.loading then
+  if not F.reviewQueued and C_Timer and C_Timer.After then F.reviewQueued=true;C_Timer.After(1,function()F.reviewQueued=nil;ns.CheckWelcome()end)end
+  return false
+ end
+ if busy()or not ns.Chronicle.Owner()or not ns.Membership.Allowed()then return false end
+ return F.Begin(false)
+end
+-- Membership may become available after the login events have already fired.
+if ns.OlympusConnection and ns.OlympusConnection.Subscribe then
+ ns.OlympusConnection.Subscribe(function()if ns.DB and not ns.Initializing then ns.CheckWelcome()end end)
+end
 local check=ns.CheckUpdateScreen
 ns.CheckUpdateScreen=function(...)if F.NeedsWelcome()or F.Active()then return end;return check(...)end
 local prompt=ns.Chronicle.MaybePrompt

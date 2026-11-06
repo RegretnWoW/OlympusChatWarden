@@ -127,6 +127,26 @@ local readerColors={
 local function DocumentPlain(value)
     return (value or ''):gsub('|H.-|h(.-)|h','%1'):gsub('|c%x%x%x%x%x%x%x%x',''):gsub('|r',''):gsub('|T.-|t',''):gsub('|A.-|a',''):gsub('|','||')
 end
+-- The paginated book paints atlas glyphs, not the invisible EditBox font.
+-- Keep its reservation, hit surface and frozen turning sheet on one metric.
+function T.BookBlockMetrics(block,width,scale,plain)
+    width=math.max(1,width-8)
+    local kind=block.kind or 'body';local size=T.DocumentTextSize(kind,scale)
+    local ornament=block.characterCard or block.guildSeal
+    local narrow=width<340
+    local textWidth=math.max(80,width-(ornament and 78 or 0)-(block.margin and (narrow and 32 or 144) or 0))
+    local text=plain and block.text or block.literal and (block.text or ''):gsub('|','||') or DocumentPlain(block.text)
+    local ink=ns.AthenaBookTurnSurface.TextHeight(text,size,textWidth,kind)
+    local body=math.max(ornament and 94 or 0,ink+size+8)
+    if block.margin then
+        local note=ns.AthenaBookTurnSurface.TextHeight(narrow and 'Ink' or block.margin.text or '',narrow and 13 or 14,narrow and 28 or 132,'meta')
+        body=math.max(body,narrow and 28 or math.max(116,note+4))
+    end
+    if block.doodle then body=200 end
+    local art=ns.AthenaBookArt and ns.AthenaBookArt.Height(block) or 0
+    local gap=block.gap or (kind=='heading' and 9 or 14)
+    return body+art+gap,body,textWidth,size,art,gap
+end
 function T.ParagraphBlocks(text)
     local blocks={};local paragraph={}
     local function Flush()
@@ -212,7 +232,12 @@ function T.ReadOnlyDocument(scroll)
             local _,newlines=text:gsub('\n','')
             -- Native EditBox layout can differ slightly from its FontString
             -- measurer. Allow a line of slack instead of clipping the last wrap.
-            local height=math.max(ornament and 94 or 0,(newlines+1)*(size+3),(box.measure:GetStringHeight() or 0)+size+8)
+            local inkHeight=doc.bookInkOverlay and ns.AthenaBookTurnSurface.TextHeight(text,size,box:GetWidth(),block.kind)or 0
+            local height=math.max(ornament and 94 or 0,(newlines+1)*(size+3),math.max(box.measure:GetStringHeight()or 0,inkHeight)+size+8)
+            if doc.bookInkOverlay then
+                local _,body,textWidth=T.BookBlockMetrics(block,scroll:GetWidth(),doc.fontScale,true)
+                height=body;box:SetWidth(textWidth)
+            end
             box:SetHeight(math.max(height,block.margin and width>=340 and 116 or 0));SemanticTargets(box,block,box:GetWidth(),size)
             if block.margin then
                 if not box.marginNote then box.marginNote=CreateFrame('Button',nil,box);box.marginNote.label=box.marginNote:CreateFontString(nil,'OVERLAY');box.marginNote.label:SetAllPoints();box.marginNote.label:SetWordWrap(true) end
@@ -225,7 +250,7 @@ function T.ReadOnlyDocument(scroll)
                 box:SetHeight(200);if not box.doodle then box.doodle=CreateFrame('Frame',nil,doc)end
                 box.doodle:ClearAllPoints();box.doodle:SetPoint('TOPLEFT',doc,'TOPLEFT',0,-y);box.doodle:SetSize(width,190);box.doodle:Show();ns.WardenDrawing.Render(box.doodle,block.doodle)
             elseif box.doodle then box.doodle:Hide()end
-            y=y+illustration+box:GetHeight()+(block.gap or (block.kind=='heading' and 9 or 14))
+            y=y+illustration+(doc.bookInkOverlay and height or box:GetHeight())+(block.gap or (block.kind=='heading' and 9 or 14))
         end
         doc:SetHeight(math.max(scroll:GetHeight(),y))
         if scroll.ChatWardenUpdateScrollRange then scroll.ChatWardenUpdateScrollRange(math.max(0,doc:GetHeight()-scroll:GetHeight())) end

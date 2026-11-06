@@ -166,7 +166,7 @@ end
 function U.Profile(st,row)
     local b={};local function Put(kind,text) b[#b+1]={kind=kind,text=Safe(text)} end
     if not row then
-        Put('title','Players you remember');Put('body','Choose a player to open their recorded profile. Search a name, guild, class or GUID. Recent players includes sightings, roster associations, inspections and GUID-bearing scoreboard reports. Each keeps its source; none implies a fight.')
+        Put('title','Players you remember');Put('body','Find a player’s recorded profile by name, guild, class or character ID. Sightings, groups, inspections and battleground reports keep their own dates and sources; none means you fought that player.')
         Put('heading','Built from your own history');Put('body','Recording is optional. Previously saved observations stay available while recording is paused. Public Olympus information is dated and kept separate from personal encounters.');return b
     end
     local p=I.Player(st,row.id);local a=A.Player(st,row.id);local e=Last(p);local d=e and e.details or {}
@@ -189,13 +189,13 @@ function U.Profile(st,row)
     Put('heading','PvP evidence')
     Put('body',p.credits.own..' own native credits • '..p.credits.pet..' pet-associated\n'..p.credits.group..' group-associated • '..p.credits.unattributed..' unattributed')
     Put('meta','Individual last hits, confirmed killers and a personal kill/death ratio are unknown.')
-    Put('meta','Native inspected honor and other-player reputation are unavailable. Shared honor-cache values are not attached without reliable player identity. Personal credit, match scoreboards and Olympus reports remain separate sources.')
+    Put('meta','Other players’ honor and reputation may be unavailable. Personal credit, battleground reports and Olympus information remain separate sources.')
     local duels=ns.ChronicleDuels.History(st,row.id)
     if duels.total>0 then
         Put('heading','Duels & rival history');Put('body',duels.wins..' verified wins • '..duels.losses..' verified losses • '..duels.unknown..' unknown outcomes\n'..duels.total..' accepted duel sessions • '..duels.challenges..' challenges without observed acceptance')
         Put('body','First duel: '..Stamp(duels.firstAt)..'\nMost recent duel: '..Stamp(duels.lastAt)..(duels.rate and ('\nVerified-result win rate: '..math.floor(duels.rate*100+.5)..'%') or ''))
         for n=1,math.min(5,#duels.rows) do local a=duels.rows[n];Put('body',Stamp(a.startAt)..' • '..a.duel.result..' • '..(a.context.zone or 'Unknown zone')) end
-        Put('meta','Open Shared history for individual Duel Analysis pages. Scoreboard presence, native kill credit and Wanted sightings remain distinct sources; none is counted as a duel win.')
+        Put('meta','Open Shared history to review individual duels. Battleground presence, kill credit and sightings are not counted as duel wins.')
     end
     Put('heading','Your note');Put('body',p.note or 'No personal note saved.');Put('meta',p.watch and 'On your watchlist' or 'Not on your watchlist')
     if #p.publicReports>0 then Put('heading','Olympus intelligence');Put('body',#p.publicReports..' dated Olympus observations. Open Evidence for their original dates and source.') end
@@ -228,7 +228,7 @@ function U.ChronicleDetail(st,row)
         Put('body','First observed: '..Stamp(a.startAt)..'\nLast evidence: '..Stamp(a.lastAt)..'\nRecorded segment: '..ns.ChronicleActivitiesUI.Status(a))
         Put('meta','Recording boundary: '..a.startReason..(a.endReason and ' / '..a.endReason or '')..(a.pvpReports and '\nReloads can create separate recording segments in the same battleground. These rows are not a count of unique matches.' or ''))
         if a.recordingSegments and a.recordingSegments>1 then Put('body',a.recordingSegments..' recorded visits in this run. Open activity to inspect their original sources; time outside and reload intervals remain unmeasured.') end
-        if a.pvpReports then Put('body',#a.pvpReports..' native completion reports. Personal win/loss remains unknown.') end
+        if a.pvpReports then Put('body',#a.pvpReports..' completion reports from WoW. Your personal win or loss is unknown.') end
         Put('body','Measured time in this segment: '..Hours(seconds)..'\n'..#a.attempts..' recorded boss attempts or results.')
         local members={};for guid in pairs(a.members or {}) do members[#members+1]=A.Name(st,guid) end;table.sort(members)
         if #members>0 then Put('heading','Associated roster');Put('body',table.concat(members,', '));Put('meta','Roster association; individual boss attendance remains unknown.') end
@@ -238,7 +238,7 @@ function U.ChronicleDetail(st,row)
         if e.kind=='level_change' then Put('heading','A new level');Put('body','Recorded change: level '..d.before..' to '..d.after..'.')
         elseif e.kind=='quest_turnin' then
             Put('heading','Quest milestone');Put('body','Quest #'..d.questID..' was turned in.')
-            if d.rewardXP then Put('body','Native quest reward: '..d.rewardXP..' XP. This is not added again to XP-change totals.') end
+            if d.rewardXP then Put('body','Quest reward reported by WoW: '..d.rewardXP..' XP. This is not added again to XP-change totals.') end
         elseif e.kind=='skill_change' then Put('heading','Profession progress');Put('body',(d.skill or 'Profession')..': '..tostring(d.before or 'Unknown')..' to '..d.after..'.')
         elseif e.kind=='player_death' then Put('body','Your character died here. A confirmed killer was not recorded.')
         elseif e.kind=='equipment_change' then Put('body','Equipment slot '..d.slot..' changed.'..(d.itemID and '\nObserved item ID: '..d.itemID or '\nThe slot was empty or its item was unavailable.'))
@@ -262,7 +262,7 @@ function U.AthenaStory(st,row,out,chapterPage)
     Put('heading','Observed evidence categories')
     for _,key in ipairs({'pets','groups','targeting','casts','identity','gear','effects','public','guild','social'}) do
         local v=dossier.observedCategories and dossier.observedCategories[key]
-        Put('body',labels[key]..': '..(v and (v.count..' observations • '..v.provisional..' provisional • '..Stamp(v.firstAt)..' → '..Stamp(v.lastAt)) or 'not observed / native availability unknown'))
+        Put('body',labels[key]..': '..(v and (v.count..' observations • '..v.provisional..' provisional • '..Stamp(v.firstAt)..' → '..Stamp(v.lastAt)) or 'not observed / WoW did not provide this detail'))
     end
     Put('body','Last player evidence: '..Stamp(f.player)..'\nLast local encounter: '..Stamp(f.localEncounter)..'\nEquipment inspected: '..Stamp(f.gear)..'\nTalents inspected: '..Stamp(f.talents)..'\nChat filtering: '..Stamp(f.chat)..'\nProtection changed: '..Stamp(f.shield))
     if #dossier.chapters>0 then
@@ -311,7 +311,7 @@ function U.PlayerStory(st,row,chapterPage)
     end
     U.AthenaStory(st,row,out,chapterPage)
     if ns.AthenaSuiteUI then ns.AthenaSuiteUI.AppendProfile(st,row,out) end
-    out[#out+1]={kind='meta',text='Details & limits explains native credit, public reports and unknown values. Original record opens the saved source.'};return out
+    out[#out+1]={kind='meta',text='Details & limits explains kill credit, public reports and missing information. Original record opens the saved source.'};return out
 end
 function U.Build(parent,kind)
     local W=ns.Workspace;local p=CreateFrame('Frame',nil,parent);p:SetAllPoints(parent);p:Hide()
@@ -340,7 +340,7 @@ function U.Build(parent,kind)
     p.ownerMenu=V.Dropdown(p,0,-189,330,choices,function() return p.owner~=C.Owner() and p.owner or false end,function(owner)
         p.owner=owner or C.Owner();p.selected=nil;p.page=0;p.state=nil;p:Refresh(true)
     end,{maxRows=8})
-    p.search=V.Edit(p,342,-189,494,32,kind=='intel' and 'Search name, guild, class or GUID...' or 'Search recent highlights...',function(value,user)
+    p.search=V.Edit(p,342,-189,494,32,kind=='intel' and 'Search by name, guild, class or character ID...' or 'Search recent highlights...',function(value,user)
         p.query=value
         if not user and p.restoringQuery==value then p.restoringQuery=nil;return end
         p.selected=nil;p.page=0;p.dirty=true;p:Refresh(true)

@@ -17,9 +17,14 @@ function C.Decode(s,limit)
  local raw=P.Base64Decode((s:gsub('%-','+'):gsub('_','/'))..string.rep('=',(4-#s%4)%4),limit or 12000)
  if raw and C.Encode(raw)==s then return raw end
 end
+local principals,principalCount={},0
 function C.Principal(name,realm)
  if not text(name,96)or not text(realm,96)then return end
- return 'Native/'..hash(name:lower()..'-'..realm:gsub('%s',''):lower()):sub(1,40)
+ local canonical=name:lower()..'-'..realm:gsub('%s',''):lower()
+ local cached=principals[canonical];if cached then return cached end
+ local value='Native/'..hash(canonical):sub(1,40)
+ if principalCount>=256 then principals={};principalCount=0 end
+ principals[canonical]=value;principalCount=principalCount+1;return value
 end
 local function fields(wire,n)
  if type(wire)~='string'or #wire>4096 then return end
@@ -95,6 +100,11 @@ function C.LocalCertificate(ledger)
 end
 function C.ImportKey(value)
  if not ns.Permissions.Decide('UIAccess')then return false,'UI_ACCESS_REQUIRED'end
+ if ns.MainStorageBlocked then return false,'EXCHANGE_RECOVERY_REQUIRED'end
+ if type(value)=='string'then
+  value=value:match('^%s*(.-)%s*$');local a,b,c=value:match('^WAK1||([%w_%-]+)||([a-f0-9]+)||([a-f0-9]+)$')
+  if a then value='WAK1|'..a..'|'..b..'|'..c end
+ end
  local nskey,pub,seed
  if type(value)=='string'then nskey,pub,seed=value:match('^WAK1|([%w_%-]+)|([a-f0-9]+)|([a-f0-9]+)$')end
  if nskey~=C.Namespace()or not hex(pub,64)or not hex(seed,64)or X.Public(seed)~=pub then return false,'PRIVATE_KEY_IMPORT_INVALID'end
@@ -104,6 +114,10 @@ function C.ImportKey(value)
  return true,'Character key imported. Existing posts and drafts are kept; enrollment is pending.'
 end
 function C.ImportCertificate(value,ledger)
+ if ns.MainStorageBlocked then return false,'EXCHANGE_RECOVERY_REQUIRED'end
+ if type(value)=='string'then value=value:match('^%s*(.-)%s*$')
+  local tag,b,s,p=value:match('^(WAC[12])||([%w_%-]+)||([a-f0-9]+)||([%w_%-]+)$');if tag then value=tag..'|'..b..'|'..s..'|'..p end
+ end
  local cert,why=C.Certificate(value);if not cert then return false,why end
  local row=C.LocalMaterial();local me=ns.AetherNative and ns.AetherNative.NativeUnit('player')
  if not row or not me or cert.guid~=me.guid or cert.public~=row.public or cert.principal~=C.Principal(me.base,me.realm)or C.IsRevoked(ledger,cert)then return false,'CERTIFICATE_NOT_FOR_THIS_NATIVE_CHARACTER_KEY'end
@@ -155,20 +169,37 @@ function C.Status(row,ledger,own)
 end
 function C.UpgradePending(client)
  local cert=C.LocalCertificate(client);if not cert then return false end
- local changed=0
- for _,row in pairs(client.records)do if row.record.origin==client.principal and row.record.expiresAt>now()then
+ local job=client.certificateUpgrade
+ if not job or job.certificate~=cert.id or job.records~=client.records or job.revision~=client.revision then
+  job={certificate=cert.id,records=client.records,revision=client.revision};client.certificateUpgrade=job
+ elseif job.complete then return false end
+ local changed,visited=0,0
+ while visited<32 and changed<2 do
+  local id,row=next(client.records,job.cursor)
+  if not id then job.complete=true;break end
+  job.cursor=id;visited=visited+1
+  if row.record.origin==client.principal and row.record.expiresAt>now()then
   local old=C.VerifyRecord(row.record.origin,row.pair.wire,row.pair.signature,client,true)
   if not old or old.id~=cert.id then local proof=C.SignRecord(row.pair.wire,client)
    if proof then local ok=client:Accept({wire=row.pair.wire,signature=proof},'live');if ok then changed=changed+1 end end
-   if changed>=2 then break end
   end
- end end
+  end
+  -- Our own proof replacement is part of this pass. An external revision
+  -- change before the next call restarts safely; no accepted row is removed.
+  job.revision=client.revision
+ end
  return changed>0
 end
 function C.AdoptIssued(client)
+ local material=C.LocalMaterial();local public=material and material.public;local certificate=material and material.certificate;local owner=ns.PlayerCard.Own()
+ local prior=client.certificateAdoption
+ local at=now();local namespace=C.Namespace();local blocked=ns.MainStorageBlocked
+ if prior and prior.revision==client.revision and prior.records==client.records and prior.owner==owner and prior.public==public and prior.certificate==certificate and prior.namespace==namespace and prior.blocked==blocked and (not prior.retryAt or at<prior.retryAt)then return end
+ local retry
  for _,row in pairs(client.records)do local r=row.record
-  if r.kind=='CHARACTER_CERTIFICATE'and r.subjectKey==ns.PlayerCard.Own()and r.expiresAt>now()then C.ImportCertificate(r.data.certificate,client)end
+  if r.kind=='CHARACTER_CERTIFICATE'and r.subjectKey==owner and r.expiresAt>at then if not C.ImportCertificate(r.data.certificate,client)then retry=at+10 end end
  end
+ material=C.LocalMaterial();client.certificateAdoption={revision=client.revision,records=client.records,owner=owner,public=material and material.public,certificate=material and material.certificate,namespace=namespace,blocked=blocked,retryAt=retry}
 end
 function C.ImportAuthorityRecord(text,client)
  local encoded=type(text)=='string'and text:match('^WAR1:([%w_%-]+)$');local bytes=encoded and C.Decode(encoded,15000);local pair=bytes and(B.DecodeChunk(bytes)or{})[1]
@@ -187,6 +218,7 @@ end
 function C.ImportUI()
  return ns.UI2Forms.Form({title='Aether character enrollment',help='Local posts, comments, ratings and drafts work before enrollment. Import your helper-generated character key privately, then allow a trusted Hephaestus verifier to enroll it. Never share the WAK1 key text. The Fireside Authority private key is never imported here.',fields={{key='value',label='Character key, public certificate, or signed authority records',multiline=true,height=150,value='',limit=200000,code=true}},submitLabel='Import enrollment material',submit=function(v,form)
   if v.value:match('^WAK1|')then local ok,why=C.ImportKey(v.value);v.value='';if form and form.inputs.value then form.inputs.value:SetText('')end;return ok,why end
+  if v.value:match('^WAC[12][|]')then return C.ImportCertificate(v.value,ns.AetherNet.Cached())end
   local client,why=ns.AetherNet.PublicationClient();if not client then return false,why end
   if v.value:match('^WAR1:')then return C.ImportAuthorityBatch(v.value,client)end
   return C.ImportCertificate(v.value,client)

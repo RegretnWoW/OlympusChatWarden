@@ -13,7 +13,8 @@ function T.Navigate(v,route)
  if t.state then t:Cancel('Another tab was selected')end
  if from==to then return false end
  local seconds,source=ns.WardenHearth.CastTime();if not seconds then return true,false,source end
- local link;for _,candidate in ipairs(C.Connections(from))do if candidate.to==to and candidate.portal then link=candidate;break end end
+ local link=C.HearthDestination and C.HearthDestination(from)
+ if not link then for _,candidate in ipairs(C.Connections(from))do if candidate.to==to and candidate.portal then link=candidate;break end end end
  if not link then return false end
  link.label=C.Room(to).label
  t.state={navigation=true,route=C.Copy(route),link=link,scene=v:ActiveRoom(),page=ns.UI2.route.page,elapsed=0}
@@ -43,21 +44,22 @@ function T.Bind(v,U)
   return true
  end
  function t:Point(scene,uv,a,nav)
-  local x,y=N.FloorPoint(scene.native.frame,scene.shot,uv[1],uv[2],0)
+  local x,y=N.AuthoredFloorPoint(scene.native.frame,scene.shot,uv[1],uv[2],0)
   if not x or math.abs(x)>70 or math.abs(y)>70 then return nil,'Native exit ground projection is unavailable'end
-  local function clear(px,py)return N.CheckPath({samples={{x=px,y=py,z=0,distance=0}},length=0},nav)end
+  local blocked
+  local function clear(px,py)local ok,why=N.CheckPath({samples={{x=px,y=py,z=0,distance=0}},length=0},nav);if not ok then blocked=why end;return ok end
   if clear(x,y)then return{x,y,0}end
   -- Bounded clearance for owner-moved furniture and other scene characters.
   for ring=1,3 do for i=0,7 do local angle=i*math.pi*.25;local px,py=x+math.cos(angle)*ring*.45,y+math.sin(angle)*ring*.45
    if clear(px,py)then return{px,py,0}end
   end end
-  return nil,'The scene entrance is blocked'
+  return nil,'The scene entrance is blocked'..(blocked and': '..blocked or'')
  end
  function t:Walk(scene,a,point,nav)
   local dx,dy=a.position[1]-point[1],a.position[2]-point[2]
   if dx*dx+dy*dy<.025 then return true,'Already at the entrance'end
   local path,why=N.WalkPath(a.position,point[1],point[2],nav);if not path then return false,why end
-  local ok;ok,why=a.engine:Route(a,path,math.max(2,path.length/N.WALK_SPEED+.65),4,nav)
+  local ok;ok,why=a.engine:Route(a,path,N.WalkDuration(a,path),4,nav)
   if ok then a.spec.worldYaw=nil;a.pendingInteraction=nil;a.restStage=nil;a.returning=nil;scene.routeAt[a.id]=nil;v:RefreshEffects()end
   return ok,why
  end
@@ -71,6 +73,7 @@ function T.Bind(v,U)
    return
   end
   self.state=nil;self.last={from=state.link.from,to=state.link.to,status=why or'Cancelled',completed=false}
+  if state.presentation and state.abort then state.abort(why)end
   self.metrics[failed and'failed'or'cancelled']=self.metrics[failed and'failed'or'cancelled']+1
   local a=state.committed and state.arrivalActor or state.actor
   if a and a.ready then a.route=nil;a.engine:Animate(a,0,1)end
@@ -81,7 +84,7 @@ function T.Bind(v,U)
   state.phase='out';state.elapsed=0;self.metrics.started=self.metrics.started+1
   local level=math.max(U.window:GetFrameLevel()+150,v.frame:GetFrameLevel()+100)
   for _,room in ipairs(v:Scenes())do if room.groundClick then level=math.max(level,room.groundClick:GetFrameLevel()+5)end end
-  self:LayoutMask();f:SetFrameStrata(U.window:GetFrameStrata());f:SetFrameLevel(level);f:SetAlpha(0);caption:SetText(state.link.label);caption:SetAlpha(0);f:Show()
+  self:LayoutMask();f:SetFrameStrata(U.window:GetFrameStrata());f:SetFrameLevel(level);f:SetAlpha(0);caption:SetText(ns.WardenLocations81 and ns.WardenLocations81.Caption(state.link.to)or state.link.label);caption:SetAlpha(0);f:Show()
   f:SetScript('OnUpdate',function(_,dt)self:Tick(dt)end)
  end
  function t:Request(key)
@@ -108,13 +111,19 @@ function T.Bind(v,U)
   local scene=v:ActiveRoom();local a=scene.native.actors.attendant
   if not a or not a.ready or a.failed or a.awaitRegistration then return false,'Waiting for the destination character'end
   local nav,why=v:GroundNavigation(scene,a);if not nav then return false,why end
-  local point;point,why=self:Point(scene,state.link.portal.arrivalUV,a,nav);if not point then return nil,why end
+  local point;point,why=self:Point(scene,state.link.portal.arrivalUV,a,nav)
+  if not point then point,why=self:Point(scene,state.link.portal.arrivalWalkUV,a,nav)end
+  if not point then return nil,why end
   state.arrivalActor=a;a.route=nil;a.seating=nil;a.pendingInteraction=nil;a.restStage=nil;a.spec.worldYaw=nil
   a.engine:Place(a,point[1],point[2],0,0);a.spawnChecked=true;a.awaitSpawn=nil;state.arrival=point
   if state.navigation and(ns.DB.journalReducedMotion or ns.DB.livingRealmAmbience==false)then a.engine:Animate(a,0,1);return true end
   local walk;walk,why=self:Point(scene,state.link.portal.arrivalWalkUV,a,nav)
-  if not walk then return nil,why end
-  local ok;ok,why=self:Walk(scene,a,walk,nav);if not ok then return nil,why end
+  -- Arrival is already validated and placed. The follow-up step is optional:
+  -- occupied furniture/people must not send a safely arrived player back into
+  -- the previous room. Keep the same full collision checks for that step.
+  if not walk then state.arrivalWalkWarning=why;a.motionStatus='Arrived';a.engine:Animate(a,0,1);return true end
+  local ok;ok,why=self:Walk(scene,a,walk,nav)
+  if not ok then state.arrivalWalkWarning=why;a.motionStatus='Arrived';a.engine:Animate(a,0,1);return true end
   self.arrivalGuard={scene=scene,actor=a,route=a.route,page=U.route.page}
   for _,link in ipairs(C.Connections(scene.key))do self.armed[link.id]=false end
   return true
@@ -141,7 +150,9 @@ function T.Bind(v,U)
    local q=state.elapsed/(reduced and .12 or .38);f:SetAlpha(ease(q));caption:SetAlpha(ease((q-.35)/.65))
    if q>=1 then
     f:SetAlpha(1);caption:SetAlpha(1);self.committing=true
-    local ok,why;if state.navigation then v.pendingRoomKey=state.link.to;ok,why=U.Open(state.route);v.pendingRoomKey=nil else ok,why=v:OpenRoom(state.link.to)end;self.committing=nil
+    local ok,why;if state.presentation then ok,why=state.commit()
+    elseif state.navigation then v.pendingRoomKey=state.link.to;ok,why=U.Open(state.route);v.pendingRoomKey=nil else ok,why=v:OpenRoom(state.link.to)end;self.committing=nil
+    if state.presentation and not ok then state.failed=why or'Presentation unavailable';if state.abort then state.abort(why)end;state.phase='in';state.elapsed=0;return end
     if not ok then self:Recover(state,why);return end
     if state.closeMenuOnArrival then U.CloseMenu()end
     state.committed=true;state.page=U.route.page;state.phase='load';state.elapsed=0;state.poll=0;v:RefreshEffects()
@@ -149,8 +160,10 @@ function T.Bind(v,U)
   elseif state.phase=='load'then
    f:SetAlpha(1);state.poll=state.poll+dt
    if state.elapsed>=.15 and state.poll>=.15 then
-    state.poll=0;local ok,why=self:Arrive(state)
+    state.poll=0;local ok,why;if state.presentation then ok=not state.arrive or state.arrive()else ok,why=self:Arrive(state)end
     if ok then state.phase='in';state.elapsed=0
+    elseif state.presentation and state.elapsed>=T.LOAD_TIMEOUT then
+     state.failed='Live scene loading timed out';if state.abort then state.abort(state.failed)end;state.phase='in';state.elapsed=0
     elseif state.navigation and state.elapsed>=T.LOAD_TIMEOUT then
      -- Tabs must remain usable even if the installed character cannot load.
      -- Retain one bounded arrival retry for the visible destination instead
@@ -162,11 +175,20 @@ function T.Bind(v,U)
    local q=state.elapsed/(reduced and .12 or .42);f:SetAlpha(1-ease(q));caption:SetAlpha(1-ease(q))
    if q>=1 then
     local pending=self.pendingTabArrival and self.pendingTabArrival.state==state
-    self.last={from=state.link.from,to=state.link.to,status=state.failed or pending and'Character arrival pending'or'Arrived',completed=not state.failed and not pending,arrival=state.arrival,arrivalPending=pending==true,hearth=state.hearth}
+    self.last={from=state.link.from,to=state.link.to,status=state.failed or pending and'Character arrival pending'or'Arrived',completed=not state.failed and not pending,arrival=state.arrival,arrivalPending=pending==true,arrivalWalkWarning=state.arrivalWalkWarning,hearth=state.hearth}
+    if self.last.completed then self.lastError=nil end
     self.metrics[state.failed and'failed'or'completed']=self.metrics[state.failed and'failed'or'completed']+1
     self.state=nil;f:SetScript('OnUpdate',nil);f:Hide();f:SetAlpha(0)
+    if state.presentation and state.finish then state.finish(not state.failed)end
    end
   end
+ end
+ function t:Presentation(destination,commit,arrive,abort,finish)
+  if self.state then self:Cancel('Presentation changed')end
+  local scene=v:ActiveRoom()
+  self.state={presentation=true,link={from=scene.key,to=destination,label='Aetheria'},scene=scene,page=U.route.page,
+   commit=commit,arrive=arrive,abort=abort,finish=finish,elapsed=0}
+  self:Fade(self.state);return true
  end
  function t:Observe(dt,pendingDriver)
   local scene=v:ActiveRoom();local state=self.state
@@ -198,7 +220,7 @@ function T.Bind(v,U)
    if guard.scene==scene and guard.actor==a and a.route and a.route==guard.route then return end
    self.arrivalGuard=nil
   end
-  local x,y,z=N.World(scene.shot,unpack(a.position));local u,w=N.ProjectNative(scene.native.frame,scene.shot,x,y,z)
+  local u,w=N.AuthoredUV(scene.native.frame,scene.shot,unpack(a.position))
   if not u then return end
   for _,link in ipairs(C.Connections(scene.key))do if link.portal then
    local near=inside(u,w,link.portal.triggerUV)
@@ -212,7 +234,7 @@ function T.Bind(v,U)
   if t.state then t:Cancel('A new destination was selected')end
   local a=scene and scene.native.actors.attendant
   if scene and not(a and a.seating)and not self:PickSceneObject(scene,u,y)then
-   for _,link in ipairs(C.Connections(scene.key))do if link.portal and inside(u,y,link.portal.clickUV)then return t:Request(link.id)end end
+   for _,link in ipairs(C.Connections(scene.key))do if link.portal and ns.WardenWorldScale.InAuthoredUV(scene,u,y,link.portal.clickUV)then return t:Request(link.id)end end
   end
   return click(self,scene,u,y)
  end

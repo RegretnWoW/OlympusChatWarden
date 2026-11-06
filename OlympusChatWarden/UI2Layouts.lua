@@ -142,7 +142,7 @@ function L.Player(m,route)
    pvp[#pvp+1]=r(match.metrics.mapName or 'Battleground',match.metrics.result or 'Outcome unknown',nil,{stacked=true,height=48})
    pvp[#pvp+1]=cap(match.sources..' source contributions · '..(#match.conflicts>0 and 'Conflicting fields remain unknown.' or 'Partial observed match; not lifetime statistics.'))
   end end
-  if #public.matches>8 then pvp[#pvp+1]=cap('Additional shared matches remain in the bounded public cache; full event navigation is not yet available.') end
+  if #public.matches>8 then pvp[#pvp+1]=cap('More shared matches are kept locally. Opening every match as a separate event is not available yet.') end
  end
  ry=block(b,'pvp','PvP history',main,ry,side,pvp,{anchor='pvp'})
  local claims={};for _,claim in ipairs(m.remote and m.remote.claims or {}) do local card=claim.card
@@ -194,7 +194,7 @@ function L.Activity(m)
 end
 function L.Guild(v,route)
  local c=ns.AetherNet.Active();local rating=v.rating;local entry=c and c.records['GUILD/'..v.key..'/GUILD_VOTE/'..c.principal..'/vote']
- local voting={kind='GUILD',key=v.key,maximum=10,enabled=ns.AetherNet.PublicationAvailable(),stars=entry and not entry.record.removed and entry.record.data.score,reason=ns.AetherNet.PublicationAvailable() and ns.AetherNet.PublicationScope() or 'Enable Aether participation to publish your rating.'}
+ local voting={kind='GUILD',key=v.key,maximum=10,enabled=ns.AetherNet.CanAttemptPublication(),stars=entry and not entry.record.removed and entry.record.data.score,reason=ns.AetherNet.PublicationAvailable() and ns.AetherNet.PublicationScope() or 'Enable Aether participation to publish your rating.'}
  local rows={r(v.title,v.identity.realm,nil,{size=25,height=42}),
   r(rating.count>0 and string.format('%.1f / 10 · %d guild ratings',rating.average,rating.count) or 'No guild ratings yet',v.provisional and 'Provisional local identity' or 'Community observations',nil,{height=31}),
   r('Guildzone',v.guildzone or 'Not selected'),{voting=voting,height=36},
@@ -219,11 +219,24 @@ function L.Home(route)
  local profile,profileState;if own then profile,profileState=M.GetPlayerPage(own,route.owner) end
  local function fact(k) return profile and profile.identity[k] or facts[k] and facts[k].value end
  local zone=ns.SafeString(ns.SafeCall(GetZoneText),100) or 'Azeroth'
- local hero={r('Continue your journey',nil,nil,{size=16,height=30}),r('The road through '..zone,nil,nil,{size=28,height=52}),cap('Your recorded adventures, encounters and companions form the next chapter of your life in Azeroth.')}
- block(b,'hero','',0,0,.75,hero,{header=false,paper=false})
+ local live,services=ns.AetherLive,ns.AetherServices
+ local _,liveTitle,liveDetail=live.Status();local relayState,relayDetail=services.RelayStatus()
+ local hero={{actions={
+  {title=live.pending and live.pending.code and'LIVE UNAVAILABLE · RETRY'or live.Active()and'AETHER LIVE · LEAVE'or live.pending and'JOINING LIVE · CANCEL'or'JOIN AETHER LIVE',activate=function()if live.pending and live.pending.code then live.Retry()else live.Join()end end},
+  {title=relayState=='ENROLLED'and'AETHER RELAY · ENROLLED'or relayState=='ERROR'and'RELAY UNAVAILABLE · RETRY'or relayState=='PENDING'and'RELAY ENROLLMENT · RETRY'or'ENROLL IN AETHER RELAY',activate=function()
+   if relayState=='ENROLLED'then ns.UI2.Open({page='settings',category='aether'})elseif relayState=='PENDING'or relayState=='ERROR'then services.RetryRelay()else services.EnrollRelay()end
+  end}},height=64,serviceActions=true},
+  r('Aether Live · '..liveTitle,liveDetail,nil,{wrap=true,height=52}),
+  r('Aether Relay · '..relayDetail,'Enrollment prepares your signing identity. Historical sharing and publication stay separate.',nil,{wrap=true,height=48}),
+  r('Review recording choices','Adventures missed while recording is off cannot be recovered later.',function()ns.UI2Onboarding.Open(true)end,{wrap=true,height=42})}
+ if ns.AetherNative.RelayPaused()then
+  table.remove(hero[1].actions,2)
+  hero[3]=ns.AetherUnified and ns.AetherUnified.Available()and r('Aether · Your community',ns.AetherUnified.status..'. Shared pages catch up through Live. Your private notes, drafts and history stay yours.',nil,{wrap=true,height=68})or r('Aether Relay · Taking a break',ns.AetherNative.RelayPauseMessage,nil,{wrap=true,height=68})
+ end
+ local heroEnd=block(b,'hero','Aether · Choose your company',0,0,.75,hero)
  local quick={r('View Chronicle','Open activity dossiers',function() ns.UI2.Open({page='chronicle'}) end,{height=39}),r('Open Intel','Find a person',function() ns.UI2.Open({page='intel'}) end,{height=39}),r('Check messages','Review captured messages',function() ns.UI2.Open({page='messages'}) end,{height=39}),r('Manage Fireside','Settings',function() ns.UI2.Open({page='settings'}) end,{height=39})}
  quick[#quick+1]=r('Open Olympus','Connected guild addon',function() local ok,why=ns.OlympusIntegration.Open();if not ok and ns.UI2Forms then ns.UI2Forms.Feedback(false,why or 'Olympus is not currently available.') end end,{height=39})
- local overviewY=math.max(232,block(b,'quick','Quick actions',.75,0,.25,quick))
+ local overviewY=math.max(232,heroEnd,block(b,'quick','Quick actions',.75,0,.25,quick))
  local identity={r(fact('name') or 'This character',fact('class') or 'Class not recorded',nil,{size=19,height=40}),r('Level',fact('level') and tostring(fact('level')) or 'Not recorded'),r('Guild',fact('guild') or 'Not recorded'),r('Current zone',zone)}
  local leftEnd=block(b,'character','Character overview',0,overviewY,.375,identity)
  local recent={}
@@ -238,8 +251,10 @@ function L.Home(route)
  block(b,'people','People & shared history',0,y,.25,intel)
  local fellowship={};for _,person in ipairs(ns.Fellowship.Top()) do fellowship[#fellowship+1]=r(person.name,person.score..'% Player Match',nav('player',person.guid,ns.Chronicle.Owner())) end;if #fellowship==0 then fellowship[1]=cap('No fresh eligible request recorded. No background search runs when Home opens.') end
  block(b,'fellowship','Fellowship opportunities',.25,y,.25,fellowship)
- block(b,'aether','Aether activity',.5,y,.25,{cap(ns.AetherNet.ServiceState()),r('Peer exchange','P2P · original-author certificates'),cap('Local posts remain available before enrollment. Authenticated forwarding is implemented; real-client enrollment and delivery remain unverified.')})
- block(b,'resources','Resources & support',.75,y,.25,{r('Recording & data','Configure',function() ns.UI2.Open({page='settings',category='data'}) end),r('About this build','UI2 · development checkpoint'),r('Private Lab','Open Hephaestus',function() if ns.WardenSimLab then ns.WardenSimLab.Enable(true);ns.WardenSimLab.Open('grounds') end end)})
+ block(b,'aether','Aether activity',.5,y,.25,{r('Players in Aether Live','Find company and open a profile',function()ns.AetherLive.People()end,{height=52}),cap(ns.AetherNet.ServiceState()),r('Community connections','Share when you choose'),cap('Your pages and drafts are always available. Community sharing is optional, and some players may be out of reach.')})
+ local resources={r('Recording & data','Review your choices',function() ns.UI2.Open({page='settings',category='data'}) end),r('About Fireside','Help, updates and community',function()ns.UI2.Open({page='settings',category='advanced'})end)}
+ if ns.WardenSimLab then resources[#resources+1]=r('Private Lab','Open Hephaestus',function()ns.WardenSimLab.Enable(true);ns.WardenSimLab.Open('grounds')end)end
+ block(b,'resources','Resources & support',.75,y,.25,resources)
  local bottom=y+214
  block(b,'protection','Protection summary',0,bottom,.5,{r('Chat filtering',ns.DB.chat==false and 'Paused' or 'Enabled'),r('Shield',ns.DB.shield and ns.DB.shield.enabled==false and 'Paused' or 'Enabled'),r('Your preferences','Manage protections',function() ns.UI2.Open({page='settings',category='protections'}) end)})
  local health=ns.ChronicleStore.Residency()
@@ -248,6 +263,7 @@ function L.Home(route)
 end
 function L.Browse(route)
  local flat,_,pending=P.Browse(route);local rows={};for i=3,#flat do rows[#rows+1]=flat[i] end
+ if route.page=='intel'then table.insert(rows,1,r('Players in Aether Live','Find company and open a profile',function()ns.AetherLive.People()end,{height=52}))end
  local b={};block(b,'results',route.page=='intel' and 'Player dossiers' or 'Activity dossiers',0,0,1,rows)
  return b,pending
 end
@@ -271,7 +287,7 @@ function L.Chat(route)
  elseif selected then
   review={r(selected.sender or 'Observed text',selected.action,nil,{height=36,size=16}),r(ns.Review.DisplayOriginal(selected),nil,nil,{height=115,wrap=true,size=15})}
   local guid=selected.sender and ns.Athena.ResolveContact(selected.sender)
-  if guid then review[#review+1]=r('Player context','Open canonical dossier',nav('player',guid,ns.Chronicle.Owner())) end
+  if guid then review[#review+1]=r('Player context','Open player profile',nav('player',guid,ns.Chronicle.Owner())) end
   review[#review+1]=r('Mark reviewed','Keep filtering policy unchanged',function() ns.Review.Mark(selected.id,'reviewed');ns.UI2.Refresh(true) end)
   review[#review+1]=cap('Report submission and per-message rule editing are still being migrated. No review action transmits a report.')
  else review[1]=cap('Choose a retained message to review its content and context.') end
@@ -287,7 +303,7 @@ function L.Settings(route)
  local category=route.category or 'general';local controls={}
  local function toggle(label,get,set,detail) controls[#controls+1]=r(label,get() and 'On · click to change' or 'Off · click to change',function() set(not get());ns.UI2.Refresh(true) end,{height=43});if detail then controls[#controls+1]=cap(detail) end end
  if category=='profile' then
-  controls[#controls+1]=cap('Your player card is the same canonical Intel dossier. Aether stars are community opinions; Gamerzone is your optional self-description.')
+  controls[#controls+1]=cap('Your player card and Aether profile describe the same character. Stars are community opinions; Gamerzone is your optional introduction.')
   local own=ns.PlayerCard.Own();local declaration=ns.PlayerCard.Local(own)
   for _,key in ipairs(ns.PlayerCard.order) do local zone=key;local value=ns.PlayerCard.zones[zone]
    controls[#controls+1]=r(value.title,declaration and declaration.gamerzone==zone and 'Selected' or 'Choose',function() ns.PlayerCard.Select(zone);ns.UI2.Refresh(true) end,{height=38})
@@ -306,7 +322,7 @@ function L.Settings(route)
  elseif category=='data' then
   controls[#controls+1]=r('Local recording',ns.Chronicle.Status(),nil,{wrap=true,height=66})
   controls[#controls+1]=cap('Recording consent remains in the established consent workflow. Data removal and restore actions are not exposed until their UI2 migration is tested.')
- elseif category=='aether' then controls[#controls+1]=cap('Aether is off by default. Its independent identity, transport, queries and reciprocity remain capability-gated pending native validation.')
+ elseif category=='aether' then controls[#controls+1]=cap('Aether is optional. Choose whether to join and what to share; your private history remains yours.')
  elseif category=='appearance' then
   controls[#controls+1]=r('Window scale',tostring(ns.DB.workspaceScale or 'Fit screen'))
   controls[#controls+1]=r('Smaller interface','Reduce scale',function() ns.DB.workspaceScale=math.max(.5,(ns.DB.workspaceScale or 1)-.05);ns.UI2.Fit();ns.UI2.Refresh(true) end)
@@ -333,7 +349,7 @@ function L.Service(route)
  local rows={}
  if route.page=='shield' then for _,contact in ipairs(ns.Shield.List()) do rows[#rows+1]=r(contact.name,contact.reason or 'Active protection') end;if #rows==0 then rows[1]=cap('No active contact shields.') end
  elseif route.page=='mentions' then for _,e in ipairs(ns.Review.entries) do if ns.Review.ActivityCategory(e)=='alerts' then rows[#rows+1]=r(e.sender or 'Alert',e.original,nil,{wrap=true,height=66}) end end;if #rows==0 then rows[1]=cap('No retained Signal alerts.') end
- else rows={r('Saved reports',tostring(#ns.Personal.reports)),r('Direct Share','Explicit review required · action migration pending'),r('Aether','Off by default · native transport pending'),cap('No message or report is sent by opening Relay.')} end
+ else rows={r('Saved reports',tostring(#ns.Personal.reports)),r('Direct Share','Explicit review required · action migration pending'),r('Aether','Optional · join when you are ready'),cap('No message or report is sent by opening Relay.')} end
  block(b,'context',title..' context',0,132,.68,rows)
  block(b,'preferences','Preferences',.68,132,.32,{r('Configure '..title,'Central Settings',function() ns.UI2.Open({page='settings',category=route.page=='shield' and 'protections' or route.page=='relay' and 'aether' or 'notifications'}) end)})
  return b

@@ -5,6 +5,13 @@ local function inside(u,v,b)return u>=b[1]and u<=b[3]and v>=b[2]and v<=b[4]end
 function H.Person(v,s,u,y)
  local best;local own,owner=ns.PlayerCard.Own(),ns.Chronicle.Owner()
  for _,a in ipairs(s.native.order)do if a.spec.unit~='player'and N.IsPerson(a)and a.ready and not(a.editorHidden or a.retired or a.failed or a.awaitSpawn or a.sceneHidden)then
+  if a.spec.liveRemote then
+   local p=ns.AetherLive.ConnectedPlayer(a.liveIdentity);local b=p and C.ProjectPick(s.native,s.shot,a)
+   if C.ContainsPick(b,u,y)and(not best or b.bottom>best.bounds[4])then best={id=a.id,title=ns.AetherLive.PlayerName(p),kind='live-person',peer=p.id,bounds={b.left,b.top,b.right,b.bottom}}end
+  elseif a.spec.canonicalNPC and type(a.spec.label)=='string'then
+   local b=C.ProjectPick(s.native,s.shot,a)
+   if C.ContainsPick(b,u,y)and(not best or b.bottom>best.bounds[4])then best={id=a.id,title=a.spec.label,kind='citizen',bounds={b.left,b.top,b.right,b.bottom}}end
+  else
   local guid=a.spec.rememberedGUID
   if guid~=own and guid~=owner then
   local b=guid and ns.ChronicleStore.GUID(guid)and C.ProjectPick(s.native,s.shot,a)
@@ -19,20 +26,21 @@ function H.Person(v,s,u,y)
    end
    best={id=a.id,title=cached.title,kind='person',guid=guid,bounds={b.left,b.top,b.right,b.bottom}}
   end
+ end
  end end end;return best
 end
 function H.Target(v,s,u,y)
  if not s or not s.active or v.cameraMix>.001 or v.roomBookMotion or v.shelfFocus then return end
  if s==v.studyScene and C.ContainsPick(ns.WardenRoomBook.Pick(v),u,y)then
-  local b=ns.WardenRoomBook.Pick(v);return{id='book',title="Open Athena's Journal",bounds={b.left,b.top,b.right,b.bottom}}
+  local b=ns.WardenRoomBook.Pick(v);return{id='book',title="Athena's Journal",bounds={b.left,b.top,b.right,b.bottom}}
  end
  local person=H.Person(v,s,u,y);if person then return person end
  local id=v:PickSceneObject(s,u,y)
  if id then local a=s.native.actors[id];local b=C.ProjectPick(s.native,s.shot,a)
-  return{id=id,title=id=='shelf-right'and'Open badge showcase'or(a.spec.interaction=='fire'or id=='firepit')and'Sit by the fire'or'Sit on the chair',bounds={b.left,b.top,b.right,b.bottom}}
+  return{id=id,title=id=='shelf-right'and'Badge Showcase'or(a.spec.interaction=='fire'or id=='firepit')and'Campfire'or(a.spec.interaction=='chair'or id=='chair')and'Chair'or a.spec.label or id,bounds={b.left,b.top,b.right,b.bottom}}
  end
- for _,link in ipairs(ns.WardenRoomCatalogue.Connections(s.key))do if link.portal and inside(u,y,link.portal.clickUV)then
-  return{id=link.id,title=link.to=='study'and'Enter Olympian Oasis'or'Return to Olympus Fields',bounds=link.portal.clickUV,destination=link.to}
+ for _,link in ipairs(ns.WardenRoomCatalogue.Connections(s.key))do if link.portal and ns.WardenWorldScale.InAuthoredUV(s,u,y,link.portal.clickUV)then
+  return{id=link.id,title=link.label or(ns.WardenRoomCatalogue.Room(link.to)or{}).label or'Enter scene',bounds=ns.WardenWorldScale.ProjectAuthoredBox(s,link.portal.clickUV)or link.portal.clickUV,destination=link.to}
  end end
 end
 function H.Bind(v,U)
@@ -42,7 +50,7 @@ function H.Bind(v,U)
  -- Hardware gear cursor and tooltip only. Normal play has no hover/click box.
  local function clear()
   if h.cursorOwned then ns.SafeCall(ResetCursor);h.cursorOwned=nil end
-  if h.tooltip and GameTooltip then GameTooltip:Hide();h.tooltip=nil end
+  if h.tooltip then if GameTooltip then GameTooltip:Hide()end;if ns.WardenLocations81 then ns.WardenLocations81.Hide()end;h.tooltip=nil end
   h.target=nil;if not h.pulse then f:Hide()end
  end
  h.Clear=clear
@@ -62,9 +70,9 @@ function H.Bind(v,U)
   local target=self.scanTarget
   if target then
    if not self.target or self.target.id~=target.id then self.since=self.clock
-    if GameTooltip then GameTooltip:SetOwner(s.groundClick,'ANCHOR_CURSOR');GameTooltip:SetText(target.title);GameTooltip:Show();self.tooltip=true end
+    if ns.WardenLocations81 then ns.WardenLocations81.Show(s.groundClick,target);self.tooltip=true elseif GameTooltip then GameTooltip:SetOwner(s.groundClick,'ANCHOR_CURSOR');GameTooltip:SetText(target.title);GameTooltip:Show();self.tooltip=true end
    end
-   self.target=target;self.scene=s
+   self.target=target;self.scene=s;if ns.WardenLocations81 then ns.WardenLocations81.Position()end
    if not self.cursorOwned and type(SetCursor)=='function'then local ok,result=pcall(SetCursor,'INTERACT_CURSOR');self.cursorOwned=ok and result~=false end
   else clear()end
   local b=self.target and self.target.bounds or self.pulse and self.pulse.bounds
@@ -81,6 +89,7 @@ function H.Bind(v,U)
  local click,stop=v.ClickScene,v.Stop
  v.ClickScene=function(self,s,u,y)
   local target=H.Target(self,s,u,y)
+  if target and target.kind=='live-person'then return ns.AetherLive.OpenPlayer(target.peer)end
   if target and target.kind=='person'and target.guid~=ns.PlayerCard.Own()and target.guid~=ns.Chronicle.Owner()then local ok,why=U.OpenPlayer(target.guid,ns.Chronicle.Owner());return ok,ok and'Opened Aether profile'or why end
   local ok,why=click(self,s,u,y)
   if ok and target then h.pulse={at=h.clock or 0,bounds=target.bounds};h.scene=s end;return ok,why

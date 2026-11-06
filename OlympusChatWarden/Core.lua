@@ -1,5 +1,5 @@
 local ADDON_NAME, ns = ...
-ns.NAME, ns.VERSION = "Fireside", "1.1.4-unified-2.11.8-integrated77-media1"
+ns.NAME, ns.VERSION = "Fireside", "1.1.4-unified-2.11.8-integrated110-startup1"
 ns.TAGLINE = "CHUDS WITHOUT BORDERS"
 ns.REPORT_URL = "https://github.com/RegretnWoW/OlympusChatWarden/issues"
 ns.PROJECT_URL = "https://github.com/RegretnWoW/OlympusChatWarden"

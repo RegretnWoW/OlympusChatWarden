@@ -5,6 +5,7 @@ local function OwnedFrame(...) return ns.Modules and ns.Modules.Frame('history',
 local C,S,B,P=ns.Chronicle,ns.ChronicleStore,ns.ChronicleBackup,ns.PackCrypto
 local X={registered={},events={},status={},diagnostics={saved=0,reused=0,collisions=0,rejected=0,errors=0},refs={}};ns.ChronicleCapture=X
 local frame=OwnedFrame('Frame');local owner,index,jobs,queue=nil,{},{},{}
+local combatDeferred=false
 local indices=setmetatable({},{__mode='k'})
 local hashCache,hashOrder,hashBytes={},{},0
 local function RememberHash(encoded,hash,object)
@@ -216,7 +217,7 @@ function X.Mark(family,status)
         ns.ChronicleCoverage.State(family,state,status)
     end
 end
-function X.Validate(t)
+local function Validate(t,withEncoding)
     if not X.Table(t) or not ns.Readable(t.format) or not ns.CanRead(t.family) or t.format~=1 or not allowed[t.family] or not X.Table(t.values) then return end
     for k in pairs(t) do if k~='format' and k~='family' and k~='values' then return end end
     local count,seen=0,{}
@@ -309,13 +310,16 @@ function X.Validate(t)
         end
     end
     local out={format=1,family=t.family,values=values}
-    if #B.Encode(out)>6000 then return end
+    local encoded=B.Encode(out);if #encoded>6000 then return end
+    if withEncoding then return out,encoded end
     return out
 end
+function X.Validate(t)return Validate(t)end
 function X.Hash(t,checkpoint) return P.Hex(P.SHA256(B.Encode(t),checkpoint)) end
-function X.MatchesHash(t,expected,checkpoint)
+local function MatchesHash(t,expected,checkpoint,encoded)
     if not S.Text(expected,64) or #expected~=64 or expected:find('[^a-f0-9]') then return false end
-    if X.Hash(t,checkpoint)==expected then return true end
+    local actual=encoded and P.Hex(P.SHA256(encoded,checkpoint))or X.Hash(t,checkpoint)
+    if actual==expected then return true end
     -- Expanded legacy SavedVariables can parse a native float32 one double ULP
     -- away from its original value. Try that one bounded representation, then
     -- require the ORIGINAL SHA-256 exactly. Neither input nor fingerprint is
@@ -388,6 +392,14 @@ function X.MatchesHash(t,expected,checkpoint)
         X.diagnostics.numericRoundtrips=(X.diagnostics.numericRoundtrips or 0)+1;return true,'decimal doubles roundtrip'
     end
     return false
+end
+function X.MatchesHash(t,expected,checkpoint)return MatchesHash(t,expected,checkpoint)end
+-- The restore path checks the exact validated serialization once for size and
+-- hashing. Every object still runs schema admission and its original full SHA.
+-- No saved hash, object identity or cached health result is trusted.
+function X.ValidateForRestore(t,expected,checkpoint)
+    local clean,encoded=Validate(t,true)
+    if clean and MatchesHash(clean,expected,checkpoint,encoded)then return clean end
 end
 function X.SameSnapshot(a,b,hash,checkpoint)
     if not a or not b then return false end
@@ -509,7 +521,8 @@ function X.Pump()
     if ns.AthenaCastCounts then ns.AthenaCastCounts.Pump() end
     if ns.AthenaCombatEvidence then ns.AthenaCombatEvidence.Pump() end
     if ns.ChronicleCombat then ns.ChronicleCombat.Pump() end
-    if X.Busy() then if ns.ChronicleCoverage and #queue>0 then ns.ChronicleCoverage.State('Enrichment','deferred','Native detail reads deferred during combat') end;return end
+    combatDeferred=X.Busy()
+    if combatDeferred then if ns.ChronicleCoverage and #queue>0 then ns.ChronicleCoverage.State('Enrichment','deferred','Native detail reads deferred during combat') end;return end
     if ns.ChronicleCoverage then ns.ChronicleCoverage.Flush(false) end
     if ns.ChronicleDuels then ns.ChronicleDuels.Pump() end
     if ns.ChronicleStatistics then ns.ChronicleStatistics.Pump() end
@@ -517,7 +530,12 @@ function X.Pump()
     if ns.AthenaEnrichment then ns.AthenaEnrichment.Pump() end
     if ns.IntelPolicy then ns.IntelPolicy.Pump() end
     if ns.IntelWitness then ns.IntelWitness.Pump() end
+    -- Preserve the queue across frames. An individual native read/write can
+    -- exceed the target, but do not start a second slice after it used it up.
+    local budget=ns.WardenPerformance
+    local deadline=budget and budget.Begin and budget.Begin(2)
     for _=1,2 do
+        if budget and budget.Expired and budget.Expired(deadline) then break end
         local key=queue[1];if not key then break end
         local job=jobs[key];local perf=ns.WardenPerformance
         local start=perf and perf.active and perf.Now()
@@ -540,7 +558,7 @@ function X.Stop()
     if ns.AthenaEnrichment then ns.AthenaEnrichment.Stop() end
     if ns.IntelPolicy then ns.IntelPolicy.CancelSeed() end
     if ns.ChronicleCoverage then ns.ChronicleCoverage.Flush(true);ns.ChronicleCoverage.Clear() end
-    owner=nil;index={};jobs={};queue={};hashCache={};hashOrder={};hashBytes=0;X.refs={};X.runID=nil;frame:SetScript('OnUpdate',nil)
+    owner=nil;index={};jobs={};queue={};combatDeferred=false;hashCache={};hashOrder={};hashBytes=0;X.refs={};X.runID=nil;frame:SetScript('OnUpdate',nil)
     for _,module in ipairs({'ChronicleLoadout','ChronicleCombat','ChronicleEncounters','ChronicleProgress','ChronicleDuels','ChronicleStatistics','IntelWitness','AthenaSocial','AthenaGuild','AthenaPersonal','AthenaCombatEvidence','AthenaObservations','AthenaPersonalSources','AthenaFirstContact'}) do if ns[module] then ns[module].Stop() end end
 end
 function X.Flush()
@@ -566,11 +584,15 @@ function X.Start()
     if ns.AthenaEnrichment and C.IntelEnabled() then ns.AthenaEnrichment.Start() end
     local idle=0
     frame:SetScript('OnUpdate',function(_,delta)
-        -- Queued work still drains every frame. Idle schedulers need only a
+        -- Runnable detail still drains every frame. Idle schedulers need only a
         -- tenth-second tick; native callbacks/manual inspection stay immediate.
         local critical=ns.ChronicleEncounters and ns.ChronicleEncounters.Pending() or ns.ChronicleDuels and ns.ChronicleDuels.Pending()
-        critical=critical or ns.AthenaCombatEvidence and ns.AthenaCombatEvidence.Pending()>0
-        if #queue==0 and not critical then idle=idle+(S.Number(delta,0) or 0);if idle<.1 then return end end
+        local auras=ns.AthenaCombatEvidence and ns.AthenaCombatEvidence.Pending()>0
+        critical=critical or auras
+        -- A blocked detail queue cannot advance in combat. Poll its schedulers
+        -- at the existing idle cadence instead of retrying it every frame.
+        -- Aura baseline reads retain their fast path; native events stay direct.
+        if (#queue==0 and not critical) or (combatDeferred and not auras) then idle=idle+(S.Number(delta,0) or 0);if idle<.1 then return end end
         idle=0;local ok=pcall(X.Pump);if not ok then X.diagnostics.errors=X.diagnostics.errors+1;if S.AdmissionNote then S.AdmissionNote(nil,'INTERNAL_FAILURE','collector.pump')end end
     end)
 end
@@ -580,6 +602,7 @@ function X.Register(module,events,scope)
     for _,event in ipairs(events) do X.registered[event]=pcall(f.RegisterEvent,f,event) end
     f:SetScript('OnEvent',function(_,event,...)
         if not X.Ready() then return end
+        if event=='PLAYER_REGEN_ENABLED' then combatDeferred=false end
         X.events[event]=(X.events[event] or 0)+1
         local perf=ns.WardenPerformance;local start=perf and perf.active and perf.Now()
         local previous=C.timeContext;C.timeContext=C.EventContext(event)

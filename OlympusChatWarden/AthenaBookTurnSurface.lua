@@ -20,8 +20,42 @@ local function Characters(text)
 end
 function S.Advance(text,size,kind)
  local face=(kind=='title'or kind=='heading')and'bold'or'regular';local glyphs=ns.JournalGlyphs.styles[face];local width=0
- for _,ch in ipairs(Characters(text or''))do local g=glyphs[ch.cp]or glyphs[63];width=width+g[7]*size/ns.JournalGlyphs.size end;return width
+ for _,ch in ipairs(Characters(text or''))do local g=glyphs[ch.cp];width=width+(g and g[7]*size/ns.JournalGlyphs.size or size)end;return width
 end
+-- Pagination, document boxes and visible ink must share these exact word/glyph
+-- breaks. Client FontString metrics can be narrower than the letter atlas.
+local function WalkText(text,size,maxWidth,kind,emit)
+ text=(text or ''):gsub('||','|')
+ local style=(kind=='title' or kind=='heading')and'bold'or'regular'
+ local glyphs=ns.JournalGlyphs.styles[style];local factor=size/ns.JournalGlyphs.size
+ local atX,atY,bottom,wordIndex=0,0,0,0
+ local function Advance(chars)
+  local w=0;for _,ch in ipairs(chars)do local g=glyphs[ch.cp];w=w+(g and g[7]*factor or size)end;return w
+ end
+ local function Emit(chars)
+  for _,ch in ipairs(chars)do
+   local g=glyphs[ch.cp]
+   bottom=math.max(bottom,atY+(g and size*.94+(g[6]+g[4])*factor or size))
+   if emit then emit(ch,g,atX,atY,wordIndex,style,factor)end
+   atX=atX+(g and g[7]*factor or size)
+  end
+ end
+ for line in (text..'\n'):gmatch('(.-)\n')do
+  for spaces,word in line:gmatch('(%s*)(%S+)')do
+   wordIndex=wordIndex+1
+   local spaceChars,chars=Characters(spaces),Characters(word)
+   local sw,ww=Advance(spaceChars),Advance(chars)
+   if atX>0 and atX+sw+ww>maxWidth then atX=0;atY=atY+size+3;sw=0 end
+   if atX>0 then atX=atX+sw end
+   if ww>maxWidth then
+    for _,ch in ipairs(chars)do local cw=Advance({ch});if atX>0 and atX+cw>maxWidth then atX=0;atY=atY+size+3 end;Emit({ch})end
+   else Emit(chars)end
+  end
+  atX=0;atY=atY+size+3
+ end
+ return math.max(bottom,atY)
+end
+function S.TextHeight(text,size,width,kind)return WalkText(text,size,width,kind)end
 function S.New(parent)
     local self={faces={},pool={},used=0,buckets={},parent=parent}
     for i=1,16 do local f=CreateFrame('Frame',nil,parent);f:SetAllPoints(parent);f:SetFrameLevel(parent:GetFrameLevel()+i);self.buckets[i]=f end
@@ -44,49 +78,23 @@ function S.New(parent)
         local item=Entry(face,'illustration',x,y,w,h,art.path,art.uv or {0,1,0,1});item.alpha=art.alpha or 1;return item
     end
     function self:AddText(face,text,x,y,size,maxWidth,kind,tone)
-        text=(text or ''):gsub('||','|')
-        local style=(kind=='title' or kind=='heading') and 'bold' or 'regular'
-        local glyphs=ns.JournalGlyphs.styles[style];local factor=size/ns.JournalGlyphs.size
         local color=colors[tone or kind] or colors.body
-        local atX,atY=0,0
-        local function Advance(chars)
-            local w=0;for _,ch in ipairs(chars) do local g=glyphs[ch.cp] or glyphs[63];w=w+g[7]*factor end;return w
-        end
-        local function Emit(chars)
-            for _,ch in ipairs(chars) do
-                local g=glyphs[ch.cp]
+        return WalkText(text,size,maxWidth,kind,function(ch,g,atX,atY,wordIndex,style,factor)
+                self.emissionWord=wordIndex
                 if not g then
                     -- Preserve unsupported scripts with the client's alphabet-aware
                     -- font instead of replacing or silently dropping their text.
                     local item=Entry(face,'fallback',x+atX,y+atY,size,size,nil,{0,1,0,1},color)
                     if not item.fallback then item.fallback=self.buckets[1]:CreateFontString(nil,'ARTWORK') end
                     ns.Theme.ReaderFont(item.fallback,size,kind,'paper');item.fallback:SetTextColor(unpack(color));item.fallback:SetText(ch.text)
-                    item.region:Hide();item.fallback:Hide();atX=atX+size
+                    item.region:Hide();item.fallback:Hide()
                 else
                     if ch.cp~=32 and ch.cp~=160 and ch.cp~=9 then
                         Entry(face,'ink',x+atX+g[5]*factor,y+atY+size*.94+g[6]*factor,g[3]*factor,g[4]*factor,
                             TYPE..style..'.tga',{g[1]/2048,(g[1]+g[3])/2048,g[2]/2048,(g[2]+g[4])/2048},color)
                     end
-                    atX=atX+g[7]*factor
                 end
-            end
-        end
-        -- Glyph positions are fixed before the turn; only their quads move.
-        -- Break at words, preserving hard line breaks and all source characters.
-        for line,newline in (text..'\n'):gmatch('(.-)(\n)') do
-            for spaces,word in line:gmatch('(%s*)(%S+)') do
-                self.emissionWord=(self.emissionWord or 0)+1
-                local spaceChars=Characters(spaces);local chars=Characters(word)
-                local sw,ww=Advance(spaceChars),Advance(chars)
-                if atX>0 and atX+sw+ww>maxWidth then atX=0;atY=atY+size+3;sw=0 end
-                if atX>0 then atX=atX+sw end
-                -- Long words/scripts wrap by character, matching the reader's fit.
-                if ww>maxWidth then
-                    for _,ch in ipairs(chars) do local cw=Advance({ch});if atX>0 and atX+cw>maxWidth then atX=0;atY=atY+size+3 end;Emit({ch}) end
-                else Emit(chars) end
-            end
-            atX=0;atY=atY+size+3
-        end
+        end)
     end
     function self:AddFace(face,document,config)
         self.faces[face]=config
@@ -146,14 +154,12 @@ function S.New(parent)
                 end
             end
             if ns.AthenaBookArt then ns.AthenaBookArt.Emit(self,face,block,config.inset,y,config.textWidth);y=y+ns.AthenaBookArt.Height(block)end
-            local size=ns.Theme.DocumentTextSize(block.kind or 'body',document.fontScale)
+            local _,bh,maxWidth,size=ns.Theme.BookBlockMetrics(block,config.textWidth,document.fontScale,true)
             local inset=(block.characterCard or block.guildSeal) and 78 or 0
-            local maxWidth=math.max(80,config.textWidth-8-inset-(block.margin and (config.textWidth<340 and 32 or 144) or 0))
             self:AddText(face,block.text or '',config.inset+inset,y,size,maxWidth,block.kind,block.tone)
             self.emissionBlock=nil;self.emissionWord=nil
-            if block.margin then self:AddText(face,config.textWidth<340 and 'Ink' or block.margin.text or '',config.inset+config.textWidth-(config.textWidth<340 and 28 or 132),y,config.textWidth<340 and 13 or 14,config.textWidth<340 and 28 or 132,'meta') end
+            if block.margin then local narrow=config.textWidth-8<340;self:AddText(face,narrow and 'Ink' or block.margin.text or '',config.inset+config.textWidth-(narrow and 28 or 132),y,narrow and 13 or 14,narrow and 28 or 132,'meta') end
             -- Use real laid-out block heights, including ornaments and margins.
-            local bh=box and box:GetHeight() or size+26
             y=y+bh+(block.gap or (block.kind=='heading' and 9 or 14))
             if box and box.ornament and box.ornament:IsShown() and box.ornament.icon then
                 local icon=box.ornament.icon;local texture=icon:GetTexture()

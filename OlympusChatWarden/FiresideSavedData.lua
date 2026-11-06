@@ -7,6 +7,15 @@ local P={VERSION=1,RAW_NODES=4096,CHUNK=65536,blocked={},errors={},restored={},a
 local names={'OlympusWardenPrivacyDB','OlympusChatWardenDB','OlympusWardenRelayDB','OlympusWardenStartupDB','OlympusWardenConversationDB','OlympusWardenJournalDB','OlympusWardenRecollectionsDB','OlympusWardenExchangeDB','OlympusWardenSimLabDB'}
 P.RootNames=names
 local function finite(n)return n==n and n~=math.huge and n~=-math.huge end
+local function checksum(a,b,s)
+ -- Adler-32 is unchanged. Reducing per bounded block avoids two modulo
+ -- operations per byte while keeping every integer exactly representable.
+ for first=1,#s,5552 do
+  for i=first,math.min(first+5551,#s)do a=a+s:byte(i);b=b+a end
+  a=a%65521;b=b%65521
+ end
+ return a,b
+end
 local function large(root)
  local seen,count={},0
  local function visit(v,depth)
@@ -23,7 +32,7 @@ function P.Encode(root)
  local a,b=1,0
  local function flush()if size>0 then chunks[#chunks+1]=table.concat(parts);parts={};size=0 end end
  local function emit(s)
-  for i=1,#s do a=(a+s:byte(i))%65521;b=(b+a)%65521 end
+  a,b=checksum(a,b,s)
   bytes=bytes+#s;local at=1
   while at<=#s do local n=math.min(P.CHUNK-size,#s-at+1);parts[#parts+1]=s:sub(at,at+n-1);size=size+n;at=at+n;if size==P.CHUNK then flush()end end
  end
@@ -50,15 +59,32 @@ function P.Decode(saved,validateOnly)
   assert(type(k)=='number'and k%1==0 and k>=1 and k<=#saved.chunks and type(s)=='string'and #s>0 and #s<=P.CHUNK,'Invalid saved chunk')
   total=total+#s;count=count+1
  end
- for _,s in ipairs(saved.chunks)do for i=1,#s do a=(a+s:byte(i))%65521;b=(b+a)%65521 end end
+ for _,s in ipairs(saved.chunks)do a,b=checksum(a,b,s)end
  assert(count==#saved.chunks and total==saved.bytes and b*65536+a==saved.checksum,'Saved data length or checksum mismatch')
  local chunk,offset,consumed=1,1,0
  local function take(n)
-  assert(n>=0 and n%1==0 and n<=total-consumed,'Truncated saved data');local parts={}
+  assert(n>=0 and n%1==0 and n<=total-consumed,'Truncated saved data')
+  local current=saved.chunks[chunk]
+  if current and n<=#current-offset+1 then
+   local result=current:sub(offset,offset+n-1);offset=offset+n;consumed=consumed+n
+   if offset>#current then chunk=chunk+1;offset=1 end
+   return result
+  end
+  local parts={}
   while n>0 do local s=saved.chunks[chunk];assert(s,'Missing saved chunk');local k=math.min(n,#s-offset+1);parts[#parts+1]=s:sub(offset,offset+k-1);offset=offset+k;n=n-k;consumed=consumed+k;if offset>#s then chunk=chunk+1;offset=1 end end
   return table.concat(parts)
  end
  local function length()
+  local current=saved.chunks[chunk]
+  if current then
+   local last=current:find(':',offset,true)
+   if last and last-offset<=11 then
+    local digits=current:sub(offset,last-1);assert(digits:match('^%d+$'),'Invalid saved length')
+    local n=tonumber(digits);assert(n and n<=total,'Invalid saved length')
+    consumed=consumed+last-offset+1;offset=last+1;if offset>#current then chunk=chunk+1;offset=1 end
+    return n
+   end
+  end
   local s='';for _=1,12 do local c=take(1);if c==':'then local n=tonumber(s);assert(n and n<=total,'Invalid saved length');return n end;assert(c:match('^%d$'),'Invalid saved length');s=s..c end
   error('Invalid saved length',0)
  end
@@ -101,6 +127,7 @@ local function recovery(create)
   return root
  end
 end
+if ns.FiresideStartupTiming then recovery=ns.FiresideStartupTiming.Wrap(recovery,'backup metadata')end
 P.RecoveryStore=recovery
 local function admit(name,value)
  if P.admitted[name]==value and value~=nil then return true end
@@ -403,8 +430,9 @@ function P.CheckHistory()
  P.pendingHistory=manifest;return true
 end
 function P.CheckHistoryCooperative(checkpoint)
- if not P.HistoryManifest then return true end
- local main,expected,store=historyInputs();if not main then return false end
+ local timing=ns.FiresideStartupTiming;local start=timing and timing.Begin('history integrity',true)
+ if not P.HistoryManifest then if timing then timing.Finish('history integrity',start)end;return true end
+ local main,expected,store=historyInputs();if not main then if timing then timing.Finish('history integrity',start,false)end;return false end
  local probe=coroutine.create(function()
   expected=P.ResolveHistoryMarker(expected,store,coroutine.yield)
   local manifest=P.HistoryManifest(main,expected,coroutine.yield)
@@ -412,8 +440,8 @@ function P.CheckHistoryCooperative(checkpoint)
  end)
  while true do
   local ok,value=coroutine.resume(probe)
-  if not ok then return historyFailure(value)end
-  if coroutine.status(probe)=='dead'then P.pendingHistory=value;return true end
+  if not ok then if timing then timing.Finish('history integrity',start,false)end;return historyFailure(value)end
+  if coroutine.status(probe)=='dead'then P.pendingHistory=value;if timing then timing.Finish('history integrity',start)end;return true end
   checkpoint()
  end
 end
@@ -430,3 +458,5 @@ local event=CreateFrame('Frame');P.event=event
 function P.Rearm()event:UnregisterEvent('PLAYER_LOGOUT');event:RegisterEvent('PLAYER_LOGOUT')end
 event:RegisterEvent('PLAYER_LOGIN')
 event:SetScript('OnEvent',function(_,kind)if kind=='PLAYER_LOGIN'then P.Rearm()else P.Seal()end end)
+
+if ns.FiresideStartupTiming then P.Read=ns.FiresideStartupTiming.Wrap(P.Read,"saved root decode and admission")end

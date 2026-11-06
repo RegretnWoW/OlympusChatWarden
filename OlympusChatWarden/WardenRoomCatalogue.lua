@@ -31,14 +31,15 @@ function C.Instantiate(key,placement)
  if not id(out.id)or not vector(out.at,3)then return nil,'An instance needs its own stable ID and position'end
  return out
 end
-function C.RegisterRoom(key,spec)
- if not id(key)or rooms[key]or #roomOrder>=C.MAX_ROOMS then return false,'Invalid, duplicate or excessive room ID'end
+local function installRoom(key,spec,revision)
+ if not id(key)or revision and not rooms[key]or not revision and(rooms[key]or #roomOrder>=C.MAX_ROOMS)then return false,'Invalid, duplicate or excessive room ID'end
  local ok,d=pcall(copy,spec);if not ok then return false,d end
  if type(d)~='table'or type(d.label)~='string'or type(d.shot)~='table'or not vector(d.shot.position,3)or not vector(d.shot.target,3)or not finite(d.shot.fov)or d.shot.fov<=.05 or d.shot.fov>=3 or type(d.navigation)~='table'or not finite(d.navigation.floor)or type(d.navigation.floorUV)~='table'or type(d.plates)~='table'or #d.plates>64 then return false,'Incomplete room camera, floor or artwork'end
  if d.shot.position[1]==d.shot.target[1]and d.shot.position[2]==d.shot.target[2]and d.shot.position[3]==d.shot.target[3]then return false,'Degenerate room camera'end
  if d.layoutSlot and not id(d.layoutSlot)then return false,'Invalid private layout slot'end
  d.layoutSlot=d.layoutSlot or key
- for _,room in pairs(rooms)do if room.layoutSlot==d.layoutSlot then return false,'Each room needs a separate private layout slot'end end
+ if revision and d.layoutSlot~=rooms[key].layoutSlot then return false,'A bundled revision must retain its private layout slot'end
+ for other,room in pairs(rooms)do if other~=key and room.layoutSlot==d.layoutSlot then return false,'Each room needs a separate private layout slot'end end
  local layers={};for _,layer in ipairs(ns.WardenWorldScenes.layers)do layers[layer]=true end
  local plateIDs={};for _,p in ipairs(d.plates)do
   if not id(p[1])or plateIDs[p[1]]or type(p[2])~='string'or not layers[p[3]]or not vector(p[4],4)or p[4][3]<=0 or p[4][4]<=0 then return false,'Invalid or duplicate room plate'end;plateIDs[p[1]]=true
@@ -48,21 +49,33 @@ function C.RegisterRoom(key,spec)
  elseif not vector(fence,4)or fence[3]<=fence[1]or fence[4]<=fence[2]then return false,'Invalid floor rectangle'end
  local objectIDs={};d.props=d.props or{};d.residents=d.residents or{};d.outside=d.outside or{};d.routes=d.routes or{};d.airOccluders=d.airOccluders or{}
  if type(d.props)~='table'or type(d.residents)~='table'or type(d.outside)~='table'or type(d.routes)~='table'or type(d.airOccluders)~='table'then return false,'Invalid room collections'end
- if #d.props>24 or #d.residents>12 or #d.outside>8 then return false,'Room object budget'end
+ if #d.props>32 or #d.residents>12 or #d.outside>8 then return false,'Room object budget'end
  for _,group in ipairs({d.props,d.residents,d.outside})do for _,p in ipairs(group)do
   if not id(p.id)or objectIDs[p.id]or not vector(p.at,3)then return false,'Duplicate or invalid room instance'end;objectIDs[p.id]=true
+  -- Quarantined prototypes remain valid authored references. Runtime actor
+  -- admission blocks their renderer load; registration must retain the room.
+  if p.modelKey and not(ns.WardenNativeScene.BundledPath(p)or ns.WardenNativeScene.ModelQuarantine and ns.WardenNativeScene.ModelQuarantine(p))then return false,'Unknown bundled model key'end
   if p.itemID and(not items[p.itemID]or p.fileID~=items[p.itemID].fileID)then return false,'Unknown or mismatched item template'end
  end end
  local props={};for _,p in ipairs(d.props)do props[p.id]=p end
  if d.reader and(not props.desk or not props['room-book'])then return false,'Reader room needs its desk and book anchors'end
- if d.flags~=nil and(type(d.flags)~='table'or #d.flags>4)then return false,'Flag budget'end
- local flagIDs={};for _,f in ipairs(d.flags or{})do if type(f)~='table'or not finite(f.id)or flagIDs[f.id]or(f.kind~='guild'and f.kind~='alliance')or not props[f.pole or'flagpole']or not(vector(f.box,3)or vector(f.box,4))or f.box[3]<=0 or f.layer and not layers[f.layer]then return false,'Invalid flag attachment'end;flagIDs[f.id]=true end
+ if d.flags~=nil and(type(d.flags)~='table'or #d.flags>12)then return false,'Flag budget'end
+ local flagIDs={};for _,f in ipairs(d.flags or{})do
+  if type(f)~='table'or not finite(f.id)or flagIDs[f.id]or(f.kind~='guild'and f.kind~='alliance')or not props[f.pole or'flagpole']or not(vector(f.box,3)or vector(f.box,4))or f.box[3]<=0 or f.box[4]and f.box[4]<=0 or f.layer and not layers[f.layer]then return false,'Invalid flag attachment'end
+  if f.mount~=nil and f.mount~='architecture'or f.aspect~=nil and(not finite(f.aspect)or f.aspect<.4 or f.aspect>2)then return false,'Invalid flag surface'end
+  if f.asset~=nil and(f.asset~='guild-hanging90'or f.kind~='guild'or not ns.WardenSceneAssets.assets[f.asset])then return false,'Unknown banner render'end
+  flagIDs[f.id]=true
+ end
  for _,p in ipairs(d.props)do local seen={};local target=p.support
   while target do if not props[target]or seen[target]or target==p.id then return false,'Missing or cyclic support'end;seen[target]=true;target=props[target].support end
  end
- d.id=key;rooms[key]=d;roomOrder[#roomOrder+1]=key
+ d.id=key;rooms[key]=d;if not revision then roomOrder[#roomOrder+1]=key end
  if C.onRegister then C.onRegister(key,d)end;return true
 end
+function C.RegisterRoom(key,spec)return installRoom(key,spec,false)end
+-- Shipped defaults only, installed during addon loading. This changes no saved
+-- layouts, room instances or travel links; callers still receive owned copies.
+function C.ReviseBundledRoom(key,spec)return installRoom(key,spec,true)end
 function C.Room(key)return rooms[key]and copy(rooms[key])end
 function C.HasRoom(key)return rooms[key]~=nil end
 function C.Rooms()local out={};for _,key in ipairs(roomOrder)do out[#out+1]={id=key,label=rooms[key].label,interior=rooms[key].interior==true}end;return out end

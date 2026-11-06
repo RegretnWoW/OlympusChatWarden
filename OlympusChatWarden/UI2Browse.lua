@@ -187,7 +187,7 @@ function B.SnapshotRows(event,owner)
   value('totalAmount','Observed combat total');value('durationSeconds','Observed seconds')
   for _,source in ipairs(v.sources or {}) do local key=ns.ChronicleStore.GUID(source[1]);rows[#rows+1]={title=source[3]~=false and source[3] or 'Unidentified source',detail=C.Number(source[5])..(source[6]~=false and ' · '..C.Number(source[6])..' per second' or ''),height=44,activate=key and function() U.OpenPlayer(key,owner) end} end
  elseif family=='merchant' then
-  value('auctionID','Auction');value('itemID','Item');value('status','Observed listing state');value('bidCopper','Native bid · copper');value('buyoutCopper','Native buyout · copper');value('depositCopper','Deposit · copper');value('cutCopper','Auction cut · copper');value('offeredCopper','Offered gold · copper');value('requestedCopper','Requested gold · copper')
+  value('auctionID','Auction');value('itemID','Item');value('status','Observed listing state');value('bidCopper','Bid · copper');value('buyoutCopper','Buyout · copper');value('depositCopper','Deposit · copper');value('cutCopper','Auction cut · copper');value('offeredCopper','Offered gold · copper');value('requestedCopper','Requested gold · copper')
   for _,item in ipairs(v.items or {}) do rows[#rows+1]={title=(item[1]==1 and 'Given · ' or 'Received · ')..(item[5]~=false and item[5] or 'Item '..item[3]),detail='× '..item[4],icon=ns.ChronicleCapture.Call('C_Item.GetItemIconByID',item[3]),height=42} end
   rows[#rows+1]=cap('Owner-private observation. A sold listing is not received payment; invoice matches remain uncertain. Profit and market value are not inferred.')
  elseif family=='recap' then
@@ -201,7 +201,7 @@ function B.History(route)
   local rows={F.Row('CHR.HISTORY.MODE','History scope',function()return 'merchant'end,function(v)local r=clone(route);r.historyMode=v;U.Open(r,true);return true end,{choices={{'life','Personal history'},{'guild','Guild history'},{'combat','My combat'},{'merchant','Merchant history'}}})}
   local value,state=ns.ChronicleMerchant.Query('chronicle',route.owner or ns.Chronicle.Owner())
   if not value or state~='READY' then rows[#rows+1]=cap(state=='DENIED' and 'Private business history is available only to its character owner.' or 'Preparing retained business history…');return rows,{},state=='INDEXING' end
-  rows[#rows+1]=cap('Owner-private native observations. Missing coverage is unknown; wallet gains are not auction earnings or profit.')
+  rows[#rows+1]=cap('Your private merchant observations. Missing details stay unknown; money gained is not treated as auction profit.')
   rows[#rows+1]={title='Latest recorded balance',detail=value.balance and string.format('%.2f gold · %s',value.balance/10000,C.Stamp(value.balanceAt)) or 'Not recorded',height=44}
   for _,spec in ipairs({{'active','Active listings last observed'},{'sold','Distinct auctions observed sold'},{'trades','Confirmed successful trades'},{'invoices','Invoice observations · not unique sales'}})do rows[#rows+1]={title=spec[2],detail=value[spec[1]]>0 and tostring(value[spec[1]]) or 'Not recorded',height=42}end
   rows[#rows+1]={title='Revenue / profit',detail='Not established · invoice matching and payment collection require stronger identity',height=54,wrap=true}
@@ -236,10 +236,10 @@ function B.History(route)
   if route.selectedID==event.id then
    detail[#detail+1]=cap(entry.title or ns.RecordingUI.Title(event));detail[#detail+1]={title='Observed',detail=C.Stamp(event.at),height=38}
    local t=event.temporal;local d=event.details or {}
-   detail[#detail+1]={title='Time basis',detail=t and (t.basis=='baseline' and 'Already present when first observed · original date unknown' or t.basis=='sample' and 'State sampled at '..C.Stamp(t.sampledAt) or t.basis=='aggregate' and 'Observed interval · not an exact occurrence' or 'Native callback observed at '..C.Stamp(t.eventAt)) or 'Legacy observation · original timing precision unknown',height=56,wrap=true}
+   detail[#detail+1]={title='Time basis',detail=t and (t.basis=='baseline' and 'Already present when first observed · original date unknown' or t.basis=='sample' and 'State sampled at '..C.Stamp(t.sampledAt) or t.basis=='aggregate' and 'Observed interval · not an exact occurrence' or 'WoW reported this at '..C.Stamp(t.eventAt)) or 'Legacy observation · original timing precision unknown',height=56,wrap=true}
    if d.calendarYear then detail[#detail+1]={title='Official calendar date',detail=string.format('%04d-%02d-%02d · day precision',d.calendarYear,d.calendarMonth,d.calendarDay),height=42} end
-   if d.wasEarnedByMe~=nil then detail[#detail+1]={title='Earned by this character',detail=d.wasEarnedByMe and 'Native API confirms' or 'Not established · account/other-character completion',height=42} end
-   if d.totalPlayed then detail[#detail+1]={title='Native played total',detail=string.format('%.1f hours · this level %.1f hours',d.totalPlayed/3600,d.levelPlayed/3600),height=42} end
+   if d.wasEarnedByMe~=nil then detail[#detail+1]={title='Earned by this character',detail=d.wasEarnedByMe and 'Confirmed by WoW' or 'Not established · account/other-character completion',height=42} end
+   if d.totalPlayed then detail[#detail+1]={title='Time played reported by WoW',detail=string.format('%.1f hours · this level %.1f hours',d.totalPlayed/3600,d.levelPlayed/3600),height=42} end
    detail[#detail+1]={title='Place',detail=event.location and (event.location.subzone or event.location.zone) or 'Not recorded',height=38}
    if event.capture then for _,row in ipairs(B.SnapshotRows(event,route.owner)) do detail[#detail+1]=row end
    else for _,pair in ipairs({{'name','Name'},{'guildName','Guild'},{'guildRank','Observed guild rank'},{'description','Development'},{'objective','Objective'},{'before','Previous observation'},{'after','Later observation'},{'delta','Change'}}) do local value=(event.details or {})[pair[1]];if type(value)=='string' or type(value)=='number' then detail[#detail+1]={title=pair[2],detail=tostring(value),height=40} end end end
@@ -353,7 +353,7 @@ function L.Browse(route)
  if catalog.error then return {block('results','History view unavailable',0,1,{cap('This local view could not be prepared. Original saved records are retained.'),act('BROWSE.RETRY','Retry local view','Rebuild disposable index',function() B.catalogs[route.owner..'/'..kind]=nil;U.Refresh(true) end)})},false end
  local tools={act('BROWSE.FILTERS','History filters','Character and activity scope',function() B.Filters(route) end)}
  if kind=='player' then tools[#tools+1]=act('INT.ONLINE','Online Fireside Users','Recently acknowledged eligible peers',go({page='intel',subsection='warden-online',owner=route.owner})) end
- if kind=='player' then tools[#tools+1]=act('INT.TARGET','My target','Open the same GUID dossier',function()
+ if kind=='player' then tools[#tools+1]=act('INT.TARGET','My target','Open this character’s profile',function()
   local guid=ns.ChronicleStore.GUID(ns.SafeCall(UnitGUID,'target'))
   if ns.SafeCall(UnitIsPlayer,'target')~=true or not guid then return F.Feedback(false,'Select an identifiable player first.') end
   return U.OpenPlayer(guid,ns.Chronicle.Owner())

@@ -3,9 +3,6 @@
 local _,ns=...
 local X={};ns.WardenScenicInput=X
 function X.Attach(v,U)
- local s=v.forest;local floor=s.groundClick
- floor:SetParent(U.window);floor:ClearAllPoints()
- floor:SetPoint('TOPLEFT',U.stage,'TOPLEFT',0,-35);floor:SetPoint('BOTTOMRIGHT',U.stage,'BOTTOMRIGHT')
  function v:CursorSceneClick(scene,source)
   local scale=scene.frame:GetEffectiveScale();local x,y=GetCursorPosition();local left,top=scene.frame:GetLeft(),scene.frame:GetTop()
   if not left or not top or scale<=0 then return false,'Scene viewport unavailable'end
@@ -15,7 +12,13 @@ function X.Attach(v,U)
   self.lastSceneClick={scene=scene.key,u=u,v=q,accepted=ok==true,reason=why,source=source}
   return ok,why
  end
- floor:SetScript('OnClick',function()v:CursorSceneClick(s,'field floor')end)
+ function v:BindScenicFloor(s)
+  if s.definition.reader or s.scenicFloorBound then return end;s.scenicFloorBound=true
+  local floor=s.groundClick;floor:SetParent(U.window);floor:ClearAllPoints()
+  floor:SetPoint('TOPLEFT',U.stage,'TOPLEFT',0,-35);floor:SetPoint('BOTTOMRIGHT',U.stage,'BOTTOMRIGHT')
+  floor:SetScript('OnClick',function()v:CursorSceneClick(s,s.key=='hall'and'field floor'or'scene floor')end)
+ end
+ for _,scene in ipairs(v:Scenes())do v:BindScenicFloor(scene)end
  -- These three existing wheel surfaces cover otherwise empty Hall ground.
  -- Children retain their own buttons, links, dragging and selection handlers.
  for _,frame in ipairs({U.canvas,U.canvas.scroll,U.canvas.content})do
@@ -29,6 +32,8 @@ function X.Attach(v,U)
   end)
  end
  function v:StackFieldInput()
+  local s=self:ActiveRoom();if s.definition.reader then return end
+  self:BindScenicFloor(s);local floor=s.groundClick
   local highest=U.stage:GetFrameLevel()
   -- In the full scene there are no visible cards to protect; bring its floor
   -- above stale mouse containers. Normal cards retain their existing order.
@@ -40,14 +45,16 @@ function X.Attach(v,U)
    visit(U.stage);visit(s.frame)
   end
   if floor.SetFixedFrameLevel then floor:SetFixedFrameLevel(false)end
-  floor:SetFrameLevel(highest+1)
+  floor:SetFrameLevel(U.canvas:IsVisible()and math.max(1,U.canvas:GetFrameLevel()-1)or highest+1)
   if floor.SetFixedFrameLevel then floor:SetFixedFrameLevel(true)end
  end
  function v:RefreshFieldInput()
   -- Shared scene means shared input on exposed ground, regardless of which
   -- content tab is open. Card surfaces remain above this floor.
-  floor:SetShown(s.active and self.frame:IsVisible())
-  if ns.WardenSceneEditor and ns.WardenSceneEditor.active then floor:EnableMouse(false)end
+  for _,s in ipairs(self:Scenes())do if not s.definition.reader then
+   self:BindScenicFloor(s);local floor=s.groundClick;floor:SetShown(s.active and self.frame:IsVisible())
+   if ns.WardenSceneEditor and ns.WardenSceneEditor.active then floor:EnableMouse(false)end
+  end end
   self:StackFieldInput()
  end
  local before=U.window.ChatWardenBeforeFocus

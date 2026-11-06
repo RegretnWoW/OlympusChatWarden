@@ -185,7 +185,7 @@ local function buildActivity(st,a)
  model.measuredSeconds=field(type(timing)=='number' and timing>0 and timing or nil,'derived')
  model.metrics={{label='Encounter attempts',value=model.attemptCount>0 and model.attemptCount or nil},{label='Known participants',value=#model.participants>0 and #model.participants or nil},{label='Quest changes',value=#model.quests>0 and #model.quests or nil},{label='Loot observations',value=#model.loot>0 and #model.loot or nil}}
  if deaths>0 then model.metrics[#model.metrics+1]={label='Deaths recorded',value=deaths} end
- model.coverage={'Observed visits are grouped into this run. Leaving or reloading does not by itself prove completion.','Roster inclusion establishes a shared group, not attendance at every encounter.','Loot observations may overlap and are not summed into a complete loot ledger.'}
+ model.coverage={'Observed visits are grouped into this run. Leaving or reloading does not by itself prove completion.','Roster inclusion establishes a shared group, not attendance at every encounter.','Loot observations may overlap, so Fireside does not add them into a complete loot total.'}
  if #model.encounters==0 then model.coverage[#model.coverage+1]='No encounter outcomes were linked to this activity.' end
  model.sourceCount=sourceCount;model._activity=a
  model.summary=model.adventureSummary.text
@@ -299,7 +299,7 @@ local function buildPlayer(st,guid)
   model.remote={claims={},rating=model.aetherNet.rating}
   if not st.asOf and not model.known and model.aetherNet.identity.name and model.aetherNet.identity.realm then
    model.identity=model.aetherNet.identity;model.title=model.identity.name;model.sourceState='shared'
-   model.coverage={'Aether Net public observations; no firsthand encounter or native service is implied.'}
+   model.coverage={'Shared through Aether; this is not a record of meeting the player yourself.'}
   end
   local owner=model.aetherNet.owner
   if owner then model.declaration={gamerzone=owner.gamerzone and owner.gamerzone:lower(),revision=owner.revision} end
@@ -344,7 +344,7 @@ function M.GetActivityPage(key,owner)
   if not e then return nil,'Shared event unavailable' end
   local people={};for _,guid in ipairs(e.participants) do local identity=ns.AetherNet.ReadSubject('CHARACTER',guid).identity;people[#people+1]={key=guid,title=identity.name or 'Resolved participant',identity=identity,state='shared'} end
   local outcome=({final_encounter_won='Final encounter reported won',full_clear='Attested complete event',partial='Partial event',unknown='Outcome unknown'})[e.outcome] or 'Conflicting outcome'
-  return {kind='activity',key=key,owner=owner or ns.Chronicle.Owner(),category=e.activityType,title=e.name or 'Shared event',status=outcome,firstAt=e.startAt,lastAt=e.endAt,endAt=e.endAt,sourceState='shared',eventRef={key=key,type='EVENT',verified=e.verified,scope=e.scope},attemptCount=0,participants=people,encounters={},quests={},loot={},timeline={},boards={},combat={},combatSummary={},related={},sections={},metrics={},measuredSeconds={},adventureSummary=ns.AthenaAdventureSummary.Shared(e),summary=ns.AthenaAdventureSummary.Shared(e).text,coverage={'Authorized shared projection; not firsthand local history.','Participant identifiers were separately authorized; attendance at each boss remains unknown.'}}
+  return {kind='activity',key=key,owner=owner or ns.Chronicle.Owner(),category=e.activityType,title=e.name or 'Shared event',status=outcome,firstAt=e.startAt,lastAt=e.endAt,endAt=e.endAt,sourceState='shared',eventRef={key=key,type='EVENT',verified=e.verified,scope=e.scope},attemptCount=0,participants=people,encounters={},quests={},loot={},timeline={},boards={},combat={},combatSummary={},related={},sections={},metrics={},measuredSeconds={},adventureSummary=ns.AthenaAdventureSummary.Shared(e),summary=ns.AthenaAdventureSummary.Shared(e).text,coverage={'Shared with permission · separate from your own adventure history','Participant identifiers were separately authorized; attendance at each boss remains unknown.'}}
  end
  return get('activity',key,owner)
 end

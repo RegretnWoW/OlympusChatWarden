@@ -30,10 +30,12 @@ function R.Target(scene,aspect)
  local dx,dy=shot.target[1]-shot.position[1],shot.target[2]-shot.position[2];local length=math.sqrt(dx*dx+dy*dy);if length<.001 then return nil,'Invalid room camera'end
  dx,dy=dx/length,dy/length;local tuning=R.Settings(scene);local rx,ry=dy,-dx
  tx,ty=tx+rx*tuning.x+dx*tuning.y,ty+ry*tuning.x+dy*tuning.y
+ tx,ty,tz=ns.WardenWorldScale.PresentWorld(e,book,tx,ty,tz)
  local yaw=math.rad(tuning.yaw);local ca,sa=math.cos(yaw),math.sin(yaw);dx,dy=dx*ca-dy*sa,dx*sa+dy*ca;rx,ry=dy,-dx
  local pitch=math.rad(tuning.pitch)
  local cx,cy=N.World(shot,desk.position[1],desk.position[2],0);local angle=desk.worldYaw or 0;local c,s=math.cos(angle),math.sin(angle);local b=desk.bounds
- local hx=(b[4]-b[1])*(desk.scale or 1)*.5;local hy=(b[5]-b[2])*(desk.scale or 1)*.5
+ cx,cy=ns.WardenWorldScale.PresentWorld(e,desk,cx,cy,desk.position[3])
+ local hx=(b[4]-b[1])*(desk.renderScale or desk.scale or 1)*.5;local hy=(b[5]-b[2])*(desk.renderScale or desk.scale or 1)*.5
  local ox,oy=tx-cx,ty-cy;local x=math.abs(c*ox+s*oy);local y=math.abs(-s*ox+c*oy)
  -- Fit a conservative view rectangle inside the real rotated desk footprint.
  -- This keeps the tabletop as the backdrop, even when its editor yaw changes.
@@ -72,7 +74,7 @@ function R.Apply(v,w,h,mix)
  if not scene.native.frame then v.readingCameraStatus='Native viewport unavailable; simulator cannot render the desk camera';return false end
  local target,why=R.Target(scene,w/h);if not target then R.Reset(v);v.readingCameraStatus=why;return false end
  if v.nativeReadingScene and v.nativeReadingScene~=scene then R.Reset(v)end
- local base=scene.shot;local shot={position={},target={},fov=base.fov}
+ local base=scene.worldCalibration and scene.worldCalibration.camera or scene.shot;local shot={position={},target={},fov=base.fov}
  for i=1,3 do shot.position[i]=lerp(base.position[i],target.position[i],mix);shot.target[i]=lerp(base.target[i],target.target[i],mix)end
  local key=table.concat({scene.key,w,h,mix,unpack(shot.position)},':')..':'..table.concat(shot.target,':')
  if v.readingCameraKey~=key then

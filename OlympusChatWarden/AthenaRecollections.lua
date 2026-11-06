@@ -9,6 +9,48 @@ local eligible={instance_enter='adventure',instance_exit='adventure',battlegroun
  quest_turnin='quest',quest_accepted='quest',adventure_combat_summary='combat',guild_affiliation='guild',friend_status='friend',group_roster='group',encounter_ended='adventure'}
 local function Copy(t) return ns.Athena.Copy(t) end
 function R.NewStore() return {version=1,owners={},revision=0} end
+-- Validate a decoded checkpoint without installing it, changing permissions,
+-- creating a store, or attaching notes from a different archive lineage.
+function R.ValidateSaved(root,history)
+ local S=ns.ChronicleStore
+ local function plain(v)return type(v)=='table'and not getmetatable(v)end
+ local function text(v,n)return type(v)=='string'and #v<=n end
+ local function revision(v)return S.Integer(v,0,1000000000)end
+ assert(plain(root)and root.version==R.VERSION and plain(root.owners)and revision(root.revision),'Invalid recollection checkpoint')
+ for field in pairs(root)do assert(field=='version'or field=='owners'or field=='revision','Unsupported recollection checkpoint field')end
+ for owner,row in pairs(root.owners)do
+  assert(type(owner)=='string'and owner:match('^[^/]+/Player%-%d+%-%x+$')and plain(row),'Invalid recollection owner')
+  assert(text(row.lineage,512)and row.lineage:sub(1,#owner+1)==owner..'/'and revision(row.revision)and plain(row.notes),'Invalid recollection lineage')
+  local wanted,n={},0
+  for ref,note in pairs(row.notes)do
+   n=n+1
+   assert(text(ref,1024)and plain(note)and note.sourceRef==ref,'Invalid recollection reference')
+   assert(text(note.text,R.MAX_TEXT)and not note.text:find('[%z\1-\8\11\12\14-\31]')and R.feelings[note.feeling]and R.company[note.company],'Invalid recollection text or choices')
+   assert(ns.SafeNumber(note.at)and(note.kind=='adventure'or note.kind=='quest'or note.kind=='combat'or note.kind=='guild'or note.kind=='friend'or note.kind=='group'),'Invalid recollection moment')
+   assert(note.authorship=='PLAYER_AUTHORED'and note.privacy=='OWNER_PRIVATE'and note.personalFactsVerified==false,'Invalid recollection provenance')
+   assert(note.sourceRecordRef==nil or text(note.sourceRecordRef,256)and note.sourceRecordRef:sub(1,#owner+1)==owner..':','Invalid recollection source owner')
+   if note.sourceRecordRef then wanted[note.sourceRecordRef]=wanted[note.sourceRecordRef]or{};local list=wanted[note.sourceRecordRef];list[#list+1]=note end
+  end
+  assert(n<=R.MAX_NOTES,'Unsupported recollection count')
+  -- Older lineages are retained verbatim and remain unavailable through Get,
+  -- exactly as on an ordinary load. Matching lineages must keep their links.
+  if n>0 and row.lineage==ns.AthenaReadingSnapshots.Lineage(owner,history)then
+   local c=assert(history and history.characters[owner],'Recollection history is unavailable')
+   local function inspect(e)
+    local notes=wanted[e.id]
+    if notes then
+     for _,note in ipairs(notes)do assert(note.at==e.at and note.kind==eligible[e.details.recordType or e.kind],'Recollection source changed')end
+     wanted[e.id]=nil
+    end
+   end
+   if c.storageFormat==1 then
+    for _,chunk in ipairs(c.eventChunks or{})do for _,e in ipairs(assert(ns.ChronicleBackup.DecodeChunk(chunk)))do inspect(e)end end
+   else for _,e in ipairs(c.events or{})do inspect(e)end end
+   assert(next(wanted)==nil,'Recollection source is missing')
+  end
+ end
+ return true
+end
 function R.Store(provider,owner)
  if not provider or not provider:Allowed() then return end
  if provider.demo then return provider.RecollectionStore end

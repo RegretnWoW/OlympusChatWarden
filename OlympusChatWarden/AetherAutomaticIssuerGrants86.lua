@@ -1,0 +1,7 @@
+-- Public root-signed delegation only. No private key or signing tool.
+-- Authorized issuer: Regretn Fireside, Forever PvE. Leaf certificates expire
+-- after 30 days. This delegation grants no root, revocation or redelegation power.
+local _,ns=...
+ns.AetherAutomaticIssuerGrants={
+"WAD1|V0FEMQpkY2YyOTVkZDBhZDBmYTVlMDgwYjhhMGU1NzJhYzQ1ODdhZDMxMjNjMzhiYTVlNDE4Zjc1Y2Q1M2ViMzNkYmI2CjM5MjFlNTZhZDliMTdhZTM2MzhlODMxMThiNWRkYzVmCmZvcmV2ZXIKTmF0aXZlL2E3YzIzZTNjMDgwYmFiYmRmY2FjNmNkZTE4NzQ2NzRlMmFkM2M0MjEKUmVncmV0biBGaXJlc2lkZQpDQU1XT1dVUzJSZWFsbTNQdkUKUGxheWVyLTY5MjktMDA2MkMzREMKNjNjMzkyNzc5Y2E3M2M2NTVjYmZkZTcwYTZjNDMxYmE4NDM2NzIwMzMyNjM3NjVmZDlkYTU4OWQwYmQ2MzEwNwoxNzkzODQyNzU4CjAKMjU5MjAwMAppc3N1ZS1jb21tdW5pdHk|b5ed7396c9b777f11a95b6dd399d853f37d86279ef63033bfdc1433ad3d2c5d4f9bc670987dde9356ee357ae415b5205aa0118523482d95d062459fe4135ee0e|none",
+}

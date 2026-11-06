@@ -317,7 +317,7 @@ function F.Attach(p)
   else
    entries(b,c.days,function(window) self:ReadDaybook(window) end)
    if #c.days==0 then b[#b+1]={text='No dated observations are available in this character’s permitted archive.'} end
-   if c.limited then b[#b+1]={kind='meta',text='This bounded date index is partial; original history remains intact.'} end
+   if c.limited then b[#b+1]={kind='meta',text='This date list shows part of a long history. Your full history is still kept.'} end
   end
   b[#b+1]=link('Refresh recorded days',function() self.daybookCatalog=D.Catalog(self.provider,self.owner);self:RenderDaybookIndex(false) end)
   self:Folio('daybookIndex',b,push)

@@ -53,6 +53,12 @@ end
 local function Selection(ids)
     local out={};for _,id in ipairs(ids)do out[#out+1]=#id..':'..id end;return table.concat(out)
 end
+local function SupportedRoot(db)
+    return type(db)=='table' and not getmetatable(db) and db.version==1 and type(db.owners)=='table'
+        and ns.SafeNumber(db.bytes) and db.bytes>=0 and ns.SafeNumber(db.moments) and db.moments>=0
+        and ns.SafeNumber(db.nextMoment) and db.nextMoment>=0 and db.nextMoment%1==0
+        and ns.SafeNumber(db.sessionSequence) and db.sessionSequence>=0
+end
 function C.NewStore(options)
     local o=options or {};local S={root=o.root,staging={},stagingBytes=0,candidates={},candidateBytes=0,seen={},seenOrder={},sequence=0,epoch=0,contexts=setmetatable({},{__mode='k'}),warnings={},revision=0,metrics={seen=0,displayVerified=0,staged=0,candidates=0,preserved=0,expired=0,rejected=0,linked=0},deliveries={},deliveryOrder={}}
     local checked=setmetatable({},{__mode='k'});local indexes=setmetatable({},{__mode='k'});local accounted
@@ -114,13 +120,12 @@ function C.NewStore(options)
             if db.accountingVersion~=2 or db.bytes~=bytes or db.moments~=moments then db.bytes=bytes;db.moments=moments;db.accountingVersion=2;S.dirty=true end
             accounted=true
         end)
-        if not S.RecoveryStep()and ns.WardenScheduler then job.scheduled=ns.WardenScheduler.Submit('conversation-recovery/'..tostring(S),'low',S.RecoveryStep)end
+        if not S.RecoveryStep()and not o.recoveryValidation and ns.WardenScheduler then job.scheduled=ns.WardenScheduler.Submit('conversation-recovery/'..tostring(S),'low',S.RecoveryStep)end
     end
     local function root(create)
         local db=S.root
         if not db and create then db={version=1,owners={},sessionSequence=0,nextMoment=0,nextMessage=0,bytes=0,moments=0};S.root=db;if o.saveRoot then o.saveRoot(db) end end
-        if db and (type(db)~='table' or db.version~=1 or type(db.owners)~='table' or not ns.SafeNumber(db.bytes) or db.bytes<0 or not ns.SafeNumber(db.moments) or db.moments<0
-            or not ns.SafeNumber(db.nextMoment) or db.nextMoment<0 or db.nextMoment%1~=0 or not ns.SafeNumber(db.sessionSequence) or db.sessionSequence<0) then S.warnings.storage='UNSUPPORTED_ARCHIVE_PRESERVED';return end
+        if db and not SupportedRoot(db) then S.warnings.storage='UNSUPPORTED_ARCHIVE_PRESERVED';return end
         if not db then return end
         if not accounted then
             if not S.recovery then S.BeginRecovery(db)elseif S.recovery.state=='RECOVERING'and not S.recovery.scheduled and ns.WardenScheduler then S.recovery.scheduled=ns.WardenScheduler.Submit('conversation-recovery/'..tostring(S),'low',S.RecoveryStep)end
@@ -437,6 +442,18 @@ function C.NewStore(options)
         return out
     end
     return S
+end
+-- Exercise the normal owner/message/selection validator on a private header.
+-- Its accounting migration must not alter the checkpoint or the live store,
+-- and a recovery dry-run must never enqueue work in the live scheduler.
+function C.ValidateSaved(db)
+    assert(SupportedRoot(db),'Unsupported conversation checkpoint')
+    local header={};for k,v in pairs(db)do header[k]=v end
+    local private=C.NewStore({root=header,recoveryValidation=true})
+    private.BeginRecovery(header)
+    while private.recovery.state=='RECOVERING'do private.RecoveryStep()end
+    assert(private.recovery.state=='READY','Invalid conversation checkpoint: '..tostring(private.recovery.reason))
+    return true
 end
 local store
 function C.ResetRuntime()if store then store.Boundary('privacy');if ns.WardenScheduler then ns.WardenScheduler.Cancel('conversation-recovery/'..tostring(store))end;if store.recovery then store.recovery.state='PRIVACY_ERASED';store.recovery.thread=nil end;store=nil end end

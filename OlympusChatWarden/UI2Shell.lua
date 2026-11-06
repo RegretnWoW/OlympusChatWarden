@@ -57,16 +57,28 @@ local function busy() return ns.Checked(ns.SafeCall(InCombatLockdown)) end
 local function tick(_,dt)
  U.elapsed=(U.elapsed or 0)+(dt or .016);if U.elapsed<(U.pending and .2 or 1) then return end;U.elapsed=0
  local now=ns.SafeNumber(ns.SafeCall(GetServerTime)) or 0
- if U.pending or U.nextRefreshAt and now>=U.nextRefreshAt then U.Refresh() end
+ local c=U.communityWatch and ns.AetherNet and ns.AetherNet.Cached()
+ local changed=U.communityWatch and(c~=U.communityClient or c and c.revision~=U.communityRevision)
+ local editor=ns.UI2LayoutEditor;local form=ns.UI2Forms and ns.UI2Forms.active
+ if changed and not U.menuHidden and not(editor and editor.tx)and not(form and form:IsShown())then U.Refresh(true)
+ elseif U.pending or U.nextRefreshAt and now>=U.nextRefreshAt then U.Refresh() end
+ if U.communityWatch and now>=(U.communityFreshAt or 0)then
+  U.communityFreshAt=now+60;local route=U.route or{}
+  if route.subsection=='agora'and ns.AetherUnified then ns.AetherUnified.Freshness('ROOM',route.room or'world')end
+ end
 end
 function U.ScheduleRefresh(model,pending)
  local route=U.route or {};U.pending=pending;U.elapsed=0
- local presenceView=model and model.kind=='player' and not model.asOf or route.page=='intel' and route.subsection=='warden-online'
+ local livePeople=route.page=='intel'and route.subsection=='live-players'
+ local presenceView=model and model.kind=='player' and not model.asOf or route.page=='intel' and route.subsection=='warden-online'or livePeople
  local expiry=model and model.kind=='player' and model.presence and model.presence.expiresAt
  local now=ns.SafeNumber(ns.SafeCall(GetServerTime)) or 0
- U.nextRefreshAt=presenceView and now+30 or nil
+ U.communityWatch=route.page=='intel'and route.subsection=='agora'
+ U.communityClient=U.communityWatch and ns.AetherNet and ns.AetherNet.Cached()or nil
+ U.communityRevision=U.communityClient and U.communityClient.revision
+ U.nextRefreshAt=presenceView and now+(livePeople and 5 or 30)or nil
  if expiry and expiry>now then U.nextRefreshAt=math.min(U.nextRefreshAt or expiry,expiry) end
- U.window:SetScript('OnUpdate',(pending or U.nextRefreshAt) and tick or nil)
+ U.window:SetScript('OnUpdate',(pending or U.nextRefreshAt or U.communityWatch) and tick or nil)
 end
 -- Layout transactions own the pointer. Also disable movability so a client
 -- drag bubbling to an ancestor cannot turn a card gesture into window motion.
@@ -182,9 +194,10 @@ function U.Ensure()
    local query=self:GetText();self:ClearFocus();U.Open({page='search',owner=ns.Chronicle.Owner(),query=query,wikiKind='ALL'})
  end)
  U.myCard=C.Button(header,'Aether Profile',function() U.OpenAetherProfile() end,145);U.myCard:SetPoint('TOPRIGHT',-502,-24)
- U.aetherIndicator=C.Button(header,'Aether Beta',function()U.Open({page='relay',subsection='aether'})end,200);U.aetherIndicator:SetPoint('TOPLEFT',340,-24)
+ U.aetherIndicator=C.Button(header,'Enter Aether Live',function()if ns.AetherLive and ns.AetherLive.Join then return ns.AetherLive.Join()end;if ns.AetherNet.JoinUI then return ns.AetherNet.JoinUI()end end,200);U.aetherIndicator:SetPoint('TOPLEFT',340,-24)
  local indicatorPending=false;local indicatorTimer
  local function updateIndicator()
+  if ns.AetherLive and ns.AetherLive.RefreshStatus then return ns.AetherLive.RefreshStatus()end
   local state,label,help=ns.AetherNet.ArtIndicator();U.aetherIndicator:SetLabel(label)
   local colors={CONNECTED=C.colors.green,OFF=C.colors.muted,STALE=C.colors.gold,LIMITED=C.colors.gold,READY=C.colors.blue,UNAVAILABLE=C.colors.muted}
   U.aetherIndicator.label:SetTextColor(unpack(colors[state]or C.colors.muted));ns.Theme.Tooltip(U.aetherIndicator,label,help)
@@ -227,7 +240,12 @@ function U.Ensure()
  ns.WardenRealm.Attach(U,f)
  ns.WardenSanctuary.Attach(f)
  f:Hide();f:SetScript('OnHide',function()
+  local keepLive=ns.AetherUnified and ns.AetherUnified.Available();if keepLive and ns.AetherLive and ns.AetherLive.World then ns.AetherLive.World.backgroundClosing=true end
+  if ns.AetherLive and ns.AetherLive.BeforeWindowHide then ns.AetherLive.BeforeWindowHide()end
   if U.realm and U.realm.roomTravel then U.realm.roomTravel:Cancel('Window closed')end
+  local live=ns.AetherLive and ns.AetherLive.World
+  if live and(live.active or live.private or live.phase~='private')then live.Leave('Fireside closed',true,keepLive)end
+  if live then live.backgroundClosing=nil end
   U.Capture();U.EndNavigationDrag();if U.navMenu then U.navMenu:Hide() end;f:StopMovingOrSizing()
  end)
  local resize=CreateFrame('Frame');for _,event in ipairs({'DISPLAY_SIZE_CHANGED','UI_SCALE_CHANGED','PLAYER_REGEN_ENABLED'}) do resize:RegisterEvent(event) end
@@ -322,6 +340,7 @@ function U.Refresh(force)
   pending=state=='refreshing'
   U.model=model
   if model.kind=='player' then blocks=L.Player(model,route);if ns.WardenExtensions then blocks=ns.WardenExtensions.ProfileBlocks(model,route,blocks)end elseif model.kind=='activity' then blocks=L.Activity(model) elseif model.kind=='guild' then blocks=L.Guild(model) else local rows=ns.UI2Pages.Group(model);blocks={{id='group',title=model.title,x=0,y=0,w=1,rows=rows}} end
+ elseif route.page=='intel'and route.subsection=='live-players'then blocks=ns.AetherLive.PeopleBlocks()
  elseif route.page=='intel'and route.subsection=='agora'then blocks=ns.AetherPosts.Blocks(route)
  elseif route.page=='search' then blocks,pending=ns.AthenaGlobalSearch.Blocks(route)
  elseif route.page=='wiki' then blocks,pending=ns.AthenaWikiUI.Blocks(route)
@@ -375,7 +394,7 @@ function U.Refresh(force)
  U.backButton:SetEnabled(#U.back>0);U.forwardButton:SetEnabled(#U.forward>0);U.browseButton:SetShown(route.kind=='activity' or route.kind=='player' or route.page=='intel' or route.page=='relay');U.browseButton:SetLabel((route.page=='intel' or route.page=='relay') and 'Aether tools' or 'Browse')
  for _,link in ipairs(U.sectionLinks) do link:SetShown(model and model.kind=='player' and route.projection~='public' and not route.directory or false) end
  U.context:SetPoint('RIGHT',model and model.kind=='player' and -735 or reading and -420 or -125,0)
- U.footer:SetText('Fireside 1.0 · Aether Beta 0.1 · Integrated 77 · Media cleanup 1')
+ U.footer:SetText('')
  U.LayoutNavigation(U.window:GetWidth(),U.window:GetWidth()<1450)
  U.presentedRoute=route;U.ScheduleRefresh(model,pending);U.ApplyMenuState()
 end

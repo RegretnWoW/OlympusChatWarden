@@ -198,7 +198,7 @@ function A.Get(c,id,includeRemoved)
  return A.Projection(c,row,ix,at),row
 end
 function A.Query(c,q)
- q=q or{};if not c then return{items={},scope='No peer cache available',partial=true}end
+ q=q or{};if q.room and ns.AetherUnified then ns.AetherUnified.Freshness('ROOM',q.room)end;if not c then return{items={},scope='No peer cache available',partial=true}end
  local ix=A.Index(c);local at=c.options.clock and c.options.clock()or now();local rows={};local p=localRoot(false);local asof=at
  local sort=q.sort=='popular'and'popular'or'recent';local boundary
  if q.cursor and type(q.cursor)~='string'then return nil,'CURSOR_INVALID'end

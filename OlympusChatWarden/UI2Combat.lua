@@ -15,14 +15,14 @@ function V.Rows(consumer,owner,guid,scope,sort,page)
     rows[#rows+1]=row('Deaths observed',out.deaths>0 and tostring(out.deaths) or 'Not recorded')
     for _,pair in ipairs({{'duelDamageReceived','Damage received · captured duel windows'},{'duelHealingReceived','Healing received · captured duel windows'}})do
         local key,title=pair[1],pair[2]
-        if out[key]~=nil then rows[#rows+1]=row(title,C.Number(out[key])..' · actor unknown',{activate=function()F.Copy(title,table.concat(out[key..'Refs'],'\n'),'Recorded source references. These partial unit observations are not added to native meter totals.')end,height=48,wrap=true}) end
+        if out[key]~=nil then rows[#rows+1]=row(title,C.Number(out[key])..' · actor unknown',{activate=function()F.Copy(title,table.concat(out[key..'Refs'],'\n'),'Details recorded from the encounter. These partial observations are kept separate from WoW’s combat totals.')end,height=48,wrap=true}) end
     end
     local meters=Q.Meters(out);local names={};for name in pairs(meters) do names[#names+1]=name end;table.sort(names)
     if #names==0 then rows[#rows+1]=row('Damage / healing meter','Not recorded for this scope') end
     for _,name in ipairs(names) do local meter=meters[name]
         rows[#rows+1]=row(name:gsub('(%l)(%u)','%1 %2'),C.Number(meter.amount)..(meter.measured and ' · '..C.Number(meter.amount/meter.seconds)..' per second' or ' · rate unavailable'))
     end
-    if #names>0 then rows[#rows+1]=cap('Latest cumulative native session per meter type. Refreshes and overlapping native sessions are not added together. Session coverage can extend beyond a linked activity.') end
+    if #names>0 then rows[#rows+1]=cap('The latest combat totals for each session. Refreshes and overlapping sessions are not added together. A session may include more than this activity.') end
     local spells=Q.Spells(out,sort);local start=(page or 0)*30+1
     rows[#rows+1]={kind='columns',cells={'Successful spell','Casts','Share','Latest'},widths={.48,.13,.14,.25},height=34}
     for i=start,math.min(#spells,start+29) do local r=spells[i];local spell=r.spellID

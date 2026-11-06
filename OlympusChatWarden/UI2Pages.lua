@@ -8,7 +8,7 @@ end
 local function section(rows,title,anchor) return add(rows,'section',title,nil,nil,{anchor=anchor}) end
 local function go(kind,key,owner) return function() ns.UI2.Open({page=kind=='player' and 'intel' or kind=='activity' and 'chronicle' or kind,kind=kind,key=key,owner=owner}) end end
 local function source(rows,m)
- add(rows,'caption',m.sourceState=='synthetic' and 'HEPHAESTUS · SIMULATED OBSERVATIONS' or m.sourceState=='unknown' and 'NO RETAINED OBSERVATIONS' or 'YOUR OBSERVED HISTORY',m.sourceState=='synthetic' and 'Synthetic evidence · native behavior not verified' or 'Local, source-qualified information')
+ add(rows,'caption',m.sourceState=='synthetic' and 'HEPHAESTUS · SIMULATED OBSERVATIONS' or m.sourceState=='unknown' and 'NO RETAINED OBSERVATIONS' or 'YOUR OBSERVED HISTORY',m.sourceState=='synthetic' and 'Synthetic evidence · native behavior not verified' or 'Information you have observed on this computer')
 end
 local function metrics(rows,list)
  local cells,widths={},{};local n=math.min(#list,5)
@@ -134,7 +134,7 @@ function P.Home(route)
  add(rows,'row','Chat filtering',ns.DB.chat==false and 'Paused' or 'Enabled')
  add(rows,'row','Shield',ns.DB.shield and ns.DB.shield.enabled==false and 'Paused' or 'Enabled')
  add(rows,'row','Local recording',ns.Chronicle.Status())
- add(rows,'row','Aether transport','Native validation pending · no background connection')
+ add(rows,'row','Aether transport','Connection testing is still in progress · nothing connects in the background')
  section(rows,'Build status');add(rows,'caption','UI2 is under construction','Module and action parity are not yet complete')
  return rows,{},not activities
 end

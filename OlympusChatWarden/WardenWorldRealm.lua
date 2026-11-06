@@ -34,28 +34,56 @@ function R.Attach(U,host)
   for i,name in ipairs(S.layers)do local l=G.Frame(f,i*3);l:SetAllPoints();s.layers[name]=l end
   for _,spec in ipairs(definition.plates)do
    local asset=W.assets[spec[2]..'@day']or W.assets[spec[2]];assert(asset,'Missing new scenic asset '..spec[2])
-   local box=clone(spec[4]);local o={id=spec[1],asset=spec[2],layer=spec[3],defaultLayer=spec[3],host=s.layers[spec[3]],box=box,baseBox=box,regions={}}
+   local box=clone(spec[4]);local o={id=spec[1],asset=spec[2],layer=spec[3],defaultLayer=spec[3],host=s.layers[spec[3]],box=box,baseBox=box,regions={},defaultShadow=clone(spec[5]),shadow=clone(spec[5])}
    for _,tile in ipairs(asset.tiles or{asset})do local t=o.host:CreateTexture(nil,'ARTWORK');if t.SetSnapToPixelGrid then t:SetSnapToPixelGrid(false);t:SetTexelSnappingBias(0)end;o.regions[#o.regions+1]={texture=t,box=asset.tiles and{tile.x/asset.width,tile.y/asset.height,tile.w/asset.width,tile.h/asset.height}or{0,0,1,1}}end
    if o.asset:find('a2-cloud-',1,true)==1 then o.box[4]=o.box[3]*S.aspect/(asset.width/asset.height)end
    s.objects[o.id]=o
   end
-  s.shadows={};s.native=N.Create(s.layers.native,s.shot);s.pending={};s.requested={};s.routeAt={}
-  s.nativeAir=N.Create(s.layers['outside-native'],s.shot)
+  s.shadows={};s.native=N.Create(s.layers.native,s.shot);s.native.roomKey=key;s.pending={};s.requested={};s.routeAt={}
+  s.nativeAir=N.Create(s.layers['outside-native'],s.shot);s.nativeAir.roomKey=key
+  s.nativeAir.projectionSource=s.native -- One measured lens for every native pass.
   s.native.lightOverride=clone(definition.lighting);s.nativeAir.lightOverride=clone(definition.lighting)
   s.native.layers=s.layers;s.native.baseLayer='native';s.nativeAir.layers=s.layers;s.nativeAir.baseLayer='outside-native'
   if s.native.frame then s.native.frame:SetFrameLevel(s.layers.native:GetFrameLevel());s.native.onReady=function(a)v:ActorReady(s,a)end;s.native.onRouteEnd=function(a)v:RouteEnded(s,a)end;s.native.onRouteBlocked=function(a)if a.spec.wildlife then return ns.WardenWildlife.Blocked(v,s,a)end;if a.visit then a.visit.next=(v.rememberedVisitors.clock or 0)+4 end end end
   if s.nativeAir.frame then s.nativeAir.frame:SetFrameLevel(s.layers['outside-native']:GetFrameLevel());s.nativeAir.onReady=s.native.onReady;s.nativeAir.onRouteEnd=s.native.onRouteEnd end
   if s.native.unsupported then local overlay=G.Frame(root,#S.layers*3+15);overlay:SetAllPoints();local note=overlay:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');note:SetPoint('BOTTOMRIGHT',-16,14);note:SetSize(430,36);note:SetJustifyH('RIGHT');note:SetText(N.IsSimulator()and'Simulator: native WoW actors require a real client.'or'Native scene models are unavailable on this client.');s.nativeNotice=overlay;overlay:Hide()end
+  -- Explicit below-layer hosts sit between the floor and a painted facade.
+  -- A child of the facade frame would always draw OVER its artwork instead.
+  function s:ShadowHost(layer)
+   local below=type(layer)=='string'and layer:match('^under:(.+)$')
+   if below and self.layers[below]then
+    self.shadowHosts=self.shadowHosts or{};local host=self.shadowHosts[below]
+    if not host then host=G.Frame(self.frame,0);host:SetAllPoints();self.shadowHosts[below]=host end
+    host:SetFrameLevel(self.layers[below]:GetFrameLevel()-1);return host
+   end
+   return self.layers[layer or'contact-shadows']or self.layers['contact-shadows']
+  end
+  function s:ArtShadow(o)
+   local r=o.shadow;local f=o.shadowFrame
+   if not r or r.enabled==false or o.editorHidden then if f then f:Hide()end;return end
+   local host=self:ShadowHost(o.shadowLayer or'under:'..o.layer)
+   if not f then f=G.Frame(host,0);o.shadowFrame=f;f.texture=G.Texture(f,W.assets['contact-shadow42'].tiles[1])end
+   if f:GetParent()~=host then f:SetParent(host)end;f:SetFrameLevel(host:GetFrameLevel());f:SetAllPoints(host)
+   local b=o.box;local w,h=b[3]*(r.width or .9),b[4]*(r.depth or .08)
+   local x,y=b[1]+b[3]*(r.x or .5)-w*.5,b[2]+b[4]*(r.y or .97)-h*.5
+   G.Place(f.texture,f,x*self.drawWidth,y*self.drawHeight,w*self.drawWidth,h*self.drawHeight)
+   f.texture:SetAlpha(r.opacity or .65);f:Show()
+  end
   function s:LayoutArt(o)
    local b=o.box;for _,r in ipairs(o.regions)do local q=r.box;G.Place(r.texture,o.host,(b[1]+q[1]*b[3])*self.drawWidth,(b[2]+q[2]*b[4])*self.drawHeight,q[3]*b[3]*self.drawWidth,q[4]*b[4]*self.drawHeight)end
+   self:ArtShadow(o)
   end
   function s:Layout(w,h)self.drawWidth,self.drawHeight=w,h;self.frame:SetSize(w,h);for _,o in pairs(self.objects)do self:LayoutArt(o)end end
   function s:Mount(state)
-   if not self.active then return end;self.artFallbacks={}
+   if not self.active then return end;self.artFallbacks={};self.artLoadFailures={}
    for _,o in pairs(self.objects)do
     local a=W.assets[o.asset..'@'..state]or W.assets[o.asset]or W.assets[o.asset..'@day']
     if not W.assets[o.asset..'@'..state]and not W.assets[o.asset]then self.artFallbacks[#self.artFallbacks+1]=o.asset..'@'..state end
-    for i,r in ipairs(o.regions)do local tile=(a.tiles or{a})[i];r.texture:SetTexture(tile.path,'CLAMP','CLAMP','LINEAR');r.texture:SetTexCoord(unpack(tile.uv or{0,1,0,1}))end
+    for i,r in ipairs(o.regions)do local tile=(a.tiles or{a})[i];local loaded=r.texture:SetTexture(tile.path,'CLAMP','CLAMP','LINEAR');r.texture:SetTexCoord(unpack(tile.uv or{0,1,0,1}))
+     if a.tiles then local b=r.box;b[1],b[2],b[3],b[4]=tile.x/a.width,tile.y/a.height,tile.w/a.width,tile.h/a.height end
+     if loaded==false then self.artLoadFailures[#self.artLoadFailures+1]={object=o.id,tile=i,path=tile.path}end
+    end
+    if self.drawWidth then self:LayoutArt(o)end
    end
    self.mountedState=state
   end
@@ -66,20 +94,21 @@ function R.Attach(U,host)
   v.scenes[key]=s;v.sceneOrder[#v.sceneOrder+1]=s;return s
  end
  function v:Scenes()return self.sceneOrder end
- function v:ActiveRoom()return self.reading and self.studyScene or self.forest end
+ function v:ActiveRoom()return self.scenes[self.currentRoomKey]or self.forest end
  v.forest=set('hall');v.studyScene=set('study');v.outdoor=v.forest.frame;v.study=v.studyScene.frame;v.room=v.study;v.homeScene=v.studyScene;v.study:Hide()
  -- Cat removed from the Study at the owner's request. Reference assets remain unused.
  v.candle={IsVisible=function()
   local a=v.studyScene.native.actors.candle
   return v.reading and v.studyScene.frame:IsVisible()and a and a.ready and not a.awaitSupport and(not ns.DB or ns.DB.journalCandle~=false)or false
  end}
- local function flag(s,kind,box,layer,stableID)
-  layer=layer or'flags';local f=G.Frame(s.layers[layer],0);local art=A.assets[kind=='guild'and'guild-rendered34'or'alliance-rendered34']
-  local c={id=stableID or #v.flags+1,frame=f,kind=kind,box=box,scene=s,layer=layer,defaultLayer=layer,reward=kind=='alliance'and'alliance'or nil,cloth=G.RenderedSurface(f,art,#v.flags*.83)};v.flags[#v.flags+1]=c;return c
+ local function flag(s,kind,box,layer,stableID,shape,assetID)
+  layer=layer or'flags';local f=G.Frame(s.layers[layer],0);assetID=assetID or(kind=='guild'and'guild-rendered34'or'alliance-rendered34');local art=assert(A.assets[assetID])
+  local c={id=stableID or #v.flags+1,frame=f,kind=kind,assetID=assetID,box=box,baseBox=clone(box),scene=s,layer=layer,defaultLayer=layer,reward=kind=='alliance'and'alliance'or nil,cloth=G.RenderedSurface(f,art,#v.flags*.83,shape)};v.flags[#v.flags+1]=c;return c
  end
  function v:AddRoomFlags(scene)
-  for _,spec in ipairs(scene.definition.flags or{})do local b=clone(spec.box);local art=A.assets[spec.kind=='guild'and'guild-rendered34'or'alliance-rendered34'];b[4]=b[4]or b[3]*S.aspect/art.aspect
-   local c=flag(scene,spec.kind,b,spec.layer or'flags',spec.id);c.pole=spec.pole or'flagpole';c.defaultScale=spec.scale or 1;c.flagScale=c.defaultScale
+  for _,spec in ipairs(scene.definition.flags or{})do local b=clone(spec.box);local art=A.assets[spec.asset or(spec.kind=='guild'and'guild-rendered34'or'alliance-rendered34')];b[4]=b[4]or b[3]*S.aspect/art.aspect
+   local c=flag(scene,spec.kind,b,spec.layer or'flags',spec.id,spec.aspect and{aspect=spec.aspect},spec.asset);c.mount=spec.mount;c.pole=spec.pole or'flagpole';c.defaultScale=spec.scale or 1;c.flagScale=c.defaultScale
+   c.editorHidden=spec.defaultHidden
    if scene.key=='hall'then self.guildFlag=c elseif scene.key=='study'then self.studyFlag=c end
   end
  end
@@ -101,7 +130,7 @@ function R.Attach(U,host)
  function v:BookAnchor()
   if not self.studyScene.definition.reader then return .5,.68,0 end
   local roomBook=self.studyScene.native.actors['room-book']
-  if roomBook and roomBook.ready and not roomBook.awaitSupport and roomBook.position then local p=roomBook.position;local x,y,z=N.World(self.studyScene.shot,p[1],p[2],p[3]);local u,v,mode=N.ProjectInScene(self.studyScene.native,self.studyScene.shot,x,y,z,S.aspect);if u then self.bookProjection=mode;return u,v,p[3]end end
+  if roomBook and roomBook.ready and not roomBook.awaitSupport and roomBook.position then local p=roomBook.position;local x,y,z=N.World(self.studyScene.shot,p[1],p[2],p[3]);x,y,z=ns.WardenWorldScale.PresentWorld(self.studyScene.native,roomBook,x,y,z);local u,v,mode=N.ProjectInScene(self.studyScene.native,self.studyScene.shot,x,y,z,S.aspect);if u then self.bookProjection=mode;return u,v,p[3]end end
   local deskSpec;for _,spec in ipairs(S.Props(self.studyScene))do if spec.id=='desk'then deskSpec=spec;break end end
   local desk=self.studyScene.native.actors.desk;local z=desk and desk.position and desk.top and desk.position[3]+desk.top or deskSpec.height*(deskSpec.sizeMultiplier or 1)
   local at=desk and desk.position or deskSpec.at;local offset=self.bookOffset or(self.studyScene.definition.book or S.book).offset
@@ -175,6 +204,20 @@ function R.Attach(U,host)
  end
  function v:MountFlag(c)
   c=c or self.guildFlag;local s=c.scene;local pole=s.native.actors[c.pole or'flagpole']
+  if c.mount=='architecture'then
+   -- Fixed art sockets share the facade's scene transform, with no native
+   -- model calls or floor-registration retry for the quarantined prototype.
+   local layer=c.layer or c.defaultLayer;local b=c.baseBox;local k=c.flagScale or 1
+   if c.architectureBox~=b or c.architectureScale~=k or c.mountedLayer~=layer or c.architectureWidth~=s.drawWidth or c.architectureHeight~=s.drawHeight then
+    c.architectureBox,c.architectureScale,c.architectureWidth,c.architectureHeight=b,k,s.drawWidth,s.drawHeight
+    c.mountedLayer=layer;c.mountReady=true;c.box={b[1],b[2],b[3]*k,b[4]*k}
+    c.frame:SetParent(s.layers[layer]);c.frame:SetFrameLevel(s.layers[layer]:GetFrameLevel()+1)
+    G.Place(c.frame,s.layers[layer],c.box[1]*s.drawWidth,c.box[2]*s.drawHeight,c.box[3]*s.drawWidth,c.box[4]*s.drawHeight)
+    c.registration={mode=c.assetID=='guild-hanging90'and'Top-hung Olympus cloth; fixed suspension and downward folds'or'Approved Fields animated atlas; architectural scene socket',hoist={b[1],b[2]}}
+   end
+   self:FlagShadow(c)
+   return c.box
+  end
   if pole and pole.editorHidden then c.mountReady=false;c.frame:Hide();return end
   -- Guild cloth is behind the walking-character viewport in both rooms.
   -- The native pole may cover its attachment; never lift the whole cloth in
@@ -192,6 +235,25 @@ function R.Attach(U,host)
    if c.mountSignature~=signature then c.mountSignature=signature;c.frame:ClearAllPoints();c.frame:SetPoint('TOPLEFT',s.layers[layer],'TOPLEFT',box[1]*s.drawWidth,-box[2]*s.drawHeight);c.frame:SetSize(box[3]*s.drawWidth,box[4]*s.drawHeight)end
   end
   return box
+ end
+ -- Hanging cloth rests against architecture, so its soft contact is on that
+ -- surface rather than an unrelated footprint on the ground.
+ function v:FlagShadow(c)
+  if c.mount~='architecture'then return end
+  local s,b=c.scene,c.box;local f=c.contactShadow
+  if not f then
+   f=G.Frame(c.frame:GetParent(),0);f:EnableMouse(false);f:SetAllPoints(c.frame:GetParent());c.contactShadow=f
+   f.body=G.Texture(f,W.assets['contact-shadow42'].tiles[1]);f.hoist=G.Texture(f,W.assets['contact-shadow42'].tiles[1])
+  end
+  local host=c.frame:GetParent();if f:GetParent()~=host then f:SetParent(host);f:SetAllPoints(host)end
+  f:SetFrameLevel(c.frame:GetFrameLevel()-1)
+  if f.box~=b or f.width~=s.drawWidth or f.height~=s.drawHeight then
+   f.box,f.width,f.height=b,s.drawWidth,s.drawHeight
+   G.Place(f.body,host,(b[1]+b[3]*.04)*s.drawWidth,(b[2]+b[4]*.025)*s.drawHeight,b[3]*1.06*s.drawWidth,b[4]*1.03*s.drawHeight)
+   G.Place(f.hoist,host,(b[1]-b[3]*.03)*s.drawWidth,(b[2]-b[4]*.015)*s.drawHeight,b[3]*1.06*s.drawWidth,b[4]*.075*s.drawHeight)
+   f.body:SetAlpha(.38);f.hoist:SetAlpha(.52)
+  end
+  f:SetShown(not self.closeupMode and not c.editorHidden and c.mountReady~=false and c.scene.active and available(c.reward))
  end
  function v:Prepare(s)
   if not s.native.frame then return end
@@ -221,10 +283,10 @@ function R.Attach(U,host)
    a.engine:SetLayer(a,a.renderLayer or'native');if not a.ready then return end
   end
   if a.spec.controlled and s.pendingArrival then a.spec.at=clone(s.pendingArrival);a.spec.floorUV=nil;a.spawnChecked=nil;s.pendingArrival=nil end
-  a.groundOffset=not a.spec.fileID and not a.spec.flying and(s.groundOffset or S.navigation[s.key].contactOffset or 0)or 0
+  a.groundOffset=not a.spec.fileID and not N.BundledPath(a.spec)and not a.spec.flying and(s.groundOffset or S.navigation[s.key].contactOffset or 0)or 0
   local p=a.spec.at or{0,0,0}
   if a.spec.floorUV and not a.floorAnchorHeld then
-   local target=a.spec.floorUV;local x,y=N.FloorPoint(a.engine.frame,s.shot,target[1],target[2],p[3])
+   local target=a.spec.floorUV;local x,y=N.AuthoredFloorPoint(a.engine.frame,s.shot,target[1],target[2],p[3])
    if not x then
     a.registrationAttempts=(a.registrationAttempts or 0)+1;a.registrationRetry=self.age+.25;a.awaitRegistration=true
     -- A screen anchor is an initial placement aid, not model-load evidence.
@@ -297,14 +359,15 @@ function R.Attach(U,host)
   if a.closeupHidden or a.sceneHidden then if s.shadows[a.id]then s.shadows[a.id]:Hide()end;return end
   local r=a.shadow
   if a.editorHidden or r and r.enabled==false or a.spec.effect or a.spec.flying or a.spec.support or not a.ready or a.awaitRegistration or not a.position then if s.shadows[a.id]then s.shadows[a.id]:Hide()end;return end
-  local host=s.layers[a.shadowLayer or'contact-shadows']or s.layers['contact-shadows'];local root=s.shadows[a.id]
+  local host=s:ShadowHost(a.shadowLayer);local root=s.shadows[a.id]
   if not root then
-   root=G.Frame(host,1);root:SetAllPoints();root.broad=G.Texture(root,W.assets['contact-shadow42'].tiles[1]);s.shadows[a.id]=root
+   root=G.Frame(host,0);root:SetAllPoints();root.broad=G.Texture(root,W.assets['contact-shadow42'].tiles[1]);s.shadows[a.id]=root
   end
-  if root:GetParent()~=host then root:SetParent(host);root:SetAllPoints(host);root:SetFrameLevel(host:GetFrameLevel()+1);root.lastQuad=nil end
+  if root:GetParent()~=host then root:SetParent(host);root:SetAllPoints(host);root.lastQuad=nil end
+  root:SetFrameLevel(host:GetFrameLevel()+(type(a.shadowLayer)=='string'and a.shadowLayer:match('^under:')and 0 or 1))
   local p,b=a.position,a.bounds;local yaw=a.worldYaw or 0;local offset=a.groundOffset or 0
   local movie=self.campfireWelcome;local frozen=movie and movie.phase=='read'and movie.scene==s
-  local worldKey=table.concat({p[1],p[2],p[3],a.scale,yaw,offset,r and r.x or 0,r and r.y or 0,r and r.width or 0,r and r.depth or 0,r and r.opacity or .92,a.nativeOrigin and a.nativeOrigin[1]or 0,a.nativeOrigin and a.nativeOrigin[2]or 0},':')
+  local worldKey=table.concat({p[1],p[2],p[3],a.scale,yaw,offset,r and r.x or 0,r and r.y or 0,r and r.width or 0,r and r.depth or 0,r and r.opacity or .92,a.nativeOrigin and a.nativeOrigin[1]or 0,a.nativeOrigin and a.nativeOrigin[2]or 0,a.presentationFactor or 1},':')
   -- The movie pans/scales the complete scene without changing its 3D camera.
   -- Native projection pixels can lag a resized viewport by one render. Keep
   -- stationary ground quads in scene UVs throughout that one camera move.
@@ -313,14 +376,14 @@ function R.Attach(U,host)
    ns.WardenComposition.Quad(root.broad,host,quad);root.broad:SetAlpha(r and r.opacity or .92);root.broad:Show();root:Show();return
   end
   if not frozen then root.movie=nil;root.movieUV=nil end
-  local signature=table.concat({p[1],p[2],p[3],a.scale,yaw,offset,s.drawWidth,s.drawHeight,a.spec.fileID or 0,a.seating and 1 or 0,a.nativeOrigin and a.nativeOrigin[1]or 0,a.nativeOrigin and a.nativeOrigin[2]or 0,a.engine.viewRevision or 0},':')
+  local signature=table.concat({p[1],p[2],p[3],a.scale,yaw,offset,s.drawWidth,s.drawHeight,a.spec.fileID or 0,a.seating and 1 or 0,a.nativeOrigin and a.nativeOrigin[1]or 0,a.nativeOrigin and a.nativeOrigin[2]or 0,a.engine.viewRevision or 0,a.presentationFactor or 1},':')
   if root.signature==signature and root.lastQuad then root:Show();return end
-  local x,y=N.World(s.shot,p[1],p[2],0);local z=.004+offset;local c,sn=math.cos(yaw),math.sin(yaw)
+  local x,y=N.World(s.shot,p[1],p[2],0);local z=(a.spec.groundHeight or p[3])+.004+offset;local c,sn=math.cos(yaw),math.sin(yaw)
   local hx,hy=(b[4]-b[1])*a.scale*.5,(b[5]-b[2])*a.scale*.5
-  if N.IsPerson(a)and a.nativeOrigin then x,y=a.nativeOrigin[1],a.nativeOrigin[2];hx,hy=.40,.276 end
+  if N.IsPerson(a)and a.nativeOrigin then x,y=ns.WardenWorldScale.PhysicalWorld(a.engine,a,a.nativeOrigin[1],a.nativeOrigin[2],z);hx,hy=.46,.3174 end
   local function quad(dx,dy,rx,ry)
    local out={};for _,q in ipairs({{-rx,-ry},{rx,-ry},{-rx,ry},{rx,ry}})do
-    local lx,ly=dx+q[1],dy+q[2];local u,v=N.ProjectNative(a.engine.frame,s.shot,x+c*lx-sn*ly,y+sn*lx+c*ly,z)
+    local lx,ly=dx+q[1],dy+q[2];local px,py,pz=ns.WardenWorldScale.PresentWorld(a.engine,a,x+c*lx-sn*ly,y+sn*lx+c*ly,z);local u,v=N.ProjectNative(a.renderScene or a.engine.frame,s.shot,px,py,pz)
     if not u then return end;out[#out+1]=u*s.drawWidth;out[#out+1]=v*s.drawHeight
    end;return out
   end
@@ -333,7 +396,7 @@ function R.Attach(U,host)
  function v:VisibleActor(s,a)
   if a.closeupHidden then return false end
   if not a.ready or a.awaitSupport or a.awaitRegistration or not s.active or not a.position then return false end
-  local p=a.position;local x,y,z=N.World(s.shot,p[1],p[2],p[3]+a.top*.5);local u,v=N.ProjectInScene(a.engine,s.shot,x,y,z,S.aspect)
+  local p=a.position;local x,y,z=N.World(s.shot,p[1],p[2],p[3]+a.top*.5);x,y,z=ns.WardenWorldScale.PresentWorld(a.engine,a,x,y,z);local u,v=N.ProjectInScene(a.engine,s.shot,x,y,z,S.aspect)
   if not u or u<0 or u>1 or v<0 or v>1 then return false end
   local function covered(id)
    local o=s.objects[id];if not o then return false end;local box=o.box
@@ -392,11 +455,13 @@ function R.Attach(U,host)
  end
  function v:GroundNavigation(s,a)
   local floor=S.navigation[s.key];local width=math.max(a.bounds[4]-a.bounds[1],a.bounds[5]-a.bounds[2])*a.scale
-  local nav={floor=floor.floor,ground=true,continuous=true,radius=((a.spec.controlled or a.spec.socialVisitor)and(a.spec.navigationRadius or .4)or math.max(a.spec.navigationRadius or .34,math.min(.9,width*.5)))+.12,obstacles={}}
+  local nav={floor=floor.floor,ground=true,continuous=true,radius=((a.spec.controlled or a.spec.socialVisitor or a.spec.liveRemote or a.spec.canonicalNPC)and(a.spec.navigationRadius or .4)or math.max(a.spec.navigationRadius or .34,math.min(.9,width*.5)))+.12,obstacles={}}
   nav.polygon=N.FloorFence(a.engine.frame,s.shot,floor.floorUV)
   if not nav.polygon then return nil,'Native floor boundary unavailable'end
+  if ns.WardenSceneNavigation81 then local scenery,why=ns.WardenSceneNavigation81.Scenery(s);if not scenery then return nil,why end;for _,b in ipairs(scenery)do nav.obstacles[#nav.obstacles+1]=b end end
   for _,spec in ipairs(S.Props(s))do if not spec.support and spec.collision~=false then local prop=s.native.actors[spec.id]
-   if not spec.custom and(not prop or not prop.ready or prop.awaitRegistration)then return nil,'Waiting for furniture bounds: '..spec.id end
+   local hidden=prop and(prop.editorHidden or prop.retired)or not prop and spec.defaultHidden
+   if not hidden and not spec.custom and(not prop or not prop.ready or prop.awaitRegistration)then return nil,'Waiting for furniture bounds: '..spec.id end
    if prop and prop.ready and not prop.editorHidden and not prop.retired then local box=N.Footprint(s.shot,prop);if box then nav.obstacles[#nav.obstacles+1]=box end end
   end end
   return N.PeopleNavigation(nav,s.native,a)
@@ -415,7 +480,7 @@ function R.Attach(U,host)
  function v:SetGroundOffset(s,height)
   s.groundOffset=height
   for _,engine in ipairs({s.native,s.nativeAir})do for _,a in ipairs(engine.order)do
-   if not a.spec.fileID and not a.spec.flying then a.groundOffset=height;if a.ready and a.position then engine:Place(a,unpack(a.position));if s.shadows[a.id]then s.shadows[a.id].lastQuad=nil end;self:Shadow(s,a)end end
+   if not a.spec.fileID and not N.BundledPath(a.spec)and not a.spec.flying then a.groundOffset=height;if a.ready and a.position then engine:Place(a,unpack(a.position));if s.shadows[a.id]then s.shadows[a.id].lastQuad=nil end;self:Shadow(s,a)end end
   end end
  end
  function v:SetBookLayer(layer)
@@ -467,7 +532,7 @@ function R.Attach(U,host)
   local best;for _,point in ipairs(candidates)do local path=N.WalkPath(a.position,point[1],point[2],nav);if path and(not best or path.length<best.length)then best=path end end
   if not best then return false,'No clear approach to seat'end
   a.seating=nil;a.restStage=nil;a.spec.worldYaw=nil;a.pendingInteraction={kind=kind,id=id,animation=animation};s.routeAt[a.id]=nil
-  local yes;yes,why=a.engine:Route(a,best,math.max(2,best.length/N.WALK_SPEED+.65),4,nav)
+  local yes;yes,why=a.engine:Route(a,best,N.WalkDuration(a,best),4,nav)
   if not yes then a.pendingInteraction=nil;return false,why end
   self:RefreshEffects();return true
  end
@@ -498,7 +563,7 @@ function R.Attach(U,host)
   local nav,why=self:GroundNavigation(s,a);if not nav then return false,why end
   local path;path,why=N.WalkPath(a.position,x,y,nav);if not path then return false,why end
   -- Replacing a click replaces one finite scene route, never adds a command queue.
-  local yes;yes,why=a.engine:Route(a,path,math.max(2,path.length/N.WALK_SPEED+.65),4,nav)
+  local yes;yes,why=a.engine:Route(a,path,N.WalkDuration(a,path),4,nav)
   if yes then a.spec.worldYaw=nil;a.pendingInteraction=nil;a.restStage=nil;a.returning=nil;s.routeAt[a.id]=nil;a.motionStatus='Walking to selected spot';self:RefreshEffects()end
   return yes,why
  end
@@ -513,7 +578,7 @@ function R.Attach(U,host)
  function v:EnsureRoom(key)
   if self.scenes[key]then return self.scenes[key]end
   if not ns.WardenRoomCatalogue.HasRoom(key)then return nil,'Unknown room'end
-  local scene=set(key);groundInput(scene);self:AddRoomFlags(scene);scene:SetLighting(self.timeOfDay or'day');scene.frame:Hide();return scene
+  local scene=set(key);groundInput(scene);if self.BindScenicFloor then self:BindScenicFloor(scene)end;self:AddRoomFlags(scene);scene:SetLighting(self.timeOfDay or'day');scene.frame:Hide();return scene
  end
  function v:OpenRoom(key,arrival)
   if ns.WardenSceneEditor and ns.WardenSceneEditor.active then return false,'Close the scene editor before travelling'end
@@ -570,7 +635,7 @@ function R.Attach(U,host)
     for j=1,4 do local source=p[a.returning and 5-j or j];local x,y,height=source[1],source[2],source[3]
      if rule.viewDepth then x,y,height=N.ViewPointAtDepth(a.engine.frame,s.shot,x,y,rule.viewDepth)
       if not x then a.motionStatus='Native flight-plane projection unavailable';s.routeAt[a.id]=nil;return false end
-     elseif rule.floorUV or rule.screen then x,y=N.FloorPoint(a.engine.frame,s.shot,x,y,source[3])
+     elseif rule.floorUV or rule.screen then x,y=N.AuthoredFloorPoint(a.engine.frame,s.shot,x,y,source[3])
       if not x then a.motionStatus='Native projection unavailable';s.routeAt[a.id]=nil;return false end
      elseif rule.relativeSupport then local support=s.native.actors[rule.support];x,y=x+support.position[1],y+support.position[2]end
      curves[i][j]={x,y,height+z}
@@ -605,7 +670,7 @@ function R.Attach(U,host)
     o.box={x,base[2],base[3],base[4]};s:LayoutArt(o)
    end end
   end end
-  for i,c in ipairs(self.flags)do c.frame:SetShown(not self.closeupMode and not c.editorHidden and available(c.reward)and c.mountReady~=false);if c.scene.frame:IsVisible()and c.frame:IsShown()then c.cloth:Draw(c.frame:GetWidth(),c.frame:GetHeight(),animated and self.age or 0,1,animated);if animated and ns.WardenAudio then ns.WardenAudio.Actor('scene-cloth-'..i,c.kind,c.frame,'gust',self.age+i*.81,12,c.frame:IsVisible())end end end
+  for i,c in ipairs(self.flags)do c.frame:SetShown(not self.closeupMode and not c.editorHidden and available(c.reward)and c.mountReady~=false);self:FlagShadow(c);if c.scene.frame:IsVisible()and c.frame:IsShown()then c.cloth:Draw(c.frame:GetWidth(),c.frame:GetHeight(),animated and self.age or 0,1,animated);if animated and ns.WardenAudio then ns.WardenAudio.Actor('scene-cloth-'..i,c.kind,c.frame,'gust',self.age+i*.81,12,c.frame:IsVisible())end end end
   if self.headerFlame and U.header:IsVisible()then local b=ns.WardenArt.headerFlame;self.headerFlame:Draw(b.width,b.height,self.age,1,animated)end
  end
  function v:Advance(dt)
@@ -613,7 +678,9 @@ function R.Attach(U,host)
   self:SyncCloseupVisibility()
   if self.rememberedVisitors then self.rememberedVisitors:CheckPrivacy()end
   -- Book transitions use one visible-only driver, independent of ambient motion.
-  local registering=false;local s=self.reading and self.studyScene or self.forest;if s.active then self:Resolve(s,dt)
+  local registering=false;local s=self:ActiveRoom();if s.active then
+  if s.pendingWorldCalibration and not(ns.WardenSceneEditor and ns.WardenSceneEditor.calibrating)then ns.WardenWorldScale.Retry(s,self.age)end
+  self:Resolve(s,dt)
   if s.native.frame and not s.projectionReady and self.age>=(s.projectionAt or 0)then
    s.projectionAt=self.age+.2;s.projectionAttempts=(s.projectionAttempts or 0)+1
    local u=N.ProjectNative(s.native.frame,s.shot,unpack(s.shot.target))
@@ -623,15 +690,20 @@ function R.Attach(U,host)
    native:Tick(dt,moving())
    for _,a in ipairs(native.order)do
     if a.spec.controlled and a.ready and not a.spawnChecked then self:EnsurePlayerSpawn(s,a)end
-    if a.awaitRegistration and(a.registrationAttempts or 0)<8 then
-     if self.age>=(a.registrationRetry or 0)then self:ActorReady(s,a)end
-     if a.awaitRegistration and(a.registrationAttempts or 0)<8 then registering=true end
+    if a.awaitRegistration then
+     if self.age>=(a.registrationRetry or 0)then
+      self:ActorReady(s,a)
+      if a.awaitRegistration and(a.registrationAttempts or 0)>=8 then a.registrationRetry=self.age+1 end
+     end
+     if a.awaitRegistration then
+      registering=true
+     end
     end
     if a.closeupHidden then N.Call(a.actor,'Hide');if s.shadows[a.id]then s.shadows[a.id]:Hide()end;if a.hit then a.hit:Hide()end
     elseif a.retired or a.sceneHidden or a.editorHidden or a.failed or a.spec.visitor and not a.route and not a.wildlifeRecover and not(ns.WardenSceneEditor and ns.WardenSceneEditor.active)or not available(a.spec.reward)or a.spec.optionalProof and not self.nativeCatDemo or a.id=='candle'and ns.DB and ns.DB.journalCandle==false then N.Call(a.actor,'Hide');a.route=nil;if a.spec.visitor and not a.editorHidden and not a.failed and available(a.spec.reward)and moving()and s.routeAt[a.id]and self.age>=s.routeAt[a.id]then self:StartActor(s,a)end;if s.shadows[a.id]then s.shadows[a.id]:Hide()end;if a.hit then a.hit:Hide()end
     elseif a.ready and not a.awaitSupport and not a.awaitRegistration and not a.awaitSpawn then
      N.Call(a.actor,'SetAlpha',1);N.Call(a.actor,'Show')
-     if a.spec.controlled or a.spec.socialVisitor then self:UpdatePlayerSeat(s,a,dt)end
+     if a.spec.controlled or a.spec.socialVisitor or a.spec.liveRemote or a.spec.canonicalNPC then self:UpdatePlayerSeat(s,a,dt)end
      self:RestAtFire(s,a,dt)
      if self.age>=(a.nextShadowAt or 0)then a.nextShadowAt=self.age+.08;self:Shadow(s,a)end
      if a.manualUntil and self.age>=a.manualUntil then a.manualUntil=nil;native:Animate(a,0,1,0)end
@@ -641,10 +713,10 @@ function R.Attach(U,host)
     end
    end
   end end end
-  if self.rememberedVisitors and s==self.forest and s.active and moving()then self.rememberedVisitors:Advance(dt)end
+  if self.rememberedVisitors and s.active and moving()then self.rememberedVisitors:Advance(dt)end
   if self.age>=(self.nextFlagMount or 0)then self.nextFlagMount=self.age+.10;for _,c in ipairs(self.flags)do if c.scene.active then self:MountFlag(c)end end end
   self:Pose(moving())
-  if not moving()and not(registering or s.native.loading or s.nativeAir.loading or next(s.pending)and self.nextSpecies<=4096)then root:SetScript('OnUpdate',nil)end
+  if not moving()and not(registering or s.pendingWorldCalibration or s.native.loading or s.nativeAir.loading or next(s.pending)and self.nextSpecies<=4096)then root:SetScript('OnUpdate',nil)end
  end
  function v:StopActors()for _,s in ipairs(self:Scenes())do for _,native in ipairs({s.native,s.nativeAir})do for _,a in ipairs(native.order)do a.route=nil;a.restStage=nil;if native.frame then native:Animate(a,0,1,0)end end end;s.routeAt={}end end
  function v:Stop()
@@ -653,7 +725,7 @@ function R.Attach(U,host)
  end
  function v:RefreshEffects()
   if not root:IsVisible()then self:Stop();return end
-  local s=self.reading and self.studyScene or self.forest
+  local s=self:ActiveRoom()
   local scenic=true -- Shared Hall environment behind every non-Hearth destination.
   for _,other in ipairs(self:Scenes())do
    other.active=scenic and other==s;other.frame:SetShown(other.active);if other.nativeNotice then other.nativeNotice:SetShown(other.active)end
@@ -671,28 +743,31 @@ function R.Attach(U,host)
   self:Pose(moving());root:SetScript('OnUpdate',function(_,dt)
    local ok,why=pcall(self.Advance,self,dt);if not ok then self:Stop();self.lastError=tostring(why)end
   end)
-  if ns.WardenAudio then ns.WardenAudio.Scene(self,s.definition.interior and'study'or'forest');ns.WardenAudio.PreferencesChanged()end
+  if ns.WardenAudio then ns.WardenAudio.Scene(self,s.definition.musicScene or(s.definition.interior and'study'or'forest'));ns.WardenAudio.PreferencesChanged()end
  end
  function v:ApplyLighting(state)self.timeOfDay=state;for _,scene in ipairs(self:Scenes())do scene:SetLighting(state)end;for _,c in ipairs(self.flags)do c.cloth.tint={ns.WardenSceneLighting.ActorTint(state,c.scene.definition.interior==true)}end end
  function v:Select(route,reading,immersive)
   local q=ns.WardenSanctuary;if q and q.preview and not q.previewSwitch and q.previewRoute and q.previewRoute~=route then q.ExitPreview()end
   if self.previewRoute and self.previewRoute~=route then self.previewRoute=nil end
-  local key=self.pendingRoomKey or(q and q.previewSwitch and route.sceneRoom)or self.currentRoomKey or'hall';self.currentRoomKey=key
-  local home=key~='hall';local changed=self.reading~=home;if changed then self:Stop()end;self.reading=home;self.immersive=immersive==true;self.destination=route.page
+  local key=self.pendingRoomKey or(q and q.previewSwitch and route.sceneRoom)or self.currentRoomKey or'hall'
+  local selected=assert(self:EnsureRoom(key),'Unknown current scene');local roomChanged=self.currentRoomKey~=key
+  if roomChanged and self.rememberedVisitors and self.rememberedVisitors.SceneChanged then self.rememberedVisitors:SceneChanged(selected)end
+  self.currentRoomKey=key
+  local home=selected.definition.reader==true;local changed=self.reading~=home;if changed or roomChanged then self:Stop()end;self.reading=home;self.immersive=immersive==true;self.destination=route.page
   -- Every scene may retain a reusable viewport slot, but inactive local-player
   -- models are cleared. Only this room owns the canonical player presentation.
   for _,other in ipairs(self:Scenes())do if other.key~=key then local a=other.native.actors.attendant
    if a and a.actor and a.spec.controlled and not a.retired and other.native.Retire then other.native:Retire(a);a.position=nil;other.requested['local/attendant']=nil end
   end end
-  if self.reading then local selected=self:EnsureRoom(key);if selected~=self.studyScene then self:Stop();self.studyScene=selected;self.study=selected.frame;self.room=self.study;self.cameraMix=0;self.bookOffset=selected.bookOffset;self.bookSize=selected.bookSize end end
+  if not home then self.cameraMix=0;if self.reader then self.reader:Hide()end;if self.roomBookHit then self.roomBookHit:Hide()end end
   local session=key
   -- Menu chrome overlays one stable world viewport. Toggling it must never
   -- resize the ModelScenes, shift floor registration or move the camera.
   root:ClearAllPoints();root:SetPoint('TOPLEFT',0,0);root:SetPoint('BOTTOMRIGHT',0,30)
-  self.forest.frame:SetShown(not self.reading);self.studyScene.frame:SetShown(self.reading)
+  for _,scene in ipairs(self:Scenes())do scene.frame:SetShown(scene==selected)end
   if session and self.sceneSession~=session then self:ApplyLighting(ns.WardenSceneLighting.Open())end;self.sceneSession=session
   if self.reading and not U.journalHost and U.CreateJournalHost then U.CreateJournalHost()end
-  if self.reading and U.journalHost then
+  if home and U.journalHost then
    if changed then U.journalHost.reader.closedBookSide='front';self.cameraMix=0 end
    self:BindReader(U.journalHost.reader)
   end
@@ -702,7 +777,7 @@ function R.Attach(U,host)
  end
  function v:Preview()if not lab()then return false end;self.previewRoute=U.route;self:RefreshEffects();if not self.reading then U.canvas:Hide()end;return true end
  function v:Start(id)
-  if not lab()then return false end;local s=self.reading and self.studyScene or self.forest
+  if not lab()then return false end;local s=self:ActiveRoom()
   if id=='cat'then return false,'Cat removed from Study'end
   local a=s.native.actors[id]or s.nativeAir.actors[id];return a and self:StartActor(s,a)or false
  end
@@ -712,20 +787,32 @@ function R.Attach(U,host)
   if id=='owl-perch'then return self:ReactPet('owl','preview')end
   return self:Start(id=='owl-flight'and'owl'or id)
  end
- function v:BeginShowcase()self:Prepare(self.reading and self.studyScene or self.forest);for _,s in ipairs(self:Scenes())do for _,native in ipairs({s.native,s.nativeAir})do for _,a in ipairs(native.order)do s.routeAt[a.id]=self.age+.1 end end end;self:RefreshEffects()end
+ function v:BeginShowcase()self:Prepare(self:ActiveRoom());for _,s in ipairs(self:Scenes())do for _,native in ipairs({s.native,s.nativeAir})do for _,a in ipairs(native.order)do s.routeAt[a.id]=self.age+.1 end end end;self:RefreshEffects()end
  function v:EndShowcase()self:StopActors()end
  function v:Report()
-  local function info(s)local flag;for _,c in ipairs(self.flags)do if c.scene==s then flag=c;break end end;return{localActors=s.native.frame and s.native:Report()or s.native.status,outsideActors=s.nativeAir.frame and s.nativeAir:Report()or s.nativeAir.status,lighting=s.lighting,artFallbacks=s.artFallbacks,layerOrder=S.layers,legacy2DActors=false,contactShadows=true,clicks=s.clickCount or 0,flagSocket=flag and flag.registration,flagLayer=flag and flag.mountedLayer}end
+  local function artState(s)
+   local out={}
+   for _,id in ipairs({'sky','mountains','hills','city','backing','residence','residence-interior','landscape','ground-canal'})do local o=s.objects[id]
+    if o then local tiles={};for i,r in ipairs(o.regions)do
+     local ok,path=N.Call(r.texture,'GetTexture');local good,red,green,blue,alpha=N.Call(r.texture,'GetVertexColor')
+     tiles[i]={texture=ok and path or nil,color=good and{red,green,blue,alpha}or nil,visible=r.texture:IsVisible(),frameLevel=o.host:GetFrameLevel()}
+    end;out[id]={asset=o.asset,layer=o.layer,hidden=o.editorHidden==true,tiles=tiles}end
+   end
+   return out
+  end
+  local function info(s)local flag;for _,c in ipairs(self.flags)do if c.scene==s then flag=c;break end end;return{localActors=s.native.frame and s.native:Report()or s.native.status,outsideActors=s.nativeAir.frame and s.nativeAir:Report()or s.nativeAir.status,lighting=s.lighting,artFallbacks=s.artFallbacks,artLoadFailures=s.artLoadFailures,artState=artState(s),layerOrder=S.layers,legacy2DActors=false,contactShadows=true,clicks=s.clickCount or 0,flagSocket=flag and flag.registration,flagLayer=flag and flag.mountedLayer}end
   local rooms={};for _,s in ipairs(self:Scenes())do rooms[s.key]=info(s)end
   return{version=self.VERSION,stage='integrated hybrid scene',activeRoom=self:ActiveRoom().key,registeredRooms=ns.WardenRoomCatalogue.Rooms(),rooms=rooms,artStatus=S.artStatus,baseline='e19a4c63a86e607a83c1b9627dcc997de6d058a2',hall=rooms.hall,study=rooms.study,bookProjection=self.bookProjection,lastError=self.lastError,ownerCat='Removed from Study at owner request',rememberedVisitors=self.rememberedVisitors and self.rememberedVisitors:Report(),wildlife=ns.WardenWildlife.Report(self),roomBook=self.lastRoomBookTransition,sceneInput={clicks=self.sceneClickCount or 0,last=self.lastSceneClick,status=self.lastWalkStatus,studyEnabled=self.studyScene.groundClick:IsMouseEnabled(),motionAllowed=moving(),editorActive=ns.WardenSceneEditor and ns.WardenSceneEditor.active==true,cameraMix=self.cameraMix,roomBookAnimating=self.roomBookMotion~=nil,studyLevel=self.studyScene.groundClick:GetFrameLevel()}}
  end
  root:HookScript('OnHide',function()v:Stop()end);root:HookScript('OnShow',function()v:ApplyLighting(ns.WardenSceneLighting.Open());v:RefreshEffects()end);root:HookScript('OnSizeChanged',function()v:Layout()end)
- local events=CreateFrame('Frame',nil,root);events:RegisterEvent('PLAYER_REGEN_DISABLED');events:RegisterEvent('PLAYER_REGEN_ENABLED');events:RegisterEvent('PLAYER_EQUIPMENT_CHANGED');events:RegisterEvent('UNIT_MODEL_CHANGED')
+ local events=CreateFrame('Frame',nil,root);events:RegisterEvent('PLAYER_REGEN_DISABLED');events:RegisterEvent('PLAYER_REGEN_ENABLED');events:RegisterEvent('PLAYER_EQUIPMENT_CHANGED');events:RegisterEvent('UNIT_MODEL_CHANGED');for _,name in ipairs({'UPDATE_SHAPESHIFT_FORM','TRANSMOGRIFY_SUCCESS','UNIT_PORTRAIT_UPDATE'})do pcall(events.RegisterEvent,events,name)end
  events:SetScript('OnEvent',function(_,event,unit)
-  if event=='PLAYER_EQUIPMENT_CHANGED'or event=='UNIT_MODEL_CHANGED'and unit=='player'then
+  if event=='PLAYER_EQUIPMENT_CHANGED'or event=='UPDATE_SHAPESHIFT_FORM'or event=='TRANSMOGRIFY_SUCCESS'or(event=='UNIT_MODEL_CHANGED'or event=='UNIT_PORTRAIT_UPDATE')and unit=='player'then
+   local live=ns.AetherLive and ns.AetherLive.World
+   if live and live.active then live.nextAppearance=math.min(live.nextAppearance or 0,(ns.SafeCall(GetTime)or 0)+.5)end
    for _,scene in ipairs(v:Scenes())do scene.characterDirty=true end
    -- Prepare once when next shown; never keep a hidden model-refresh ticker.
-   if root:IsVisible()then v:Prepare(v.reading and v.studyScene or v.forest)end
+   if root:IsVisible()then v:Prepare(v:ActiveRoom())end
   else v:RefreshEffects()end
  end)
  for _,name in ipairs({'header','navigationFrame','contextFrame','stage'})do if U[name]then U[name]:SetFrameLevel(host:GetFrameLevel()+(name=='stage'and 64 or 90))end end

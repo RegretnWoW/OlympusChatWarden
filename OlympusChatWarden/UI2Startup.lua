@@ -86,14 +86,17 @@ function O.Render(keepScroll)
  O.help:SetText(s.help);O.back:SetEnabled(O.index>1);O.next:SetLabel(s==final and'Save & explore'or'Continue')
  O.status:SetText(O.message or(s==final and('Your choices: music '..(O.draft.music and'on'or'off')..' · adventure recording '..(O.draft.recording and'on'or'off')..'. You can change these in Settings.')or'Your choices are saved only when you choose Save & explore.'))
  local items={}
- if s.tips then for _,tip in ipairs(s.tips)do items[#items+1]={title=tip[1]..'\n'..tip[2],wrap=true,height=62}end
- else for _,v in ipairs(s.options)do local key=v.key;items[#items+1]={title=(O.draft[key]and'[x]  'or'[ ]  ')..v.title..'\n'..v.help,
-  detail=O.draft[key]and'On · click to change'or'Off · click to change',widths={.78,.22},wrap=true,height=72,activate=function()O.Set(key,not O.draft[key])end}end end
+ if s.tips then
+  if s==final and O.RecordingSummary then items[#items+1]={title=O.RecordingSummary(),wrap=true,height=170}end
+  for _,tip in ipairs(s.tips)do items[#items+1]={title=tip[1]..'\n'..tip[2],wrap=true,height=tip[3]or 62}end
+ else for _,v in ipairs(s.options)do local key=v.key;local warning=O.OptionWarning and O.OptionWarning(v)
+  items[#items+1]={title=(O.draft[key]and'[x]  'or'[ ]  ')..v.title..'\n'..v.help..(warning and'\n|cffffcc66'..warning..'|r'or''),
+  detail=O.draft[key]and'On · click to change'or'Off · click to change',widths={.78,.22},wrap=true,height=v.risk and 132 or 82,activate=function()O.Set(key,not O.draft[key])end}end end
  O.page:SetItems(items,keepScroll and O.page.scroll:GetVerticalScroll()or 0)
 end
 function O.Open(force)
  if not ns.DB or not ns.Modules.config or busy()or not ns.Membership.Allowed()or O.applying then return false end
- if not force and(not ns.Modules.needsWelcome or O.deferred)then return false end
+ if not force and((not ns.Modules.needsWelcome and not(O.NeedsRecordingReview and O.NeedsRecordingReview()))or O.deferred)then return false end
  U.Ensure();O.Ensure();if O.window:IsShown()and not force then return true end
  O.draft={};O.original={};O.dirty={};O.message=nil;O.index=1;O.deferred=nil
  for _,v in ipairs(O.options)do local value=v.get()==true;O.draft[v.key]=value;O.original[v.key]=value end
@@ -108,11 +111,13 @@ function O.Finish()
  if O.applying or not O.draft or O.index~=#O.steps or busy()or not ns.Membership.Allowed()then return false end
  O.applying=true
  local function apply()
-  for _,v in ipairs(O.options)do if O.dirty[v.key]then
+  for _,v in ipairs(O.options)do if O.dirty[v.key]and not v.group then
    local ok,why=v.set(O.draft[v.key]);if ok==false then return false,v.title..': '..tostring(why or'Please try this choice again.')end
    O.dirty[v.key]=nil;O.original[v.key]=O.draft[v.key]
   end end
+  if O.ApplyRecordingGroups then local ok,why=O.ApplyRecordingGroups();if not ok then return false,why end end
   if not O.draft.recording then local ok=ns.Chronicle.SetEnabled(false);if ok==false then return false,'Your recording choice could not be saved.'end end
+  if O.MarkRecordingReview then local ok,why=O.MarkRecordingReview();if not ok then return false,why end end
   return true
  end
  local ran,ok,why=pcall(apply);O.applying=nil
@@ -133,17 +138,24 @@ end
 -- Installed release notes are local UI, independent of collectors and Aether.
 local P={};ns.UI2PatchNotes=P
 P.version=ns.ClientBuild and ns.ClientBuild.revision or ns.VERSION
-P.cards={{'Welcome home','Your first visit begins at the campfire, followed by a short tour with clear choices.'},{'Beyond the Horizon','A new eight-minute menu theme, with a matching campfire excerpt.'},{'A quieter menu','Opening and closing the menu keeps your world camera in place.'},{'Your own pace','Choose music, reduced motion and optional adventure recording. Change them later in Settings.'},{'Find your way','Learn how to walk, travel home, read your Journal and find the tools you need.'},{'A familiar flame','The Fireside logo and animated flame accompany every page of setup.'}}
+P.subtitle='Aether Live · Welcome to the future of Fireside'
+P.cards={{'Aether grows with us','One connection now brings our community together. Aether Live carries approved profiles, Agora conversations and shared adventures alongside the living world.'},
+ {'A little more to discover','Join Live and your saved community pages can catch up with other participating players, even while Fireside is closed. Return later and see what your fellow adventurers have shared.'},
+ {'Your story stays your choice','Joining does not publish your drafts, private notes, watchlists or conversations. Choose community sharing when you want to post, update your public profile or share an adventure.'},
+ {'Friends, a little more familiar','Supported outfit appearances travel with Live. Gear updates keep the same character and movement where possible. Some faces, clothing and forms still depend on what the client can reproduce.'},
+ {'Built around the gathering','Movement and connection health come first. Shared pages catch up in small steps when there is room. Other players need to be reachable; Aether cannot promise a permanent online archive.'},
+ {'One Aetheria. One Olympus.','The separate Relay connection has retired. Your saved records and sharing choices are kept. Meet someone, discover their story and keep building this world with us. Keep the Fire Alive.'}}
+
 local previous=ns.InstalledUpdate;if previous then previous.version='1.1.4-unified-2.11.8-overnight1' end
-ns.InstalledUpdate={version=P.version,subtitle='A warmer welcome · Beyond the Horizon',cards={}}
+ns.InstalledUpdate={version=P.version,subtitle=P.subtitle,cards={}}
 for _,v in ipairs(P.cards) do ns.InstalledUpdate.cards[#ns.InstalledUpdate.cards+1]={v[1],v[2],'settings'} end
 if ns.UpdateHistory then table.insert(ns.UpdateHistory,1,ns.InstalledUpdate) elseif previous then ns.UpdateHistory={ns.InstalledUpdate,previous} end
 function P.Open()
  if not ns.DB or busy() or not ns.Membership.Allowed() then return false end
  if not P.window then
   local f=C.Card(UIParent,'What’s new in Fireside',false);P.window=f;f:SetSize(960,710);f:SetPoint('CENTER');f:SetFrameStrata('FULLSCREEN_DIALOG');f:SetFrameLevel(190);f:EnableMouse(true);f:SetClampedToScreen(true)
-  text(f,'A warmer welcome · Beyond the Horizon',23,C.colors.gold,26,-54,900,44)
-  text(f,P.version..' · Your existing history and settings are kept.',13,C.colors.muted,26,-105,900,30)
+  text(f,P.subtitle,23,C.colors.gold,26,-54,900,44)
+  text(f,'Your existing history and settings are kept.',13,C.colors.muted,26,-105,900,30)
   for i,v in ipairs(P.cards) do local col=(i-1)%2;local row=math.floor((i-1)/2);local panel=C.Card(f,v[1],false);panel:SetPoint('TOPLEFT',26+col*460,-153-row*142);panel:SetSize(448,130);text(panel,v[2],14,C.colors.text,14,-45,420,76) end
   P.preference=C.Button(f,'',function() ns.DB.showUpdates=ns.DB.showUpdates==false;P.preference:SetLabel(ns.DB.showUpdates and 'Show future patch notes: On' or 'Show future patch notes: Off') end,270);P.preference:SetPoint('BOTTOMLEFT',26,31)
   C.Button(f,'Review setup',function() f:Hide();O.Open(true) end,180):SetPoint('BOTTOMRIGHT',-200,31)

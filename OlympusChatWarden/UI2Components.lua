@@ -119,7 +119,7 @@ function C.Canvas(parent)
    for _,r in ipairs(b.rows or {}) do
     local size=r.size or (r.kind=='hero' and 26 or r.kind=='section' and 16 or r.kind=='caption' and 12 or 14);local rh=r.height or 31
     if r.actions or r.voting then
-     local cols=math.max(1,math.floor(usable/126));r.layoutActionCols=cols;r.layoutVoteY=r.actions and math.ceil(#r.actions/cols)*36 or 0;rh=math.max(rh,r.layoutVoteY+(r.voting and 40 or 0))
+     local cols=r.serviceActions and(usable<440 and 1 or 2)or math.max(1,math.floor(usable/126));r.layoutActionCols=cols;r.layoutVoteY=r.actions and math.ceil(#r.actions/cols)*(r.serviceActions and 60 or 36)or 0;rh=math.max(rh,r.layoutVoteY+(r.voting and 40 or 0))
     elseif r.collection then rh=r.collection.height or 380
     elseif r.adventure then local extra=(usable<600 and 30 or 0)+(usable<500 and math.max(0,math.min(3,#r.adventure.people)-1)*30 or 0)+(usable<350 and r.adventure.chapterId and 33 or 0);rh=math.max(270+extra,rh,211+textHeight(r.adventure.summary,usable-20,13)+extra)
     elseif r.tiles then for _,t in ipairs(r.tiles) do rh=math.max(rh,34+textHeight(t.detail,usable/2-28,12)+12) end
@@ -184,7 +184,11 @@ function C.Canvas(parent)
     f.votes=f.votes or {}
     f.actions=f.actions or {}
     for index=1,math.max(4,#(r.actions or {}),#f.actions) do local button=f.actions[index];local data=r.actions and r.actions[index]
-     if data then if not button then button=C.Button(f,'',function(self) self.item.activate() end,120);f.actions[index]=button end;button.item=data;button:SetLabel(data.title);button:ClearAllPoints();button:SetPoint('TOPLEFT',((index-1)%(r.layoutActionCols or 4))*126,-4-math.floor((index-1)/(r.layoutActionCols or 4))*36);button:SetSize(math.min(120,f:GetWidth()),30);button:Show()
+     if data then
+      if not button then button=C.Button(f,'',function(self) self.item.activate() end,120);f.actions[index]=button end
+      local cols=r.layoutActionCols or 4
+      local width=r.serviceActions and(f:GetWidth()-6*(cols-1))/cols or math.min(120,f:GetWidth());local height=r.serviceActions and 54 or 30
+      button.item=data;button:SetLabel(data.title);button:ClearAllPoints();button:SetPoint('TOPLEFT',((index-1)%cols)*(width+6),-4-math.floor((index-1)/cols)*(height+6));button:SetSize(width,height);button:Show()
      elseif button then button:Hide() end
     end
     if r.voting then C.Rating(f,r.voting,r.layoutVoteY or 0) else for _,button in ipairs(f.votes) do button:Hide() end;if f.withdraw then f.withdraw:Hide() end end

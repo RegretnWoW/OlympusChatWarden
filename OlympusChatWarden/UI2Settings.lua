@@ -40,8 +40,8 @@ function S.SoundRows()
  rows[#rows+1]=action('SET.SOUND.TEST','Test sound effects','Original soft chime · SFX channel',function()local ok,why=A.Play('test');F.Feedback(ok,why)end)
  rows[#rows+1]=cap('Fireside volume changes its own pre-attenuated files. It never changes game sound settings or bypasses a mute. Existing explicit sound choices are preserved.')
  rows[#rows+1]=cap('Music defaults on. The menu plays Beyond the Horizon; the world plays the latest Roads to Olympus or Athena’s Hearth. Music continues in windowed and fullscreen views. The campfire welcome uses a short phrase from the same theme. You can turn all Fireside music off here or on the first setup page.')
- rows[#rows+1]=cap('The menu, Olympus Fields and Olympian Oasis remember their own places with about two-second resume precision and short crossfades. Closing Fireside returns soundtrack control to WoW. WoW music mute and volume remain in effect. Credits: Media/Journal3/Audio/CREDITS67.txt.')
- if A.Diagnostics().music.resumeAvailable==false then rows[#rows+1]=cap('This client cannot play stoppable resume cues. Native full-track music is active; seeking and crossfades are unavailable here.')end
+ rows[#rows+1]=cap('The menu and Pyragore Fields remember their own playback positions. The Agora and Olympian Oasis share the home soundtrack. Resume precision is about two seconds, with short crossfades. Closing Fireside returns soundtrack control to WoW. WoW music mute and volume remain in effect. Credits: Media/Journal3/Audio/CREDITS67.txt.')
+ if A.Diagnostics().music.resumeAvailable==false then rows[#rows+1]=cap('Your client can play the full music tracks. Resuming at the previous position and smooth crossfades are not available here.')end
  return rows
 end
 function S.Conversations(service,owner)
@@ -49,7 +49,7 @@ function S.Conversations(service,owner)
  local status=service.Status(owner);local policy=status.policy
  if not policy then return F.Feedback(false,'Private conversation settings are available only to their owner.') end
  local fields={}
- for _,pair in ipairs({{'enabled','Remember meaningful conversations'},{'partyRaid','Party and raid'},{'guild','Guild'},{'sayEmote','Say, yell and emotes'},{'instance','Instance chat'},{'publicChannels','Public and Trade channels'},{'whispers','Private whispers'},{'officer','Officer'},{'npcDialogue','Observed NPC and quest dialogue'},{'autoCandidates','Suggest meaningful exchanges'},{'autoPreserve','Automatically preserve qualified moments'},{'showDirectQuotes','Allow exact quotes in my private Journal'}}) do
+ for _,pair in ipairs({{'enabled','Remember meaningful conversations'},{'partyRaid','Party and raid'},{'guild','Guild'},{'sayEmote','Say, yell and emotes'},{'instance','Instance chat'},{'publicChannels','Public and Trade channels'},{'whispers','Private whispers'},{'officer','Officer'},{'npcDialogue','Observed NPC and quest dialogue'},{'autoCandidates','Suggest meaningful exchanges'},{'autoPreserve','Keep meaningful moments automatically'},{'showDirectQuotes','Allow exact quotes in my private Journal'}}) do
   local key,title=pair[1],pair[2];local value=policy[key];if value==nil then value=policy.scopes[key] end
   fields[#fields+1]={key=key,label=title,value=value==true,choices={{false,'Off'},{true,'On'}}}
  end
@@ -119,15 +119,15 @@ function S.Rows(category)
  elseif category=='sound'then
   return S.SoundRows()
  elseif category=='profile' then
-  rows[#rows+1]=cap('This is an unpublished draft for your own canonical player dossier. Saving never publishes it. It does not enroll you in Aether. Community ratings are separate from recorded accomplishments.')
+  rows[#rows+1]=cap('Write a private draft for your own player profile. Saving does not publish it or join Aether. Community ratings stay separate from your recorded accomplishments.')
   local choices={{false,'Not selected'}};for _,key in ipairs(ns.PlayerCard.order) do choices[#choices+1]={key,ns.PlayerCard.zones[key].title} end
   row(rows,'SET.PROFILE.GAMERZONE','Gamerzone · unpublished draft',function() local d=ns.PlayerCard.Local(ns.PlayerCard.Own());return d and d.gamerzone or false end,function(v) return ns.PlayerCard.Select(v or nil) end,{choices=choices})
   rows[#rows+1]=action('SET.PROFILE.OPEN','Open my Aether profile','Your character’s existing profile',function() U.OpenPlayer(ns.PlayerCard.Own(),ns.Chronicle.Owner()) end)
  elseif category=='appearance' then
   rows[#rows+1]=action('SET.APPEARANCE.AUTOFIT','Fit interface to screen','Restore automatic sizing',function() DB.workspaceScale=nil;U.Fit();F.Feedback(true,'Automatic screen fit restored.') end)
   row(rows,'SET.APPEARANCE.SCALE','Interface scale',function() return DB.workspaceScale or 1 end,function(v) v=tonumber(v);if not v or v<.1 or v>1.5 then return false,'Choose 0.1–1.5.' end;DB.workspaceScale=v;U.Fit();return true end,{choices={{.1,'10%'},{.25,'25%'},{.5,'50%'},{.65,'65%'},{.8,'80%'},{1,'100%'},{1.2,'120%'},{1.5,'150%'}},help='Shrinks or enlarges the entire interface together. Your chosen columns and logical text sizes stay fixed; screen fitting limits enlargement.'})
-  for _,pair in ipairs({{'wardenMinimap','Minimap launcher for Olympus Hall'},{'shopLauncher','Use Shop button for Olympus Hall'},{'inspectLauncher','Aether shortcut beside native Inspect'}}) do local key,title=pair[1],pair[2];boolean(rows,'SET.LAUNCHER.'..key,title,function() return DB[key]==true end,function(v) return ns.WardenLaunchers.Set(key,v) end) end
-  rows[#rows+1]=cap('Turning off the Shop shortcut removes the owned overlay and restores access to the stock button. Native positioning and combat behavior still require client checks.')
+  for _,pair in ipairs({{'wardenMinimap','Minimap launcher for Olympus Hall'},{'shopLauncher','Use Shop button for Olympus Hall'},{'inspectLauncher','Aether shortcut beside Inspect'}}) do local key,title=pair[1],pair[2];boolean(rows,'SET.LAUNCHER.'..key,title,function() return DB[key]==true end,function(v) return ns.WardenLaunchers.Set(key,v) end) end
+  rows[#rows+1]=cap('Turn off the Shop shortcut to use WoW’s original button again.')
  elseif category=='modules' then
   rows[#rows+1]=cap('Fireside’s tools now stay available together. There are no module power switches. Your recording, chat capture and sharing choices have been kept.')
   rows[#rows+1]=action('SET.TOOLS.PRIVACY','Recording & privacy','Review your choices',function()U.Open({page='settings',category='privacy'})end)
@@ -140,10 +140,10 @@ function S.Rows(category)
   for _,pair in ipairs({{'coverage','Text coverage'},{'language','Languages'},{'spelling','Typing and typo matching'},{'packs','Signed packs'}}) do local category,title=pair[1],pair[2];rows[#rows+1]=action('SET.CHAT.OPEN.'..category,title,'Configure',function() U.Open({page='settings',category=category}) end) end
  elseif category=='coverage' then
   for _,pair in ipairs({{'npc','NPC speech'},{'dialogue','Quest and NPC dialogue'},{'vendor','Vendor labels'},{'bubbles','Overhead chat bubbles'},{'talkingHead','Talking-head captions'},{'barber','Barber and body-type wording'},{'playerNames','Player names'},{'npcNames','NPC names'},{'targetNames','Unit-frame names'},{'nameplates','Nameplate labels'},{'tooltips','Tooltips'}}) do keyBoolean(rows,pair[1],pair[2]) end
-  rows[#rows+1]=cap('Name and nameplate coverage is experimental. Unsupported or protected native text remains unchanged; accessible values only.')
+  rows[#rows+1]=cap('Name filtering works where WoW allows it. Some names and protected text cannot be changed.')
  elseif category=='capture' then
   for _,pair in ipairs({{'enabled','Retain local chat'},{'whispers','Include whispers'},{'guild','Include guild and officer chat'}}) do local key,title=pair[1],pair[2];boolean(rows,'SET.CAPTURE.'..key,title,function() return ns.ChatCapture.db and ns.ChatCapture.db[key]==true end,function(v) ns.ChatCapture.SetOption(key,v);return true end) end
-  rows[#rows+1]=cap('Local capture is bounded and optional. Exports require deliberate selection and privacy review. NPC chat scope follows the existing collector.')
+  rows[#rows+1]=cap('Keeping recent chat is optional. Choose and review anything you export. NPC dialogue follows your conversation choices.')
   rows[#rows+1]=action('CHAT.CAPTURE.OPEN','Browse captured messages','Open Logos',function() ns.OpenCapture() end)
  elseif category=='spelling' then
   boolean(rows,'SET.SPELLING.ENABLE','Spelling highlights',function() return DB.spelling.enabled end,ns.Spelling.SetEnabled)
@@ -173,7 +173,7 @@ function S.Rows(category)
   row(rows,'SET.SPAM.DURATION','Automatic timeout',function() return DB.shield.spam.duration end,function(v) return ns.Spam.Set('duration',tonumber(v)) end,{choices={{300,'5 minutes'},{900,'15 minutes'},{1800,'30 minutes'}}})
  elseif category=='notifications' then
   keyBoolean(rows,'olympusMuteObserve','Passively observe compatible OlympusMute sharing')
-  keyBoolean(rows,'olympusMuteSignal','Add sharing observations to native tooltips')
+  keyBoolean(rows,'olympusMuteSignal','Show sharing observations in tooltips')
   rows[#rows+1]=cap('Tooltip enhancement starts OFF for unset preferences. Passive observations send no probes, discard shared lists, and never prove installation or a mute action. Missing evidence means Unknown.')
   rows[#rows+1]=action('SET.SIGNAL.OLYMPUSMUTE','Review sharing observations','Open Vigil history',function() U.Open({page='mentions',category='olympusmute'}) end)
   keyBoolean(rows,'alertsEnabled','Enable Vigil alerts')
@@ -188,7 +188,7 @@ function S.Rows(category)
  elseif category=='extensions'then
   for _,entry in ipairs(ns.WardenExtensions and ns.WardenExtensions.SettingsRows()or{})do rows[#rows+1]=entry end
  elseif category=='recording' then
-  consent(rows,'SET.RECORDING.MERCHANT','Private merchant history',ns.ChronicleMerchant.Selected,ns.ChronicleMerchant.SetEnabled,'Record own readable auction listing states, seller invoice fields and native successful-trade details. No mail bodies, market prices or inferred profit. Private to this character and never automatically shared. Main recording consent is also required.')
+  consent(rows,'SET.RECORDING.MERCHANT','Private merchant history',ns.ChronicleMerchant.Selected,ns.ChronicleMerchant.SetEnabled,'Keep available details of your own auction listings, seller invoices and completed trades. Mail bodies are not saved, and Fireside does not guess market prices or profit. These records stay private; adventure recording must also be on.')
   local pref=ns.ChronicleStore.PreferenceRoot()
   consent(rows,'SET.RECORDING.ENABLE','Record adventures and player observations',function() return pref and pref.enabled==true end,ns.Chronicle.SetEnabled,ns.Chronicle.Disclosure)
   consent(rows,'SET.RECORDING.DUELS','Include duel history',function() return pref and pref.duels==true and pref.duelConsent==1 end,ns.ChronicleDuels.SetEnabled,'Keep accepted duels, available gear and talents before/after, successful casts and received damage/healing. Received amounts have no attacker attribution. Local only; main recording consent is also required.')
@@ -206,10 +206,10 @@ function S.Rows(category)
  elseif category=='privacy' then
   consent(rows,'SET.PRIVACY.CONTACT','Inspect after first direct contact',ns.AthenaFirstContact.Selected,ns.AthenaFirstContact.SetEnabled,'One normal inspection attempt for a verified small-party companion or direct duel opponent. Saves only available dated gear/talents. No inspections of passing strangers; recording and player observations must already be enabled.')
   consent(rows,'SET.PRIVACY.INCIDENT','Minimal private protection context',ns.AthenaIncidents.Selected,ns.AthenaIncidents.SetEnabled,'Keep small summaries of local repeated filter decisions and Shield actions. No message text or allegations. Private local history; existing records remain when disabled.')
-  consent(rows,'SET.PRIVACY.WITNESS','Visible player observations',ns.IntelWitness.Selected,ns.IntelWitness.SetEnabled,'Keep available visible player identity, bounded sightings, dated states and selected Important-player casts. Losing sight means unknown. No automatic uploads. Main recording consent is also required.')
+  consent(rows,'SET.PRIVACY.WITNESS','Visible player observations',ns.IntelWitness.Selected,ns.IntelWitness.SetEnabled,'Keep available player details, sightings and selected ability observations for important players. Unseen activity stays unknown. Nothing is uploaded automatically; adventure recording must also be on.')
   rows[#rows+1]=action('SET.PRIVACY.CONVERSATIONS','Conversations and memories','Review every private channel',function() S.Conversations() end)
  elseif category=='reading' then
-  boolean(rows,'SET.READING.AMBIENCE','Living world movement',function()return DB.livingRealmAmbience~=false end,function(v)DB.livingRealmAmbience=v;if ns.UI2.realm then ns.UI2.realm:Stop()end;return true end,'Controls scenic movement, including unlocked wildlife in Olympus Fields. Reduced motion and combat also restrict movement. Your saved scene layout is kept.')
+  boolean(rows,'SET.READING.AMBIENCE','Living world movement',function()return DB.livingRealmAmbience~=false end,function(v)DB.livingRealmAmbience=v;if ns.UI2.realm then ns.UI2.realm:Stop()end;return true end,'Controls scenic movement, including woodland wildlife in Pyragore Fields and domestic animals in The Agora. Reduced motion and combat also restrict movement. Your saved scene layout is kept.')
   rows[#rows+1]=action('SET.READING.PHYSICALSOUND','Sound & Ambience','Journal sounds, volume and Test Sound',function()U.Open({page='settings',category='sound'})end)
   boolean(rows,'SET.READING.CANDLE','Journal candle effect',function()return DB.journalCandle~=false end,function(v)DB.journalCandle=v;return true end,'Controls the Journal’s decorative candle effect. Reduced motion keeps it still. Placed scene objects are edited separately in the scene editor.')
   for _,pair in ipairs({{'journalReducedMotion','Reduced motion and instant page turns'},{'journalAskRecollections','Ask for player recollections'},{'journalLore','Contextual lore'},{'journalPrologueHidden','Hide historical prologue'}}) do local key,title=pair[1],pair[2];boolean(rows,'SET.READING.'..key,title,function()
@@ -222,19 +222,46 @@ function S.Rows(category)
  elseif category=='aether' then
   local N=ns.AetherNet;local client=N.Active()
   rows[#rows+1]=action('AETHER.DISCLOSURE','Read sharing disclosure','Complete scope, privacy and consent terms',function() F.Copy('Aether sharing disclosure',ns.AthenaSharePolicy.Disclosure,'Read-only local terms. No enrollment or publication.') end)
-  boolean(rows,'AETHER.PREFERENCE','Participate in Aether',function() return N.Preference() end,N.SetPreference,'Share community posts and ratings through Aether. Drafts remain private until you choose Post.')
+  if ns.AetherUnified and ns.AetherUnified.Available()then
+   rows[#rows+1]=cap('Aether · '..ns.AetherUnified.status..'. Saved community pages remain available while you are offline.')
+   boolean(rows,'AETHER.PREFERENCE','Share my community contributions',function()return N.Preference()end,N.SetPreference,'Allow posts, profiles and adventure summaries you choose to publish to travel through Aether. Joining Live does not publish your drafts, private notes, conversations or watchlists.')
+   rows[#rows+1]=action('AETHER.LIVE.JOIN',ns.AetherLive.Active()and'Leave Aether Live'or'Join Aether Live','Connect with the community. Sharing your own contributions stays your choice.',ns.AetherLive.Join)
+   rows[#rows+1]=cap('Aether keeps approved community pages up to date while connected, even with this window closed. Availability depends on other participating players; Aether is not a permanent online archive.')
+  elseif ns.AetherNative.RelayPaused()then
+   rows[#rows+1]=cap(ns.AetherNative.RelayPauseMessage)
+  else
+  if ns.AetherServices then
+   local service=ns.AetherServices;local status,detail=service.RelayStatus()
+   rows[#rows+1]=cap('Aether Relay identity · '..detail)
+   rows[#rows+1]=action('AETHER.ENROLL.AUTO',status=='ENROLLED'and'Recheck enrollment'or status=='OFF'and'Enroll in Aether Relay'or'Retry Relay enrollment','Automatic key and certificate setup · sharing stays your choice',function()return F.Feedback(service.RetryRelay())end)
+   if service.Desired('relay')then rows[#rows+1]=action('AETHER.ENROLL.PAUSE','Pause automatic enrollment','Keep existing credentials and all history',function()return F.Feedback(service.PauseRelayEnrollment())end)end
+   rows[#rows+1]=action('AETHER.ENROLL.DETAILS','Enrollment connection details','No keys, certificate text or private history',function()return F.Copy('Aether setup',service.Diagnostics())end)
+  end
+  boolean(rows,'AETHER.PREFERENCE','Share eligible community records through Relay',function() return N.Preference() end,N.SetPreference,'Exchange eligible community records with other Relay participants. Private drafts remain unpublished until you Post. This choice is separate from certificate enrollment, adventure recording and Aether Live.')
   rows[#rows+1]=action('AETHER.NATIVE.PEERS','Community connections','Preferred contacts & activity sharing',function() return ns.AetherNative.EditPolicy() end)
   rows[#rows+1]=cap(N.ServiceState())
-  rows[#rows+1]=cap('Local historical snapshots remain private. Latest permitted equipment and talents can be reviewed for sharing from the existing player profile. These are source-qualified observations, not independently verified accomplishments. Older builds use selected-recipient Direct Share only.')
-  rows[#rows+1]=cap('Authenticated records use the pinned Fireside Authority chain and original-author signatures. Unenrolled posts and ratings remain saved and pending. Real-client enrollment, native sender/GUID binding and transport qualification remain unverified.')
+  if ns.AetherRelay then
+   local relay=ns.AetherRelay.Status();rows[#rows+1]=cap('Aether Relay · '..relay.state..' · '..relay.detail)
+   rows[#rows+1]=action('AETHER.RELAY.STATUS','Aether Relay readiness','Read-only startup, transport and enrollment status',function()return F.Copy('Aether Relay readiness',ns.AetherRelay.Text(),'No key material, private history or automatic send is included.')end)
+   rows[#rows+1]=action('AETHER.RELAY.RESUME','Resume consented Relay','Retry startup using your existing participation choice',function()return F.Feedback(ns.AetherRelay.Resume())end)
+  end
+  rows[#rows+1]=cap('Your dated equipment and talent records stay private. Review your latest available details on your player profile before choosing to share them. An observation does not prove an accomplishment. Older versions support sharing with a selected recipient only.')
+  rows[#rows+1]=cap('Your character joins and renews automatically when a trusted Olympus host can welcome you. Waiting does not remove posts, drafts or history. Some connections may still be unavailable.')
+  if ns.AetherAutomaticEnrollment then local _,detail=ns.AetherAutomaticEnrollment.Status();rows[#rows+1]=cap(detail)end
+  if ns.AetherAutomaticEnrollment and ns.AetherAutomaticEnrollment.IssuerRole then
+   local _,detail=ns.AetherAutomaticEnrollment.IssuerRole();rows[#rows+1]=cap(detail)
+   rows[#rows+1]=action('AETHER.ISSUER.ROLE','Enrollment host status','Check this character’s host role without showing keys or certificates',function()local state,message=ns.AetherAutomaticEnrollment.IssuerRole();return F.Copy('Enrollment host status',state..'\n'..message,'No private key or certificate is included.')end)
+  end
+  end
+  if ns.AetherLive and ns.AetherLive.FindPlayer then rows[#rows+1]=action('AETHER.LIVE.FIND','Find an adventurer','Connect by exact WoW Name-Realm while Live is on',ns.AetherLive.FindPlayer)end
   if client then rows[#rows+1]=action('AETHER.LEAVE','Pause Aether participation','Your drafts and existing history are kept',function() return N.SetPreference(false) end) end
   rows[#rows+1]=action('AETHER.PRESENCE.REVIEW','Share my activity briefly','90 seconds · explicit review · no roster',function() return ns.AthenaPublication.ReviewPresence() end)
-  rows[#rows+1]=action('AETHER.PUBLIC.PREVIEW','Preview my public card','Same canonical profile · no transmission',function() U.OpenPlayer(ns.PlayerCard.Own(),ns.Chronicle.Owner(),'public') end)
-  rows[#rows+1]=action('AETHER.OWNER.DRAFT','Edit unpublished profile','Not published · no consent change',function() return N.EditDraft(ns.PlayerCard.Own()) end)
+  rows[#rows+1]=action('AETHER.PUBLIC.PREVIEW','Preview my public card','Preview your profile · nothing is sent',function() U.OpenPlayer(ns.PlayerCard.Own(),ns.Chronicle.Owner(),'public') end)
+  rows[#rows+1]=action('AETHER.OWNER.DRAFT','Edit unpublished profile','Private draft · sharing choices unchanged',function() return N.EditDraft(ns.PlayerCard.Own()) end)
   rows[#rows+1]=action('AETHER.OWNER.PUBLIC','Edit my public profile','Existing profile · participation required · no online peer required',function() return N.EditOwner(ns.PlayerCard.Own()) end)
-  rows[#rows+1]=action('AETHER.ENROLLMENT','Character enrollment','Pending posts are preserved · no per-post or peer approval',function()return ns.AetherCertificates.ImportUI()end)
-  rows[#rows+1]=action('AETHER.NATIVE.READINESS','Check native readiness','Read-only diagnostics · does not send or enable Aether',function()
-   return F.Copy('Aether native readiness',ns.RelayTransport.Aether.ReadinessText(),'Available APIs do not prove delivery or authority. Forever in-game validation and the independent Fireside-native trust contract are still required. Olympus Bridge is only optional official guild integration. Nothing is sent.')
+  if ns.WardenSimLab then rows[#rows+1]=action('AETHER.ENROLLMENT','Advanced enrollment import','Private Lab recovery tools · ordinary enrollment is automatic',function()return ns.AetherCertificates.ImportUI()end)end
+  rows[#rows+1]=action('AETHER.NATIVE.READINESS','Check connection support','Read-only diagnostics · does not send or enable Aether',function()
+   return F.Copy('Aether connection support',ns.RelayTransport.Aether.ReadinessText(),'This check shows what your WoW client supports. It does not prove another player can be reached and does not send anything. Olympus guild integration is optional.')
   end)
  elseif category=='data' then
   rows[#rows+1]=action('DATA.FILE.GUIDE','Complete SavedVariables backup','All settings, imports and history',function()
@@ -254,13 +281,13 @@ function S.Rows(category)
   rows[#rows+1]=action('DATA.HISTORY.CLEAR','Clear all local history and private records','Permanent · all recorded characters',function() F.Confirm('Clear all local history and private records?','Stops capture and Aether, then removes supported local character history, notes, conversations, Journal snapshots, capture messages, private drafts, exchange caches and Relay reports. Rules and protection settings remain. Remote copies cannot be recalled. Unsupported stores cause refusal without deletion.',function() return ns.Privacy.Erase('all','CLEAR ALL') end) end)
   rows[#rows+1]=action('DATA.CAPTURE.CLEAR','Clear captured chat','Bookmarks remain',function() F.Confirm('Clear captured chat?','Removes retained capture entries. Saved bookmarks, Chronicle and rules remain.',function() ns.ChatCapture.Clear();return true end) end)
   rows[#rows+1]=action('DATA.ACTIVITY.CLEAR','Clear message and alert history','Current character only',function() F.Confirm('Clear this character’s activity history?','Removes Messages, Alerts and contact activity. Capture, bookmarks, reports, rules, protection lists and Atlas history remain.',function() ns.History.Clear();return true end) end)
-  rows[#rows+1]=action('DATA.CACHES.CLEAR','Clear unused runtime caches','Saved history and policy remain',function() F.Feedback(true,ns.Modules.ClearCaches()) end)
+  rows[#rows+1]=action('DATA.CACHES.CLEAR','Clear temporary files from memory','Saved history and policy remain',function() F.Feedback(true,ns.Modules.ClearCaches()) end)
  elseif category=='advanced' then
   rows[#rows+1]=action('HELP.PUBLIC.FEEDBACK','Project feedback website','Copy public link',ns.OpenReportLink)
   rows[#rows+1]=action('HELP.COLLECTIONS','What Fireside remembers','Recording scope and limits',function() U.Open({page='settings',category='advanced',subsection='collection-help',topic='time'}) end)
-  rows[#rows+1]=cap('Fireside keeps information local. Each person and adventure has one canonical page. Use Settings to change behavior; selecting a module never grants collection or sharing consent.')
+  rows[#rows+1]=cap('Make Fireside your own. Change your preferences here; opening a feature never turns on recording or sharing.')
   rows[#rows+1]={title='Build',detail=ns.VERSION,height=38}
-  rows[#rows+1]={title='Client compatibility',detail='Native-client verification pending',height=38}
+  rows[#rows+1]={title='Client compatibility',detail='Some features still need in-game testing',height=38}
   rows[#rows+1]=action('DATA.PERFORMANCE.PRINT','Print support performance summary','Developer diagnostics in chat',function() ns.WardenPerformance.Report();F.Feedback(true,'Performance summary printed locally. Nothing was sent.') end)
   if ns.WardenSimLab then rows[#rows+1]=action('LAB.OPEN','Hephaestus Lab','Scene editor, camera controls, and diagnostics',function() ns.WardenSimLab.Open() end) end
  else rows[#rows+1]=cap('Choose a settings category.') end

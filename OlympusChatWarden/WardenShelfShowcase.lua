@@ -59,9 +59,9 @@ end
 function S.ApplyCamera(v,aspect)
  if not v.shelfFocus then return false end
  local a,s=S.Actor(v);if not a or not a.ready or not a.bounds or not a.position or not s.native.frame then return false end
- local base=s.shot;local height=(a.bounds[6]-a.bounds[3])*(a.scale or 1)
+ local authored=s.shot;local base=s.worldCalibration and s.worldCalibration.camera or authored;local height=(a.bounds[6]-a.bounds[3])*(a.scale or 1)
  local tuning=S.Settings(s);local face=a.worldYaw or 0
- local tx,ty,tz=N.World(base,a.position[1],a.position[2],a.position[3]+height*.48)
+ local tx,ty,tz=N.World(authored,a.position[1],a.position[2],a.position[3]+height*.48);tx,ty,tz=ns.WardenWorldScale.PresentWorld(s.native,a,tx,ty,tz)
  tx,ty,tz=tx-math.sin(face)*tuning.x,ty+math.cos(face)*tuning.x,tz+tuning.y
  local distance=math.max(1,height)/(2*math.tan((base.fov or .75)/2)*.78)*tuning.distance
  local yaw=face+math.rad(tuning.yaw);local target={position={tx+math.cos(yaw)*distance,ty+math.sin(yaw)*distance,tz+distance*math.tan(math.rad(tuning.pitch))+tuning.height},target={tx,ty,tz},fov=base.fov}
@@ -92,8 +92,7 @@ function S.Quad(v,index,surface)
   if surface=='wall'then x=-(b[4]-b[1])*a.scale*.5+.028*a.scale;z=z+.012*a.scale
   elseif surface=='contact'then x=depth+(height/size-.5)*size*.30;z=bottom+.002*a.scale end
   local r=a.position[1]+box.cos*x-box.sin*y;local d=a.position[2]+box.sin*x+box.cos*y
-  local x,wy,h=N.World(s.shot,r,d,a.position[3]+(a.groundOffset or 0)+z)
-  return N.ProjectNative(a.renderScene or s.native.frame,s.shot,x,wy,h)
+  return ns.WardenWorldScale.ProjectPoint(s.native,a,r,d,a.position[3]+(a.groundOffset or 0)+z)
  end
  local points={};for _,p in ipairs({{across-size/2,bottom+size},{across+size/2,bottom+size},{across-size/2,bottom},{across+size/2,bottom}})do
   local u,y=point(p[1],p[2]);if not u then return end;points[#points+1]=u;points[#points+1]=y
@@ -191,7 +190,7 @@ function S.Bind(v,U)
  ns.Theme.RegisterModal(bar,U.window)
  bar:ClearAllPoints();bar:SetPoint('BOTTOM',U.window,'BOTTOM',0,40)
  if UISpecialFrames then UISpecialFrames[#UISpecialFrames+1]='OlympusWardenShelfShowcase'end
- local bg=bar:CreateTexture(nil,'BACKGROUND');bg:SetAllPoints();bg:SetTexture(ns.WardenArt.Path('Panel'));bg:SetColorTexture(.025,.045,.065,.94)
+ local bg=bar:CreateTexture(nil,'BACKGROUND');bg:SetAllPoints();bg:SetTexture(ns.WardenArt.Path('Panel'));bar.background=bg
  local V=ns.Art;bar.status=V.Text(bar,'',12,-8,705,13,V.gold);bar.status:SetHeight(25)
  local buttons={};bar.buttons=buttons
  local function button(name,label,x,w,fn)buttons[name]=V.Button(bar,label,x,-42,w,30,fn,'neutral')end

@@ -30,21 +30,13 @@ function M.Attach(p)
     local foldShadow=turn:CreateTexture(nil,'BACKGROUND');foldShadow:SetTexture('Interface\\AddOns\\OlympusChatWarden\\Media\\Journal3\\Atmosphere.tga');foldShadow:SetTexCoord(0,.5,.5,1);foldShadow:SetVertexColor(.10,.055,.025,.26)
     local inkLayer=CreateFrame('Frame',nil,p.book);inkLayer:SetAllPoints();inkLayer:SetFrameLevel(p.book:GetFrameLevel()+4)
     local ink=inkLayer:CreateTexture(nil,'OVERLAY');ink:SetColorTexture(.98,.66,.16,.48);ink:SetSize(90,20);ink:Hide()
-    local measure=p.book:CreateFontString(nil,'OVERLAY');measure:Hide();measure:SetWordWrap(true)
     local pages,source,pageIndex={}, {},1;local width,height,spread=300,400,false;local layoutKey
     local sourceRevision,renderedKey=0,nil
     local enablePrevious,enableNext=p.previous.SetEnabled,p.next.SetEnabled
     function p.previous:SetEnabled(value) enablePrevious(self,value or not p.sourceRail:IsShown() and pageIndex>1) end
     function p.next:SetEnabled(value) enableNext(self,value or not p.sourceRail:IsShown() and pageIndex+(spread and 1 or 0)<#pages) end
     local function Size(b)
-        if b.doodle then return 214 end
-        local kind=b.kind or 'body';local size=ns.Theme.DocumentTextSize(kind,doc.fontScale)
-        if not ns.Theme.ReaderFont(measure,size,kind,'paper') then measure:SetFont('Fonts\\FRIZQT__.TTF',size,'') end
-        if measure.SetSpacing then measure:SetSpacing(3) end
-        local ornament=b.characterCard or b.guildSeal
-        measure:SetWidth(math.max(80,width-8-(ornament and 78 or 0)-(b.margin and (width<340 and 32 or 144) or 0)));measure:SetText(b.text or '')
-        local _,newlines=(b.text or ''):gsub('\n','')
-        return (ns.AthenaBookArt and ns.AthenaBookArt.Height(b)or 0)+math.max(b.margin and width>=340 and 116 or 0,ornament and 94 or 0,(newlines+1)*(size+3),(measure:GetStringHeight() or 0)+size+8)+(b.gap or (kind=='heading' and 9 or 14))
+        return ns.Theme.BookBlockMetrics(b,width,doc.fontScale)
     end
     local function Paginate()
         pages={{}};local used=0
@@ -63,7 +55,19 @@ function M.Attach(p)
             local prose=not b.doodle and (not b.kind or b.kind=='body' or b.kind=='quote')
             if size<=height and (used+size<=height or not prose or height-used<100) then if used+size>height then New() end;local c=Clone(b);c.originBlock=n;Push(c)
             else
-                local words={};for word in (b.text or ''):gmatch('%S+%s*') do words[#words+1]=word end
+                local words={};for word in (b.text or ''):gmatch('%S+%s*')do
+                    local token=Clone(b);token.text=word
+                    local line=ns.Theme.DocumentTextSize(b.kind or 'body',doc.fontScale)+3
+                    -- Ordinary words cannot fill a leaf even at one character
+                    -- per line; avoid native remeasurement for each small token.
+                    local worst=#word*line+line+8+(b.gap or 14)+(ns.AthenaBookArt and ns.AthenaBookArt.Height(b)or 0)
+                    if worst>height and Size(token)>height then
+                        -- A URL/name or unspaced script can itself be taller
+                        -- than a leaf. Split only this oversized token at UTF-8
+                        -- character boundaries; keep every byte and span offset.
+                        for ch in word:gmatch('[%z\1-\127\194-\244][\128-\191]*')do words[#words+1]=ch end
+                    else words[#words+1]=word end
+                end
                 local at,part=1,0
                 while at<=#words do
                     if height-used<64 then New() end
@@ -141,7 +145,8 @@ function M.Attach(p)
         local available,h=self.book:GetWidth(),self.book:GetHeight()
         local nextSpread=available>=480
         local nextWidth=math.max(150,nextSpread and available*.29 or available*.66)
-        local nextHeight=math.max(150,h*.59)
+        -- Reserve the lower parchment for the folio and the curved outer edge.
+        local nextHeight=math.max(80,h*.52)
         local nextKey=math.floor(nextWidth)..'/'..math.floor(nextHeight)..'/'..tostring(nextSpread)..'/'..tostring(doc.fontScale)
         -- Host refreshes often repeat the same layout. They must not cancel a turn.
         if self.turnState and nextKey==layoutKey then return end
@@ -212,6 +217,11 @@ function M.Attach(p)
         if spread then pageIndex=math.floor((pageIndex-1)/2)*2+1 end;Render()
     end
     function p:ReaderSource() return source end
+    function p:ReaderPageBounds()
+        local out={limit=height,width=width,pages={}}
+        for i,page in ipairs(pages) do local used=0;for _,b in ipairs(page) do used=used+Size(b)end;out.pages[i]=used end
+        return out
+    end
     function p:GoReadingPage(index)
         self.coverEndpoint=nil
         pageIndex=math.max(1,math.min(tonumber(index) or 1,#pages))

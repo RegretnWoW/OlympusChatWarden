@@ -66,7 +66,7 @@ function U.Group(key,adapter,viewer)
  if not R.Permit('intel') then return false end
  adapter=adapter or ns.AthenaNativeLFGAdapter.Current;local listing=adapter:Get(key)
  local page=ns.Workspace.Destination('intel');if not page then return false end
- local p=base(page,'Group Intelligence','Native listing context · read only · no automatic Aether lookups')
+ local p=base(page,'Group Intelligence','Your current Group Finder listing · view only')
  local f=section(p,'group');f.adapter=adapter;f.key=key;f.viewer=viewer or ns.Fellowship.Context();f.offset=0
  if not f.header then
   local card=V.Panel(f,0,0,1136,128,'dark')
@@ -89,9 +89,9 @@ function U.Group(key,adapter,viewer)
    function() return f.viewer.role or 'UNKNOWN' end,function(value)
     f.viewer.role=value~='UNKNOWN' and value or nil;ns.Fellowship.preferredRole=f.viewer.role;ns.Fellowship.revision=ns.Fellowship.revision+1;f:Refresh()
    end)
-  f.returnButton=V.Button(f,'Return to native listing',674,-539,230,34,function()
+  f.returnButton=V.Button(f,'Return to Group Finder',674,-539,230,34,function()
    local current=f.adapter:Get(f.key);if not current then f:Refresh();return end
-   if f.nativeReturn then f.nativeReturn(current) else f.status:SetText('NATIVE-PENDING · Open Blizzard Group Finder normally. No Apply action was sent.') end
+   if f.nativeReturn then f.nativeReturn(current) else f.status:SetText('Open WoW’s Group Finder to apply. Fireside has not sent an application.') end
   end,'neutral')
   f.outreach=V.Button(f,'Review contact',916,-539,220,34,function()
    local s=f.adapter:Get(f.key);if s and s.leader.guid and s.leader.name and s.leader.realm then
@@ -157,7 +157,7 @@ function U.Profile(guid,owner,client)
   {kind='heading',text='Aether Community Rating'},
   {text=rating and rating.average and (string.format('%.1f / 5 stars · %d effective votes\n',rating.average,rating.count)..rating.identityGuarantee) or 'Not yet rated in the reachable validated view. Public opinions use 1–5 stars; they do not change Match % or Shield.'},
   {kind='heading',text='Received public claims'}, {text=#claims..' unexpired received cards · remote reports remain separate from the local profile.'},
-  {kind='meta',text='Live Aether transport and account vote identity: NATIVE-PENDING. No request is issued by opening this dossier.'}})
+  {kind='meta',text='Opening this profile does not contact anyone. Shared ratings need an enrolled Aether character.'}})
  return true,f
 end
 function U.Health()
@@ -167,13 +167,13 @@ function U.Health()
  local f=section(p,'health')
  if not f.document then local panel=V.Panel(f,0,0,1136,566,'dark');f.document=V.Document(panel,22,-20,1092,522) end
  local residency=ns.ChronicleStore.Residency();local jobs=ns.WardenScheduler.Health();local cache=ns.AthenaProfiles.cache
- f.document:SetBlocks({{kind='heading',text='Canonical history'},
+ f.document:SetBlocks({{kind='heading',text='Your recorded history'},
   {text=(ns.ChronicleStore.loading and 'History validation pending; new capture retains its existing startup journal.' or ns.ChronicleStore.blocked and 'Readback unavailable; original archive kept.' or 'History ready for existing read paths.')..'\n'..residency.loadedCharacters..' loaded characters · '..residency.packedCharacters..' compact characters · '..residency.loadedEvents..' loaded events'},
   {kind='heading',text='Hot / warm / cold'}, {text='Hot: active capture and unsaved observations. Warm: bounded activity/profile views. Cold: existing packed SavedVariables strings, still parsed by WoW at login. No archive format migration or pruning.'},
   {kind='heading',text='Derived work'}, {text=jobs.pending..' queued tasks · '..jobs.completed..' completed · '..jobs.errors..' task errors\nProfile cache '..R.Count(cache.values)..' / '..cache.cap..' · hits '..cache.hits..' · misses '..cache.misses..' · evictions '..cache.evictions},
-  {kind='heading',text='Native capabilities'}, {text='Group Finder ingestion / row anchors / sorting / Apply / Invite / whisper / Bridge: NATIVE-PENDING. No live exchange traffic. Existing Relay bug reports remain separate.'},
-  {kind='heading',text='Durability and rollback'}, {text='Canonical Chronicle storage and conversation consent are unchanged. Keep the complete SavedVariables backup for rollback. This panel does not create or certify a backup.'},
-  {kind='meta',text='Synthetic benchmark timings are not native FPS or addon-attributed RAM measurements.'}})
+  {kind='heading',text='Available features'}, {text='Use WoW’s Group Finder to apply, invite or whisper. Opening this page sends nothing.'},
+  {kind='heading',text='Durability and rollback'}, {text='Your adventure history and conversation choices are kept. Make a complete backup of your saved files before restoring an older version.'},
+  {kind='meta',text='Preview test results do not measure your game’s frame rate or memory use.'}})
  return true,f
 end
 function U.Aether(client)
@@ -205,7 +205,7 @@ function U.Aether(client)
    self.document:SetBlocks({{kind='heading',text=self.client:Joined() and 'Contributing public cards · Queries enabled · Automatic mock replies' or 'Aether OFF · No contributions or network searches'},
     {text=ns.AthenaSharePolicy.Disclosure},
     {kind='heading',text='Public cards, source and limits'}, {text='Identity and dated guild · coarse level bands · supported observed statistics · public 1–5-star opinions. Unknown stays unknown. Rich history, raw scoreboards and private player recollections stay local.'},
-    {kind='heading',text='Transport status'}, {text=demo and 'ISOLATED MOCK TRANSPORT · no game messages or external service' or 'NATIVE-PENDING · live Bridge transport and verified member/account authority are unavailable in this build. Join remains locked.'},
+    {kind='heading',text='Transport status'}, {text=demo and 'ISOLATED MOCK TRANSPORT · no game messages or external service' or 'This connection is not available yet. Your saved information is kept.'},
     {kind='meta',text='Remote cache '..#self.client.shared.order..' / 256 claims · '..self.client.shared.bytes..' / 262144 bytes. Received projections remain remote claims.'}})
   end
  end
@@ -223,7 +223,7 @@ function U.DirectLanding()
  f.document:SetBlocks({{kind='heading',text='Choose the person and review the exact information'},
   {text='Player-specific sharing starts from the recorded Intel dossier. Only supported identity or observed-career fields are eligible. Private notes, raw chat and full named scoreboards remain excluded.'},
   {kind='heading',text='Current transport'},
-  {text='NATIVE-PENDING. Production recipient resolution and approved Bridge transport remain unavailable. The private simulator exercises explicit offer, acceptance and final receipt using isolated mock clients.'},
+  {text='Sharing with another player is not available through this connection yet. Nothing has been sent.'},
   {kind='meta',text='Opening Direct Share sends nothing and does not join Aether.'}})
  return true,f
 end
@@ -239,7 +239,7 @@ function U.Direct(guid,owner)
  f.document:SetBlocks({{kind='heading',text='Review a safe player card'}, {text=text(profile.identity.name or guid)..' · '..text(profile.identity.realm)},
   {text='Presets: Identity or observed career summary. The recipient must be exactly resolved and receive the same reviewed payload. Accept/reject and a final receipt are required.'},
   {kind='heading',text='Actual public-scope preview'}, {text=card and ns.ChronicleBackup.Encode(card) or 'No eligible public identity'},
-  {kind='heading',text='Delivery held'}, {text='NATIVE-PENDING · no approved live profile transport. Direct Share offer/review/accept/receipt is implemented in the isolated multi-client fixture. No message has been sent.'},
+  {kind='heading',text='Delivery held'}, {text='This connection cannot send a profile yet. Nothing has been sent.'},
   {kind='meta',text='Direct Share does not enable Aether or export private notes, exact movements, conversations or full named scoreboards.'}})
  return true,f
 end
@@ -262,7 +262,7 @@ function U.Outreach(target,context,coordinator)
  f.send:SetEnabled(session~=nil);f.status:SetText(session and session.state or why)
  f.document:SetBlocks({{kind='heading',text=session and text(session.target.name)..' — '..text(session.target.realm) or 'Contact unavailable'},
   {text=session and session.message or tostring(why)}, {kind='heading',text='Route and evidence'}, {text=session and session.route or 'Identity / eligibility check required'},
-  {kind='meta',text='Native Apply, Invite and whisper sending remain gated. Positive replies are not proof of joining; only a roster event confirms membership. Aether and a target addon are not required.'}})
+  {kind='meta',text='Use WoW’s own Apply, Invite and whisper controls. A reply does not confirm a group join; the player must appear in the group roster.'}})
  return true,f
 end
 function U.DirectReview(client,profile,recipient)
@@ -294,7 +294,7 @@ function U.DirectReview(client,profile,recipient)
    local states={REVIEW='Offer prepared. Review the information and recipient before sending.',OFFERED='Waiting for the recipient to review this offer.',RECEIVED='Accepted and received. The recipient returned a final receipt.',DECLINED='The recipient declined. No profile data was transferred.'}
    self.status:SetText(statusMessage or row and states[row.state] or 'Choose a scope and review the addressed information.')
    self.document:SetBlocks({{kind='heading',text='To '..text(self.recipient.name)..' · '..text(self.recipient.realm)},
-    {text='Subject: '..text(self.profile.identity and self.profile.identity.name or self.profile.personKey)..' · '..self.scope..'\n'..(transport and 'ISOLATED MOCK TRANSPORT · synthetic fixture, no game or Bridge messages' or 'NATIVE-PENDING · delivery disabled')},
+    {text='Subject: '..text(self.profile.identity and self.profile.identity.name or self.profile.personKey)..' · '..self.scope..'\n'..(transport and 'ISOLATED MOCK TRANSPORT · synthetic fixture, no game or Bridge messages' or 'Sending is unavailable')},
     {kind='heading',text='Information in this offer'}, {text=shareText(row and row.packet.body.projection)},
     {kind='heading',text='Delivery state'}, {text=row and states[row.state] or 'No offer sent'},
     {kind='meta',text='Aether participation is unchanged. Private notes, conversations, precise routes and raw named scoreboards are excluded.'}})

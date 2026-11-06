@@ -149,7 +149,7 @@ function L.Chat(route)
  local rows,detail={},{}
  if section=='rules' then
   rows[#rows+1]=act('CHAT.RULE.NEW','New personal rule','Add exact phrase',function() O.Rule() end)
-  rows[#rows+1]=act('CHAT.EXCEPTIONS','Phrase exceptions',#ns.DB.exceptions..' saved',function() F.Value('Phrase exceptions',table.concat(ns.DB.exceptions,'\n'),function(v) local list={};for text in v:gmatch('[^\r\n]+') do list[#list+1]=text end;return ns.SetExceptions(list) end,'One exception per line. The normal bounded sentence rules still apply.',{multiline=true,limit=12000}) end)
+  rows[#rows+1]=act('CHAT.EXCEPTIONS','Phrase exceptions',#ns.DB.exceptions..' saved',function() F.Value('Phrase exceptions',table.concat(ns.DB.exceptions,'\n'),function(v) local list={};for text in v:gmatch('[^\r\n]+') do list[#list+1]=text end;return ns.SetExceptions(list) end,'Add one exception per line. Normal sentence filtering still applies.',{multiline=true,limit=12000}) end)
   for _,rule in ipairs(ns.Personal.rules) do if matches(rule.phrase,route.query) then local selected=rule;rows[#rows+1]=act('CHAT.RULE.SELECT',rule.phrase,rule.action..(rule.enabled and ' · On' or ' · Off'),function() U.Open(routeTo(route,'selectedID',selected.id)) end) end end
   for _,rule in ipairs(ns.Personal.rules) do if rule.id==tonumber(route.selectedID) then local selected=rule;detail={cap(rule.phrase),act('CHAT.RULE.EDIT','Edit rule',rule.action,function() O.Rule(selected) end),act('CHAT.RULE.TOGGLE',rule.enabled and 'Pause rule' or 'Enable rule','Applies to new messages',function() F.Feedback(ns.Personal.ChangeRule(selected.id,not selected.enabled,false)) end),act('CHAT.RULE.DELETE','Delete rule','Personal rule only',function() F.Confirm('Delete personal rule?',selected.phrase,function() return ns.Personal.ChangeRule(selected.id,false,true) end) end)} end end
  elseif section=='packs' then
@@ -257,7 +257,7 @@ function O.Shield(route)
  if contact then local guid=ns.Athena.ResolveContact(contact)
   if #detail==0 then detail[1]=cap('No active shield or allow entry for '..contact..'. Expired shields are not retained as active protection.');detail[#detail+1]=act('SHIELD.ADD.SELECTED','Add shield',contact,function() O.ShieldAdd(contact) end) end
   local remaining=ns.Spam.PauseRemaining(contact);if remaining and remaining>0 then detail[#detail+1]={title='Rapid chat pause',detail=math.ceil(remaining)..' seconds remaining',height=40} end
-  if guid then detail[#detail+1]=act('SHIELD.PLAYER','Player dossier','Same canonical person',function() U.OpenPlayer(guid,route.owner) end) end
+  if guid then detail[#detail+1]=act('SHIELD.PLAYER','Player dossier','Open this person’s profile',function() U.OpenPlayer(guid,route.owner) end) end
   detail[#detail+1]=act('SHIELD.CHAT','Related messages','Search retained sender',go({page='messages',subsection='capture',sender=contact}))
  end
  if #rows==0 then rows[1]=cap('No active shields or allowed contacts match this search.') end
@@ -360,7 +360,7 @@ local function directCardRows(projection)
   rows[#rows+1]=cap and {title='Scope',detail='One recorded capture · '..#s.dependencies..' layout dependencies',height=40} or {title='Capture could not be decoded',height=40}
   rows[#rows+1]={title='Received snapshots remain peer-provided history. They never become firsthand observations or public Aether data.',wrap=true,height=64,kind='caption'}
   if cap and cap.family=='gear' then for _,slot in ipairs(ns.WardenDossier.slots) do local v=ns.WardenDossier.Slot({object={capture=cap}},slot[1]);rows[#rows+1]={title=slot[2],detail=v[3]~=false and ('Item #'..v[3]) or v[2]=='empty' and 'Confirmed empty' or 'Not observed',height=34} end
-  elseif cap and cap.values.exportString then rows[#rows+1]=act('DIRECT.HISTORY.EXPORT','Copy selected native export','Original captured string',function() F.Copy('Selected historical export',cap.values.exportString) end) end
+  elseif cap and cap.values.exportString then rows[#rows+1]=act('DIRECT.HISTORY.EXPORT','Copy recorded talent export','Original captured string',function() F.Copy('Selected historical export',cap.values.exportString) end) end
   return rows
  end
  card=card.card
@@ -379,7 +379,7 @@ function O.CommunityConcern(subjectType,key,post,kind)
  return F.Form({title='Save a community content concern',help='Creates a private, unsent Relay draft for your review. This does not report to Blizzard, notify a moderator, hide content or change another player’s rating. Any later Relay submission is a separate explicit action.',
   paragraphs={source},fields={{key='note',label='What concerns you about this content?',value='',limit=1200,multiline=true,height=100}},submitLabel='Save unsent Relay draft',submit=function(v)
    local R=ns.RelayStore;local draft,why=R.New();if not draft then return false,why end
-   local ok,err=R.Save(draft.id,{module='intel',category='other',title='Community content concern',description=source:sub(1,1700)..'\n\nConcern: '..(v.note or ''),steps='Saved locally from the canonical '..subjectType..' page. No moderation or network submission performed.'})
+   local ok,err=R.Save(draft.id,{module='intel',category='other',title='Community content concern',description=source:sub(1,1700)..'\n\nConcern: '..(v.note or ''),steps='Saved on this computer from '..subjectType..' page. No moderation or network submission performed.'})
    if not ok then R.Delete(draft.id);return false,err end
    U.Open({page='relay',selectedID=draft.id});return true,'Unsent Relay draft saved. Review it before deciding whether to submit.'
   end})
@@ -401,7 +401,7 @@ function O.RelayMatches(report,data,route)
 end
 function O.Relay(route)
  local R,P=ns.RelayStore,ns.RelayTransport
- local directTools={act('DIRECT.NATIVE.APPROVE','Approve Direct Share contact','One current native group peer · session only',function() ns.DirectNative.Listen() end),act('DIRECT.NATIVE.STOP','Stop Direct Share session','Cancel unsent frames and pending receipt retries',function() ns.DirectNative.Stop();F.Feedback(true,'Direct Share stopped. Previously delivered data cannot be recalled.') end)}
+ local directTools={act('DIRECT.NATIVE.APPROVE','Approve Direct Share contact','One current group member · this session only',function() ns.DirectNative.Listen() end),act('DIRECT.NATIVE.STOP','Stop Direct Share session','Cancel unsent frames and pending receipt retries',function() ns.DirectNative.Stop();F.Feedback(true,'Direct Share stopped. Previously delivered data cannot be recalled.') end)}
  local tools={act('RELAY.NEW','Report a bug','Create a local draft',function() local r,why=R.New();if r then U.Open({page='relay',selectedID=r.id});O.EditRelay(r) else F.Feedback(false,why) end end),act('RELAY.MINE','My reports','Drafts and delivery states',go({page='relay'})),act('RELAY.DIRECT','Direct Share','Exact addressed preview',go({page='relay',subsection='direct'})),act('RELAY.AETHER','Aether participation','Consent and public fields',go({page='relay',subsection='aether'}))}
  for _,item in ipairs(directTools) do tools[#tools+1]=item end
  local dc=ns.DirectNative.active and ns.DirectNative.active.client
@@ -415,11 +415,11 @@ function O.Relay(route)
  elseif route.subsection=='aether' then
   rows=ns.UI2Settings.Rows('aether');detail={cap('Existing Aether consent and privacy controls. Drafts never publish automatically.'),act('AETHER.OWN','My Aether Profile','Same complete player profile',function() U.OpenAetherProfile() end)}
  elseif route.subsection=='diagnostics' then
-  rows[1]=cap('Diagnostics are an allowlisted summary of version, module states and bounded error locations. They exclude chat logs, recorded adventures and private notes. Preparing them sends nothing.')
-  rows[2]=act('RELAY.DIAGNOSTICS.PREVIEW','Prepare diagnostic preview','No attachment or submission yet',function() F.Copy('Technical details preview',ns.RelayDiagnostics.Prepare()) end)
+  rows[1]=cap('Optional troubleshooting details include your version, feature status and recent error locations. They exclude chat, adventures and private notes. You can preview them before sharing; preparing them sends nothing.')
+  rows[2]=act('RELAY.DIAGNOSTICS.PREVIEW','Preview troubleshooting details','No attachment or submission yet',function() F.Copy('Technical details preview',ns.RelayDiagnostics.Prepare()) end)
  elseif route.subsection=='direct' then
   local d=O.direct
-  if not d then rows[1]=cap('Direct Share requires an exact subject, recipient and approved public projection. Live Bridge transport remains pending. Open a person’s Share card for the public preview.');rows[2]=act('RELAY.PUBLIC','Preview my share card','Same canonical player page',function() U.OpenPlayer(ns.PlayerCard.Own(),route.owner,'public') end)
+  if not d then rows[1]=cap('Choose a player’s Share card to review exactly what you want to send. Sharing through this connection is not available yet.');rows[2]=act('RELAY.PUBLIC','Preview my share card','Open this player’s profile',function() U.OpenPlayer(ns.PlayerCard.Own(),route.owner,'public') end)
   else
    rows[1]={title='To '..(d.recipient.name or d.recipient.guid),detail=d.recipient.realm or '',height=40}
    rows[2]=F.Row('DIRECT.SCOPE','Shared scope',function() return d.scope end,function(v) local old=d.offerID and d.client.outbox[d.offerID];if old and old.state=='REVIEW' then d.client.outbox[d.offerID]=nil end;d.scope=v;d.offerID=nil;d.wire=nil;return true end,{choices=d.profile.kind=='historical' and {{'historical','This selected historical capture'}} or d.profile.kind=='event' and {{'event','Event card'}} or {{'identity','Identity only'},{'career','Supported career summary'}}})
@@ -433,7 +433,7 @@ function O.Relay(route)
     U.Refresh(true);F.Copy('Exact addressed offer',wire);return true
    end)
    local offer=d.offerID and d.client.outbox[d.offerID]
-   detail[1]=cap(d.client.options.mockTransport and 'ISOLATED MOCK TRANSPORT · no game or Bridge delivery' or d.client.options.nativeTransport and 'NATIVE_UNVERIFIED · Recipient only · Current native group binding · WoW server-logged messages' or 'Native session unavailable')
+   detail[1]=cap(d.client.options.mockTransport and 'ISOLATED MOCK TRANSPORT · no game or Bridge delivery' or d.client.options.nativeTransport and 'Early access · one recipient · current group contact · WoW may log these messages' or 'This connection is unavailable')
    detail[2]={title='Offer state',detail=offer and offer.state or 'Not sent',height=40}
    if offer then
     for _,row in ipairs(directCardRows(offer.packet.body.projection)) do detail[#detail+1]=row end
@@ -449,11 +449,11 @@ function O.Relay(route)
    rows[1]=cap('Offer from '..offer.sender);rows[2]=cap(offer.received and 'Received · final receipt returned' or offer.decision or 'Waiting for your review')
    detail=directCardRows(offer.body.projection)
    if not offer.decision then
-    rows[#rows+1]=act('DIRECT.INBOX.ACCEPT','Accept reviewed data','This addressed offer only',function() F.Confirm('Accept addressed public data?','Received claims stay separate from canonical first-hand history.',function() return d.client:Decide(d.id,true,true) end) end)
-    rows[#rows+1]=act('DIRECT.INBOX.DECLINE','Decline offer','No canonical history changes',function() F.Feedback(d.client:Decide(d.id,false,true)) end)
+    rows[#rows+1]=act('DIRECT.INBOX.ACCEPT','Accept reviewed data','This addressed offer only',function() F.Confirm('Accept addressed public data?','Information received from others stays separate from your own recorded adventures.',function() return d.client:Decide(d.id,true,true) end) end)
+    rows[#rows+1]=act('DIRECT.INBOX.DECLINE','Decline offer','Your adventure history is unchanged',function() F.Feedback(d.client:Decide(d.id,false,true)) end)
    end
    local card=offer.body.projection and offer.body.projection.card
-   if offer.received and card and card.kind=='player' then detail[#detail+1]=act('DIRECT.INBOX.PLAYER','Open player dossier','Same canonical person; received claims remain qualified',function() U.OpenPlayer(card.personKey,route.owner) end) end
+   if offer.received and card and card.kind=='player' then detail[#detail+1]=act('DIRECT.INBOX.PLAYER','Open player dossier','The same player profile; shared information keeps its source',function() U.OpenPlayer(card.personKey,route.owner) end) end
   else rows[1]=cap('This addressed offer is unavailable or expired.') end
  else
   local inbox=route.subsection=='inbox'
@@ -508,7 +508,7 @@ ns.AthenaSuiteUI.Aether=function(client) return U.Open({page='settings',category
 ns.AthenaSuiteUI.DirectLanding=function() return U.Open({page='relay',subsection='direct'}) end
 ns.AthenaSuiteUI.Direct=function(guid,owner)
  local profile=ns.AthenaProfiles.GetPlayer(guid,owner,'intel');if not profile then return false,'Profile is still preparing.' end
- return F.Form({title='Choose a Direct Share recipient',help='Review one addressed card in Relay before sending. Both players must approve their current native group contact. This does not join Aether or distribute private history.',fields={{key='guid',label='Recipient GUID',value='',limit=96},{key='name',label='Exact name',value='',limit=128},{key='realm',label='Realm',value='',limit=128}},submitLabel='Review addressed card',submit=function(v) local c,why=ns.DirectNative.Create(v,true);if not c then return false,why end;return O.DirectReview(c,profile,v) end})
+ return F.Form({title='Choose a Direct Share recipient',help='Review the card in Relay before sending. Both players must approve the current group contact. This does not join Aether or share your private history.',fields={{key='guid',label='Recipient GUID',value='',limit=96},{key='name',label='Exact name',value='',limit=128},{key='realm',label='Realm',value='',limit=128}},submitLabel='Review addressed card',submit=function(v) local c,why=ns.DirectNative.Create(v,true);if not c then return false,why end;return O.DirectReview(c,profile,v) end})
 end
 ns.AthenaSuiteUI.DirectReview=O.DirectReview
 ns.AthenaSuiteUI.DirectInbox=function(client,id) if not client or not client.inbox[id] then return false end;O.directInbox={client=client,id=id};return U.Open({page='relay',subsection='direct-inbox'}) end

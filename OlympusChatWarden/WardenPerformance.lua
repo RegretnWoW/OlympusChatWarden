@@ -42,6 +42,7 @@ function P.End(name,start,units)
 end
 function P.Report()
     ns.Print('Fireside profiling '..(P.active and 'running' or 'off')..'. Batch target: '..P.MS..' ms; an individual operation or GC can exceed it.')
+    local at=P.Now();if P.started and at and at>=P.started then ns.Print(string.format('Sample duration: %.1f seconds. Closed-window idle CPU target: below 0.9%% in the native client; these inclusive timers are not an OS CPU percentage.',(at-P.started)/1000))end
     local memory=ns.SafeCall(collectgarbage,'count')
     if ns.SafeNumber(memory) then ns.Print(string.format('Whole UI Lua heap: %.1f MiB (all addons, not Fireside alone).',memory/1024)) end
     local addons=C_AddOns
@@ -81,8 +82,8 @@ function P.Report()
 end
 function P.Slash(text)
     local action=(text or ''):lower()
-    if action=='start' then P.active=true;P.stats={};ns.Print('Fireside profiling started for this login. Use /fireside perf stop when finished.')
+    if action=='start' then P.active=true;P.stats={};P.started=P.Now();ns.Print('Fireside profiling started for this login. Use /fireside perf stop when finished.')
     elseif action=='stop' then P.Report();P.active=false;P.stats={}
-    elseif action=='reset' then P.stats={};ns.Print('Fireside profile measurements reset.')
+    elseif action=='reset' then P.stats={};P.started=P.Now();ns.Print('Fireside profile measurements reset.')
     else P.Report();ns.Print('/warden perf start | status | stop | reset. Measurements stay in memory for this login only.') end
 end

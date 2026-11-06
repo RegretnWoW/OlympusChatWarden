@@ -99,7 +99,7 @@ function A.MusicRequest()
  local intro=ns.WardenWelcomeGuide and ns.WardenWelcomeGuide.state
  if intro and intro.phase~='setup'then return 'warden-menu-theme','menuMusic'end
  if U and U.window and U.window:IsVisible()and not U.menuHidden then return 'warden-menu-theme','menuMusic'end
- if A.scene=='study'then return 'study-hearth-loop','music'end
+ if A.scene=='study'or A.scene=='town'then return 'study-hearth-loop','music'end
  if A.scene=='forest'then return 'roads-olympus-master','outdoorMusic'end
 end
 function A.UpdateStudyMusic()
