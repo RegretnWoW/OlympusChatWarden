@@ -2,7 +2,7 @@
 ## Title: Fireside
 ## Notes: Chronicle, player intelligence, chat, protection and RelayWarden support for Olympus.
 ## Author: Regretn
-## Version: 1.1.4-unified-2.11.8-integrated110-startup1-3d-home-candidate9
+## Version: 1.1.4-unified-2.11.8-integrated110-startup1-3d-home-candidate10
 ## SavedVariables: OlympusWardenPrivacyDB, OlympusChatWardenDB, OlympusWardenRelayDB, OlympusWardenStartupDB, OlympusWardenConversationDB, OlympusWardenJournalDB, OlympusWardenRecollectionsDB, OlympusWardenExchangeDB
 ## OptionalDeps: Olympus, OlympusWardenAthenaLab
 ## Dependencies: FiresideRecovery

@@ -27,6 +27,10 @@ function W.Bind(engine)
   -- This is geometric pivot alignment, not screen-space or distance-dependent compensation.
   if not a.worldAnchor then a.worldAnchor={(a.bounds[1]+a.bounds[4])*.5,(a.bounds[2]+a.bounds[5])*.5,a.bounds[3]} end
   local anchor=a.worldAnchor;local angle=yaw or a.worldYaw or 0
+  -- The existing editor writes spec.worldYaw, then calls Place with the old
+  -- animation-facing yaw. Prefer its new angle only during that editor apply;
+  -- moving players/NPCs must still be free to supply their current facing.
+  if a.world3DEditApplying and type(a.spec.worldYaw)=='number'then angle=a.spec.worldYaw end
   local cx,cy=anchor[1]*scale,anchor[2]*scale
   local ox=x-math.cos(angle)*cx+math.sin(angle)*cy
   local oy=y-math.sin(angle)*cx-math.cos(angle)*cy
@@ -34,10 +38,19 @@ function W.Bind(engine)
   -- Preserve the existing native API's model-scaled translation convention ONLY at this boundary.
   -- No camera, FOV, viewport, floorUV, groundOffset, view-layer or depth-size term is used.
   local nx,ny,nz=ox/scale,oy/scale,oz/scale
+  -- The actor must receive the same physical scale used for pivot/translation
+  -- and collision. Merely assigning renderScale leaves the model at its old
+  -- native size and makes the scale-divided translation slide it around.
+  if a.renderScale~=scale or a.world3DScaledActor~=a.actor then
+   local requested=N.Call(a.actor,'SetRequestedScale',scale)
+   local applied=N.Call(a.actor,'SetScale',scale)
+   if not(requested and applied)then return false end
+   a.renderScale=scale;a.world3DScaledActor=a.actor
+  end
   local ok=N.Call(a.actor,'SetPosition',nx,ny,nz)
   local turned=N.Call(a.actor,'SetYaw',angle)
   N.Call(a.actor,'SetPitch',pitch or 0);N.Call(a.actor,'SetRoll',0)
-  a.presentationFactor=1;a.renderScale=scale;a.groundOffset=0
+  a.presentationFactor=1;a.groundOffset=0
   a.worldYaw=angle;a.yaw=angle;a.pitch=pitch or 0
   a.position={x,y,z};a.worldPosition=a.position
   a.nativeOrigin={ox,oy,oz};a.nativePosition={nx,ny,nz}
@@ -46,6 +59,24 @@ function W.Bind(engine)
   return ok and turned
  end
  return engine
+end
+function W.BindExistingEditor()
+ local editor=ns.WardenSceneEditor
+ if not editor or editor.fireside3DTransformsBound or not(editor.Apply and editor.Find)then return false end
+ editor.fireside3DTransformsBound=true
+ local apply=editor.Apply
+ editor.Apply=function(key,id,record,...)
+  local row=editor.Find(key,id)
+  local a=row and row.kind=='native'and row.engine.world3D and row.engine.actors[row.id]
+  if not a then return apply(key,id,record,...)end
+  local previous=a.world3DEditApplying;a.world3DEditApplying=true
+  -- Restore the transient scope even when the existing editor raises an error.
+  local ok,result,why=pcall(apply,key,id,record,...)
+  a.world3DEditApplying=previous
+  if not ok then error(result,0)end
+  return result,why
+ end
+ return true
 end
 -- Fit the same plane homography used by N.FloorPoint, using four actual native projections.
 -- Once per frame, no mathematical-FOV fallback and no camera-sensitive actor changes.

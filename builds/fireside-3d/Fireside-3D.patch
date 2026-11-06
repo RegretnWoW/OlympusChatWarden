@@ -3478,7 +3478,7 @@ literal 0
 HcmV?d00001
 
 diff --git a/OlympusChatWarden/OlympusChatWarden.toc b/OlympusChatWarden/OlympusChatWarden.toc
-index 4627a66..d9bcc6a 100644
+index 4627a66..1afc8f3 100644
 --- a/OlympusChatWarden/OlympusChatWarden.toc
 +++ b/OlympusChatWarden/OlympusChatWarden.toc
 @@ -2,7 +2,7 @@
@@ -3486,7 +3486,7 @@ index 4627a66..d9bcc6a 100644
  ## Notes: Chronicle, player intelligence, chat, protection and RelayWarden support for Olympus.
  ## Author: Regretn
 -## Version: 1.1.4-unified-2.11.8-integrated110-startup1
-+## Version: 1.1.4-unified-2.11.8-integrated110-startup1-3d-home-candidate9
++## Version: 1.1.4-unified-2.11.8-integrated110-startup1-3d-home-candidate10
  ## SavedVariables: OlympusWardenPrivacyDB, OlympusChatWardenDB, OlympusWardenRelayDB, OlympusWardenStartupDB, OlympusWardenConversationDB, OlympusWardenJournalDB, OlympusWardenRecollectionsDB, OlympusWardenExchangeDB
  ## OptionalDeps: Olympus, OlympusWardenAthenaLab
  ## Dependencies: FiresideRecovery
@@ -3887,10 +3887,10 @@ index 0000000..88b2205
 +end
 diff --git a/OlympusChatWarden/World3D/Coordinates.lua b/OlympusChatWarden/World3D/Coordinates.lua
 new file mode 100644
-index 0000000..787f680
+index 0000000..e4caf93
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Coordinates.lua
-@@ -0,0 +1,80 @@
+@@ -0,0 +1,111 @@
 +-- Scene-specific transform boundary from the in-client tested prototype.
 +local _,ns=...
 +local N,C=ns.WardenNativeScene,ns.WardenSceneObjectControls
@@ -3920,6 +3920,10 @@ index 0000000..787f680
 +  -- This is geometric pivot alignment, not screen-space or distance-dependent compensation.
 +  if not a.worldAnchor then a.worldAnchor={(a.bounds[1]+a.bounds[4])*.5,(a.bounds[2]+a.bounds[5])*.5,a.bounds[3]} end
 +  local anchor=a.worldAnchor;local angle=yaw or a.worldYaw or 0
++  -- The existing editor writes spec.worldYaw, then calls Place with the old
++  -- animation-facing yaw. Prefer its new angle only during that editor apply;
++  -- moving players/NPCs must still be free to supply their current facing.
++  if a.world3DEditApplying and type(a.spec.worldYaw)=='number'then angle=a.spec.worldYaw end
 +  local cx,cy=anchor[1]*scale,anchor[2]*scale
 +  local ox=x-math.cos(angle)*cx+math.sin(angle)*cy
 +  local oy=y-math.sin(angle)*cx-math.cos(angle)*cy
@@ -3927,10 +3931,19 @@ index 0000000..787f680
 +  -- Preserve the existing native API's model-scaled translation convention ONLY at this boundary.
 +  -- No camera, FOV, viewport, floorUV, groundOffset, view-layer or depth-size term is used.
 +  local nx,ny,nz=ox/scale,oy/scale,oz/scale
++  -- The actor must receive the same physical scale used for pivot/translation
++  -- and collision. Merely assigning renderScale leaves the model at its old
++  -- native size and makes the scale-divided translation slide it around.
++  if a.renderScale~=scale or a.world3DScaledActor~=a.actor then
++   local requested=N.Call(a.actor,'SetRequestedScale',scale)
++   local applied=N.Call(a.actor,'SetScale',scale)
++   if not(requested and applied)then return false end
++   a.renderScale=scale;a.world3DScaledActor=a.actor
++  end
 +  local ok=N.Call(a.actor,'SetPosition',nx,ny,nz)
 +  local turned=N.Call(a.actor,'SetYaw',angle)
 +  N.Call(a.actor,'SetPitch',pitch or 0);N.Call(a.actor,'SetRoll',0)
-+  a.presentationFactor=1;a.renderScale=scale;a.groundOffset=0
++  a.presentationFactor=1;a.groundOffset=0
 +  a.worldYaw=angle;a.yaw=angle;a.pitch=pitch or 0
 +  a.position={x,y,z};a.worldPosition=a.position
 +  a.nativeOrigin={ox,oy,oz};a.nativePosition={nx,ny,nz}
@@ -3939,6 +3952,24 @@ index 0000000..787f680
 +  return ok and turned
 + end
 + return engine
++end
++function W.BindExistingEditor()
++ local editor=ns.WardenSceneEditor
++ if not editor or editor.fireside3DTransformsBound or not(editor.Apply and editor.Find)then return false end
++ editor.fireside3DTransformsBound=true
++ local apply=editor.Apply
++ editor.Apply=function(key,id,record,...)
++  local row=editor.Find(key,id)
++  local a=row and row.kind=='native'and row.engine.world3D and row.engine.actors[row.id]
++  if not a then return apply(key,id,record,...)end
++  local previous=a.world3DEditApplying;a.world3DEditApplying=true
++  -- Restore the transient scope even when the existing editor raises an error.
++  local ok,result,why=pcall(apply,key,id,record,...)
++  a.world3DEditApplying=previous
++  if not ok then error(result,0)end
++  return result,why
++ end
++ return true
 +end
 +-- Fit the same plane homography used by N.FloorPoint, using four actual native projections.
 +-- Once per frame, no mathematical-FOV fallback and no camera-sensitive actor changes.
@@ -3973,14 +4004,14 @@ index 0000000..787f680
 +end
 diff --git a/OlympusChatWarden/World3D/Definitions.lua b/OlympusChatWarden/World3D/Definitions.lua
 new file mode 100644
-index 0000000..2a97b60
+index 0000000..034e4a6
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Definitions.lua
 @@ -0,0 +1,44 @@
 +-- One shipped neighborhood. square keeps the existing Live scene wire identity;
 +-- the existing geometry digest rejects clients with different world definitions.
 +local _,ns=...
-+local F={VERSION=9,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
++local F={VERSION=10,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
 +local C=ns.WardenRoomCatalogue
 +F.homeDoor={side='negative-y',width=2.2,wallThickness=.2}
 +F.bounds={-32,-24,32,34}
@@ -4194,10 +4225,10 @@ index 0000000..029589f
 +end
 diff --git a/OlympusChatWarden/World3D/HitboxEditor.lua b/OlympusChatWarden/World3D/HitboxEditor.lua
 new file mode 100644
-index 0000000..6d3566b
+index 0000000..5a39e0f
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/HitboxEditor.lua
-@@ -0,0 +1,248 @@
+@@ -0,0 +1,277 @@
 +-- Optional public adapter to the existing local Scene Editor. No private source
 +-- or separate persistence store: normal Set/Save/Undo/Export own every change.
 +local _,ns=...
@@ -4206,6 +4237,10 @@ index 0000000..6d3566b
 +local function editor()return ns.WardenSceneEditor end
 +local function clamp(n,a,b)return math.max(a,math.min(b,n))end
 +local function message(s)local e=editor();if e and e.Message then e.Message(s)end end
++function T.ReleaseTextFocus()
++ local focus=GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus()
++ if focus and focus.ClearFocus then focus:ClearFocus()end
++end
 +function T.Target(v)
 + local e=editor();if not F.EditorCamera.Active(v)then return nil,'Open the scene editor first'end
 + local r,row=e.Value(e.scene,e.selected)
@@ -4221,6 +4256,15 @@ index 0000000..6d3566b
 +end
 +function T.Hover(v)
 + local s=v.world3DHitboxTool;return s and s.panel:IsVisible()and s.panel:IsMouseOver()or false
++end
++function T.Covered(frame,u,v,panels)
++ if not(frame.GetLeft and frame.GetTop)then return false end
++ local left,top=frame:GetLeft(),frame:GetTop();if not left or not top then return false end
++ local scale=frame:GetEffectiveScale();local x,y=(left+u*frame:GetWidth())*scale,(top-v*frame:GetHeight())*scale
++ for _,panel in ipairs(panels)do if panel:IsVisible()and panel.GetRight and panel.GetBottom then
++  local l,r,t,b=panel:GetLeft(),panel:GetRight(),panel:GetTop(),panel:GetBottom();local s=panel:GetEffectiveScale()
++  if l and r and t and b and x>=l*s and x<=r*s and y>=b*s and y<=t*s then return true end
++ end end;return false
 +end
 +function T.Commit(v,target,kind,boxes,noHistory,automatic)
 + if not T.Allowed(v)or editor().scene~=target.scene or editor().selected~=target.id then return false,'Select the same object with no form open'end
@@ -4323,12 +4367,21 @@ index 0000000..6d3566b
 + if ok then d.last=key else T.EndDrag(v,false);message(why)end
 +end
 +local function button(parent,label,x,y,w,fn)
-+ local b=CreateFrame('Button',nil,parent,'UIPanelButtonTemplate');b:SetPoint('TOPLEFT',x,y);b:SetSize(w,22);b:SetText(label);b:SetScript('OnClick',fn);return b
++ local b=CreateFrame('Button',nil,parent,'UIPanelButtonTemplate');b:SetPoint('TOPLEFT',x,y);b:SetSize(w,22);b:SetText(label)
++ b:RegisterForClicks('LeftButtonUp')
++ b:SetScript('OnClick',function(...)T.ReleaseTextFocus();return fn(...)end);return b
 +end
 +function T.Ensure(v)
 + if v.world3DHitboxTool then return v.world3DHitboxTool end
 + local s={kind='collider',index=1,lines={},handles={}};v.world3DHitboxTool=s
-+ local panel=CreateFrame('Frame',nil,v.frame);s.panel=panel;panel:SetPoint('TOPLEFT',12,-100);panel:SetSize(360,204);panel:EnableMouse(true)
++ -- The complete tool belongs to the existing editor's managed window tree.
++ -- A realm-owned panel's child buttons can stay locked below the camera input
++ -- when Theme.FocusWindow restacks the editor. Do not fight its fixed levels.
++ local owner=editor().panel and editor().panel.frame
++ s.owner=owner
++ local panel=CreateFrame('Frame',nil,owner or v.frame);s.panel=panel
++ panel:SetPoint('TOPLEFT',v.frame,'TOPLEFT',12,-100);panel:SetSize(360,204);panel:EnableMouse(true)
++ panel:SetFrameLevel((owner or v.frame):GetFrameLevel()+4)
 + local bg=panel:CreateTexture(nil,'BACKGROUND');bg:SetAllPoints();bg:SetColorTexture(.025,.04,.035,.97)
 + local title=panel:CreateFontString(nil,'OVERLAY','GameFontNormal');title:SetPoint('TOPLEFT',8,-8);title:SetText('Hitboxes · select object in main editor')
 + s.title=title
@@ -4346,7 +4399,8 @@ index 0000000..6d3566b
 + button(panel,'Use automatic',126,-112,130,function()T.Command(v,'automatic')end)
 + local info=panel:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');info:SetPoint('TOPLEFT',8,-141);info:SetWidth(344);info:SetJustifyH('LEFT');s.info=info
 + local help=panel:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');help:SetPoint('TOPLEFT',8,-174);help:SetText('Drag +/- sides; center moves box. Escape cancels drag.\nSave / Undo / Export through the main editor.')
-+ local overlay=CreateFrame('Frame',nil,v.frame);s.overlay=overlay;overlay:SetAllPoints(v:ActiveRoom().native.frame);overlay:EnableMouse(false)
++ local overlay=CreateFrame('Frame',nil,owner or v.frame);s.overlay=overlay;overlay:SetAllPoints(v:ActiveRoom().native.frame);overlay:EnableMouse(false)
++ overlay:SetFrameLevel((owner or v.frame):GetFrameLevel()+1)
 + panel:SetScript('OnUpdate',function(_,dt)
 +  if not F.EditorCamera.Active(v)then T.EndDrag(v,false);panel:Hide();overlay:Hide();return end
 +  s.clock=(s.clock or 0)+dt;if s.clock<.04 then return end;s.clock=0;T.Drag(v);T.Draw(v)
@@ -4359,16 +4413,22 @@ index 0000000..6d3566b
 + end)
 + panel:SetScript('OnKeyUp',function(self)self:SetPropagateKeyboardInput(true)end)
 + panel:HookScript('OnHide',function()T.EndDrag(v,false);overlay:Hide()end)
++ v.frame:HookScript('OnHide',function()panel:Hide();overlay:Hide()end)
 + panel:Hide();overlay:Hide();return s
 +end
 +function T.Open(v,kind)
 + if not F.EditorCamera.Active(v)then return false,'Open the existing scene editor first'end
-+ local s=T.Ensure(v);T.EndDrag(v,false);s.kind=kind or s.kind;s.index=1;s.panel:Show();T.Draw(v);return true
++ T.ReleaseTextFocus()
++ local s=T.Ensure(v);T.EndDrag(v,false);s.kind=kind or s.kind;s.index=1;s.panel:Show();T.Draw(v)
++ if s.owner and ns.Theme and ns.Theme.FocusWindow then ns.Theme.FocusWindow(s.owner)end
++ return true
 +end
 +function T.Draw(v)
 + local s=v.world3DHitboxTool;local e=editor();local target,why=T.Target(v)
 + local p=e.panel and e.panel.frame;local strata=p and p:GetFrameStrata()or'FULLSCREEN_DIALOG';local level=p and p:GetFrameLevel()or 100
-+ s.panel:SetFrameStrata(strata);s.panel:SetFrameLevel(level+3);s.overlay:SetFrameStrata(strata);s.overlay:SetFrameLevel(math.max(1,level-1))
++ if not(s.owner and ns.Theme and ns.Theme.FocusWindow)then
++  s.panel:SetFrameStrata(strata);s.panel:SetFrameLevel(level+4);s.overlay:SetFrameStrata(strata);s.overlay:SetFrameLevel(level+1)
++ end
 + for _,l in ipairs(s.lines)do l:Hide()end;for _,b in ipairs(s.handles)do b:Hide()end
 + if not target or not T.Allowed(v)then s.info:SetText(why or'Finish the current form or object drag first');s.overlay:Hide();return end
 + if s.target~=target.id then s.target=target.id;s.index=1 end
@@ -4376,8 +4436,8 @@ index 0000000..6d3566b
 + s.title:SetText('Hitboxes · '..(target.actor.spec.label or target.id))
 + local current=boxes[s.index];local automatic=not target.record[s.kind]
 + s.info:SetText((s.kind=='collider'and'Walking footprints'or'Clickable volumes')..' · '..(automatic and'Automatic preview'or('Box '..s.index..' / '..#boxes))..'\n'..(current and enabled and current.enabled~=false and'Enabled'or'Disabled / empty')..' · '..(s.kind=='collider'and'Green: blocks walking; gaps remain open.'or'Blue: selects interactions; does not block walking.'))
-+ s.overlay:Show();local engine=target.row.engine;local width,height=engine.frame:GetWidth(),engine.frame:GetHeight();local used,handles=0,0
-+ local function project(p)local u,w=N.ProjectNative(engine.frame,engine.shot,p[1],p[2],p[3]);if u and u>=0 and u<=1 and w>=0 and w<=1 then return u*width,-w*height end end
++ s.overlay:Show();local engine=target.row.engine;local width,height=s.overlay:GetWidth(),s.overlay:GetHeight();local used,handles=0,0
++ local function project(p)local u,w=N.ProjectNative(engine.frame,engine.shot,p[1],p[2],p[3]);if u and u>=0 and u<=1 and w>=0 and w<=1 then return u*width,-w*height,u,w end end
 + local function line(a,b,selected,on)
 +  local x,y=project(a);local xx,yy=project(b);if not x or not xx or not s.overlay.CreateLine then return end
 +  used=used+1;local l=s.lines[used]
@@ -4386,11 +4446,11 @@ index 0000000..6d3566b
 +  l:SetStartPoint('TOPLEFT',x,y);l:SetEndPoint('TOPLEFT',xx,yy);l:Show()
 + end
 + local function handle(b,index,face,label)
-+  local point=T.Handle(b,face,s.kind);local x,y=project(point);if not x then return end
++  local point=T.Handle(b,face,s.kind);local x,y,u,q=project(point);if not x or T.Covered(engine.frame,u,q,{s.panel,e.panel and e.panel.frame})then return end
 +  handles=handles+1;local h=s.handles[handles]
 +  if not h then
 +   h=CreateFrame('Button',nil,s.overlay,'UIPanelButtonTemplate');h:SetSize(28,22);h:RegisterForClicks('LeftButtonDown','LeftButtonUp');h:RegisterForDrag('LeftButton')
-+   h:SetScript('OnMouseDown',function(self,key)if key=='LeftButton'then if self.face=='select'then s.index=self.box else T.BeginDrag(v,self.box,self.face)end end end)
++   h:SetScript('OnMouseDown',function(self,key)if key=='LeftButton'then T.ReleaseTextFocus();if self.face=='select'then s.index=self.box else T.BeginDrag(v,self.box,self.face)end end end)
 +   h:SetScript('OnMouseUp',function(_,key)if key=='LeftButton'then T.EndDrag(v,false)end end)
 +   h:SetScript('OnDragStop',function()T.EndDrag(v,false)end);s.handles[handles]=h
 +  end
@@ -4564,10 +4624,10 @@ index 0000000..99b6e32
 +end
 diff --git a/OlympusChatWarden/World3D/Integration.lua b/OlympusChatWarden/World3D/Integration.lua
 new file mode 100644
-index 0000000..03a6396
+index 0000000..92548de
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Integration.lua
-@@ -0,0 +1,142 @@
+@@ -0,0 +1,143 @@
 +-- Only the scene integration changes. Existing Journal, badge ownership, Live trust,
 +-- protocol, reconnection and session limits remain authoritative.
 +local _,ns=...
@@ -4664,6 +4724,7 @@ index 0000000..03a6396
 + F.Catalog.BindExistingEditor()
 + F.EditorCamera.BindExistingEditor()
 + F.HitboxEditor.BindExistingEditor()
++ F.Coordinates.BindExistingEditor()
 + return v
 +end
 +-- Direct 3D landing; regular feature tabs still open the existing UI over it.
@@ -4698,7 +4759,7 @@ index 0000000..03a6396
 +-- The old fixed-scene cinematic is not part of the unified world. Consent/setup UI remains unchanged.
 +if ns.WardenWelcomeGuide then ns.WardenWelcomeGuide.NeedsWelcome=function()return false end end
 +ns.OpenWelcome=function()ns.Print('Welcome home. Close Menu to explore; WASD moves and right-drag rotates the 3D camera.');return true end
-+local event=CreateFrame('Frame');event:RegisterEvent('ADDON_LOADED');event:SetScript('OnEvent',function()F.Catalog.BindExistingEditor();F.EditorCamera.BindExistingEditor();F.HitboxEditor.BindExistingEditor()end)
++local event=CreateFrame('Frame');event:RegisterEvent('ADDON_LOADED');event:SetScript('OnEvent',function()F.Catalog.BindExistingEditor();F.EditorCamera.BindExistingEditor();F.HitboxEditor.BindExistingEditor();F.Coordinates.BindExistingEditor()end)
 +
 +for _,entry in ipairs(U.destinations or{})do if entry[1]=='journey'then entry[2]='My Home'end end
 +local ensure=U.Ensure
@@ -5046,17 +5107,29 @@ index 0000000..fa830bf
 +end
 diff --git a/tools/fireside3d/README.md b/tools/fireside3d/README.md
 new file mode 100644
-index 0000000..5d64ebf
+index 0000000..51003f0
 --- /dev/null
 +++ b/tools/fireside3d/README.md
-@@ -0,0 +1,28 @@
-+# Fireside 3D — Hitbox editing, candidate 9
+@@ -0,0 +1,40 @@
++# Fireside 3D — Object rotation and scale, candidate 10
 +
 +## Install
 +
-+With WoW closed, extract **Fireside-3D-candidate9-overlay.zip** into `Interface/AddOns/`, replacing the public code/catalog. Keep your existing media and local private editor addon. This overlays candidate 8 (or the recorded public base **e4cc9f8da008fd065d933e6d142dde854108d53a** with its media).
++With WoW closed, extract **Fireside-3D-candidate10-overlay.zip** into `Interface/AddOns/`, replacing the public code/catalog. Keep your existing media and local private editor addon. This overlays candidates 8 or 9 (or the recorded public base **e4cc9f8da008fd065d933e6d142dde854108d53a** with its media).
 +
 +The working forest camp, its assets, saved layout slot (`fireside-3d-camp8`), camera, grass, menu scrolling, movement, Journal, showcase, chairs and Live protocol are retained. Existing saved placements and single-box controls remain readable. No new models load.
++
++## Object transform fix
++
++The existing editor's rotation value was written into the object specification, but the 3D adapter placed the actor using its previous facing angle. The adapter now uses the editor's newly applied angle during that operation. Afterward, player and NPC movement still control their own facing.
++
++Scaling previously changed logical size and scale-divided translation without sending the new physical scale to the native ModelSceneActor. The 3D adapter now sends the requested/physical scale before positioning, using the same fixed model-space bottom-center pivot for rotation and scale. The model, shadow, selection and compound hitboxes consequently use the same transform. Camera perspective is not added to the physical scale.
++
++Use the existing rotation and scale controls as before. Saved placements, Undo/Redo, reload and the current layout slot are retained. Scaling changes the object's visible size and its attached boxes together, while its world position stays fixed. A newly created native actor receives its scale even when its logical values match a previous actor.
++
++## Hitbox panel input fix
++
++The complete hitbox tool now belongs to the existing editor's managed window tree, keeping every button above the camera input after focus changes. Tool actions explicitly release retained text-field focus. World handles stay out of the editor panels' button areas. This fixes lower-row actions such as Remove, On / Off, Auto-fit box, Exact values and Use automatic without removing the normal typing/form guards.
 +
 +## Edit hitboxes
 +
@@ -5069,13 +5142,13 @@ index 0000000..5d64ebf
 +
 +For the tent: choose Walking and Add box. The first added box replaces its disabled automatic preview, so it does not accidentally enclose the whole tent. Resize/move one narrow box along each solid wall, adding more where needed. Leave the entrance and desired walking space empty. Navigation checks each box separately, preserving the gaps. Walking collision remains a ground footprint; changing a click area's height does not change walking clearance.
 +
-+Boxes follow their object's rotation and scale. These are the existing editor's local authored layouts; the patch adds no layout synchronization or Live transport. Share a saved layout through the existing export/import workflow when matching local edits are needed. New exports use layout version 6 so an older editor cannot silently discard multiple boxes; earlier supported layouts still load. Keep candidate 9 when using these new saved layouts.
++Boxes follow their object's rotation and scale. These are the existing editor's local authored layouts; the patch adds no layout synchronization or Live transport. Share a saved layout through the existing export/import workflow when matching local edits are needed. New exports use layout version 6 so an older editor cannot silently discard multiple boxes; earlier supported layouts still load. Use candidate 9 or newer when using these saved layouts.
 +
 +## Validation
 +
-+Cloud checks cover three independent tent walls with a clear entrance through 360 degrees and multiple scales; real path validation; disabled/empty and legacy shapes; separate clickable volumes and their gaps; bounded data validation; all six anchored faces and native perspective inversion; actual tool controls/handles, dragging/cancel, camera isolation, one-step undo/redo and versioned export/reload. Existing camp lifecycle, menu/editor input, grass loading and Live codec/coalescing checks also pass. Lua/TOC syntax/references, protected base-source equality and public archive/privacy checks pass.
++Cloud checks record actual native scale/yaw/position commands and independently reconstruct an asymmetric model’s rendered pivot/corners through rotations and scale changes. They cover existing editor Apply, canonical restoration, movement-facing isolation, idle caching, error cleanup, legacy delegation, undo/reload record replay, actor replacement and scale-call failure/retry. The actual public window manager is also exercised with fixed native frame levels, deferred focus/restacking, lower-row actions, retained text focus, popup return, independently scaled panel exclusion and owner hide. Hitbox checks cover three independent tent walls with a clear entrance through 360 degrees and multiple scales; real path validation; disabled/empty and legacy shapes; separate clickable volumes and their gaps; bounded data validation; all six anchored faces and native perspective inversion; actual tool controls/handles, dragging/cancel, camera isolation, one-step undo/redo and versioned export/reload. Existing camp lifecycle, menu/editor input, grass loading and Live codec/coalescing checks also pass. Lua/TOC syntax/references, protected base-source equality and public archive/privacy checks pass.
 +
-+WoW cannot run in Cloud. The user confirmed candidate 8's camp and controls; candidate 9's new handle placement and native drag feel need a client check.
++WoW cannot run in Cloud. The user confirmed candidate 8's camp and controls. Candidate 10's native rotation/scale behavior and the new hitbox handles still need a client check.
 +
 +No private addon implementation, private archive, credentials or crash logs are included. Main and production releases are unchanged. The changed-files ZIP and patch contain the complete public experimental integration against the recorded base. Older WMO catalog entries remain manual and unverified; this patch does not load them.
 diff --git a/tools/fireside3d/background.lua b/tools/fireside3d/background.lua
@@ -5117,7 +5190,7 @@ index 0000000..3a29d77
 +print('PASS: native grass warmup, async texture backing, retained valid projection, idle UV caching, resize recovery and no wood path overlay')
 diff --git a/tools/fireside3d/build_candidate.py b/tools/fireside3d/build_candidate.py
 new file mode 100755
-index 0000000..0197159
+index 0000000..dcf93ca
 --- /dev/null
 +++ b/tools/fireside3d/build_candidate.py
 @@ -0,0 +1,59 @@
@@ -5126,7 +5199,7 @@ index 0000000..0197159
 +from pathlib import Path
 +import argparse, hashlib, json, subprocess, zipfile
 +BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'
-+CANDIDATE='candidate9'
++CANDIDATE='candidate10'
 +
 +def tracked():
 +    return subprocess.check_output(['git','ls-files','-z']).decode().split('\0')[:-1]
@@ -5248,7 +5321,7 @@ index 0000000..89c6b07
 +    main()
 diff --git a/tools/fireside3d/building-selection.md b/tools/fireside3d/building-selection.md
 new file mode 100644
-index 0000000..6028d82
+index 0000000..6de8c2c
 --- /dev/null
 +++ b/tools/fireside3d/building-selection.md
 @@ -0,0 +1,13 @@
@@ -5258,7 +5331,7 @@ index 0000000..6028d82
 +
 +`world/kalimdor/kalidar/passivedoodads/furbolgtent/furbolgtent.m2`
 +
-+Identity source: the existing [wowdev verified listfile](https://github.com/wowdev/wow-listfile). The user rendered and accepted this exact asset in Forever, so its catalog status is **USER_REPORTED_NATIVE_RENDER**. Candidate 9 retains it as the one default shelter. Its camp arrangement was subsequently accepted by the user with candidate 8. No scene asset or placement changes are made in candidate 9.
++Identity source: the existing [wowdev verified listfile](https://github.com/wowdev/wow-listfile). The user rendered and accepted this exact asset in Forever, so its catalog status is **USER_REPORTED_NATIVE_RENDER**. Candidate 10 retains it as the one default shelter. Its camp arrangement was subsequently accepted by the user with candidate 8. No scene asset or placement changes are made in candidate 10.
 +
 +The previous Night Elf tent, **328178**, is also user-reported working and remains in the existing editor catalog. It is not placed in the camp.
 +
@@ -5267,10 +5340,10 @@ index 0000000..6028d82
 +The existing editor's **Add forest tent** action still adds another 202016 only when clicked, using the existing AddObject/native M2 loader with a 3.2-unit preview height and decoration collision. It is optional; the default camp shelter is already present. No automatic retries or spawn loops are added.
 diff --git a/tools/fireside3d/checks.lua b/tools/fireside3d/checks.lua
 new file mode 100644
-index 0000000..4720f7f
+index 0000000..0089bca
 --- /dev/null
 +++ b/tools/fireside3d/checks.lua
-@@ -0,0 +1,133 @@
+@@ -0,0 +1,135 @@
 +-- Pure world/codec checks. No saved data, credentials, auth, networking or private addon is executed.
 +local ns={WardenWorldScenes={layers={'native','contact-shadows'},props={},residents={},outside={},navigation={}}}
 +local function load(path)return assert(loadfile('OlympusChatWarden/'..path))('test',ns)end
@@ -5329,12 +5402,14 @@ index 0000000..4720f7f
 +local engine=F.Coordinates.Bind({metrics={moves=0}})
 +local native={};function native:SetPosition(x,y,z)self.position={x,y,z}end
 +function native:SetYaw(yaw)self.yaw=yaw end;function native:SetPitch()end;function native:SetRoll()end
-+function native:SetScale()error('placement cannot apply perspective scale')end
++function native:SetRequestedScale(n)assert(n==.5,'only the authored physical scale can be requested')end
++function native:SetScale(n)assert(n==.5,'placement cannot apply perspective compensation');self.scaleCalls=(self.scaleCalls or 0)+1 end
 +local a={ready=true,spec={},bounds={-1,-2,-.5,3,4,2},scale=.5,groundOffset=100,actor=native}
 +for i=0,359 do
 + engine.shot={position={math.cos(i)*20,math.sin(i)*20,3},target={4,6,1},fov=.85}
 + assert(engine:Place(a,4,6,0,.5));assert(a.position[1]==4 and a.position[2]==6 and a.presentationFactor==1 and a.scale==.5)
 +end
++assert(native.scaleCalls==1,'orbiting the camera must not repeatedly rescale the actor')
 +-- Hash/codec are the shipped gameplay implementation, never an alternate transport.
 +load('PackCrypto.lua');ns.AetherLive={};load('AetherLiveGameplay92.lua')
 +local G=ns.AetherLiveGameplay;assert(G.PROTOCOL==2 and G.Scenes.square=='a')
@@ -5900,6 +5975,107 @@ index 0000000..84e232e
 +assert(not v:ClickScene(v.forest,.5,.5),'editor camera input must not issue a player interaction')
 +ns.WardenSceneEditor.active=false;v:Advance(.016);assert(npcTicks>0,'normal NPC updates resume after editing')
 +print('PASS: editor input isolation and retained NPC pause/resume')
+diff --git a/tools/fireside3d/panel_input.lua b/tools/fireside3d/panel_input.lua
+new file mode 100644
+index 0000000..cfcc368
+--- /dev/null
++++ b/tools/fireside3d/panel_input.lua
+@@ -0,0 +1,95 @@
++-- Real public window manager + hitbox tool, with native fixed-level behavior.
++-- Tests the full button tree after deferred focus changes, not just callbacks.
++local ns={UI2={menuHidden=true},Fireside3D={PRIMARY='square'},WardenWorldScenes={}}
++local function load(p)return assert(loadfile('OlympusChatWarden/'..p))('test',ns)end
++local M={};local mt={__index=M}
++local function frame(parent,region)
++ local f=setmetatable({parent=parent,children={},scripts={},shown=true,w=1600,h=900,level=parent and parent:GetFrameLevel()+1 or 1},mt)
++ if parent and not region then parent.children[#parent.children+1]=f end;return f
++end
++function M:GetChildren()return unpack(self.children)end;function M:GetParent()return self.parent end
++function M:SetParent(p)if self.parent then for i,v in ipairs(self.parent.children)do if v==self then table.remove(self.parent.children,i);break end end end;self.parent=p;if p then p.children[#p.children+1]=self end end
++function M:SetScript(k,v)self.scripts[k]=v end;function M:GetScript(k)return self.scripts[k]end
++function M:HookScript(k,v)local old=self.scripts[k];self.scripts[k]=function(...)if old then old(...)end;v(...)end end
++function M:IsShown()return self.shown end;function M:IsVisible()return self.shown and(not self.parent or self.parent:IsVisible())end
++function M:Show()self.shown=true end
++function M:Hide()local old=self.shown;self.shown=false;if old and self.scripts.OnHide then self.scripts.OnHide(self)end end
++function M:SetShown(v)if v then self:Show()else self:Hide()end end
++function M:GetFrameLevel()return self.level end
++function M:SetFrameLevel(n)if self.fixedLevel then return end;local delta=n-self.level;self.level=n;for _,c in ipairs(self.children)do c:SetFrameLevel(c:GetFrameLevel()+delta)end end
++function M:SetFixedFrameLevel(v)self.fixedLevel=v end;function M:SetFixedFrameStrata(v)self.fixedStrata=v end
++function M:GetFrameStrata()return self.strata or(self.parent and self.parent:GetFrameStrata())or'MEDIUM'end
++function M:SetFrameStrata(v)if not self.fixedStrata then self.strata=v end end
++function M:GetScale()return self.scale or 1 end;function M:SetScale(v)self.scale=v end
++function M:GetEffectiveScale()return self:GetScale()*(self.parent and self.parent:GetEffectiveScale()or 1)end
++function M:GetWidth()return self.anchor and self.anchor:GetWidth()*self.anchor:GetEffectiveScale()/self:GetEffectiveScale()or self.w end
++function M:GetHeight()return self.anchor and self.anchor:GetHeight()*self.anchor:GetEffectiveScale()/self:GetEffectiveScale()or self.h end
++function M:SetAllPoints(r)self.anchor=r or self.parent end
++function M:SetPoint(...)self.point={...}end;function M:SetSize(w,h)self.w=w;self.h=h end;function M:SetWidth(w)self.w=w end
++function M:CreateTexture()return frame(self,true)end;function M:CreateFontString()return frame(self,true)end;function M:CreateLine()return frame(self,true)end
++function M:SetText(v)self.text=v end;function M:EnableMouse(v)self.mouse=v end;function M:IsMouseEnabled()return self.mouse==true end
++function M:IsMouseOver()return false end;function M:EnableMouseWheel(v)self.wheel=v end;function M:EnableKeyboard(v)self.keyboard=v end
++for _,key in ipairs({'ClearAllPoints','SetColorTexture','SetJustifyH','RegisterForClicks','RegisterForDrag','SetStartPoint','SetEndPoint','SetThickness','SetToplevel','RegisterEvent','SetPropagateKeyboardInput'})do M[key]=function()end end
++UIParent=frame()
++CreateFrame=function(kind,_,p)local f=frame(p);f.mouse=kind=='Button';return f end
++hooksecurefunc=function(f,key,hook)local old=f[key];f[key]=function(self,...)local r=old(self,...);hook(self,...);return r end end
++local queue={};C_Timer={After=function(_,fn)queue[#queue+1]=fn end}
++local function flush()while #queue>0 do local batch=queue;queue={};for _,fn in ipairs(batch)do fn()end end end
++local focus;GetCurrentKeyBoardFocus=function()return focus end;InCombatLockdown=function()return false end
++load('Theme.lua');load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Coordinates.lua');load('World3D/Scene.lua');load('World3D/Hitboxes.lua');load('World3D/HitboxEditor.lua');load('World3D/EditorCamera.lua')
++local F,N,H,T=ns.Fireside3D,ns.WardenNativeScene,ns.Fireside3D.Hitboxes,ns.Fireside3D.HitboxEditor
++F.IsScene=function(s)return s.definition.world3D end
++local v={frame=frame(UIParent)};ns.Theme.RegisterWindow(v.frame);v.frame:Show()
++local engine={world3D=true,frame=frame(v.frame),shot={position={0,-12,10},target={0,10,1},fov=.85},actors={}}
++engine.frame:SetAllPoints(v.frame)
++N.ProjectNative=function(f,s,x,y,z)return N.Project(s,x,y,z,f:GetWidth()/f:GetHeight())end
++local a={id='tent',engine=engine,ready=true,scale=1,bounds={-3,-3,0,3,3,4},position={0,10,0},spec={fileID=202016,label='Tent',collision=false}}
++engine.actors.tent=a
++local scene={native=engine,definition={world3D=true},groundClick=frame(v.frame)};function v:ActiveRoom()return scene end
++local e={active=true,scene='square',selected='native/tent',panel={frame=frame(UIParent)},Realm=function()return v end}
++local current={x=0,y=10,z=0,yaw=0,scale=1};local calls=0
++function e.Value()return H.Copy(current),{kind='native',engine=engine,id='tent'}end
++function e.Set(_,r)current=H.Copy(r);a.collider=H.Copy(r.collider);a.hitbox=H.Copy(r.hitbox);calls=calls+1;return true end
++function e.Message(s)e.lastMessage=s end
++function e.ShowForm(spec)e.form=spec;e.popup=frame(UIParent);ns.Theme.RegisterModal(e.popup,e.panel.frame);e.popup:Show()end
++ns.WardenSceneEditor=e
++ns.Theme.RegisterModal(e.panel.frame,v.frame);e.panel.frame:Show()
++v.world3DEditSurface=CreateFrame('Button',nil,v.frame);F.EditorCamera.SyncInput(v)
++assert(T.Open(v,'collider'));local tool=v.world3DHitboxTool
++assert(tool.panel:GetParent()==e.panel.frame and tool.overlay:GetParent()==e.panel.frame,'whole tool must belong to the registered editor window')
++local ranks={HIGH=1,DIALOG=2,FULLSCREEN_DIALOG=3}
++local function above(a,b)return ranks[a:GetFrameStrata()]>ranks[b:GetFrameStrata()]or a:GetFrameStrata()==b:GetFrameStrata()and a:GetFrameLevel()>b:GetFrameLevel()end
++local function action(label)
++ for _,b in ipairs(tool.panel.children)do if b.text==label then return b end end;error('missing button '..label)
++end
++local function checkTree()
++ F.EditorCamera.SyncInput(v)
++ for _,b in ipairs(tool.panel.children)do if b.scripts.OnClick then
++  assert(b:GetFrameStrata()==tool.panel:GetFrameStrata()and above(b,v.world3DEditSurface),'button below camera after focus: '..b.text)
++ end end
++ for _,h in ipairs(tool.handles)do assert(above(action('Exact values'),h),'handles must not cover panel buttons')end
++end
++local function click(label)
++ local b=action(label);ns.Theme.FocusWindow(v.frame);flush();T.Draw(v);checkTree()
++ focus={ClearFocus=function()focus=nil end};assert(not T.Allowed(v),'typing stays guarded until an explicit tool action')
++ if b.scripts.OnMouseDown then b.scripts.OnMouseDown(b,'LeftButton')end
++ if b.scripts.OnMouseUp then b.scripts.OnMouseUp(b,'LeftButton')end
++ b.scripts.OnClick(b,'LeftButton');flush();assert(focus==nil,'tool action must release stale text focus')
++end
++local viewRect={GetLeft=function()return 0 end,GetTop=function()return 900 end,GetWidth=function()return 1600 end,GetHeight=function()return 900 end,GetEffectiveScale=function()return 1 end}
++local coverScale=1
++local panelRect={IsVisible=function()return true end,GetLeft=function()return 10 end,GetRight=function()return 370 end,GetTop=function()return 800 end,GetBottom=function()return 596 end,GetEffectiveScale=function()return coverScale end}
++assert(T.Covered(viewRect,.1,.2,{panelRect})and not T.Covered(viewRect,.6,.6,{panelRect}),'world handles cannot cover editor controls')
++coverScale=.5;assert(T.Covered(viewRect,.1,.6,{panelRect}),'panel exclusion must account for independent UI scale')
++checkTree();click('Add box');assert(calls==1 and #a.collider.boxes==1)
++click('Duplicate');assert(#a.collider.boxes==2)
++click('On / Off');assert(a.collider.boxes[2].enabled==false)
++click('Auto-fit box');assert(a.collider.boxes[2].enabled and a.collider.boxes[2].width==6)
++click('Exact values');assert(e.form and e.popup:IsShown());T.Draw(v);assert(not tool.overlay:IsShown())
++e.popup:Hide();e.popup=nil;flush();T.Draw(v);checkTree()
++click('Use automatic');assert(a.collider==nil)
++click('Add box');click('Remove');assert(#a.collider.boxes==0)
++click('Click area');assert(tool.kind=='hitbox');click('Walking');assert(tool.kind=='collider')
++for i=1,10 do ns.Theme.FocusWindow(v.frame);ns.Theme.FocusWindow(e.panel.frame);flush();T.Draw(v);checkTree()end
++v.frame:Hide();assert(not tool.panel:IsShown()and not tool.overlay:IsShown())
++print('PASS: real Theme window restacking with fixed native levels, entire hitbox button tree above camera/handles, explicit text-focus release, all lower-row actions, popup return and owner hide')
 diff --git a/tools/fireside3d/research-candidates.csv b/tools/fireside3d/research-candidates.csv
 new file mode 100644
 index 0000000..65733d2
@@ -5946,3 +6122,105 @@ index 0000000..65733d2
 +P1,M2 / decor,Valentine Basket,M2,world/generic/passivedoodads/valentinesday/valentinebasket_01.m2,https://barrens.chat/viewtopic.php?p=28942,NOT_TESTED,NOT_TESTED,NOT_TESTED,Optional cottage decoration,"classic,prop,decor"
 +P2,M2 / atmosphere,Green Mist,M2,world/generic/human/passive doodads/fog/sfx_fog_nasty_green.m2,https://www.wowmodding.net/gallery/image/119-erutia-stelis/,NOT_TESTED,NOT_TESTED,NOT_TESTED,"Atmospheric effect, should not be default; test performance","classic,effect,fog"
 +P2,M2 / atmosphere,Howling Fjord Fog,M2,world/expansion02/doodads/howlingfjord/fog/hfjord_fog_02.m2,https://www.wowmodding.net/gallery/image/119-erutia-stelis/,NOT_TESTED,NOT_TESTED,NOT_TESTED,Expansion-era atmospheric effect,"expansion,effect,fog"
+diff --git a/tools/fireside3d/transforms.lua b/tools/fireside3d/transforms.lua
+new file mode 100644
+index 0000000..6d45453
+--- /dev/null
++++ b/tools/fireside3d/transforms.lua
+@@ -0,0 +1,96 @@
++-- The editor publishes transforms; a recorded native actor independently applies
++-- model-scaled translation, yaw and physical size. No private code is executed.
++local ns={Fireside3D={},WardenCanonicalPlayer={Update=function()end}}
++local function load(p)return assert(loadfile('OlympusChatWarden/'..p))('test',ns)end
++load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Coordinates.lua');load('World3D/Hitboxes.lua')
++local W,H,C=ns.Fireside3D.Coordinates,ns.Fireside3D.Hitboxes,ns.WardenSceneObjectControls
++local function near(a,b)assert(math.abs(a-b)<1e-8,tostring(a)..' differs from '..tostring(b))end
++local function point(a,b)for i=1,3 do near(a[i],b[i])end end
++local function native()
++ local n={scale=1,scaleCalls=0,positionCalls=0,yawCalls=0}
++ function n:SetRequestedScale(s)self.requested=s;self.scaleCalls=self.scaleCalls+1 end
++ function n:SetScale(s)self.scale=s end
++ function n:SetPosition(x,y,z)self.position={x,y,z};self.positionCalls=self.positionCalls+1 end
++ function n:SetYaw(yaw)self.yaw=yaw;self.yawCalls=self.yawCalls+1 end
++ function n:SetPitch()end;function n:SetRoll()end
++ -- This computes the rendered world point from received native commands; it
++ -- never reads the editor's logical scale, position, anchor or collision box.
++ function n:World(p)
++  local c,s=math.cos(self.yaw),math.sin(self.yaw)
++  return{self.scale*(self.position[1]+c*p[1]-s*p[2]),self.scale*(self.position[2]+s*p[1]+c*p[2]),self.scale*(self.position[3]+p[3])}
++ end
++ return n
++end
++local shot={position={0,-18,8},target={0,0,1},fov=.85}
++local engine=W.Bind({metrics={moves=0},shot=shot,actors={}})
++local a={ready=true,engine=engine,id='tent',actor=native(),spec={fileID=202016,worldYaw=-.4},bounds={-2,-3,-.7,4,5,2.5},scale=.75,authoredBaseScale=.75,editorBaseScale=.75,yaw=-.2}
++engine.actors.tent=a
++local anchor={1,1,-.7};local target={3,17,1};local legacy={engine={world3D=false},id='legacy'};local legacyCalls=0;local fail=false;local canonicalYaw
++local e={}
++e.Find=function(key,id)if id=='native/tent'then return{kind='native',engine=engine,id='tent'}elseif id=='native/legacy'then return{kind='native',engine={world3D=false,actors={legacy=legacy}},id='legacy'}end end
++-- Public Apply contract fixture: the editor changes the desired spec angle and
++-- physical scale, invalidates presentation, then supplies its previous facing.
++e.Apply=function(key,id,r)
++ if id=='native/legacy'then assert(not legacy.world3DEditApplying);legacyCalls=legacyCalls+1;return true,'legacy untouched'end
++ if id=='missing'then return false,'unknown object'end
++ a.spec.worldYaw=canonicalYaw or r.yaw*math.pi/180
++ a.scale=a.editorBaseScale*r.scale;a.top=(a.bounds[6]-a.bounds[3])*a.scale;a.renderScale=nil
++ assert(engine:Place(a,r.x,r.y,r.z,a.yaw or 0))
++ if fail then error('fixture apply failure')end
++ return true,'applied'
++end
++ns.WardenSceneEditor=e
++assert(W.BindExistingEditor()and not W.BindExistingEditor())
++local box={enabled=true,width=2,depth=1,x=.4,y=-.3};a.collider={boxes={box}}
++local custom={x=.4,y=-.3,z=.2,width=2,depth=1,height=1.1}
++local lastCorner
++for _,multiplier in ipairs({.05,.25,.5,1,2,5,1,.25,1})do
++ for _,degrees in ipairs({-360,-180,-90,0,45,90,180,360})do
++  local r={x=target[1],y=target[2],z=target[3],yaw=degrees,scale=multiplier}
++  local ok,why=e.Apply('square','native/tent',r);assert(ok and why=='applied'and not a.world3DEditApplying)
++  near(a.actor.scale,.75*multiplier);near(a.actor.requested,a.actor.scale);near(a.actor.yaw,degrees*math.pi/180)
++  point(a.position,target);point(a.actor:World(anchor),target)
++  -- A vertex away from the pivot must actually rotate and resize in the model,
++  -- not merely change a report or the editor's projected selection rectangle.
++  local corner=a.actor:World({4,5,-.7});local c,s=math.cos(a.actor.yaw),math.sin(a.actor.yaw)
++  point(corner,{target[1]+a.actor.scale*(c*3-s*4),target[2]+a.actor.scale*(s*3+c*4),target[3]})
++  if degrees==45 then lastCorner=corner elseif degrees==90 then assert(math.abs(corner[1]-lastCorner[1])+math.abs(corner[2]-lastCorner[2])>.01)end
++  -- Compound colliders/click volumes must share that same transformed model frame.
++  local footprint=H.Footprints(shot,a)[1];local shape=H.Shape(shot,a,custom)
++  for i,p in ipairs({{-1,-1},{1,-1},{1,1},{-1,1}})do
++   local nativeCorner={anchor[1]+(box.x+p[1]*box.width*.5)/.75,anchor[2]+(box.y+p[2]*box.depth*.5)/.75,anchor[3]}
++   local rendered=a.actor:World(nativeCorner);near(rendered[1],footprint.corners[i][1]);near(rendered[2],footprint.corners[i][2])
++  end
++  local bottom=a.actor:World({anchor[1]+custom.x/.75,anchor[2]+custom.y/.75,anchor[3]+custom.z/.75})
++  near(bottom[1],shape.centerX);near(bottom[2],shape.centerY);near(bottom[3],shape.bottom)
++  near(shape.top,bottom[3]+custom.height*multiplier)
++ end
++end
++-- During saved-player restoration, the existing editor can select a different
++-- canonical angle internally. The adapter must use the angle it actually writes.
++canonicalYaw=.9;assert(e.Apply('square','native/tent',{x=3,y=17,z=1,yaw=180,scale=1}));near(a.actor.yaw,.9);canonicalYaw=nil
++-- Outside Apply, persistent spec yaw must not freeze player/NPC movement facing.
++assert(engine:Place(a,4,18,0,-1.2));near(a.actor.yaw,-1.2);point(a.actor:World(anchor),{4,18,0})
++local calls=a.actor.scaleCalls;for i=0,359 do
++ engine.shot={position={20*math.cos(i),20*math.sin(i),8},target={4,18,1},fov=.85}
++ assert(engine:Place(a,4,18,0,-1.2))
++end
++assert(a.actor.scaleCalls==calls,'camera orbit cannot change physical scale')
++-- Error cleanup and nested scopes must never leave a permanent yaw override.
++fail=true;local ok,err=pcall(e.Apply,'square','native/tent',{x=3,y=17,z=1,yaw=45,scale=1});assert(not ok and err:find('fixture apply failure',1,true)and not a.world3DEditApplying);fail=false
++assert(engine:Place(a,3,17,1,-.6));near(a.actor.yaw,-.6)
++a.world3DEditApplying='outer';assert(e.Apply('square','native/tent',{x=3,y=17,z=1,yaw=0,scale=1}));assert(a.world3DEditApplying=='outer');a.world3DEditApplying=nil
++assert(e.Apply('hall','native/legacy',{})and legacyCalls==1);local missing,why=e.Apply('square','missing',{});assert(missing==false and why=='unknown object')
++-- Save/undo/reload already route through Apply: replaying complete records must
++-- restore the exact native model and preserve the same world-space pivot.
++local first={x=3,y=17,z=1,yaw=35,scale=.4};local second={x=3,y=17,z=1,yaw=120,scale=2.5}
++assert(e.Apply('square','native/tent',first));local oldPoint=a.actor:World({4,5,-.7})
++assert(e.Apply('square','native/tent',second));assert(e.Apply('square','native/tent',first));point(a.actor:World({4,5,-.7}),oldPoint)
++-- A newly created native actor needs scale even if the logical cache matches.
++a.actor=native();assert(engine:Place(a,3,17,1,35*math.pi/180));near(a.actor.scale,.3);assert(a.actor.scaleCalls==1);point(a.actor:World(anchor),target)
++-- A failed scale API cannot silently cache success or move using another scale.
++local failure=native();local setScale=failure.SetScale;failure.SetScale=function()error('fixture native scale failure')end
++a.actor=failure;a.renderScale=nil;assert(not engine:Place(a,3,17,1,0));assert(a.renderScale==nil and failure.positionCalls==0)
++failure.SetScale=setScale;assert(engine:Place(a,3,17,1,0));near(failure.scale,.3);point(failure:World(anchor),target)
++print('PASS: editor angle overrides stale facing only inside Apply; actual native requested/physical scale, asymmetric fixed pivot through full rotations and scale changes, compound collider/click-volume alignment')
++print('PASS: canonical restoration, movement-facing isolation, idle scale caching, error/nesting cleanup, legacy delegation, undo/reload record replay, replacement actor and failed-scale retry')

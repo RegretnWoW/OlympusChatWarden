@@ -56,12 +56,14 @@ ns.Print=nil
 local engine=F.Coordinates.Bind({metrics={moves=0}})
 local native={};function native:SetPosition(x,y,z)self.position={x,y,z}end
 function native:SetYaw(yaw)self.yaw=yaw end;function native:SetPitch()end;function native:SetRoll()end
-function native:SetScale()error('placement cannot apply perspective scale')end
+function native:SetRequestedScale(n)assert(n==.5,'only the authored physical scale can be requested')end
+function native:SetScale(n)assert(n==.5,'placement cannot apply perspective compensation');self.scaleCalls=(self.scaleCalls or 0)+1 end
 local a={ready=true,spec={},bounds={-1,-2,-.5,3,4,2},scale=.5,groundOffset=100,actor=native}
 for i=0,359 do
  engine.shot={position={math.cos(i)*20,math.sin(i)*20,3},target={4,6,1},fov=.85}
  assert(engine:Place(a,4,6,0,.5));assert(a.position[1]==4 and a.position[2]==6 and a.presentationFactor==1 and a.scale==.5)
 end
+assert(native.scaleCalls==1,'orbiting the camera must not repeatedly rescale the actor')
 -- Hash/codec are the shipped gameplay implementation, never an alternate transport.
 load('PackCrypto.lua');ns.AetherLive={};load('AetherLiveGameplay92.lua')
 local G=ns.AetherLiveGameplay;assert(G.PROTOCOL==2 and G.Scenes.square=='a')

@@ -1,10 +1,22 @@
-# Fireside 3D — Hitbox editing, candidate 9
+# Fireside 3D — Object rotation and scale, candidate 10
 
 ## Install
 
-With WoW closed, extract **Fireside-3D-candidate9-overlay.zip** into `Interface/AddOns/`, replacing the public code/catalog. Keep your existing media and local private editor addon. This overlays candidate 8 (or the recorded public base **e4cc9f8da008fd065d933e6d142dde854108d53a** with its media).
+With WoW closed, extract **Fireside-3D-candidate10-overlay.zip** into `Interface/AddOns/`, replacing the public code/catalog. Keep your existing media and local private editor addon. This overlays candidates 8 or 9 (or the recorded public base **e4cc9f8da008fd065d933e6d142dde854108d53a** with its media).
 
 The working forest camp, its assets, saved layout slot (`fireside-3d-camp8`), camera, grass, menu scrolling, movement, Journal, showcase, chairs and Live protocol are retained. Existing saved placements and single-box controls remain readable. No new models load.
+
+## Object transform fix
+
+The existing editor's rotation value was written into the object specification, but the 3D adapter placed the actor using its previous facing angle. The adapter now uses the editor's newly applied angle during that operation. Afterward, player and NPC movement still control their own facing.
+
+Scaling previously changed logical size and scale-divided translation without sending the new physical scale to the native ModelSceneActor. The 3D adapter now sends the requested/physical scale before positioning, using the same fixed model-space bottom-center pivot for rotation and scale. The model, shadow, selection and compound hitboxes consequently use the same transform. Camera perspective is not added to the physical scale.
+
+Use the existing rotation and scale controls as before. Saved placements, Undo/Redo, reload and the current layout slot are retained. Scaling changes the object's visible size and its attached boxes together, while its world position stays fixed. A newly created native actor receives its scale even when its logical values match a previous actor.
+
+## Hitbox panel input fix
+
+The complete hitbox tool now belongs to the existing editor's managed window tree, keeping every button above the camera input after focus changes. Tool actions explicitly release retained text-field focus. World handles stay out of the editor panels' button areas. This fixes lower-row actions such as Remove, On / Off, Auto-fit box, Exact values and Use automatic without removing the normal typing/form guards.
 
 ## Edit hitboxes
 
@@ -17,12 +29,12 @@ The working forest camp, its assets, saved layout slot (`fireside-3d-camp8`), ca
 
 For the tent: choose Walking and Add box. The first added box replaces its disabled automatic preview, so it does not accidentally enclose the whole tent. Resize/move one narrow box along each solid wall, adding more where needed. Leave the entrance and desired walking space empty. Navigation checks each box separately, preserving the gaps. Walking collision remains a ground footprint; changing a click area's height does not change walking clearance.
 
-Boxes follow their object's rotation and scale. These are the existing editor's local authored layouts; the patch adds no layout synchronization or Live transport. Share a saved layout through the existing export/import workflow when matching local edits are needed. New exports use layout version 6 so an older editor cannot silently discard multiple boxes; earlier supported layouts still load. Keep candidate 9 when using these new saved layouts.
+Boxes follow their object's rotation and scale. These are the existing editor's local authored layouts; the patch adds no layout synchronization or Live transport. Share a saved layout through the existing export/import workflow when matching local edits are needed. New exports use layout version 6 so an older editor cannot silently discard multiple boxes; earlier supported layouts still load. Use candidate 9 or newer when using these saved layouts.
 
 ## Validation
 
-Cloud checks cover three independent tent walls with a clear entrance through 360 degrees and multiple scales; real path validation; disabled/empty and legacy shapes; separate clickable volumes and their gaps; bounded data validation; all six anchored faces and native perspective inversion; actual tool controls/handles, dragging/cancel, camera isolation, one-step undo/redo and versioned export/reload. Existing camp lifecycle, menu/editor input, grass loading and Live codec/coalescing checks also pass. Lua/TOC syntax/references, protected base-source equality and public archive/privacy checks pass.
+Cloud checks record actual native scale/yaw/position commands and independently reconstruct an asymmetric model’s rendered pivot/corners through rotations and scale changes. They cover existing editor Apply, canonical restoration, movement-facing isolation, idle caching, error cleanup, legacy delegation, undo/reload record replay, actor replacement and scale-call failure/retry. The actual public window manager is also exercised with fixed native frame levels, deferred focus/restacking, lower-row actions, retained text focus, popup return, independently scaled panel exclusion and owner hide. Hitbox checks cover three independent tent walls with a clear entrance through 360 degrees and multiple scales; real path validation; disabled/empty and legacy shapes; separate clickable volumes and their gaps; bounded data validation; all six anchored faces and native perspective inversion; actual tool controls/handles, dragging/cancel, camera isolation, one-step undo/redo and versioned export/reload. Existing camp lifecycle, menu/editor input, grass loading and Live codec/coalescing checks also pass. Lua/TOC syntax/references, protected base-source equality and public archive/privacy checks pass.
 
-WoW cannot run in Cloud. The user confirmed candidate 8's camp and controls; candidate 9's new handle placement and native drag feel need a client check.
+WoW cannot run in Cloud. The user confirmed candidate 8's camp and controls. Candidate 10's native rotation/scale behavior and the new hitbox handles still need a client check.
 
 No private addon implementation, private archive, credentials or crash logs are included. Main and production releases are unchanged. The changed-files ZIP and patch contain the complete public experimental integration against the recorded base. Older WMO catalog entries remain manual and unverified; this patch does not load them.

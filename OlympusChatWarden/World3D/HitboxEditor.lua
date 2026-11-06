@@ -6,6 +6,10 @@ local H=F.Hitboxes;local T={};F.HitboxEditor=T
 local function editor()return ns.WardenSceneEditor end
 local function clamp(n,a,b)return math.max(a,math.min(b,n))end
 local function message(s)local e=editor();if e and e.Message then e.Message(s)end end
+function T.ReleaseTextFocus()
+ local focus=GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus()
+ if focus and focus.ClearFocus then focus:ClearFocus()end
+end
 function T.Target(v)
  local e=editor();if not F.EditorCamera.Active(v)then return nil,'Open the scene editor first'end
  local r,row=e.Value(e.scene,e.selected)
@@ -21,6 +25,15 @@ function T.Allowed(v)
 end
 function T.Hover(v)
  local s=v.world3DHitboxTool;return s and s.panel:IsVisible()and s.panel:IsMouseOver()or false
+end
+function T.Covered(frame,u,v,panels)
+ if not(frame.GetLeft and frame.GetTop)then return false end
+ local left,top=frame:GetLeft(),frame:GetTop();if not left or not top then return false end
+ local scale=frame:GetEffectiveScale();local x,y=(left+u*frame:GetWidth())*scale,(top-v*frame:GetHeight())*scale
+ for _,panel in ipairs(panels)do if panel:IsVisible()and panel.GetRight and panel.GetBottom then
+  local l,r,t,b=panel:GetLeft(),panel:GetRight(),panel:GetTop(),panel:GetBottom();local s=panel:GetEffectiveScale()
+  if l and r and t and b and x>=l*s and x<=r*s and y>=b*s and y<=t*s then return true end
+ end end;return false
 end
 function T.Commit(v,target,kind,boxes,noHistory,automatic)
  if not T.Allowed(v)or editor().scene~=target.scene or editor().selected~=target.id then return false,'Select the same object with no form open'end
@@ -123,12 +136,21 @@ function T.Drag(v)
  if ok then d.last=key else T.EndDrag(v,false);message(why)end
 end
 local function button(parent,label,x,y,w,fn)
- local b=CreateFrame('Button',nil,parent,'UIPanelButtonTemplate');b:SetPoint('TOPLEFT',x,y);b:SetSize(w,22);b:SetText(label);b:SetScript('OnClick',fn);return b
+ local b=CreateFrame('Button',nil,parent,'UIPanelButtonTemplate');b:SetPoint('TOPLEFT',x,y);b:SetSize(w,22);b:SetText(label)
+ b:RegisterForClicks('LeftButtonUp')
+ b:SetScript('OnClick',function(...)T.ReleaseTextFocus();return fn(...)end);return b
 end
 function T.Ensure(v)
  if v.world3DHitboxTool then return v.world3DHitboxTool end
  local s={kind='collider',index=1,lines={},handles={}};v.world3DHitboxTool=s
- local panel=CreateFrame('Frame',nil,v.frame);s.panel=panel;panel:SetPoint('TOPLEFT',12,-100);panel:SetSize(360,204);panel:EnableMouse(true)
+ -- The complete tool belongs to the existing editor's managed window tree.
+ -- A realm-owned panel's child buttons can stay locked below the camera input
+ -- when Theme.FocusWindow restacks the editor. Do not fight its fixed levels.
+ local owner=editor().panel and editor().panel.frame
+ s.owner=owner
+ local panel=CreateFrame('Frame',nil,owner or v.frame);s.panel=panel
+ panel:SetPoint('TOPLEFT',v.frame,'TOPLEFT',12,-100);panel:SetSize(360,204);panel:EnableMouse(true)
+ panel:SetFrameLevel((owner or v.frame):GetFrameLevel()+4)
  local bg=panel:CreateTexture(nil,'BACKGROUND');bg:SetAllPoints();bg:SetColorTexture(.025,.04,.035,.97)
  local title=panel:CreateFontString(nil,'OVERLAY','GameFontNormal');title:SetPoint('TOPLEFT',8,-8);title:SetText('Hitboxes · select object in main editor')
  s.title=title
@@ -146,7 +168,8 @@ function T.Ensure(v)
  button(panel,'Use automatic',126,-112,130,function()T.Command(v,'automatic')end)
  local info=panel:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');info:SetPoint('TOPLEFT',8,-141);info:SetWidth(344);info:SetJustifyH('LEFT');s.info=info
  local help=panel:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');help:SetPoint('TOPLEFT',8,-174);help:SetText('Drag +/- sides; center moves box. Escape cancels drag.\nSave / Undo / Export through the main editor.')
- local overlay=CreateFrame('Frame',nil,v.frame);s.overlay=overlay;overlay:SetAllPoints(v:ActiveRoom().native.frame);overlay:EnableMouse(false)
+ local overlay=CreateFrame('Frame',nil,owner or v.frame);s.overlay=overlay;overlay:SetAllPoints(v:ActiveRoom().native.frame);overlay:EnableMouse(false)
+ overlay:SetFrameLevel((owner or v.frame):GetFrameLevel()+1)
  panel:SetScript('OnUpdate',function(_,dt)
   if not F.EditorCamera.Active(v)then T.EndDrag(v,false);panel:Hide();overlay:Hide();return end
   s.clock=(s.clock or 0)+dt;if s.clock<.04 then return end;s.clock=0;T.Drag(v);T.Draw(v)
@@ -159,16 +182,22 @@ function T.Ensure(v)
  end)
  panel:SetScript('OnKeyUp',function(self)self:SetPropagateKeyboardInput(true)end)
  panel:HookScript('OnHide',function()T.EndDrag(v,false);overlay:Hide()end)
+ v.frame:HookScript('OnHide',function()panel:Hide();overlay:Hide()end)
  panel:Hide();overlay:Hide();return s
 end
 function T.Open(v,kind)
  if not F.EditorCamera.Active(v)then return false,'Open the existing scene editor first'end
- local s=T.Ensure(v);T.EndDrag(v,false);s.kind=kind or s.kind;s.index=1;s.panel:Show();T.Draw(v);return true
+ T.ReleaseTextFocus()
+ local s=T.Ensure(v);T.EndDrag(v,false);s.kind=kind or s.kind;s.index=1;s.panel:Show();T.Draw(v)
+ if s.owner and ns.Theme and ns.Theme.FocusWindow then ns.Theme.FocusWindow(s.owner)end
+ return true
 end
 function T.Draw(v)
  local s=v.world3DHitboxTool;local e=editor();local target,why=T.Target(v)
  local p=e.panel and e.panel.frame;local strata=p and p:GetFrameStrata()or'FULLSCREEN_DIALOG';local level=p and p:GetFrameLevel()or 100
- s.panel:SetFrameStrata(strata);s.panel:SetFrameLevel(level+3);s.overlay:SetFrameStrata(strata);s.overlay:SetFrameLevel(math.max(1,level-1))
+ if not(s.owner and ns.Theme and ns.Theme.FocusWindow)then
+  s.panel:SetFrameStrata(strata);s.panel:SetFrameLevel(level+4);s.overlay:SetFrameStrata(strata);s.overlay:SetFrameLevel(level+1)
+ end
  for _,l in ipairs(s.lines)do l:Hide()end;for _,b in ipairs(s.handles)do b:Hide()end
  if not target or not T.Allowed(v)then s.info:SetText(why or'Finish the current form or object drag first');s.overlay:Hide();return end
  if s.target~=target.id then s.target=target.id;s.index=1 end
@@ -176,8 +205,8 @@ function T.Draw(v)
  s.title:SetText('Hitboxes · '..(target.actor.spec.label or target.id))
  local current=boxes[s.index];local automatic=not target.record[s.kind]
  s.info:SetText((s.kind=='collider'and'Walking footprints'or'Clickable volumes')..' · '..(automatic and'Automatic preview'or('Box '..s.index..' / '..#boxes))..'\n'..(current and enabled and current.enabled~=false and'Enabled'or'Disabled / empty')..' · '..(s.kind=='collider'and'Green: blocks walking; gaps remain open.'or'Blue: selects interactions; does not block walking.'))
- s.overlay:Show();local engine=target.row.engine;local width,height=engine.frame:GetWidth(),engine.frame:GetHeight();local used,handles=0,0
- local function project(p)local u,w=N.ProjectNative(engine.frame,engine.shot,p[1],p[2],p[3]);if u and u>=0 and u<=1 and w>=0 and w<=1 then return u*width,-w*height end end
+ s.overlay:Show();local engine=target.row.engine;local width,height=s.overlay:GetWidth(),s.overlay:GetHeight();local used,handles=0,0
+ local function project(p)local u,w=N.ProjectNative(engine.frame,engine.shot,p[1],p[2],p[3]);if u and u>=0 and u<=1 and w>=0 and w<=1 then return u*width,-w*height,u,w end end
  local function line(a,b,selected,on)
   local x,y=project(a);local xx,yy=project(b);if not x or not xx or not s.overlay.CreateLine then return end
   used=used+1;local l=s.lines[used]
@@ -186,11 +215,11 @@ function T.Draw(v)
   l:SetStartPoint('TOPLEFT',x,y);l:SetEndPoint('TOPLEFT',xx,yy);l:Show()
  end
  local function handle(b,index,face,label)
-  local point=T.Handle(b,face,s.kind);local x,y=project(point);if not x then return end
+  local point=T.Handle(b,face,s.kind);local x,y,u,q=project(point);if not x or T.Covered(engine.frame,u,q,{s.panel,e.panel and e.panel.frame})then return end
   handles=handles+1;local h=s.handles[handles]
   if not h then
    h=CreateFrame('Button',nil,s.overlay,'UIPanelButtonTemplate');h:SetSize(28,22);h:RegisterForClicks('LeftButtonDown','LeftButtonUp');h:RegisterForDrag('LeftButton')
-   h:SetScript('OnMouseDown',function(self,key)if key=='LeftButton'then if self.face=='select'then s.index=self.box else T.BeginDrag(v,self.box,self.face)end end end)
+   h:SetScript('OnMouseDown',function(self,key)if key=='LeftButton'then T.ReleaseTextFocus();if self.face=='select'then s.index=self.box else T.BeginDrag(v,self.box,self.face)end end end)
    h:SetScript('OnMouseUp',function(_,key)if key=='LeftButton'then T.EndDrag(v,false)end end)
    h:SetScript('OnDragStop',function()T.EndDrag(v,false)end);s.handles[handles]=h
   end

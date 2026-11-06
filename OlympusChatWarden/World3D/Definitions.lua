@@ -1,7 +1,7 @@
 -- One shipped neighborhood. square keeps the existing Live scene wire identity;
 -- the existing geometry digest rejects clients with different world definitions.
 local _,ns=...
-local F={VERSION=9,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
+local F={VERSION=10,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
 local C=ns.WardenRoomCatalogue
 F.homeDoor={side='negative-y',width=2.2,wallThickness=.2}
 F.bounds={-32,-24,32,34}

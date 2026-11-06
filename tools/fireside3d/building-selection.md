@@ -4,7 +4,7 @@
 
 `world/kalimdor/kalidar/passivedoodads/furbolgtent/furbolgtent.m2`
 
-Identity source: the existing [wowdev verified listfile](https://github.com/wowdev/wow-listfile). The user rendered and accepted this exact asset in Forever, so its catalog status is **USER_REPORTED_NATIVE_RENDER**. Candidate 9 retains it as the one default shelter. Its camp arrangement was subsequently accepted by the user with candidate 8. No scene asset or placement changes are made in candidate 9.
+Identity source: the existing [wowdev verified listfile](https://github.com/wowdev/wow-listfile). The user rendered and accepted this exact asset in Forever, so its catalog status is **USER_REPORTED_NATIVE_RENDER**. Candidate 10 retains it as the one default shelter. Its camp arrangement was subsequently accepted by the user with candidate 8. No scene asset or placement changes are made in candidate 10.
 
 The previous Night Elf tent, **328178**, is also user-reported working and remains in the existing editor catalog. It is not placed in the camp.
 
