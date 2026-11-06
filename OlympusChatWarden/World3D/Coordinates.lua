@@ -63,7 +63,7 @@ function W.FloorMap(frame,shot)
  local fx,fy,fz=target[1]-eye[1],target[2]-eye[2],target[3]-eye[3]
  local length=math.sqrt(fx*fx+fy*fy+fz*fz)
  if length<.0001 then return nil,'Degenerate camera direction' end
- return function(u,v)
+ local function map(u,v)
   local ar,ad,br,bd=a-u*g,b-u*h,d-v*g,e-v*h
   local determinant=ar*bd-ad*br;if math.abs(determinant)<1e-12 then return end
   local x,y=2*((u-c)*bd-ad*(v-f))/determinant,2*(ar*(v-f)-br*(u-c))/determinant
@@ -74,4 +74,6 @@ function W.FloorMap(frame,shot)
   if depth<=.01 then return end
   return x,y
  end
+ local sampleKey=string.format('%.6f:%.6f:%.6f:%.6f:%.6f:%.6f:%.6f:%.6f',x0,y0,x1,y1,x2,y2,x3,y3)
+ return map,nil,sampleKey
 end

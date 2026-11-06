@@ -6,13 +6,16 @@ for _,key in ipairs({'hall','square'})do assert(C.RegisterRoom(key,{label=key,la
 C.onRegister=function(key,d)ns.WardenWorldScenes.props[key]=d.props;ns.WardenWorldScenes.residents[key]=d.residents;ns.WardenWorldScenes.outside[key]=d.outside;ns.WardenWorldScenes.navigation[key]=d.navigation end
 load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Scene.lua')
 local F,N=ns.Fireside3D,ns.WardenNativeScene
-assert(#F.houses==0 and #F.buildingCandidates==6 and F.manualBuildingTests and F.PRIMARY=='square')
-assert(F.preferredBuilding.fileID==202016 and not F.preferredBuilding.layoutVerified,'the tent test must remain unverified')
+assert(#F.houses==1 and #F.buildingCandidates==6 and not F.manualBuildingTests and F.PRIMARY=='square')
+assert(F.preferredBuilding.fileID==202016 and F.preferredBuilding.renderEvidence=='USER_REPORT'and not F.preferredBuilding.layoutVerified,'user-confirmed render does not verify the new camp arrangement')
 local models={};for _,h in ipairs(F.buildingCandidates)do assert(not models[h.fileID],'each candidate must use a different model');models[h.fileID]=true;assert(N.ActorAllowed({roomKey='fireside-3d'},h),'manual Elwynn requests must remain allowed')end
 assert(models[106851]and models[106965]and models[106848]and models[107232],'only the requested Elwynn buildings may be selected')
-local d=C.Room('square');assert(d.world3D and d.reader and #d.plates==0 and #d.outside==0 and #d.flags==0 and d.layoutSlot=='fireside-3d-elwynn-manual')
-assert(d.navigation.automaticBuildings==false and #d.navigation.houseModels==0)
-for _,p in ipairs(d.props)do assert(not p.house3D and not F.BuildingCandidate(p.fileID),'no candidate may be requested by startup props')end
+local d=C.Room('square');assert(d.world3D and d.reader and #d.plates==0 and #d.outside==0 and #d.flags==0 and d.layoutSlot=='fireside-3d-camp8')
+assert(d.navigation.automaticBuildings==true and #d.navigation.houseModels==1 and d.navigation.houseModels[1]==202016)
+local placements={};local tents=0;local chairs=0
+for _,p in ipairs(d.props)do placements[p.id]=p;if F.BuildingCandidate(p.fileID)then assert(p.id=='player-home'and p.fileID==202016);tents=tents+1 end;if p.interaction=='chair'then chairs=chairs+1;assert((p.at[1])^2+(p.at[2]-6)^2>9,'chairs stay clear of fire')end end
+assert(tents==1 and chairs==4 and placements['player-home'].collision==false)
+assert(placements.desk.at[2]>12 and placements['shelf-right'].at[2]>12 and placements.firepit.at[2]==6,'furniture under shelter; fire in front')
 assert(C.Room('hall').layoutSlot=='hall','old layout metadata must remain recoverable')
 assert(#d.props+#d.residents+3+8<=N.MAX_ACTORS,'include existing eight Live peer slots in actor budget')
 local wall=F.HomeWalls({centerX=0,centerY=14,halfX=6,halfY=4,cos=1,sin=0})
@@ -35,8 +38,8 @@ local seat={id='chair',spec=seatSpec,ready=true,actor={Hide=function(self)self.h
 local interiors={actors={['player-home']=home,chair=seat},order={home,seat},Place=function(_,a,x,y,z)a.position={x,y,z}end,Error=function(_,a,why)a.failed=true;a.status=why end}
 home.engine=interiors;seat.engine=interiors
 local room={native=interiors};local realm={};realm.ActorReady=function(_,s,a)return F.ActorReady(realm,s,a)end
-F.ActorReady(realm,room,seat);assert(not seat.awaitHome and seat.position[1]==seatSpec.at[1],'furniture remains active in the open scene without a house')
-assert(F.HomeReady({native={actors={}}}),'manual building isolation must not gate the real Journal/chair/shelf')
+F.ActorReady(realm,room,seat);assert(not seat.awaitHome and seat.position[1]==seatSpec.at[1],'camp chairs remain outside and independent of tent readiness')
+assert(not F.HomeReady({native={actors={}}}),'shelter furniture waits for the confirmed tent to finish loading')
 local calls,messages={},{};ns.Print=function(message)messages[#messages+1]=message end
 local nativeProp={SetModelByFileID=function(_,id)calls[#calls+1]=id;return true end}
 local diagnostic=F.Coordinates.Bind({order={},metrics={moves=0},LoadProp=function(self,spec)
@@ -48,7 +51,7 @@ for i,h in ipairs(F.buildingCandidates)do
  assert(a.buildingAttempt.phase=='native request returned; waiting for bounds')
 end
 assert(#calls==6 and #messages==6,'no hard one-building limit, quarantine, replacement or duplicate request')
-local report=F.BuildingReport({native=diagnostic});assert(not report.visualVerified and report.automaticBuildings==false and #report.buildings==6 and report.lastAttempt.fileID==107232)
+local report=F.BuildingReport({native=diagnostic});assert(not report.visualVerified and report.automaticBuildings==true and #report.buildings==6 and report.lastAttempt.fileID==107232)
 ns.Print=nil
 local engine=F.Coordinates.Bind({metrics={moves=0}})
 local native={};function native:SetPosition(x,y,z)self.position={x,y,z}end
@@ -77,8 +80,8 @@ for _,r in ipairs(Fireside3DAssetIndex)do assert(F.Catalog.Compatible(r)or F.Cat
 assert(not F.Catalog.Compatible(rows[1])and F.Catalog.IsCandidate(rows[1]),'Elwynn WMO entries remain candidates, not compatible/verified props')
 assert(#F.Catalog.Search('','Elwynn buildings')==4,'all four buildings must remain available in the existing editor')
 local preferred=F.Catalog.Search('202016')[1]
-assert(preferred and preferred.fileID==202016 and preferred.preferredTest and preferred.format=='M2'and preferred.status=='M2_RENDER_UNVERIFIED'and preferred.layoutVerified==false,'searchable research metadata must distinguish the desired layout from proof')
-local known=F.Catalog.Search('328178')[1];assert(known and known.status=='USER_REPORTED_NATIVE_RENDER'and F.Catalog.Label(known):find('reported working',1,true),'retain user-confirmed tent separately from the new unverified candidate')
+assert(preferred and preferred.fileID==202016 and preferred.preferredTest and preferred.format=='M2'and preferred.status=='USER_REPORTED_NATIVE_RENDER'and preferred.layoutVerified==false,'searchable research metadata must distinguish the desired layout from proof')
+local known=F.Catalog.Search('328178')[1];assert(known and known.status=='USER_REPORTED_NATIVE_RENDER'and F.Catalog.Label(known):find('reported working',1,true),'retain the other user-confirmed tent')
 assert(#F.Catalog.Search('203656')==0 and #F.Catalog.Search('190430')==0,'remove rejected Arathi and swamp building references')
 assert(not F.Catalog.IsCandidate({fileID=106851,format='WMO',zone='Other zone',status='ELWYNN_WMO_RENDER_UNVERIFIED'}))
 assert(not F.Catalog.Compatible({format='M2',era='RETAIL'}),'retail housing must not appear in the Forever catalog')
@@ -100,8 +103,8 @@ added=nil;editor.active=false;assert(not F.Catalog.SpawnPreferred(view)and added
 editor.active=true;InCombatLockdown=function()return true end;assert(not F.Catalog.SpawnPreferred(view)and added==nil,'combat must retain input isolation')
 InCombatLockdown=function()return false end;editor.active=false
 ns.WardenSceneEditor=nil
-print('PASS: preferred tent reference remains unverified; manual shortcut reuses existing editor AddObject and guards')
-print('PASS: no automatic building requests, all four editor candidates retained, unchanged manual native loading with per-model diagnostics, active housing objects, fresh layout slot, logical collision, 360 placement, Live slots/codec/geometry and lazy editor selection')
+print('PASS: confirmed tent render distinguished from new camp placement; manual shortcut reuses existing editor AddObject and guards')
+print('PASS: one confirmed shelter, camp layout, all four manual WMO choices retained, unchanged manual native loading with per-model diagnostics, active housing objects, fresh layout slot, logical collision, 360 placement, Live slots/codec/geometry and lazy editor selection')
 -- Existing Live publisher: no handshake/transport is run. Verify manual movement
 -- uses the same M state/codec and coalescing, with a bounded six-Hz signature.
 ns.WardenRealm={Attach=function()return{}end};ns.WardenCanonicalPlayer={Save=function()return true end};ns.SafeCall=function(fn,...)if fn then return fn(...)end end

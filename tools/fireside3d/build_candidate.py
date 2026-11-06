@@ -3,7 +3,7 @@
 from pathlib import Path
 import argparse, hashlib, json, subprocess, zipfile
 BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'
-CANDIDATE='candidate7'
+CANDIDATE='candidate8'
 
 def tracked():
     return subprocess.check_output(['git','ls-files','-z']).decode().split('\0')[:-1]

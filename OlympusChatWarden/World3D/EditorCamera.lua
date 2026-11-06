@@ -10,11 +10,15 @@ function E.Active(v)
  return editor and editor.active and not editor.closing and F.IsScene(v:ActiveRoom())
   and(editor.scene==F.PRIMARY)and(not editor.Realm or editor.Realm()==v)or false
 end
+function E.DriverActive(v)return E.Active(v)and v.world3DEditSurface and v.world3DEditSurface:IsVisible()or false end
+function E.Surface(v)return E.DriverActive(v)and v.world3DEditSurface or v:ActiveRoom().groundClick end
 function E.Allowed(v,capturedLook)
  if not E.Active(v)or ns.UI2.locked or ns.MainStorageBlocked or InCombatLockdown()then return false end
  local editor=ns.WardenSceneEditor
  if editor.dragging or editor.popup and editor.popup:IsShown()then return false end
- return v.frame:IsVisible()and(capturedLook or v:ActiveRoom().groundClick:IsMouseOver())
+ local panel=editor.panel and editor.panel.frame
+ if not capturedLook and panel and panel:IsVisible()and panel:IsMouseOver()then return false end
+ return v.frame:IsVisible()and(capturedLook or E.Surface(v):IsMouseOver())
   and not(GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus())
 end
 function E.FollowView(v)
@@ -63,7 +67,7 @@ function E.Toolbar(v)
    local editor=ns.WardenSceneEditor;if editor and editor.Message then editor.Message(ok and'Model requested. Inspect the visible result before saving; rendering remains unverified.'or why)end
   end)
   local note=bar:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');note:SetPoint('TOPLEFT',8,-58)
-  note:SetText('Manual test: '..F.preferredBuilding.label..' ['..F.preferredBuilding.fileID..'] | Render unverified')
+  note:SetText('Asset: '..F.preferredBuilding.label..' ['..F.preferredBuilding.fileID..'] | '..(F.preferredBuilding.renderEvidence=='USER_REPORT'and'Reported working'or'Render unverified'))
   bar.addModelTest=add
  end
  v.world3DCameraBar=bar;return bar
@@ -75,8 +79,16 @@ function E.Tick(v,dt)
   return
  end
  local c=E.State(v);local bar=E.Toolbar(v)
- bar:SetFrameLevel(v:ActiveRoom().groundClick:GetFrameLevel()+4);bar:Show()
+ local surface=E.Surface(v)
+ if surface.GetFrameStrata and bar.SetFrameStrata then bar:SetFrameStrata(surface:GetFrameStrata())end
+ bar:SetFrameLevel(surface:GetFrameLevel()+1);bar:Show()
  if not E.Allowed(v,c.dragging)then c.keys={};c.dragging=false;return end
+ -- Modal focus can consume keyboard events before the gameplay frame sees
+ -- them. Poll only over the editor viewport, with the same form/focus guards.
+ if E.Allowed(v)and type(IsKeyDown)=='function'then for _,key in ipairs({'W','A','S','D','Q','E'})do c.keys[key]=IsKeyDown(key)==true or nil end end
+ local rightDown=IsMouseButtonDown('RightButton')
+ if E.Allowed(v)and rightDown and not c.rightWasDown and not c.dragging then c.dragging=true;c.x,c.y=GetCursorPosition()end
+ c.rightWasDown=rightDown
  F.Look(c,-1.50,1.50)
  if not E.Allowed(v)then c.keys={};return end
  local keys=c.keys;local forward=(keys.W and 1 or 0)-(keys.S and 1 or 0)
@@ -87,7 +99,39 @@ function E.Tick(v,dt)
  if length>0 then local step=(IsShiftKeyDown()and 24 or 8)*clamp(dt,0,.05)/length;translate(c,x*step,y*step,z*step)end
 end
 function E.Clear(v)
- local c=v.world3DEditCamera;if c then c.keys={};c.dragging=false end
+ local c=v.world3DEditCamera;if c then c.keys={};c.dragging=false;c.rightWasDown=false end
+end
+function E.SyncInput(v)
+ local surface=v.world3DEditSurface;if not surface then return end
+ local active=E.Active(v)and v.frame:IsVisible()
+ local editor=ns.WardenSceneEditor;local panel=editor and editor.panel and editor.panel.frame
+ if surface.SetFixedFrameStrata then surface:SetFixedFrameStrata(false)end
+ if surface.SetFixedFrameLevel then surface:SetFixedFrameLevel(false)end
+ surface:SetFrameStrata(panel and panel:GetFrameStrata()or'FULLSCREEN_DIALOG')
+ surface:SetFrameLevel(math.max(v.frame:GetFrameLevel()+1,panel and panel:GetFrameLevel()-4 or v:ActiveRoom().groundClick:GetFrameLevel()+10))
+ local usable=active and not(editor.dragging or editor.popup and editor.popup:IsShown())and not InCombatLockdown()and not ns.UI2.locked and not ns.MainStorageBlocked
+ surface:EnableMouse(usable==true);surface:EnableMouseWheel(usable==true);surface:EnableKeyboard(usable==true)
+ v.frame:EnableKeyboard(not active);surface:SetPropagateKeyboardInput(true)
+ if not usable then E.Clear(v)end
+ surface:SetShown(active==true)
+end
+function E.EnsureInput(v)
+ if v.world3DEditSurface then E.SyncInput(v);return v.world3DEditSurface end
+ local surface=CreateFrame('Button',nil,v.frame);v.world3DEditSurface=surface
+ surface:SetAllPoints(v:ActiveRoom().groundClick)
+ surface:RegisterForClicks('RightButtonDown','RightButtonUp');surface:RegisterForDrag('RightButton')
+ if surface.SetPropagateMouseClicks then surface:SetPropagateMouseClicks(false)end
+ if surface.SetPropagateMouseMotion then surface:SetPropagateMouseMotion(false)end
+ for name,handler in pairs(v.world3DHandlers)do surface:SetScript(name,handler)end
+ surface:SetScript('OnUpdate',function(_,dt)
+  E.SyncInput(v)
+  if not E.Active(v)then return end
+  E.Tick(v,dt)
+  local editor=ns.WardenSceneEditor
+  if not(editor.popup and editor.popup:IsShown())then F.Camera(v)end
+ end)
+ surface:HookScript('OnHide',function()E.Clear(v)end)
+ E.SyncInput(v);return surface
 end
 function E.BindExistingEditor()
  local editor=ns.WardenSceneEditor;if not editor or editor.fireside3DCameraBound or not editor.Open then return false end
@@ -103,8 +147,14 @@ function E.BindExistingEditor()
   if not ok then U.menuHidden=previous;return ok,why end
   if U.ApplyMenuState then U.ApplyMenuState()end
   local v=editor.Realm and editor.Realm()
-  if v and E.Active(v)then E.Reset(v);F.Camera(v)end
+  if v and E.Active(v)then E.Reset(v);E.EnsureInput(v);v:RefreshFieldInput();F.Camera(v)end
   return ok,why
  end
+ local close=editor.Close
+ if close then editor.Close=function(...)
+  local v=editor.Realm and editor.Realm();local result=close(...)
+  if v then E.SyncInput(v);E.Tick(v,0);v:RefreshFieldInput();F.Camera(v)end
+  return result
+ end end
  return true
 end

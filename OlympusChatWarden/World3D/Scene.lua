@@ -14,6 +14,7 @@ function F.Look(state,low,high)
  if not state.dragging then return end
  if not IsMouseButtonDown('RightButton')then state.dragging=false;return end
  local x,y=GetCursorPosition();local dx,dy=x-state.x,y-state.y
+ if dx==0 and dy==0 and type(GetMouseDelta)=='function'then local mx,my=GetMouseDelta();if type(mx)=='number'and type(my)=='number'then dx,dy=mx,my end end
  state.yaw=(state.yaw-dx*.006)%(2*pi);state.pitch=clamp(state.pitch+dy*.006,low,high)
  state.x,state.y=x,y;state.lastLookDelta={dx,dy}
 end
@@ -25,7 +26,7 @@ function F.ActorReady(v,s,a)
  if a.spec.house3D then
   local ok,loaded=N.Call(a.actor,'GetModelFileID')
   if N.BundledPlaceholder(a.bounds)or ok and type(loaded)=='number'and loaded>0 and loaded~=a.spec.fileID then
-   s.native:Error(a,'Elwynn building was replaced by a missing/other model; WMO rendering is unverified');return
+   s.native:Error(a,'Building was replaced by a missing/other model; inspect its native asset reference');return
   end
  end
  if a.spec.homeInterior and not F.HomeReady(s)then a.awaitHome=true;N.Call(a.actor,'Hide');return end
@@ -57,7 +58,7 @@ function F.BeginBuildingTest(spec)
  return trace
 end
 function F.BuildingReport(s)
- local out={zone='Manual scene assets',automaticBuildings=false,visualVerified=false,preferredTest=F.preferredBuilding,lastAttempt=F.lastBuildingAttempt,buildings={}}
+ local out={zone=F.campLayout and'Forest camp'or'Manual scene assets',automaticBuildings=not F.manualBuildingTests,visualVerified=false,preferredTest=F.preferredBuilding,lastAttempt=F.lastBuildingAttempt,buildings={}}
  for _,h in ipairs(F.buildingCandidates)do
   local instances={}
   for _,a in ipairs(s.native.order)do if a.spec.fileID==h.fileID and not a.retired then
@@ -68,6 +69,8 @@ function F.BuildingReport(s)
  return out
 end
 function F.BuildingNotice(v,s)
+ local home=s.native.actors['player-home']
+ if F.campLayout and not F.lastBuildingAttempt and not(home and home.failed)then if v.buildingNotice then v.buildingNotice:Hide()end;return end
  if not v.buildingNotice then
   local f=CreateFrame('Frame',nil,v.frame);f:SetPoint('BOTTOMLEFT',12,32);f:SetSize(640,44);f:SetFrameLevel(s.groundClick:GetFrameLevel()+3)
   local bg=f:CreateTexture(nil,'BACKGROUND');bg:SetAllPoints();bg:SetColorTexture(.035,.025,.015,.88)
@@ -75,9 +78,21 @@ function F.BuildingNotice(v,s)
  end
  local attempt=F.lastBuildingAttempt
  local text=attempt and('Model test #'..attempt.sequence..': '..attempt.label..' ['..attempt.fileID..'] — '..attempt.phase)
-  or'No automatic building loads. Use Add forest tent in the editor for Furbolg forest tent [202016]; inspect its entrance.'
+  or(home and home.failed and('Camp shelter [202016]: '..tostring(home.status)))
+  or'Use Add forest tent in the editor for another Furbolg forest tent [202016].'
  if v.buildingNotice.lastText~=text then v.buildingNotice.text:SetText(text);v.buildingNotice.lastText=text end
  v.buildingNotice:SetFrameLevel(s.groundClick:GetFrameLevel()+3);v.buildingNotice:Show()
+end
+function F.CameraKey(s,view)
+ local p,t=view.position,view.target;local frame=s.native.frame
+ return table.concat({p[1],p[2],p[3],t[1],t[2],t[3],view.fov or .85,frame:GetWidth(),frame:GetHeight(),frame:GetEffectiveScale()},':')
+end
+function F.ApplyCamera(s,view)
+ local key=F.CameraKey(s,view);local engine=s.native
+ if engine.world3DViewKey==key and engine.viewShot==engine.world3DLastView then return true end
+ local ok=N.ViewCamera(engine,view)
+ if ok then engine.world3DViewKey=key;engine.world3DLastView=engine.viewShot end
+ return ok
 end
 local function homeWalls(box)
  local out={};local t=F.homeDoor.wallThickness;local hx,hy=box.halfX,box.halfY;local door=math.min(F.homeDoor.width/2,hx*.65)
@@ -111,14 +126,14 @@ function F.Camera(v)
  local s=v:ActiveRoom();local input=v.world3DInput;if not input or not s.native.frame then return end
  if F.EditorCamera.Active(v)then
   v.nativeReadingScene=nil;v.readingCameraKey=nil
-  N.ViewCamera(s.native,F.EditorCamera.View(v))
+  F.ApplyCamera(s,F.EditorCamera.View(v))
  elseif v.shelfFocus then ns.WardenShelfShowcase.ApplyCamera(v,s.drawWidth/s.drawHeight)
  elseif v.journalReading or v.roomBookMotion or v.cameraMix>.001 then
   if ns.WardenReadingCamera then ns.WardenReadingCamera.Apply(v,s.drawWidth,s.drawHeight,v.cameraMix)end
  else
   v.nativeReadingScene=nil;v.readingCameraKey=nil
   local view=F.EditorCamera.FollowView(v)
-  N.ViewCamera(s.native,view);v.world3DWideShot=view
+  F.ApplyCamera(s,view);v.world3DWideShot=view
  end
  if s.background3D then s.background3D:SetLighting(v.timeOfDay or'day');s.background3D:Update(s.native.frame,s.shot)end
 end
@@ -161,33 +176,6 @@ local function clipPolygon(points,value,inside)
  return out
 end
 F.ClipPolygon=clipPolygon
-local function paths(v,s)
- s.paths3D=s.paths3D or{};local used=0
- local view=s.native.viewShot or s.shot;local eye,target=view.position,view.target
- local fx,fy,fz=target[1]-eye[1],target[2]-eye[2],target[3]-eye[3];local length=math.sqrt(fx*fx+fy*fy+fz*fz)
- local map=F.Coordinates.FloorMap(s.native.frame,s.shot)
- if map then for _,rect in ipairs({{-3,-24,3,9},{-29,-5,29,3}})do
-  local world={{rect[1],rect[2],0},{rect[3],rect[2],0},{rect[3],rect[4],0},{rect[1],rect[4],0}}
-  world=clipPolygon(world,function(p)return((p[1]-eye[1])*fx+(p[2]-eye[2])*fy+(p[3]-eye[3])*fz)/length-.05 end,function(n)return n>=0 end)
-  local polygon={}
-  for _,p in ipairs(world)do local u,w=N.ProjectNative(s.native.frame,s.shot,p[1],p[2],p[3]);if u then polygon[#polygon+1]={u,w}end end
-  for _,plane in ipairs({{1,0,1},{1,1,-1},{2,0,1},{2,1,-1}})do
-   if #polygon==0 then break end
-   polygon=clipPolygon(polygon,function(p)return(p[plane[1]]-plane[2])*plane[3]end,function(n)return n>=0 end)
-  end
-  for i=2,#polygon-1 do
-   local p,q,r=polygon[1],polygon[i],polygon[i+1]
-   local x,y=map(p[1],p[2]);local xx,yy=map(q[1],q[2]);local xxx,yyy=map(r[1],r[2])
-   if x and xx and xxx then
-    used=used+1;local t=s.paths3D[used]
-    if not t then t=s.frame:CreateTexture(nil,'ARTWORK',nil,2);t:SetTexture('Interface\\AddOns\\OlympusChatWarden\\Media\\WorldUI38\\Wood.tga','REPEAT','REPEAT','LINEAR');s.paths3D[used]=t end
-    ns.WardenComposition.Quad(t,s.frame,{p[1]*s.drawWidth,p[2]*s.drawHeight,q[1]*s.drawWidth,q[2]*s.drawHeight,r[1]*s.drawWidth,r[2]*s.drawHeight,r[1]*s.drawWidth,r[2]*s.drawHeight})
-    t:SetTexCoord(x/4,y/4,xxx/4,yyy/4,xx/4,yy/4,xxx/4,yyy/4);t:SetVertexColor(.65,.6,.5,1);t:Show()
-   end
-  end
- end end
- for i=used+1,#s.paths3D do s.paths3D[i]:Hide()end
-end
 -- Render interpolation for already-validated, zero-duration Live movement states.
 -- Uses the existing collision/path helpers; this is not a transport or authority path.
 function F.StepRemote(v,s,a,dt)
@@ -248,10 +236,10 @@ function F.Advance(v,elapsed)
   a.manualMovement=moved
   if not a.route and not a.seating then s.native:Animate(a,moved and 4 or 0,1)end
  else if input then input.keys={};if not F.PlayCameraAllowed(v)then input.dragging=false end end;if a then a.manualMovement=false end end
- F.EditorCamera.Tick(v,dt)
+ if not F.EditorCamera.DriverActive(v)then F.EditorCamera.Tick(v,dt)end
  local W=ns.AetherLive and ns.AetherLive.World
  if W and not W.active and not(editor and editor.active)then for _,def in ipairs(W.NPCs)do if def.scene==s.key then W.NPC(v,s,def,dt)end end end
- F.Camera(v);paths(v,s);F.Pose(v,ns.DB.journalReducedMotion~=true)
+ if not F.EditorCamera.DriverActive(v)then F.Camera(v)end;F.Pose(v,ns.DB.journalReducedMotion~=true)
  F.BuildingNotice(v,s)
  for _,actor in ipairs(s.native.order)do if actor.ready and not(actor.retired or actor.editorHidden or actor.sceneHidden)then F.Shadow(v,s,actor)end end
 end
@@ -277,23 +265,25 @@ function F.BindInput(v,U)
   if floor.SetFixedFrameLevel then floor:SetFixedFrameLevel(true)end
  end
  function v:RefreshFieldInput()
-  s.groundClick:SetShown(s.active);s.groundClick:EnableMouse(EC.Active(self)or U.menuHidden and not self.shelfFocus and not self.journalReading and not self.roomBookMotion)
-  self:StackFieldInput()
+  local enabled=s.active and U.menuHidden and not EC.Active(self)and not self.shelfFocus and not self.journalReading and not self.roomBookMotion
+  s.groundClick:SetShown(enabled==true);s.groundClick:EnableMouse(enabled==true);s.groundClick:EnableMouseWheel(enabled==true)
+  if enabled then self:StackFieldInput()else clear()end
+  if self.world3DEditSurface then EC.SyncInput(self)end
  end
  v.frame:EnableKeyboard(true);v.frame:SetPropagateKeyboardInput(true)
- v.frame:SetScript('OnKeyDown',function(_,key)
+ v.frame:SetScript('OnKeyDown',function(receiver,key)
   if EC.Active(v)then
    local capture=EC.Allowed(v)and(key=='W'or key=='A'or key=='S'or key=='D'or key=='Q'or key=='E')
-   v.frame:SetPropagateKeyboardInput(not capture)
+   receiver:SetPropagateKeyboardInput(not capture)
    if capture then EC.State(v).keys[key]=true end
    return
   end
   local capture=not U.locked and not ns.MainStorageBlocked and U.menuHidden and s.groundClick:IsMouseOver()and not(v.shelfFocus or v.journalReading or v.roomBookMotion)and not(ns.WardenSceneEditor and ns.WardenSceneEditor.active)and not InCombatLockdown()and not(GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus())and(key=='W'or key=='A'or key=='S'or key=='D')
-  v.frame:SetPropagateKeyboardInput(not capture);if capture then input.keys[key]=true end
+  receiver:SetPropagateKeyboardInput(not capture);if capture then input.keys[key]=true end
  end)
- v.frame:SetScript('OnKeyUp',function(_,key)
+ v.frame:SetScript('OnKeyUp',function(receiver,key)
   local c=v.world3DEditCamera;local held=input.keys[key]or c and c.keys[key];input.keys[key]=nil;if c then c.keys[key]=nil end
-  v.frame:SetPropagateKeyboardInput(not held)
+  receiver:SetPropagateKeyboardInput(not held)
  end)
  local function begin(source)
   local state
@@ -317,13 +307,15 @@ function F.BindInput(v,U)
   if EC.Active(v)then EC.Scroll(v,delta)
   elseif U.menuHidden and not U.locked and not ns.MainStorageBlocked and not InCombatLockdown()then input.distance=clamp(input.distance-delta,2,55)end
  end)
- s.groundClick:SetScript('OnLeave',function()
+ s.groundClick:SetScript('OnLeave',function(receiver)
   -- A captured right drag may leave the floor rectangle. Release keys there;
   -- release look on button-up, hide, combat or a blocking editor form.
   input.keys={};local c=v.world3DEditCamera;if c then c.keys={}end
-  if not IsMouseButtonDown('RightButton')then finish()end;v.frame:SetPropagateKeyboardInput(true)
+  if not IsMouseButtonDown('RightButton')then finish()end;(receiver or v.frame):SetPropagateKeyboardInput(true)
  end)
  v.frame:HookScript('OnHide',clear)
+ v.world3DHandlers={OnKeyDown=v.frame:GetScript('OnKeyDown'),OnKeyUp=v.frame:GetScript('OnKeyUp')}
+ for _,name in ipairs({'OnMouseDown','OnMouseUp','OnDragStart','OnDragStop','OnMouseWheel','OnLeave'})do v.world3DHandlers[name]=s.groundClick:GetScript(name)end
  function v:CursorSceneClick(scene,source)
   local scale=scene.frame:GetEffectiveScale();local x,y=GetCursorPosition();local left,top=scene.frame:GetLeft(),scene.frame:GetTop()
   if not left or not top or scale<=0 then return false,'Scene viewport unavailable'end
@@ -331,4 +323,5 @@ function F.BindInput(v,U)
   local ok,why=self:ClickScene(scene,u,q);self.lastWalkStatus=ok and'Character interaction'or why
   self.lastSceneClick={scene=scene.key,u=u,v=q,accepted=ok==true,reason=why,source=source};return ok,why
  end
+ v:RefreshFieldInput()
 end

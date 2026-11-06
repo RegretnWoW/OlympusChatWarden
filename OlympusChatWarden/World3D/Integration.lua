@@ -48,7 +48,7 @@ ns.WardenRealm.Attach=function(...)
   return shelf.Open(v)
  end
  local function approach(id)
-  if not F.HomeReady(s)then return false,'Goldshire Inn must load before using its interior objects'end
+  if not F.HomeReady(s)then return false,'Wait for the camp shelter before using its furniture'end
   local a=s.native.actors.attendant;local prop=s.native.actors[id]
   if not a or not a.ready or not prop or not prop.ready then return false,'Wait for the object and your character'end
   if a.seating then return v:LeavePlayerSeat(s,a)end
@@ -89,7 +89,7 @@ ns.WardenRealm.Attach=function(...)
  end
  local report=v.Report
  v.Report=function(self,...)
-  local out=report(self,...);out.fireside3D={version=F.VERSION,scene=F.PRIMARY,coordinateSpace='world XYZ',instances=#self:Scenes(),houses=#F.houses,nativeViewportCount=1,legacyTravel=false,base=F.BASE,visualQualification='Manual Elwynn building isolation; no native crash diagnosis claimed',colliderQualification='No automatic building shell; manually placed objects use the existing editor collider',elwynn=F.BuildingReport(self:ActiveRoom()),rightDragStarts=self.world3DInput.rightDragStarts,lastDragSource=self.world3DInput.lastDragSource};return out
+  local out=report(self,...);out.fireside3D={version=F.VERSION,scene=F.PRIMARY,coordinateSpace='world XYZ',instances=#self:Scenes(),houses=#F.houses,nativeViewportCount=1,legacyTravel=false,base=F.BASE,visualQualification='User-reported working Furbolg tent; camp placement needs client review',colliderQualification='Open tent shell has no box collider; furniture uses existing collision',elwynn=F.BuildingReport(self:ActiveRoom()),rightDragStarts=self.world3DInput.rightDragStarts,lastDragSource=self.world3DInput.lastDragSource};return out
  end
  F.Catalog.BindExistingEditor()
  F.EditorCamera.BindExistingEditor()
@@ -116,9 +116,9 @@ U.Hearth=function()
  if InCombatLockdown()then return false,'Walk home after combat'end
  U.Ensure();local v=U.realm;local s=v:ActiveRoom();local a=s.native.actors.attendant;local home=s.native.actors['player-home']
  if not a or not a.ready then return false,'Wait for your character'end
- if not F.manualBuildingTests and(not home or not home.ready or home.failed)then return false,'Wait for your home; check the Elwynn building load status'end
+ if not F.manualBuildingTests and(not home or not home.ready or home.failed)then return false,'Wait for the camp shelter to finish loading'end
  local target=F.homeSite;local y=target[2]-10
- if home and home.ready and not home.failed then local box=N.Footprint(s.shot,home);target=home.position;y=box.near-1 end
+ if home and home.ready and not home.failed then local box=ns.WardenSceneObjectControls.LocalBox(s.shot,home,{});target=home.position;y=box.near-1 end
  local nav,why=v:GroundNavigation(s,a);if not nav then return false,why end
  local path;path,why=N.WalkPath(a.position,target[1],y,nav);if not path then return false,why end
  a.pendingInteraction=nil;local ok;ok,why=s.native:Route(a,path,math.max(2,path.length/4),4,nav)

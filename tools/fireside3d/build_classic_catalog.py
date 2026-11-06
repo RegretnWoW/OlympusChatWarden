@@ -46,7 +46,7 @@ def main():
         if row['fileID'] == 328178:
             row.update(layoutVerified=False, requestedLayout='stock native M2 tent', renderEvidence='USER_REPORT')
         if row['fileID'] == 202016:
-            row.update(preferredTest=True, layoutVerified=False, requestedLayout='woodland forest tent open entrance')
+            row.update(preferredTest=True, layoutVerified=False, requestedLayout='woodland forest tent open entrance', renderEvidence='USER_REPORT')
         rows.append(row)
     def lua(row):
         return '{' + ','.join('[' + json.dumps(k) + ']=' + json.dumps(v) for k, v in row.items()) + '}'

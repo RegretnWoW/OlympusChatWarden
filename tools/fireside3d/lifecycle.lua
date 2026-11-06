@@ -18,6 +18,7 @@ function methods:RegisterForDrag(...)self.dragButtons={...}end
 function methods:CreateTexture()return frame(self)end
 function methods:CreateFontString()return frame(self)end
 function methods:SetScript(k,v)self.scripts[k]=v end
+function methods:GetScript(k)return self.scripts[k]end
 function methods:HookScript(k,v)local before=self.scripts[k];self.scripts[k]=function(...)if before then before(...)end;return v(...)end end
 function methods:Show()self.visible=true end
 function methods:Hide()self.visible=false end
@@ -79,7 +80,8 @@ assert(v.forest.key=='square'and v.forest.nativeAir.frame==nil and v.forest.nati
 v:Select({page='overview'},false,true)
 assert(count==1 and not U.journalHost,'landing should not construct old scenes or the real reader')
 assert(#v.forest.native.order==#ns.Fireside3D.props+1,'only neighborhood props and one controlled player requested')
-for _,a in ipairs(v.forest.native.order)do assert(not ns.Fireside3D.BuildingCandidate(a.spec.fileID),'real startup lifecycle must not request any Elwynn WMO')end
+local tents=0;for _,a in ipairs(v.forest.native.order)do if ns.Fireside3D.BuildingCandidate(a.spec.fileID)then assert(a.id=='player-home'and a.spec.fileID==202016,'only the user-confirmed tent can start automatically');tents=tents+1 end end
+assert(tents==1,'exactly one camp shelter')
 assert(#C.Rooms()==1 and #C.Connections('square')==0)
 v:Advance(.016)
 print('PASS: real realm constructor/selection/update at recorded API boundaries; one native viewport, no Fields/Home/Town instance or travel links, lazy real Journal')

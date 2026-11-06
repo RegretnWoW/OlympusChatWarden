@@ -1,13 +1,13 @@
-# Forest tent selection
+# Camp shelter selection
 
-New single candidate: **Furbolg forest tent, FileDataID 202016**.
+**Furbolg forest tent — FileDataID 202016 — native M2**
 
-Exact native M2 reference: `world/kalimdor/kalidar/passivedoodads/furbolgtent/furbolgtent.m2`.
+`world/kalimdor/kalidar/passivedoodads/furbolgtent/furbolgtent.m2`
 
-Source: existing public wowdev verified listfile, https://github.com/wowdev/wow-listfile . This is an older Kalidar/Teldrassil forest-creature shelter reference rather than a Night Elf architectural tent. A listfile resolves the model identity, not its actual entrance geometry or installed/native rendering availability.
+Identity source: the existing [wowdev verified listfile](https://github.com/wowdev/wow-listfile). The user rendered and accepted this exact asset in Forever, so its catalog status is **USER_REPORTED_NATIVE_RENDER**. Candidate 8 uses it as the one default shelter. Its newly authored scale, orientation and furniture arrangement are not yet verified in the client.
 
-[Style-reference image search](https://www.google.com/search?tbm=isch&q=WoW+Teldrassil+furbolg+tent) is provided for review; it is not a verified render of this exact FileDataID. No generated image or unverified viewer URL is presented as proof.
+The previous Night Elf tent, **328178**, is also user-reported working and remains in the existing editor catalog. It is not placed in the camp.
 
-User-confirmed control: Night Elf tent 328178, `world/generic/nightelf/passive doodads/tent/nightelfsingletent01.m2`, rendered successfully in the user's client. It stays in the asset list with a reported-working label. The new model remains unverified.
+The four older Elwynn WMO entries remain manually available, labeled **ELWYNN_WMO_RENDER_UNVERIFIED**. They are not part of startup. No additional asset research, unknown model requests, model scanner or converted MDX is introduced.
 
-Use Add forest tent in the existing editor for the one manual test. Check a visible opening, roof/enclosure and whether its forest style suits the scene. Decoration collision is off for inspection, so movement through a wall does not establish an entrance. Keep the layout unsaved until it is accepted. The native M2 loading method and startup scene are unchanged; no WMO, converted MDX, new renderer or automatic retries are involved in this new test.
+The existing editor's **Add forest tent** action still adds another 202016 only when clicked, using the existing AddObject/native M2 loader with a 3.2-unit preview height and decoration collision. It is optional; the default camp shelter is already present. No automatic retries or spawn loops are added.
