@@ -1,0 +1,8 @@
+## Interface: 16001
+## Title: Fireside Recovery Store
+## Notes: Local recovery checkpoints for Fireside. No networking or gameplay hooks.
+## Author: Regretn
+## Version: 1.1.4-unified-2.11.8-integrated92-live1
+## SavedVariables: FiresideRecoveryDB
+
+Recovery.lua
