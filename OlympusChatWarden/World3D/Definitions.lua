@@ -1,15 +1,16 @@
 -- One shipped neighborhood. square keeps the existing Live scene wire identity;
 -- the existing geometry digest rejects clients with different world definitions.
 local _,ns=...
-local F={VERSION=5,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
+local F={VERSION=6,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
 local C=ns.WardenRoomCatalogue
 F.homeDoor={side='negative-y',width=2.2,wallThickness=.2}
 F.bounds={-40,-34,40,42}
 -- Keep every Elwynn choice available for owner-driven isolation. No building
 -- is requested automatically and no new quarantine or native API block is added.
 F.manualBuildingTests=true;F.homeSite={0,23,0};F.houses={}
-F.preferredBuilding={fileID=106965,label='Elwynn farmhouse',height=7,desiredLayout='One storey, one room, one entrance',layoutVerified=false}
+F.preferredBuilding={fileID=328178,label='Night Elf tent',height=3.2,buttonLabel='Add tent test',desiredLayout='Native M2 tent preview',layoutVerified=false}
 F.buildingCandidates={
+ {id='test-tent',fileID=328178,label='Night Elf tent',width=6,at={0,23,0}},
  {id='house-west',fileID=106965,label='Elwynn farmhouse',width=14,at={-26,12,0}},
  {id='player-home',fileID=106851,label='Goldshire Inn',width=24,at={0,23,0}},
  {id='house-east',fileID=106848,label='Goldshire blacksmith',width=14,at={26,12,0}},

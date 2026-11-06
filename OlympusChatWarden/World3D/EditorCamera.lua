@@ -57,14 +57,14 @@ function E.Toolbar(v)
  local reset=CreateFrame('Button',nil,bar,'UIPanelButtonTemplate');reset:SetPoint('TOPLEFT',8,-29);reset:SetSize(112,22);reset:SetText('Reset camera')
  reset:SetScript('OnClick',function()E.Reset(v)end)
  if F.preferredBuilding then
-  local add=CreateFrame('Button',nil,bar,'UIPanelButtonTemplate');add:SetPoint('TOPLEFT',128,-29);add:SetSize(170,22);add:SetText('Add farmhouse test')
+  local add=CreateFrame('Button',nil,bar,'UIPanelButtonTemplate');add:SetPoint('TOPLEFT',128,-29);add:SetSize(170,22);add:SetText(F.preferredBuilding.buttonLabel or'Add model test')
   add:SetScript('OnClick',function()
    local ok,why=F.Catalog.SpawnPreferred(v)
-   local editor=ns.WardenSceneEditor;if editor and editor.Message then editor.Message(ok and'Farmhouse requested. Check one floor, one room and one entrance; rendering/layout remain unverified.'or why)end
+   local editor=ns.WardenSceneEditor;if editor and editor.Message then editor.Message(ok and'Model requested. Inspect the visible result before saving; rendering remains unverified.'or why)end
   end)
   local note=bar:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');note:SetPoint('TOPLEFT',8,-58)
-  note:SetText('Preferred home test: Elwynn farmhouse [106965] | Layout unverified')
-  bar.addFarmhouse=add
+  note:SetText('Manual test: '..F.preferredBuilding.label..' ['..F.preferredBuilding.fileID..'] | Render unverified')
+  bar.addModelTest=add
  end
  v.world3DCameraBar=bar;return bar
 end

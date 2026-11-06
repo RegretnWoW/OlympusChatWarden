@@ -31,18 +31,20 @@ def main():
                 farm_groups[int(number)] = path
     assert found == expected, 'An explicit model ID/path mapping is absent or has changed'
     assert farm_groups == {106966:farm_stem+'000.wmo',106967:farm_stem+'001.wmo'}, 'Farm group-file research needs review'
-    selected.sort(key=lambda r: int(r['fileID']) != 106965)
+    selected.sort(key=lambda r: int(r['fileID']) != 328178)
     rows = []
     for r in selected:
         fmt = r['path'].rsplit('.', 1)[1].upper()
-        assert r['era'] in {'CLASSIC', 'FOREVER_REFERENCE'}
+        assert r['era'] in {'CLASSIC', 'FOREVER_REFERENCE'} or (r['era']=='LEGACY' and int(r['fileID'])==328178)
         assert fmt == 'M2' or (fmt == 'WMO' and r['zone'] == 'Elwynn Forest'
                                and r['status'] == 'ELWYNN_WMO_RENDER_UNVERIFIED'
                                and int(r['fileID']) in {106851,106965,106848,107232})
         row = dict(r, fileID=int(r['fileID']), height=float(r['height']), format=fmt)
         if row['fileID'] == 106965:
-            row.update(preferredTest=True, requestedLayout='one storey one room one entrance', layoutVerified=False,
+            row.update(requestedLayout='one storey one room one entrance', layoutVerified=False,
                        listfileGroupCount=len(farm_groups), groupFileIDs='106966,106967')
+        if row['fileID'] == 328178:
+            row.update(preferredTest=True, layoutVerified=False, requestedLayout='stock native M2 tent')
         rows.append(row)
     def lua(row):
         return '{' + ','.join('[' + json.dumps(k) + ']=' + json.dumps(v) for k, v in row.items()) + '}'

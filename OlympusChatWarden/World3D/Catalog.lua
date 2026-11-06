@@ -5,6 +5,7 @@ function C.Compatible(r)
  return type(r)=='table'and r.format=='M2'and(r.era=='CLASSIC'or r.era=='FOREVER_REFERENCE')
 end
 function C.IsCandidate(r)
+ if type(r)=='table'and r.fileID==328178 and r.format=='M2'and r.status=='M2_RENDER_UNVERIFIED'then return true end
  local elwynn={[106851]=true,[106965]=true,[106848]=true,[107232]=true}
  return type(r)=='table'and r.format=='WMO'and r.zone=='Elwynn Forest'
   and elwynn[r.fileID]and r.status=='ELWYNN_WMO_RENDER_UNVERIFIED'or false
@@ -20,7 +21,7 @@ function C.Load()
  C.rows=compatible;return compatible
 end
 function C.Label(r)
- if r.preferredTest then return r.label..' (small home test; unverified)'end
+ if r.preferredTest then return r.label..' (M2 test; unverified)'end
  if C.IsCandidate(r)then return r.label..' (Elwynn WMO; unverified)'end
  return r.label..(r.era=='CLASSIC'and' (Classic M2)'or' (existing Forever reference)')
 end

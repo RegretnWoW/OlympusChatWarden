@@ -1,6 +1,6 @@
 -- Exercise the actual scene input adapter and native camera calls at recorded
 -- API boundaries. No private addon, network or saved state is executed.
-local ns={UI2={menuHidden=true},Fireside3D={PRIMARY='square',preferredBuilding={fileID=106965}},WardenRoomCatalogue={HasRoom=function(k)return k=='hall'or k=='study'or k=='square'end}}
+local ns={UI2={menuHidden=true},Fireside3D={PRIMARY='square',preferredBuilding={fileID=328178,label='Night Elf tent',buttonLabel='Add tent test'}},WardenRoomCatalogue={HasRoom=function(k)return k=='hall'or k=='study'or k=='square'end}}
 local function load(p)return assert(loadfile('OlympusChatWarden/'..p))('test',ns)end
 local methods={};local mt={__index=methods}
 local function frame()return setmetatable({scripts={},visible=true,hover=true},mt)end
@@ -36,7 +36,7 @@ IsMouseButtonDown=function()return mouse end
 GetCursorPosition=function()return cursorX,cursorY end
 load('WardenNativeScene.lua');load('World3D/Scene.lua');load('World3D/EditorCamera.lua')
 local F,N=ns.Fireside3D,ns.WardenNativeScene;local EC=F.EditorCamera
-local farmhouseClicks=0;F.Catalog={SpawnPreferred=function()farmhouseClicks=farmhouseClicks+1;return true end}
+local tentClicks=0;F.Catalog={SpawnPreferred=function()tentClicks=tentClicks+1;return true end}
 F.IsScene=function(s)return s.definition.world3D==true end
 local player={ready=true,position={0,-7,0},scale=1.85}
 local engine={actors={attendant=player},frame=frame(),shot={position={0,-18,8},target={0,0,1},fov=.85}}
@@ -68,8 +68,8 @@ local function distance(a,b)return math.sqrt((a[1]-b[1])^2+(a[2]-b[2])^2+(a[3]-b
 local function copy(p)return{p[1],p[2],p[3]}end
 local c=EC.State(v);local start=copy(c.position)
 key('W',true);assert(v.frame.propagate==false);EC.Tick(v,.05);assert(math.abs(distance(start,c.position)-.4)<1e-8)
-assert(v.world3DCameraBar.addFarmhouse and farmhouseClicks==0,'opening/moving the editor cannot automatically spawn the preferred building')
-v.world3DCameraBar.addFarmhouse.scripts.OnClick();assert(farmhouseClicks==1,'only the explicit farmhouse button invokes the preferred existing-editor action')
+assert(v.world3DCameraBar.addModelTest and tentClicks==0,'opening/moving the editor cannot automatically spawn the preferred building')
+v.world3DCameraBar.addModelTest.scripts.OnClick();assert(tentClicks==1,'only the explicit tent button invokes the preferred existing-editor action')
 key('W',false);assert(not v.frame.propagate and not c.keys.W,'release the held camera key without forwarding its key-up to WoW')
 shift=true;start=copy(c.position);key('D',true);EC.Tick(v,.05);key('D',false)
 assert(math.abs(distance(start,c.position)-1.2)<1e-8,'Shift camera movement is three times normal speed');shift=false

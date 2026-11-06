@@ -41,7 +41,7 @@ function F.ActorReady(v,s,a)
  a.engine:Place(a,p[1],p[2],p[3],a.spec.worldYaw or a.spec.yaw or 0)
  if a.buildingAttempt then
   a.buildingAttempt.phase='native bounds ready; inspect rendering in client'
-  if ns.Print then ns.Print('Elwynn test #'..a.buildingAttempt.sequence..': '..a.buildingAttempt.label..' ['..a.spec.fileID..'] has native bounds; rendering is not yet verified.')end
+  if ns.Print then ns.Print('Model test #'..a.buildingAttempt.sequence..': '..a.buildingAttempt.label..' ['..a.spec.fileID..'] has native bounds; rendering is not yet verified.')end
  end
  if a.spec.controlled then v:EnsurePlayerSpawn(s,a)end
  if a.id=='room-book'then a.engine:Animate(a,147,1)end
@@ -53,17 +53,17 @@ function F.BeginBuildingTest(spec)
  F.buildingTestSequence=(F.buildingTestSequence or 0)+1
  local trace={sequence=F.buildingTestSequence,fileID=spec.fileID,label=candidate.label,slot=spec.id,phase='entering existing native prop loader'}
  F.lastBuildingAttempt=trace
- if ns.Print then ns.Print('Elwynn test #'..trace.sequence..': requesting '..trace.label..' ['..trace.fileID..'] in '..tostring(trace.slot)..'.')end
+ if ns.Print then ns.Print('Model test #'..trace.sequence..': requesting '..trace.label..' ['..trace.fileID..'] in '..tostring(trace.slot)..'.')end
  return trace
 end
 function F.BuildingReport(s)
- local out={zone='Elwynn Forest',automaticBuildings=false,visualVerified=false,preferredTest=F.preferredBuilding,lastAttempt=F.lastBuildingAttempt,buildings={}}
+ local out={zone='Manual scene assets',automaticBuildings=false,visualVerified=false,preferredTest=F.preferredBuilding,lastAttempt=F.lastBuildingAttempt,buildings={}}
  for _,h in ipairs(F.buildingCandidates)do
   local instances={}
   for _,a in ipairs(s.native.order)do if a.spec.fileID==h.fileID and not a.retired then
    instances[#instances+1]={slot=a.id,status=a.failed and a.status or a.ready and'bounds ready; inspect visible model'or'loading'}
   end end
-  out.buildings[#out.buildings+1]={fileID=h.fileID,label=h.label,format='WMO',instances=instances,status=#instances==0 and'not spawned'or'manually placed'}
+  out.buildings[#out.buildings+1]={fileID=h.fileID,label=h.label,format=h.fileID==328178 and'M2'or'WMO',instances=instances,status=#instances==0 and'not spawned'or'manually placed'}
  end
  return out
 end
@@ -74,8 +74,8 @@ function F.BuildingNotice(v,s)
   f.text=f:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');f.text:SetPoint('TOPLEFT',8,-7);f.text:SetPoint('BOTTOMRIGHT',-8,7);f.text:SetJustifyH('LEFT');v.buildingNotice=f
  end
  local attempt=F.lastBuildingAttempt
- local text=attempt and('Elwynn test #'..attempt.sequence..': '..attempt.label..' ['..attempt.fileID..'] — '..attempt.phase)
-  or'Buildings are not loaded automatically. Next home test: Elwynn farmhouse [106965], using Add farmhouse test in the editor.'
+ local text=attempt and('Model test #'..attempt.sequence..': '..attempt.label..' ['..attempt.fileID..'] — '..attempt.phase)
+  or'No automatic building loads. Use Add tent test in the editor for Night Elf tent [328178], a stock M2 reference.'
  if v.buildingNotice.lastText~=text then v.buildingNotice.text:SetText(text);v.buildingNotice.lastText=text end
  v.buildingNotice:SetFrameLevel(s.groundClick:GetFrameLevel()+3);v.buildingNotice:Show()
 end
