@@ -1,30 +1,13 @@
 diff --git a/Fireside3DExperiment/Background.lua b/Fireside3DExperiment/Background.lua
 new file mode 100644
-index 0000000..73848eb
+index 0000000..fb9254c
 --- /dev/null
 +++ b/Fireside3DExperiment/Background.lua
-@@ -0,0 +1,66 @@
-+-- Presentation behind the unchanged native actor scene. No database or world rendering hooks.
+@@ -0,0 +1,49 @@
++-- World-plane presentation behind the native actor scene. No database or world rendering hooks.
 +local _,ns=...
 +local B={};ns.ExperimentBackground=B
 +local root='Interface\\AddOns\\Fireside3DExperiment\\Media\\'
-+local function basis(view)
-+    local p,t=view.position,view.target
-+    local x,y,z=t[1]-p[1],t[2]-p[2],t[3]-p[3]
-+    local length=math.sqrt(x*x+y*y+z*z);x,y,z=x/length,y/length,z/length
-+    local h=math.sqrt(x*x+y*y)
-+    return {x,y,z},{y/h,-x/h,0},{-z*x/h,-z*y/h,h}
-+end
-+-- Inverse of WardenNativeScene.Project for the same shot/FOV/aspect, intersecting Z=0.
-+-- This is only a textured presentation plane; actors keep their native shared depth buffer.
-+function B.GroundPoint(view,u,v,aspect)
-+    local f,r,up=basis(view);local lens=math.tan(view.fov*.5)
-+    local sx,sy=(2*u-1)*lens*aspect,(1-2*v)*lens
-+    local dx,dy,dz=f[1]+r[1]*sx+up[1]*sy,f[2]+r[2]*sx+up[2]*sy,f[3]+up[3]*sy
-+    if dz>=-1e-6 or view.position[3]<=0 then return end
-+    local distance=-view.position[3]/dz
-+    return view.position[1]+dx*distance,view.position[2]+dy*distance
-+end
 +function B.New(viewport)
 +    local self={viewport=viewport,rows={}}
 +    viewport:SetClipsChildren(true)
@@ -45,22 +28,22 @@ index 0000000..73848eb
 +        texture:SetTexture(root..'Ground.tga','REPEAT','REPEAT','LINEAR')
 +        self.rows[i]={texture=texture,under=under}
 +    end
-+    function self:Update(view)
++    function self:Update(frame,shot)
 +        local w,h=viewport:GetWidth(),viewport:GetHeight()
 +        if w<1 or h<1 then return end
 +        clouds:SetHeight(h*.48)
-+        local f,_,up=basis(view)
-+        local horizon=(1+f[3]/(up[3]*math.tan(view.fov*.5)))*.5
-+        local top=math.max(0,horizon+.008)
++        local map,why=ns.ExperimentWorldSpace.FloorMap(frame,shot)
++        self.registration=map and 'native world Z=0 projection' or why
++        local top=0
 +        local count=#self.rows
 +        for i,row in ipairs(self.rows) do
 +            local a=top+(1-top)*(i-1)/count;local b=top+(1-top)*i/count
-+            local x1,y1=B.GroundPoint(view,0,a,w/h);local x2,y2=B.GroundPoint(view,1,a,w/h)
-+            local x3,y3=B.GroundPoint(view,0,b,w/h);local x4,y4=B.GroundPoint(view,1,b,w/h)
++            local x1,y1,x2,y2,x3,y3,x4,y4
++            if map then x1,y1=map(0,a);x2,y2=map(1,a);x3,y3=map(0,b);x4,y4=map(1,b) end
 +            if top<1 and x1 and x2 and x3 and x4 then
 +                for _,t in ipairs({row.under,row.texture}) do
 +                    t:ClearAllPoints();t:SetPoint('TOPLEFT',viewport,'TOPLEFT',0,-a*h)
-+                    t:SetSize(w,(b-a)*h+.25);t:Show()
++                    t:SetSize(w,(b-a)*h);t:Show()
 +                end
 +                -- Keep UVs near zero without changing repetition phase (4 world units/tile).
 +                local ox,oy=math.floor(x1/4),math.floor(y1/4)
@@ -72,10 +55,10 @@ index 0000000..73848eb
 +end
 diff --git a/Fireside3DExperiment/Checks.lua b/Fireside3DExperiment/Checks.lua
 new file mode 100644
-index 0000000..ea63591
+index 0000000..f2ce6b6
 --- /dev/null
 +++ b/Fireside3DExperiment/Checks.lua
-@@ -0,0 +1,85 @@
+@@ -0,0 +1,130 @@
 +-- Run from repository root using Lua 5.1. Pure engine checks, no simulated rendering.
 +local ns={}
 +assert(loadfile('Fireside3DExperiment/Vendor/WardenSceneObjectControls.lua'))('test',ns)
@@ -100,29 +83,6 @@ index 0000000..ea63591
 + assert(math.abs(u-.5)<1e-9 and math.abs(v-.5)<1e-9 and depth>0,'orbit must keep its target centered')
 +end
 +print('PASS: swept collision, floor boundary, approximate doorway, furniture collision, fixed basis, 360 orbit projections')
-+assert(loadfile('Fireside3DExperiment/Background.lua'))('test',ns)
-+local B=ns.ExperimentBackground
-+local checked=0
-+for degrees=0,330,30 do
-+ for _,pitch in ipairs({-.05,.35,1.1}) do
-+  local yaw=degrees*math.pi/180
-+  local view={position={3-12*math.cos(pitch)*math.cos(yaw),4-12*math.cos(pitch)*math.sin(yaw),math.max(.4,1.3+12*math.sin(pitch))},target={3,4,1.3},fov=.85}
-+  for _,v in ipairs({.1,.3,.5,.7,.9,.99}) do
-+   for _,u in ipairs({0,.2,.5,.8,1}) do
-+    local x,y=B.GroundPoint(view,u,v,16/9)
-+    if x then
-+     local pu,pv,depth=N.Project(view,x,y,0,16/9)
-+     assert(depth>0 and math.abs(pu-u)<1e-7 and math.abs(pv-v)<1e-7,'ground projection disagrees with native scene math')
-+     checked=checked+1
-+    end
-+   end
-+  end
-+ end
-+end
-+assert(checked>100)
-+local level={position={0,-10,2},target={0,0,2},fov=.85}
-+assert(not B.GroundPoint(level,.5,.1,16/9),'sky rays must not draw floor')
-+print('PASS: '..checked..' inverse-ground projection samples; horizon rejection')
 +-- Exercise the adapted production seat controller using pure actor records.
 +-- Place/Animate/Route record native boundary calls; this is not a visual simulator.
 +assert(loadfile('Fireside3DExperiment/Interactions.lua'))('test',ns)
@@ -161,25 +121,94 @@ index 0000000..ea63591
 +assert(not N.CanStep(e,a,a.position,{4,-3,0}),'swept person clearance must block walking through NPC')
 +assert(N.CanStep(e,a,a.position,{0,-4,0}))
 +print('PASS: chair approach, settle/hold/stand, unsupported animation, combat guard, generic NPC selection and NPC clearance')
++-- Scene-specific transform separation: camera changes never change actor transforms.
++assert(loadfile('Fireside3DExperiment/WorldSpace.lua'))('test',ns)
++local W=ns.ExperimentWorldSpace
++local calls=0
++local native={}
++function native:SetPosition(x,y,z)self.position={x,y,z};calls=calls+1 end
++function native:SetYaw(y)self.yaw=y end
++function native:SetPitch(p)self.pitch=p end
++function native:SetRoll(r)self.roll=r end
++function native:SetScale()error('camera/placement must not change model scale')end
++local en=W.Bind({shot=shot,metrics={moves=0}})
++local actor={actor=native,ready=true,spec={floorUV={.9,.1},worldYaw=9},bounds={-2,-1,-.5,4,3,5},scale=.6,groundOffset=99}
++local function near(x,y)assert(math.abs(x-y)<1e-7,tostring(x)..' != '..tostring(y))end
++for degrees=0,359 do
++ local angle=degrees*math.pi/180
++ -- Intentionally mutate the authored shot too: placement and collision no longer depend on it.
++ en.shot={position={10*math.cos(angle),10*math.sin(angle),8},target={-3,9,2},fov=.3+angle*.1}
++ assert(en:Place(actor,3,4,0,.7))
++ near(actor.position[1],3);near(actor.position[2],4);near(actor.position[3],0)
++ near(native.position[1]*actor.scale+math.cos(.7)*actor.worldAnchor[1]*actor.scale-math.sin(.7)*actor.worldAnchor[2]*actor.scale,3)
++ near(native.position[2]*actor.scale+math.sin(.7)*actor.worldAnchor[1]*actor.scale+math.cos(.7)*actor.worldAnchor[2]*actor.scale,4)
++ near(native.position[3]*actor.scale+actor.worldAnchor[3]*actor.scale,0)
++ local box=N.Footprint(en.shot,actor);near(box.centerX,3);near(box.centerY,4)
++ local x,y,z=N.World(en.shot,3,4,0);assert(x==3 and y==4 and z==0)
++end
++assert(calls==360 and actor.scale==.6 and en.legacyShadows==false)
++-- Feed recorded-style native pixel projections to the existing normalization/plane fit.
++-- This validates mapping/invariants, not the client's actual projection or native API behavior.
++local frame={}
++function frame:GetWidth()return 1600 end
++function frame:GetHeight()return 900 end
++function frame:GetEffectiveScale()return 1 end
++function frame:Project3DPointTo2D(x,y,z)
++ local u,v,d=N.Project(self.firesideViewShot,x,y,z,1600/900)
++ if not u then return end
++ return u*1600,(1-v)*900,d
++end
++local samples=0
++for degrees=0,330,30 do
++ for _,pitch in ipairs({.12,.5,1.1})do
++  local yaw=degrees*math.pi/180
++  frame.firesideViewShot={position={3-12*math.cos(pitch)*math.cos(yaw),4-12*math.cos(pitch)*math.sin(yaw),1.3+12*math.sin(pitch)},target={3,4,1.3},fov=.85}
++  local map=assert(W.FloorMap(frame,frame.firesideViewShot))
++  for _,point in ipairs({{0,0},{3,4},{-4,-2},{7,8}})do
++   local u,v=N.Project(frame.firesideViewShot,point[1],point[2],0,1600/900)
++   if u then local x,y=map(u,v);near(x,point[1]);near(y,point[2]);samples=samples+1 end
++  end
++ end
++end
++local projection=frame.Project3DPointTo2D;frame.Project3DPointTo2D=nil
++assert(not W.FloorMap(frame,shot),'missing native projection must hide ground, not use a second perspective')
++frame.Project3DPointTo2D=projection
++print('PASS: 360 camera-independent world placements, scale/anchor/collision invariance, '..samples..' native-plane mapping samples, missing-projection rejection; legacy shadows disabled')
++-- Moving world anchor while a follow camera rotates/pitches; several model sizes.
++for _,scale in ipairs({.25,1,3})do
++ actor.scale=scale
++ for degrees=0,350,10 do
++  local q=degrees*math.pi/180;local x,y=3+math.sin(q)*2,4+math.cos(q)*2
++  en.shot={position={x-9*math.cos(q),y-9*math.sin(q),2+degrees*.02},target={x,y,1.3},fov=.85}
++  assert(en:Place(actor,x,y,0,q))
++  near(actor.worldPosition[1],x);near(actor.worldPosition[2],y)
++  local box=N.Footprint(en.shot,actor);near(box.centerX,x);near(box.centerY,y)
++  near(native.position[1]*scale+math.cos(q)*actor.worldAnchor[1]*scale-math.sin(q)*actor.worldAnchor[2]*scale,x)
++  near(native.position[2]*scale+math.sin(q)*actor.worldAnchor[1]*scale+math.cos(q)*actor.worldAnchor[2]*scale,y)
++  near(native.position[3]*scale+actor.worldAnchor[3]*scale,0)
++ end
++end
++print('PASS: moving world contacts/colliders during follow-camera changes at three fixed model scales')
 diff --git a/Fireside3DExperiment/Fireside3DExperiment.toc b/Fireside3DExperiment/Fireside3DExperiment.toc
 new file mode 100644
-index 0000000..df09adf
+index 0000000..762d4e5
 --- /dev/null
 +++ b/Fireside3DExperiment/Fireside3DExperiment.toc
-@@ -0,0 +1,10 @@
+@@ -0,0 +1,11 @@
 +## Interface: 16001
 +## Title: Fireside — Third Dimension Experiment
 +## Notes: Isolated native house feasibility test. No saved data or production dependency.
 +## Author: Regretn
-+## Version: 0.3-chair-npcs
++## Version: 0.3.1-world-space
 +Vendor\WardenSceneObjectControls.lua
 +Vendor\WardenNativeScene.lua
++WorldSpace.lua
 +Background.lua
 +Interactions.lua
 +Prototype.lua
 diff --git a/Fireside3DExperiment/Interactions.lua b/Fireside3DExperiment/Interactions.lua
 new file mode 100644
-index 0000000..489843b
+index 0000000..13f15ab
 --- /dev/null
 +++ b/Fireside3DExperiment/Interactions.lua
 @@ -0,0 +1,61 @@
@@ -200,7 +229,7 @@ index 0000000..489843b
 +  local p={unpack(a.position)};local target={unpack(p)};local yaw=a.yaw or 0
 +  if intent.kind=='chair'then
 +   target={prop.position[1],prop.position[2],prop.position[3]+prop.top*(prop.spec.seatFraction or .29)-a.top*.32+(prop.seatHeightOffset or 0)}
-+   yaw=(prop.worldYaw or 0)-(math.atan2(s.shot.target[2]-s.shot.position[2],s.shot.target[1]-s.shot.position[1])-math.pi*.5)
++   yaw=prop.worldYaw or 0 -- experimental world yaw, independent of authored-shot/camera basis
 +  else target[3]=target[3]+(prop.seatHeightOffset or 0);yaw=math.atan2(prop.position[2]-p[2],prop.position[1]-p[1])end
 +  a.seating={kind=intent.kind,id=intent.id,phase='settle',elapsed=0,duration=intent.kind=='chair'and 1.1 or 1,approach=p,from=p,to=target,fromYaw=a.yaw or yaw,delta=(yaw-(a.yaw or yaw)+math.pi)%(2*math.pi)-math.pi,animation=intent.animation}
 +  a.spec.worldYaw=nil;a.engine:Animate(a,intent.kind=='chair'and 4 or a.capabilities[96]and 96 or intent.animation,1)
@@ -20547,10 +20576,10 @@ HcmV?d00001
 
 diff --git a/Fireside3DExperiment/Prototype.lua b/Fireside3DExperiment/Prototype.lua
 new file mode 100644
-index 0000000..fe16432
+index 0000000..96f7b57
 --- /dev/null
 +++ b/Fireside3DExperiment/Prototype.lua
-@@ -0,0 +1,203 @@
+@@ -0,0 +1,205 @@
 +-- Isolated addon namespace; no production addon, saved roots, collectors or transport.
 +local _, ns = ...
 +local N = ns.WardenNativeScene
@@ -20582,8 +20611,8 @@ index 0000000..fe16432
 +    local x,y,z = N.World(shot,p[1],p[2],p[3]+1.3)
 +    local horizontal = distance*cos(pitch)
 +    local view={position={x-horizontal*cos(yaw),y-horizontal*sin(yaw),math.max(.4,z+distance*sin(pitch))},target={x,y,z},fov=.85}
-+    if background then background:Update(view) end
-+    if not N.ViewCamera(engine,view) then active=false; clearInput(); text('Camera API rejected. Stop: this client cannot run the experiment.') end
++    if not N.ViewCamera(engine,view) then active=false; clearInput(); text('Camera API rejected. Stop: this client cannot run the experiment.');return end
++    if background then background:Update(engine.frame,shot) end
 +end
 +local function probe()
 +    active=false; clearInput(); houseFloor=0; halfX=nil; halfY=nil
@@ -20595,6 +20624,7 @@ index 0000000..fe16432
 +    -- Retire the previous scene, keeping only one visible house; at most three scenes per session.
 +    engine=N.Create(window.viewport,shot)
 +    if engine.unsupported then text('STOP: '..engine.unsupported); return end
++    ns.ExperimentWorldSpace.Bind(engine)
 +    engine.onReady=function(a)
 +        visibleActor(a)
 +        if a.id=='house' then
@@ -20740,9 +20770,10 @@ index 0000000..fe16432
 +    local command,arg=(input or ''):match('^(%S*)%s*(.-)$')
 +    if not window then create() end
 +    if command=='report' then
-+        say('Chair/NPC scene v0.3; base 9bc2326f67532c548102caa831b20af2234d6bfe; candidate '..index..'; visual house confirmation='..tostring(house and house.visualConfirmed==true))
++        say('World-space scene v0.3.1; base 9bc2326f67532c548102caa831b20af2234d6bfe; candidate '..index..'; visual house confirmation='..tostring(house and house.visualConfirmed==true))
 +        if index<=#candidates then say(candidates[index][1]..' '..candidates[index][3]) end
-+        for _,a in ipairs(engine and engine.order or {}) do say(a.id..': '..a.status..'; bounds='..(a.bounds and table.concat(a.bounds,',') or 'none')) end
++        for _,a in ipairs(engine and engine.order or {}) do say(a.id..': '..a.status..'; world='..(a.position and table.concat(a.position,',') or 'none')..'; scale='..tostring(a.scale)..'; bounds='..(a.bounds and table.concat(a.bounds,',') or 'none')) end
++        say('Coordinates=world XYZ; camera-only perspective; legacy corrections/shadows disabled; ground='..(background and background.registration or 'unavailable'))
 +        if player then say('Chair state='..(player.seating and player.seating.phase or player.pendingInteraction and 'approaching' or 'free')..'; sit supported='..tostring(player.capabilities[102] or player.capabilities[103] or player.capabilities[104] or false)) end
 +        say('Sky+wood ground; interior trial='..tostring(interior)..'; house floor offset='..houseFloor..'; rendered appearance/depth require human inspection.')
 +    elseif command=='next' then index=index+1; interior=false; probe()
@@ -20756,18 +20787,18 @@ index 0000000..fe16432
 +end
 diff --git a/Fireside3DExperiment/README.md b/Fireside3DExperiment/README.md
 new file mode 100644
-index 0000000..3a1b2ec
+index 0000000..3ebd0cb
 --- /dev/null
 +++ b/Fireside3DExperiment/README.md
-@@ -0,0 +1,67 @@
-+# Fireside — Third Dimension: chair and NPC scene v0.3
+@@ -0,0 +1,82 @@
++# Fireside — Third Dimension: world-space chair and NPC scene v0.3.1
 +
 +Native visual feasibility is **unverified**. This is a test candidate, not a proven playable build or production conversion. No WoW client/assets are installed in Codex Cloud. An accepted model request and loaded bounds do not establish that a usable house renders.
 +
 +Base: `9bc2326f67532c548102caa831b20af2234d6bfe`.
 +Branch: `experiment/minimal-3d-interactions`.
 +
-+The original build remains on `experiment/minimal-3d-house`. The textured build remains on `experiment/minimal-3d-textured-scene`. This third candidate keeps the house/table/player, wood ground, sky/cloud backdrop and camera controls, and adds a clickable chair and exactly two generic stationary NPCs. Transparent source pixels reveal blue, never black. Camera height stays above the ground. No in-game success is assumed.
++The original build remains on `experiment/minimal-3d-house`. The textured build remains on `experiment/minimal-3d-textured-scene`. This candidate keeps the house/table/player, wood ground, sky/cloud backdrop and camera controls, and adds a clickable chair and exactly two generic stationary NPCs. Transparent source pixels reveal blue, never black. Camera height stays above the ground. No in-game success is assumed.
 +
 +## Install and run one manual test
 +
@@ -20803,7 +20834,8 @@ index 0000000..3a1b2ec
 +- `Fireside3DExperiment.toc`: isolated addon; no dependencies or SavedVariables.
 +- `Prototype.lua`: staged house probe, input, scene and camera controller.
 +- `Interactions.lua`: adapted `SeatPlayer`, `UpdatePlayerSeat`, `LeavePlayerSeat` and `InteractPlayer` from production `WardenWorldRealm.lua` at the base commit. Production UI/preferences hooks are removed, `attendant` is bound to the experimental `player`, and navigation is supplied by the demo. Approach routing, bounds-based picking, seat offset, pose probes and animation playback reuse the existing engine.
-+- `Background.lua`: sky/ground presentation using the same camera shot and inverse projection of the existing engine. The flat ground uses 128 textured strips, with approximate UV interpolation within each strip. This is not a general terrain renderer.
++- `WorldSpace.lua`: scene-specific world XYZ placement, collision basis, stable model anchors and native ground-plane mapping. Loaded after the unchanged vendor copies, it overrides only this addon's private namespace and engine instance.
++- `Background.lua`: sky/ground presentation using the native world-plane mapping from WorldSpace.lua. The flat ground uses 128 textured strips, with approximate UV interpolation within each strip. This is not a general terrain renderer.
 +- `Media/Ground.tga`: byte-identical copy of `OlympusChatWarden/Media/WorldUI38/Wood.tga`.
 +- `Media/Sky.tga`: byte-identical copy of `OlympusChatWarden/Media/World52/a2-sky-day-0-0.tga`.
 +- `Media/Clouds.tga`: byte-identical copy of `OlympusChatWarden/Media/World50/a2-cloud-far-left-0-0.tga`.
@@ -20813,7 +20845,7 @@ index 0000000..3a1b2ec
 +- `Checks.lua`: pure engine checks, not loaded by the TOC and not a renderer/simulator.
 +- `README.md`: integration and test instructions.
 +
-+All native actors use one ModelScene/depth buffer. The projected texture ground is a backdrop plane, not a native depth-writing floor mesh; native below-floor clipping, terrain height and camera-wall collision are not provided. Its projection shares the existing mathematical FOV convention; actual Forever viewport registration needs the pending in-game check. No per-actor compositing or z-order tricks. The movement plane is flat; the mesh's visual floor, native depth buffer and interior topology need in-client inspection. Missing animation probe support is reported by the reused engine; movement may render without walk animation if a native sequence is unavailable. No WoW models or WoW textures are bundled; the three existing Fireside background images above are included for standalone installation.
++All native actors use one ModelScene/depth buffer. The textured ground is a world Z=0 presentation plane derived from native projection, not a native depth-writing floor mesh; native below-floor clipping, terrain height and camera-wall collision are not provided. Actual Forever registration still needs the pending in-game check. No per-actor compositing or z-order tricks. The movement plane is flat; the mesh's visual floor, native depth buffer and interior topology need in-client inspection. Missing animation probe support is reported by the reused engine; movement may render without walk animation if a native sequence is unavailable. No WoW models or WoW textures are bundled; the three existing Fireside background images above are included for standalone installation.
 +
 +## Cloud validation and integration
 +
@@ -20827,6 +20859,20 @@ index 0000000..3a1b2ec
 +Syntax, pure collision/projection, chair state-machine, animation capability, NPC clearance and packaging checks are cloud checks only. No existing test suite or package scripts are checked in. No visual success criteria have been marked passed. The seat-controller checks use actor records and record native calls; they do not emulate or validate WoW rendering/animation playback.
 +
 +For the Pro account: apply the supplied patch on a new branch based on the stabilized production version, or copy the changed-files ZIP's relative paths. Keep this standalone addon for the first test; it does not depend on a particular production database version. Compare the two vendor files with the newer engine before deliberately adopting later engine changes; do not overwrite the production renderer with these copies. Integrate only after the native house test succeeds. Do not merge scenes or migrate data as part of this experiment. Existing source licensing remains applicable.
++
++## Critical perspective separation (v0.3.1)
++
++Audited `WardenNativeScene` world/placement/scale/projection/footprint code, `WardenSceneObjectControls` collision/picking, and `WardenWorldRealm` floor registration, ground offsets, layered occlusion and contact shadows. The latter production module is not loaded by this addon.
++
++- **World coordinates:** actor positions, navigation, seat locations and the ground all use explicit X/Y/Z, ground Z=0. WorldSpace replaces the authored-shot basis only in the experimental namespace. Camera changes never reauthor positions or colliders.
++- **Scale and pivots:** model dimensions are set once at load. Stable model-space pivot alignment and the pre-existing model-scaled native API translation conversion remain at the placement boundary; neither uses distance, FOV, screen position or viewport scale. No per-frame perspective sizing or animation-bounds recentering is applied. `floorUV`, legacy `groundOffset` and authored-shot facing compensation are ignored. `/fs3d floor` remains an intentional world-space house translation for physical floor calibration, never a camera correction.
++- **Projection and occlusion:** one native ModelScene handles actor perspective and depth. No rear/foreground actor passes, screen-size matching, floor-UV snapping or screen-space position corrections are used. Chair picking uses native projection of its world bounds. Seat facing uses world yaw.
++- **Ground:** removed the independent mathematical inverse-camera projection and horizon/seam nudges. A plane homography, adapted from the existing native FloorPoint calculation, is fitted from four actual native projected points each frame *after* the view camera update. The wood presentation samples that world Z=0 mapping. If native projection is unavailable/degenerate, the ground hides and `/fs3d report` records why; no independent perspective fallback is substituted. Strip interpolation remains approximate within each strip, and the texture is not a native depth-writing mesh. Near the projection horizon or beyond the bounded 512-unit presentation extent it yields to sky.
++- **Shadows:** legacy layered contact-shadow/cinematic UV freezing code is not loaded or called. There are no experimental screen-space shadow overlays to detach from world positions. This build does not add shadow rendering or certify native cast shadows.
++
++**Single-session acceptance:** confirm a usable house, then rotate the camera all the way around it while moving with WASD. Pitch, zoom and follow the moving player; inspect the table, chair and both NPCs. Watch fixed-size native actors and their world-ground contacts for floating, sliding or a second perspective transform. Sit and stand, then rotate again. `/fs3d report` includes world positions, model scales, coordinate mode and ground registration status. Model API translation conventions, texture registration, occlusion and seat/body alignment still need this real Forever check; numerical tests do not prove visual success.
++
++The existing v0.3 download ZIPs and patch have been refreshed to addon version v0.3.1 and include the complete standalone addon relative to original base `9bc2326f67532c548102caa831b20af2234d6bfe`, including this fix. For an already-applied v0.3 prototype, the integration delta is WorldSpace.lua, Background.lua, Prototype.lua, Interactions.lua, the TOC, Checks.lua and this README. Preserve production rendering unchanged when adopting this adapter.
 diff --git a/Fireside3DExperiment/Vendor/WardenNativeScene.lua b/Fireside3DExperiment/Vendor/WardenNativeScene.lua
 new file mode 100644
 index 0000000..4578aba
@@ -21625,4 +21671,77 @@ index 0000000..a44dfba
 + for k in pairs(rules)do if out[k]==nil then return nil,'Missing light '..k end end
 + if not out.mode or out.mode=='directional'and out.x*out.x+out.y*out.y+out.z*out.z<.0001 then return nil,'A light direction is required'end
 + return out
++end
+diff --git a/Fireside3DExperiment/WorldSpace.lua b/Fireside3DExperiment/WorldSpace.lua
+new file mode 100644
+index 0000000..428ac36
+--- /dev/null
++++ b/Fireside3DExperiment/WorldSpace.lua
+@@ -0,0 +1,67 @@
++-- Experimental namespace ONLY. The production renderer and vendored source stay unchanged.
++local _,ns=...
++local N,C=ns.WardenNativeScene,ns.WardenSceneObjectControls
++local W={VERSION=1,FLOOR_Z=0};ns.ExperimentWorldSpace=W
++local fixedBasis={position={0,-1,1},target={0,0,0}}
++-- Eliminate the authored-shot coordinate basis. Camera rotation is never an actor transform.
++function N.World(_,x,y,z)return x,y,z end
++local localBox=C.LocalBox
++function C.LocalBox(_,a,r)return localBox(fixedBasis,a,r)end
++function W.Bind(engine)
++ engine.coordinateSpace='world XYZ; camera-independent'
++ engine.legacyScreenCorrections=false;engine.legacyShadows=false
++ -- Reuse native loading/animation/routing, replacing only this scene's placement boundary.
++ function engine:Place(a,x,y,z,yaw,pitch)
++  if not a or not a.ready then return false end
++  local scale=a.scale
++  assert(type(scale)=='number' and scale>0,'Invalid model scale')
++  -- A fixed model-space anchor, captured at load, keeps feet/prop bases at their world point.
++  -- This is geometric pivot alignment, not screen-space or distance-dependent compensation.
++  if not a.worldAnchor then a.worldAnchor={(a.bounds[1]+a.bounds[4])*.5,(a.bounds[2]+a.bounds[5])*.5,a.bounds[3]} end
++  local anchor=a.worldAnchor;local angle=yaw or a.worldYaw or 0
++  local cx,cy=anchor[1]*scale,anchor[2]*scale
++  local ox=x-math.cos(angle)*cx+math.sin(angle)*cy
++  local oy=y-math.sin(angle)*cx-math.cos(angle)*cy
++  local oz=z-anchor[3]*scale
++  -- Preserve the existing native API's model-scaled translation convention ONLY at this boundary.
++  -- No camera, FOV, viewport, floorUV, groundOffset, view-layer or depth-size term is used.
++  local nx,ny,nz=ox/scale,oy/scale,oz/scale
++  local ok=N.Call(a.actor,'SetPosition',nx,ny,nz)
++  local turned=N.Call(a.actor,'SetYaw',angle)
++  N.Call(a.actor,'SetPitch',pitch or 0);N.Call(a.actor,'SetRoll',0)
++  a.worldYaw=angle;a.yaw=angle;a.pitch=pitch or 0
++  a.position={x,y,z};a.worldPosition=a.position
++  a.nativeOrigin={ox,oy,oz};a.nativePosition={nx,ny,nz}
++  self.metrics.moves=self.metrics.moves+1
++  return ok and turned
++ end
++ return engine
++end
++-- Fit the same plane homography used by N.FloorPoint, using four actual native projections.
++-- Once per frame, no mathematical-FOV fallback and no camera-sensitive actor changes.
++function W.FloorMap(frame,shot)
++ local function project(x,y)return N.ProjectNative(frame,shot,x,y,W.FLOOR_Z)end
++ local x0,y0=project(0,0);local x1,y1=project(2,0);local x2,y2=project(0,2);local x3,y3=project(2,2)
++ if not(x0 and x1 and x2 and x3)then return nil,'Native floor projection unavailable' end
++ local ax,bx,cx=x1-x3,x2-x3,x0-x1+x3-x2
++ local ay,by,cy=y1-y3,y2-y3,y0-y1+y3-y2
++ local det=ax*by-bx*ay;if math.abs(det)<1e-12 then return nil,'Degenerate native floor projection' end
++ local g,h=(cx*by-bx*cy)/det,(ax*cy-cx*ay)/det
++ local a,b,c=x1-x0+g*x1,x2-x0+h*x2,x0
++ local d,e,f=y1-y0+g*y1,y2-y0+h*y2,y0
++ local view=frame.firesideViewShot or shot;local eye,target=view.position,view.target
++ local fx,fy,fz=target[1]-eye[1],target[2]-eye[2],target[3]-eye[3]
++ local length=math.sqrt(fx*fx+fy*fy+fz*fz)
++ if length<.0001 then return nil,'Degenerate camera direction' end
++ return function(u,v)
++  local ar,ad,br,bd=a-u*g,b-u*h,d-v*g,e-v*h
++  local determinant=ar*bd-ad*br;if math.abs(determinant)<1e-12 then return end
++  local x,y=2*((u-c)*bd-ad*(v-f))/determinant,2*(ar*(v-f)-br*(u-c))/determinant
++  -- Bound the background plane; there is no navigation or shadow in screen coordinates.
++  if x~=x or y~=y or math.abs(x)>512 or math.abs(y)>512 then return end
++  -- A projective inverse also describes the plane behind the eye; reject that branch.
++  local depth=((x-eye[1])*fx+(y-eye[2])*fy+(W.FLOOR_Z-eye[3])*fz)/length
++  if depth<=.01 then return end
++  return x,y
++ end
 +end
