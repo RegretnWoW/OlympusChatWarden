@@ -79,6 +79,7 @@ assert(v.forest.key=='square'and v.forest.nativeAir.frame==nil and v.forest.nati
 v:Select({page='overview'},false,true)
 assert(count==1 and not U.journalHost,'landing should not construct old scenes or the real reader')
 assert(#v.forest.native.order==#ns.Fireside3D.props+1,'only neighborhood props and one controlled player requested')
+for _,a in ipairs(v.forest.native.order)do assert(not ns.Fireside3D.BuildingCandidate(a.spec.fileID),'real startup lifecycle must not request any Elwynn WMO')end
 assert(#C.Rooms()==1 and #C.Connections('square')==0)
 v:Advance(.016)
 print('PASS: real realm constructor/selection/update at recorded API boundaries; one native viewport, no Fields/Home/Town instance or travel links, lazy real Journal')

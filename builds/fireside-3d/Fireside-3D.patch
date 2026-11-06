@@ -3476,7 +3476,7 @@ literal 0
 HcmV?d00001
 
 diff --git a/OlympusChatWarden/OlympusChatWarden.toc b/OlympusChatWarden/OlympusChatWarden.toc
-index 4627a66..5221cb6 100644
+index 4627a66..6b36c9f 100644
 --- a/OlympusChatWarden/OlympusChatWarden.toc
 +++ b/OlympusChatWarden/OlympusChatWarden.toc
 @@ -2,7 +2,7 @@
@@ -3484,7 +3484,7 @@ index 4627a66..5221cb6 100644
  ## Notes: Chronicle, player intelligence, chat, protection and RelayWarden support for Olympus.
  ## Author: Regretn
 -## Version: 1.1.4-unified-2.11.8-integrated110-startup1
-+## Version: 1.1.4-unified-2.11.8-integrated110-startup1-3d-home-candidate3
++## Version: 1.1.4-unified-2.11.8-integrated110-startup1-3d-home-candidate4
  ## SavedVariables: OlympusWardenPrivacyDB, OlympusChatWardenDB, OlympusWardenRelayDB, OlympusWardenStartupDB, OlympusWardenConversationDB, OlympusWardenJournalDB, OlympusWardenRecollectionsDB, OlympusWardenExchangeDB
  ## OptionalDeps: Olympus, OlympusWardenAthenaLab
  ## Dependencies: FiresideRecovery
@@ -3520,7 +3520,7 @@ index 559975b..7ab0766 100644
   local key=table.concat({scene.key,w,h,mix,unpack(shot.position)},':')..':'..table.concat(shot.target,':')
   if v.readingCameraKey~=key then
 diff --git a/OlympusChatWarden/WardenRoomCatalogue.lua b/OlympusChatWarden/WardenRoomCatalogue.lua
-index 01f2594..f4cbbd3 100644
+index 01f2594..1a594a8 100644
 --- a/OlympusChatWarden/WardenRoomCatalogue.lua
 +++ b/OlympusChatWarden/WardenRoomCatalogue.lua
 @@ -38,7 +38,7 @@ local function installRoom(key,spec,revision)
@@ -3528,7 +3528,7 @@ index 01f2594..f4cbbd3 100644
   if d.layoutSlot and not id(d.layoutSlot)then return false,'Invalid private layout slot'end
   d.layoutSlot=d.layoutSlot or key
 - if revision and d.layoutSlot~=rooms[key].layoutSlot then return false,'A bundled revision must retain its private layout slot'end
-+ if revision and d.layoutSlot~=rooms[key].layoutSlot and not(d.world3D==true and key=='square'and(d.layoutSlot=='fireside-3d'or d.layoutSlot=='fireside-3d-elwynn'))then return false,'A bundled revision must retain its private layout slot'end
++ if revision and d.layoutSlot~=rooms[key].layoutSlot and not(d.world3D==true and key=='square'and(d.layoutSlot=='fireside-3d'or d.layoutSlot=='fireside-3d-elwynn'or d.layoutSlot=='fireside-3d-elwynn-manual'))then return false,'A bundled revision must retain its private layout slot'end
   for other,room in pairs(rooms)do if other~=key and room.layoutSlot==d.layoutSlot then return false,'Each room needs a separate private layout slot'end end
   local layers={};for _,layer in ipairs(ns.WardenWorldScenes.layers)do layers[layer]=true end
   local plateIDs={};for _,p in ipairs(d.plates)do
@@ -3844,10 +3844,10 @@ index 0000000..5f34120
 +end
 diff --git a/OlympusChatWarden/World3D/Coordinates.lua b/OlympusChatWarden/World3D/Coordinates.lua
 new file mode 100644
-index 0000000..42f520b
+index 0000000..6e7c248
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Coordinates.lua
-@@ -0,0 +1,67 @@
+@@ -0,0 +1,77 @@
 +-- Scene-specific transform boundary from the in-client tested prototype.
 +local _,ns=...
 +local N,C=ns.WardenNativeScene,ns.WardenSceneObjectControls
@@ -3859,6 +3859,16 @@ index 0000000..42f520b
 + -- Reuse native loading/animation/routing, replacing only this scene's placement boundary.
 + local refresh=engine.RefreshPlayer
 + if refresh then engine.RefreshPlayer=function(self,a,...)if a then a.worldAnchor=nil end;return refresh(self,a,...)end end
++ local loadProp=engine.LoadProp
++ if loadProp then engine.LoadProp=function(self,spec,...)
++  local F=ns.Fireside3D;local trace=F.BeginBuildingTest and F.BeginBuildingTest(spec)
++  local a,why=loadProp(self,spec,...)
++  if trace then
++   trace.phase=a and(a.failed and a.status or'native request returned; waiting for bounds')or tostring(why or'no actor returned')
++   if a then a.buildingAttempt=trace end
++  end
++  return a,why
++ end end
 + function engine:Place(a,x,y,z,yaw,pitch)
 +  if not a or not a.ready then return false end
 +  local scale=a.scale
@@ -3917,28 +3927,32 @@ index 0000000..42f520b
 +end
 diff --git a/OlympusChatWarden/World3D/Definitions.lua b/OlympusChatWarden/World3D/Definitions.lua
 new file mode 100644
-index 0000000..d040d67
+index 0000000..a69108e
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Definitions.lua
-@@ -0,0 +1,35 @@
+@@ -0,0 +1,39 @@
 +-- One shipped neighborhood. square keeps the existing Live scene wire identity;
 +-- the existing geometry digest rejects clients with different world definitions.
 +local _,ns=...
-+local F={VERSION=3,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
++local F={VERSION=4,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
 +local C=ns.WardenRoomCatalogue
 +F.homeDoor={side='negative-y',width=2.2,wallThickness=.2}
 +F.bounds={-40,-34,40,42}
-+-- Actual Elwynn world buildings. Their WMO files contain interiors in the game
-+-- world; ModelScene rendering and alignment MUST be qualified on Forever.
-+-- Do not substitute the rejected huts or mark accepted bounds as render proof.
-+F.houses={
++-- Keep every Elwynn choice available for owner-driven isolation. No building
++-- is requested automatically and no new quarantine or native API block is added.
++F.manualBuildingTests=true;F.homeSite={0,23,0};F.houses={}
++F.buildingCandidates={
 + {id='player-home',fileID=106851,label='Your Home — Goldshire Inn',width=24,at={0,23,0}},
 + {id='house-west',fileID=106965,label='Elwynn farmhouse',width=14,at={-26,12,0}},
 + {id='house-east',fileID=106848,label='Goldshire blacksmith',width=14,at={26,12,0}},
 + {id='house-southwest',fileID=107232,label='Elwynn stables',width=18,at={0,-22,0}},
 +}
++function F.BuildingCandidate(fileID)for _,h in ipairs(F.buildingCandidates)do if h.fileID==fileID then return h end end end
++function F.HomeReady(s)
++ if F.manualBuildingTests then return true end
++ local home=s.native.actors['player-home'];return home and home.ready and not home.failed or false
++end
 +local props={}
-+for _,h in ipairs(F.houses)do props[#props+1]={id=h.id,fileID=h.fileID,label=h.label,width=h.width,at=h.at,yaw=0,worldYaw=0,house3D=true,collision=true,zone='Elwynn Forest',format='WMO',assetStatus='ELWYNN_WMO_RENDER_UNVERIFIED'}end
 +local function add(row)props[#props+1]=row end
 +add({id='desk',fileID=198603,label='Home table',height=.9,at={0,21,0},yaw=0,homeInterior=true})
 +add({id='room-book',fileID=200912,label='Athena Journal',width=.65,at={0,21,.915},support='desk',supportOffset={0,0,.015},probeObject=true,animations={0,146,147,148,149},interaction='journal',collision=false,homeInterior=true})
@@ -3949,9 +3963,9 @@ index 0000000..d040d67
 +for i,p in ipairs({{-30,25},{30,25},{-30,-23},{30,-23}})do add({id='tree-'..i,fileID=189923,label='Evergreen',height=7,at={p[1],p[2],0},collisionRadius=.8})end
 +F.npcPaths={{{-7,-2},{-7,3},{-4,5}},{{7,-2},{7,3},{4,5}},{{-4,25},{-4,22},{-3,20}}}
 +F.props=props
-+local d={label='Fireside — Elwynn Home Test',interior=false,world3D=true,reader=true,layoutSlot='fireside-3d-elwynn',shot={id='fireside-3d-world-v3',position={0,-18,8},target={0,0,1},fov=.85},
-+ navigation={floor=0,floorUV={0,0,1,1},worldBounds=F.bounds,coordinateSpace='WORLD_XYZ_3D_V1',npcPaths=F.npcPaths,homeDoor=F.homeDoor,houseModels={106851,106965,106848,107232},buildingZone='Elwynn Forest'},
-+ props=props,residents={{id='attendant',unit='player',controlled=true,height=1.85,at={0,-7,0},animations={0,4,5,96,97,98,102,103,104},navigationRadius=.3}},outside={},plates={},routes={},airOccluders={},flags={},book={offset={0,0,.015},wideScale=.65},musicScene='forest',walkSpeed=4,artRevision='3d-neighborhood-v3'}
++local d={label='Fireside — Manual Elwynn Building Test',interior=false,world3D=true,reader=true,layoutSlot='fireside-3d-elwynn-manual',shot={id='fireside-3d-world-v4',position={0,-18,8},target={0,0,1},fov=.85},
++ navigation={floor=0,floorUV={0,0,1,1},worldBounds=F.bounds,coordinateSpace='WORLD_XYZ_3D_V1',npcPaths=F.npcPaths,homeDoor=F.homeDoor,houseModels={},automaticBuildings=false,buildingZone='Elwynn Forest'},
++ props=props,residents={{id='attendant',unit='player',controlled=true,height=1.85,at={0,-7,0},animations={0,4,5,96,97,98,102,103,104},navigationRadius=.3}},outside={},plates={},routes={},airOccluders={},flags={},book={offset={0,0,.015},wideScale=.65},musicScene='forest',walkSpeed=4,artRevision='3d-neighborhood-v4'}
 +assert(C.ReviseBundledRoom(F.PRIMARY,d))
 +function F.IsScene(s)return s and s.definition and s.definition.world3D==true end
 +-- Old links stay recoverable as shipped metadata but are not active 3D travel.
@@ -4064,10 +4078,10 @@ index 0000000..de66ecd
 +end
 diff --git a/OlympusChatWarden/World3D/Integration.lua b/OlympusChatWarden/World3D/Integration.lua
 new file mode 100644
-index 0000000..3d69efc
+index 0000000..947426c
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Integration.lua
-@@ -0,0 +1,138 @@
+@@ -0,0 +1,141 @@
 +-- Only the scene integration changes. Existing Journal, badge ownership, Live trust,
 +-- protocol, reconnection and session limits remain authoritative.
 +local _,ns=...
@@ -4118,7 +4132,7 @@ index 0000000..3d69efc
 +  return shelf.Open(v)
 + end
 + local function approach(id)
-+  local home=s.native.actors['player-home'];if not home or not home.ready or home.failed then return false,'Goldshire Inn must load before using its interior objects'end
++  if not F.HomeReady(s)then return false,'Goldshire Inn must load before using its interior objects'end
 +  local a=s.native.actors.attendant;local prop=s.native.actors[id]
 +  if not a or not a.ready or not prop or not prop.ready then return false,'Wait for the object and your character'end
 +  if a.seating then return v:LeavePlayerSeat(s,a)end
@@ -4147,8 +4161,8 @@ index 0000000..3d69efc
 + local bindReader=v.BindReader
 + v.BindReader=function(self,...)local result=bindReader(self,...);self.ClickScene=click3D;return result end
 + v.InteractPlayer=function(self,scene,id)
-+  local prop=scene.native.actors[id];local home=scene.native.actors['player-home']
-+  if prop and prop.spec.homeInterior and(not home or not home.ready or home.failed or prop.awaitHome)then return false,'The Elwynn home is unavailable'end
++  local prop=scene.native.actors[id]
++  if prop and prop.spec.homeInterior and(not F.HomeReady(scene)or prop.awaitHome)then return false,'The Elwynn home is unavailable'end
 +  if id=='room-book'or id=='shelf-right'then return approach(id)end
 +  return interact(self,scene,id)
 + end
@@ -4159,7 +4173,7 @@ index 0000000..3d69efc
 + end
 + local report=v.Report
 + v.Report=function(self,...)
-+  local out=report(self,...);out.fireside3D={version=F.VERSION,scene=F.PRIMARY,coordinateSpace='world XYZ',instances=#self:Scenes(),houses=#F.houses,nativeViewportCount=1,legacyTravel=false,base=F.BASE,visualQualification='Elwynn WMO buildings and interior require native render verification',colliderQualification='Bounds-based doorway; align against the actual visible Goldshire Inn',elwynn=F.BuildingReport(self:ActiveRoom()),rightDragStarts=self.world3DInput.rightDragStarts,lastDragSource=self.world3DInput.lastDragSource};return out
++  local out=report(self,...);out.fireside3D={version=F.VERSION,scene=F.PRIMARY,coordinateSpace='world XYZ',instances=#self:Scenes(),houses=#F.houses,nativeViewportCount=1,legacyTravel=false,base=F.BASE,visualQualification='Manual Elwynn building isolation; no native crash diagnosis claimed',colliderQualification='No automatic building shell; manually placed objects use the existing editor collider',elwynn=F.BuildingReport(self:ActiveRoom()),rightDragStarts=self.world3DInput.rightDragStarts,lastDragSource=self.world3DInput.lastDragSource};return out
 + end
 + F.Catalog.BindExistingEditor()
 + F.EditorCamera.BindExistingEditor()
@@ -4185,9 +4199,12 @@ index 0000000..3d69efc
 + if ns.WardenSceneEditor and ns.WardenSceneEditor.active or ns.UI2LayoutEditor and ns.UI2LayoutEditor.tx then return false,'Finish editing before walking home'end
 + if InCombatLockdown()then return false,'Walk home after combat'end
 + U.Ensure();local v=U.realm;local s=v:ActiveRoom();local a=s.native.actors.attendant;local home=s.native.actors['player-home']
-+ if not a or not a.ready or not home or not home.ready or home.failed then return false,'Wait for your home and character; check the Elwynn building load status'end
-+ local box=N.Footprint(s.shot,home);local nav,why=v:GroundNavigation(s,a);if not nav then return false,why end
-+ local path;path,why=N.WalkPath(a.position,home.position[1],box.near-1,nav);if not path then return false,why end
++ if not a or not a.ready then return false,'Wait for your character'end
++ if not F.manualBuildingTests and(not home or not home.ready or home.failed)then return false,'Wait for your home; check the Elwynn building load status'end
++ local target=F.homeSite;local y=target[2]-10
++ if home and home.ready and not home.failed then local box=N.Footprint(s.shot,home);target=home.position;y=box.near-1 end
++ local nav,why=v:GroundNavigation(s,a);if not nav then return false,why end
++ local path;path,why=N.WalkPath(a.position,target[1],y,nav);if not path then return false,why end
 + a.pendingInteraction=nil;local ok;ok,why=s.native:Route(a,path,math.max(2,path.length/4),4,nav)
 + if ok then U.CloseMenu()end;return ok,why
 +end
@@ -4208,10 +4225,10 @@ index 0000000..3d69efc
 +end
 diff --git a/OlympusChatWarden/World3D/Scene.lua b/OlympusChatWarden/World3D/Scene.lua
 new file mode 100644
-index 0000000..cbf42d2
+index 0000000..5b65406
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Scene.lua
-@@ -0,0 +1,319 @@
+@@ -0,0 +1,334 @@
 +-- Unified scene adapter. Loading, animation, routes, real Journal/showcase and Live remain owned by existing systems.
 +local _,ns=...
 +local F,N=ns.Fireside3D,ns.WardenNativeScene
@@ -4242,10 +4259,7 @@ index 0000000..cbf42d2
 +   s.native:Error(a,'Elwynn building was replaced by a missing/other model; WMO rendering is unverified');return
 +  end
 + end
-+ if a.spec.homeInterior then
-+  local home=s.native.actors['player-home']
-+  if not home or not home.ready or home.failed then a.awaitHome=true;N.Call(a.actor,'Hide');return end
-+ end
++ if a.spec.homeInterior and not F.HomeReady(s)then a.awaitHome=true;N.Call(a.actor,'Hide');return end
 + a.awaitHome=nil
 + local p=a.spec.at or{0,0,0}
 + if a.spec.controlled and s.pendingArrival then p=s.pendingArrival;s.pendingArrival=nil;a.spawnChecked=nil end
@@ -4256,16 +4270,31 @@ index 0000000..cbf42d2
 + end
 + a.awaitSupport=nil;a.awaitRegistration=nil;a.groundOffset=0
 + a.engine:Place(a,p[1],p[2],p[3],a.spec.worldYaw or a.spec.yaw or 0)
++ if a.buildingAttempt then
++  a.buildingAttempt.phase='native bounds ready; inspect rendering in client'
++  if ns.Print then ns.Print('Elwynn test #'..a.buildingAttempt.sequence..': '..a.buildingAttempt.label..' ['..a.spec.fileID..'] has native bounds; rendering is not yet verified.')end
++ end
 + if a.spec.controlled then v:EnsurePlayerSpawn(s,a)end
 + if a.id=='room-book'then a.engine:Animate(a,147,1)end
 + for _,other in ipairs(s.native.order)do if other.awaitSupport and other.spec.support==a.id then v:ActorReady(s,other)end end
 + if a.id=='player-home'then for _,other in ipairs(s.native.order)do if other.awaitHome then v:ActorReady(s,other)end end end
 +end
++function F.BeginBuildingTest(spec)
++ local candidate=spec and F.BuildingCandidate(spec.fileID);if not candidate then return end
++ F.buildingTestSequence=(F.buildingTestSequence or 0)+1
++ local trace={sequence=F.buildingTestSequence,fileID=spec.fileID,label=candidate.label,slot=spec.id,phase='entering existing native prop loader'}
++ F.lastBuildingAttempt=trace
++ if ns.Print then ns.Print('Elwynn test #'..trace.sequence..': requesting '..trace.label..' ['..trace.fileID..'] in '..tostring(trace.slot)..'.')end
++ return trace
++end
 +function F.BuildingReport(s)
-+ local out={zone='Elwynn Forest',interiorTarget='Goldshire Inn',visualVerified=false,buildings={}}
-+ for _,h in ipairs(F.houses)do
-+  local a=s.native.actors[h.id]
-+  out.buildings[#out.buildings+1]={id=h.id,fileID=h.fileID,label=h.label,format='WMO',status=not a and'not requested'or a.failed and a.status or a.ready and'bounds ready; visible WMO/interior not verified'or'loading'}
++ local out={zone='Elwynn Forest',automaticBuildings=false,visualVerified=false,lastAttempt=F.lastBuildingAttempt,buildings={}}
++ for _,h in ipairs(F.buildingCandidates)do
++  local instances={}
++  for _,a in ipairs(s.native.order)do if a.spec.fileID==h.fileID and not a.retired then
++   instances[#instances+1]={slot=a.id,status=a.failed and a.status or a.ready and'bounds ready; inspect visible model'or'loading'}
++  end end
++  out.buildings[#out.buildings+1]={fileID=h.fileID,label=h.label,format='WMO',instances=instances,status=#instances==0 and'not spawned'or'manually placed'}
 + end
 + return out
 +end
@@ -4275,10 +4304,9 @@ index 0000000..cbf42d2
 +  local bg=f:CreateTexture(nil,'BACKGROUND');bg:SetAllPoints();bg:SetColorTexture(.035,.025,.015,.88)
 +  f.text=f:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');f.text:SetPoint('TOPLEFT',8,-7);f.text:SetPoint('BOTTOMRIGHT',-8,7);f.text:SetJustifyH('LEFT');v.buildingNotice=f
 + end
-+ local home=s.native.actors['player-home'];local text
-+ if not home or not home.ready then text=home and home.failed and'Goldshire Inn did not load in ModelScene. Interior placement is unavailable; export the scene report.'or'Loading Elwynn world buildings. Goldshire Inn WMO/interior needs a native render check.'
-+ elseif home.failed then text='Goldshire Inn did not load in ModelScene. Interior placement is unavailable; export the scene report.'
-+ else text='Goldshire Inn bounds loaded. Verify its visible interior and align the entrance/furniture in the editor; WMO rendering is not certified.'end
++ local attempt=F.lastBuildingAttempt
++ local text=attempt and('Elwynn test #'..attempt.sequence..': '..attempt.label..' ['..attempt.fileID..'] — '..attempt.phase)
++  or'Buildings are not loaded automatically. Add one Elwynn building at a time in the editor to isolate the crash.'
 + if v.buildingNotice.lastText~=text then v.buildingNotice.text:SetText(text);v.buildingNotice.lastText=text end
 + v.buildingNotice:SetFrameLevel(s.groundClick:GetFrameLevel()+3);v.buildingNotice:Show()
 +end
@@ -4416,10 +4444,14 @@ index 0000000..cbf42d2
 + local dt=clamp(elapsed,0,.05);v.age=v.age+dt;v.metrics.updates=v.metrics.updates+1
 + local s=v:ActiveRoom();s.native:Tick(dt,ns.DB.livingRealmAmbience~=false)
 + for _,a in ipairs(s.native.order)do
++  if a.buildingAttempt then
++   if a.failed then a.buildingAttempt.phase='failed: '..tostring(a.status)
++   elseif a.retired then a.buildingAttempt.phase='removed in editor'end
++  end
 +  if a.ready and not(a.failed or a.retired or a.editorHidden or a.sceneHidden)then
 +   if a.awaitSupport then F.ActorReady(v,s,a)end
 +   if a.spec.homeInterior then
-+    local home=s.native.actors['player-home'];if not home or not home.ready or home.failed then a.awaitHome=true;N.Call(a.actor,'Hide')
++    if not F.HomeReady(s)then a.awaitHome=true;N.Call(a.actor,'Hide')
 +    elseif a.awaitHome then F.ActorReady(v,s,a)end
 +   end
 +   if a.spec.controlled and not a.spawnChecked then v:EnsurePlayerSpawn(s,a)end
@@ -4533,79 +4565,59 @@ index 0000000..cbf42d2
 +end
 diff --git a/tools/fireside3d/README.md b/tools/fireside3d/README.md
 new file mode 100644
-index 0000000..bebad93
+index 0000000..bac6fe3
 --- /dev/null
 +++ b/tools/fireside3d/README.md
-@@ -0,0 +1,81 @@
-+# Fireside 3D — Elwynn candidate 3
+@@ -0,0 +1,61 @@
++# Fireside 3D — Manual Elwynn diagnostic candidate 4
 +
-+Branch: `feature/fireside-3d`. Public production base: `e4cc9f8da008fd065d933e6d142dde854108d53a`. Main and CurseForge are unchanged.
++Branch: `feature/fireside-3d`. Public production base: `e4cc9f8da008fd065d933e6d142dde854108d53a`. Main and production releases are unchanged.
++
++Candidate 3 crashed the real client during startup with an access violation. Its four new Elwynn WMO requests are suspects; the screenshots do not identify a specific model or native function. This build removes buildings from the automatic scene and leaves all four available for manual editor spawning, as requested. It adds no new quarantine, model-ID block or replacement building. The existing native renderer/loader source is unchanged.
 +
 +## Install
 +
-+Close WoW and retain your normal WTF backup. Extract **Fireside-3D-candidate3-overlay.zip** into `Interface/AddOns/`, replacing public code and the `Fireside3DAssets` catalog. Use the exact base above or candidate 1/2 installed with that same base media. Retain the base's approximately 1.4 GB media library; the overlay includes code, the lazy catalog, existing recovery code and the grass tile. Do not overlay a later stability build; integrate the source changes against it instead. Do not install the standalone prototype alongside it.
++With WoW closed, extract **Fireside-3D-candidate4-overlay.zip** into `Interface/AddOns/`, replacing public code and the optional `Fireside3DAssets` catalog. Retain the exact base's existing media. It can overlay candidates 1–3 using that same base; do not apply it over a later stability build. It contains public code, existing recovery code, the lazy catalog and the grass tile rather than duplicating the approximately 1.4 GB base media library.
 +
-+The private development addon is **not included**. Keep it local. Public adapters extend its existing editor when installed; no private implementation, archive, credentials or configuration is packaged or committed.
++Open `/fireside`. The default scene has **zero building model requests**. Ground, sky, existing M2 props, your character, NPCs, real Journal, chair, earned shelf, player input and the editor fly camera remain available. Housing objects stay visible in the open scene. My Home walks toward the home site without requiring a building. The interior itself remains unresolved.
 +
-+Open `/fireside`. WASD moves your character over the scene; right-drag rotates/pitches and wheel zooms. Open Menu retains the normal services. The My Home action walks toward the home entrance in the same world.
++The private development/editor addon is not included; keep the existing local installation. No private implementation, archive, credentials or configuration is committed or packaged. No crash log is published.
 +
-+## Only Elwynn buildings
++A fresh `fireside-3d-elwynn-manual` layout slot prevents earlier candidate placements from being replayed into this initial test. Earlier layouts and SavedVariables remain intact; no migration or deletion occurs. If you explicitly save a manual building placement in the new slot, the existing editor may reload it normally. Leave these isolation tests unsaved to retain an empty-building startup.
 +
-+| Requested building | FileDataID | Actual world asset |
++## Spawn one building at a time
++
++Use the existing editor's **Add object → Elwynn buildings** category. All four choices and actual native loading remain enabled:
++
++| Model | FileDataID | Actual asset |
 +| --- | --- | --- |
-+| Player home / interior target: Goldshire Inn | 106851 | `world/wmo/azeroth/buildings/goldshireinn/goldshireinn.wmo` |
++| Goldshire Inn | 106851 | `world/wmo/azeroth/buildings/goldshireinn/goldshireinn.wmo` |
 +| Elwynn farmhouse | 106965 | `world/wmo/azeroth/buildings/human_farm/farm.wmo` |
 +| Goldshire blacksmith | 106848 | `world/wmo/azeroth/buildings/goldshireblacksmith/goldshireblacksmith.wmo` |
 +| Elwynn stables | 107232 | `world/wmo/azeroth/buildings/stable/stable.wmo` |
 +
-+All four earlier Arathi/swamp selections are removed. These are Classic Elwynn world-building references, not retail housing. Goldshire Inn's actual game-world asset contains an interior. **It is not yet established that Forever's UI ModelScene can render that WMO and its interior.** Public listfile resolution verifies only the IDs/paths. A successful API call or loaded bounding box is not visual certification. All four entries remain `ELWYNN_WMO_RENDER_UNVERIFIED` in the catalog and scene report.
++1. First confirm that the scene opens without a building. If that still crashes, record it as a baseline failure; the four automatic building requests are absent.
++2. Select one building and note its name/ID before clicking Add. Observe whether Add returns, a model becomes visible, and a crash happens immediately or after a delay. A farmhouse-first order is convenient, but the build imposes no order or one-object limit.
++3. If the client remains running, inspect the building from outside/inside with the editor camera. Remove that object before trying the next one. Keep the layout unsaved during isolation.
++4. If it crashes, capture the selected name/ID and the **Show log file** crash text. Share that log privately for diagnosis; this build does not upload or commit it. Restart with the empty unsaved scene for the next test.
 +
-+This is a native Elwynn WMO test build, not a claim of a finished or verified walkable inn. It uses the existing `SetModelByFileID` path; no WMO extraction/conversion, custom building mesh or replacement renderer is introduced. There is no fallback to the rejected huts. If ModelScene cannot load the inn, actual interior furnishing remains blocked; resolve that native capability before treating the home as usable.
++No automatic fallback, retest timer or bulk-spawn action is added. The original editor's test-mode, consent, Live editing and object limits still apply. Original native renderer policies are retained; no new policy excludes these four IDs.
 +
-+The scene shows the home load status. Native failures and missing-model cubes cannot become a giant house-shaped box: recognized placeholders/mismatched model identities are rejected. Until the home has actual native bounds, its table, book, chair and showcase remain hidden and interior interactions are unavailable. An explicitly failed building is omitted from collision, allowing the rest of the demo to continue. Pending bounds pause walking until loading resolves. The report lists each building's requested ID, loading/error status and the unverified interior status.
++## Load diagnostics
 +
-+## Interior placement
++Before the existing native prop loader runs, the public scene adapter records/prints the selected name, FileDataID, editor slot and a session test number. It records whether the loader returned, whether native bounds became ready, or whether a normal native error was reported. The bottom notice shows the latest attempt; the existing scene report contains all currently placed Elwynn instances and that attempt's status.
 +
-+The home retains the real animated Journal book/table, chair and earned-badge/memento showcase. They have provisional placements around the inn's central ground-floor area. Their final position, orientation, doorway and floor alignment need the first native interior pass. Do not assume the WMO's lowest bounding-box point is its actual ground-floor walking surface.
++These diagnostics are transient Lua state and chat messages. A fatal native crash can lose the in-memory trace, so note the selected ID before Add and retain the real crash log. A returned API request or accepted bounds is not a visible render/interior pass. None of the candidates is marked verified by this build.
 +
-+Use the existing editor's object, position, height, rotation and collider controls after confirming the inn is visibly rendered. The home still uses the prototype's explicit bounds-based wall/door shell and flat world floor. It does not implement the inn's internal wall mesh, stairs, basement/upper-floor navigation or camera-wall collision. A rendered inn plus an approximate outer collider is not mesh-perfect collision. The other three buildings remain environmental structures with solid bounds collision.
++## Existing controls and integration
 +
-+The new `fireside-3d-elwynn` layout slot starts this arrangement independently of old candidate/hut placements. Previous 3D and 2.5D saved layouts remain intact; no migration or overwrite occurs. Keep private editor exports local.
++Player: WASD moves over the scene, right-drag orbits/pitches, wheel zooms. Editor: WASD flies/strafes, Q/E lowers/raises, right-drag looks, Shift moves faster, wheel dollies and Reset restores the character follow viewpoint. Captured right-drag, release handling, left-click separation, scene input stacking, focus/form/combat guards and NPC pause/resume remain from candidate 3.
 +
-+## Right-drag and editor camera
++The real Journal, chair and earned shelf work in the open test scene without a house. Their normal permissions, inventory and saved reader/showcase state remain authoritative. No synthetic history or grants are added. Adding a custom building uses the existing editor's normal collision settings; a visually loaded inn does not establish stair/internal-wall navigation or an enterable house collider. This is first a model-isolation test.
 +
-+The scene input now explicitly registers right-button press/release **and right-button dragging**, with separate left-click interaction. It stacks above stale scene input frames and stops propagation to WoW's world camera. A captured right drag can leave the floor rectangle and ends on right-button release, drag-stop, hide, combat or a blocking form. Left-button release does not cancel a right drag. Mouse state is polled so a missed mouse-up cannot strand the camera.
++Aether Live retains protocol 2, scene `square` / wire code `a`, trust, transport, appearance, existing movement/coalescing/recovery and session limits. Both clients must use candidate 4 for matching geometry. Use the established workflow of leaving Live before editing. Storage, recovery, collectors, authentication, transport and native renderer source match the recorded public base.
 +
-+Open the existing editor with local test mode enabled. Older Study/Fields launch buttons target this single world. Camera controls remain:
-+
-+- **WASD:** fly/strafe; **Q/E:** down/up.
-+- **Right-drag:** look through 360 degrees and pitch up/down.
-+- **Shift:** three times faster; **wheel:** dolly.
-+- **Reset camera:** return to the character's follow viewpoint.
-+
-+Keep the pointer over the scene to begin a drag or fly with keys. Forms, typing, object dragging and combat release camera movement. The existing left-drag object handle remains separate. Editor flight does not move/resize the character, change collision, save a layout transform or publish Live movement. NPCs remain paused during editing and resume on close. Closing the editor restores character follow. Existing test-mode, trust and Live editing guards remain authoritative.
-+
-+## Catalog and retained systems
-+
-+The lazy catalog contains four explicitly unverified Elwynn WMO entries and seven existing Classic/Forever prop references. Its source is `tools/fireside3d/elwynn-assets.csv`; regenerate with:
-+
-+```
-+python3 tools/fireside3d/build_classic_catalog.py --listfile /path/to/community-listfile.csv
-+```
-+
-+Only those four WMO IDs/zone/status combinations are admitted as candidates. They are not classified as compatible/verified M2 props. The broader supplied research CSV remains offline and is not loaded by the client. Existing Forever furniture remains available in the editor. Selecting a candidate fills its real model ID in the existing form. The Dalaran showcase shelf remains the base's existing Forever reference with calibrated badge ledges; it is not a building or labeled original Classic.
-+
-+One native depth buffer holds actors in camera-independent world XYZ. Painted-depth size corrections and old scene instances/travel remain inactive. Ground, paths and contact shadows are projected world-plane presentation. Real Journal permissions/history, earned inventory, reader place and badge save paths remain authoritative. No synthetic history, grants, SavedVariables declaration, schema, database root or credential flow is added.
-+
-+Aether Live retains protocol **2**, scene `square` / wire code `a`, certificate trust, native sender binding, appearance reconstruction, existing coalesced movement/recovery and eight remote slots. Both clients must use **candidate 3**: the existing geometry digest changes for the Elwynn buildings, bounds and NPC paths. NPCs keep the base's deterministic schedule. Storage, recovery, collectors and authentication/transport source match the recorded base.
-+
-+## Native test session
-+
-+1. Open `/fireside`; test right-drag before and after building loading. Check orbit/pitch, wheel, full sky and stable actor alignment. Verify left clicks still move/interact, releasing right drag outside the scene stops it, and Open Menu remains clickable.
-+2. Inspect each Elwynn building. **First verify that Goldshire Inn visibly renders both outside and inside.** A blank viewport, placeholder or only accepted bounds is a failure. Read the load message and export the scene report; do not proceed as if an interior exists when it does not.
-+3. With the private editor installed locally, fly inside the visible inn using WASD/Q/E/right-drag. Inspect the true doorway and ground floor; align the home and housing objects with the existing fields and collider controls. Test object dragging, typing in forms, camera Reset/Close and NPC pause/resume. Do not certify stair/internal-wall collision that this build does not implement.
-+4. Once the home is visibly aligned, test walking through the entrance, chair sit/stand, your real Journal and the earned showcase. Empty history/inventory stays empty; check reopening and normal saves. If inn rendering or floor alignment fails, the interior acceptance test remains blocked.
-+5. Connect two consenting clients on candidate 3 through the existing Live controls; check geometry, appearance, movement, seating and reconnect. Leave Live before editing. Older candidates/legacy geometry must be incompatible.
++The lazy catalog remains sourced from `tools/fireside3d/elwynn-assets.csv`. Its four WMO entries retain unverified-candidate status; seven existing M2 prop references and the pre-existing Forever object library remain available. No broader retail research is added to runtime browsing.
 +
 +## Checks and integration
 +
@@ -4615,12 +4627,12 @@ index 0000000..bebad93
 +lua5.1 tools/fireside3d/editor_camera.lua
 +```
 +
-+Checks cover Elwynn-only selection, candidate-vs-verified status, missing-home furniture/placeholder handling, logical collision, layout isolation, camera-independent placement, retained Live codec/coalescing, one-viewport lifecycle, registered right-drag and click separation, stale-frame stacking, captured-drag release, editor movement/input guards and NPC pause/resume. They record Lua/API boundaries; they do not render WoW models or qualify actual mouse dispatch in Forever. Native interior and two-client checks remain pending.
++Checks verify zero default building requests in the real realm construction path, all four editor selections retained, manual native requests still allowed, per-model diagnostics, active housing objects, fresh layout isolation, unchanged Live codec/coalescing, collision/placement, registered camera input and editor pause/focus guards. Syntax, TOC paths, protected-source hashes and package integrity/private-reference exclusion are also checked. These do not identify the crashing native instruction or certify a crash-free Forever session.
 +
-+The changed-files ZIP and patch contain the full integration against `e4cc9f8`, including candidate 3. Reconcile the scene-gated changes against newer stability work rather than overwriting newer authentication/storage/network files. Review before merging or publishing a production release.
++The changed-files ZIP and patch contain the complete public integration against `e4cc9f8`, including this diagnostic change. Review against newer stability work before integrating; no merge or production publication is performed.
 diff --git a/tools/fireside3d/build_candidate.py b/tools/fireside3d/build_candidate.py
 new file mode 100755
-index 0000000..32c7a0b
+index 0000000..9c75c58
 --- /dev/null
 +++ b/tools/fireside3d/build_candidate.py
 @@ -0,0 +1,58 @@
@@ -4629,7 +4641,7 @@ index 0000000..32c7a0b
 +from pathlib import Path
 +import argparse, hashlib, json, subprocess, zipfile
 +BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'
-+CANDIDATE='candidate3'
++CANDIDATE='candidate4'
 +
 +def tracked():
 +    return subprocess.check_output(['git','ls-files','-z']).decode().split('\0')[:-1]
@@ -4737,10 +4749,10 @@ index 0000000..d4ed832
 +    main()
 diff --git a/tools/fireside3d/checks.lua b/tools/fireside3d/checks.lua
 new file mode 100644
-index 0000000..a9b62a8
+index 0000000..428eb85
 --- /dev/null
 +++ b/tools/fireside3d/checks.lua
-@@ -0,0 +1,104 @@
+@@ -0,0 +1,116 @@
 +-- Pure world/codec checks. No saved data, credentials, auth, networking or private addon is executed.
 +local ns={WardenWorldScenes={layers={'native','contact-shadows'},props={},residents={},outside={},navigation={}}}
 +local function load(path)return assert(loadfile('OlympusChatWarden/'..path))('test',ns)end
@@ -4749,11 +4761,12 @@ index 0000000..a9b62a8
 +C.onRegister=function(key,d)ns.WardenWorldScenes.props[key]=d.props;ns.WardenWorldScenes.residents[key]=d.residents;ns.WardenWorldScenes.outside[key]=d.outside;ns.WardenWorldScenes.navigation[key]=d.navigation end
 +load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Scene.lua')
 +local F,N=ns.Fireside3D,ns.WardenNativeScene
-+assert(#F.houses==4 and F.PRIMARY=='square')
-+local models={};for _,h in ipairs(F.houses)do assert(not models[h.fileID],'each house must use a different model');models[h.fileID]=true end
++assert(#F.houses==0 and #F.buildingCandidates==4 and F.manualBuildingTests and F.PRIMARY=='square')
++local models={};for _,h in ipairs(F.buildingCandidates)do assert(not models[h.fileID],'each candidate must use a different model');models[h.fileID]=true;assert(N.ActorAllowed({roomKey='fireside-3d'},h),'manual Elwynn requests must remain allowed')end
 +assert(models[106851]and models[106965]and models[106848]and models[107232],'only the requested Elwynn buildings may be selected')
-+local d=C.Room('square');assert(d.world3D and d.reader and #d.plates==0 and #d.outside==0 and #d.flags==0 and d.layoutSlot=='fireside-3d-elwynn')
-+for _,p in ipairs(d.props)do if p.house3D then assert(p.zone=='Elwynn Forest'and p.format=='WMO'and p.assetStatus=='ELWYNN_WMO_RENDER_UNVERIFIED')end end
++local d=C.Room('square');assert(d.world3D and d.reader and #d.plates==0 and #d.outside==0 and #d.flags==0 and d.layoutSlot=='fireside-3d-elwynn-manual')
++assert(d.navigation.automaticBuildings==false and #d.navigation.houseModels==0)
++for _,p in ipairs(d.props)do assert(not p.house3D and not F.BuildingCandidate(p.fileID),'no candidate may be requested by startup props')end
 +assert(C.Room('hall').layoutSlot=='hall','old layout metadata must remain recoverable')
 +assert(#d.props+#d.residents+3+8<=N.MAX_ACTORS,'include existing eight Live peer slots in actor budget')
 +local wall=F.HomeWalls({centerX=0,centerY=14,halfX=6,halfY=4,cos=1,sin=0})
@@ -4764,23 +4777,33 @@ index 0000000..a9b62a8
 +assert(not N.CheckPath(segment(0,13,0,20),nav),'home back wall must block')
 +local rotated=F.HomeWalls({centerX=0,centerY=0,halfX=6,halfY=4,cos=0,sin=1})
 +assert(N.CheckPath(segment(6,0,0,0),{ground=true,floor=0,radius=.3,obstacles=rotated}),'rotated doorway uses world collider basis')
-+local house=C.Room('square').props[1];local failed={spec=house,ready=false,failed=true}
++local house=C.Copy(F.buildingCandidates[1]);house.house3D=true;local failed={spec=house,ready=false,failed=true}
 +local sampleScene={definition={props={house}},native={actors={[house.id]=failed},order={failed}},shot=d.shot}
 +ns.WardenWorldScenes.Props=function(s)return s.definition.props end
 +assert(F.Navigation({},sampleScene,{spec={controlled=true}}),'a reported missing house must not freeze all player movement')
 +failed.failed=nil;assert(not F.Navigation({},sampleScene,{spec={controlled=true}}),'pending house bounds must still block unsafe movement')
-+-- No furniture-in-an-empty-lot success when an Elwynn WMO fails to render.
++-- Removing automatic buildings must leave the existing housing objects active.
 +local home={id='player-home',spec=house,ready=false,bounds={-12,-10,0,12,10,8},actor={GetModelFileID=function()return 106851 end}}
 +local seatSpec;for _,p in ipairs(d.props)do if p.id=='chair'then seatSpec=p end end
 +local seat={id='chair',spec=seatSpec,ready=true,actor={Hide=function(self)self.hidden=true end}}
 +local interiors={actors={['player-home']=home,chair=seat},order={home,seat},Place=function(_,a,x,y,z)a.position={x,y,z}end,Error=function(_,a,why)a.failed=true;a.status=why end}
 +home.engine=interiors;seat.engine=interiors
 +local room={native=interiors};local realm={};realm.ActorReady=function(_,s,a)return F.ActorReady(realm,s,a)end
-+F.ActorReady(realm,room,seat);assert(seat.awaitHome and seat.actor.hidden and not seat.position)
-+home.ready=true;F.ActorReady(realm,room,home);assert(not seat.awaitHome and seat.position[1]==seatSpec.at[1],'furniture can be placed once the home has actual native bounds')
-+local rejected={id='player-home',spec=house,ready=true,bounds={-.14,-.14,-.14,.14,.14,.14},actor={},engine=interiors}
-+F.ActorReady(realm,room,rejected);assert(rejected.failed,'missing-model cubes must not masquerade as an interior')
-+local report=F.BuildingReport(room);assert(not report.visualVerified and #report.buildings==4,'bounds acceptance must never certify visible WMO rendering')
++F.ActorReady(realm,room,seat);assert(not seat.awaitHome and seat.position[1]==seatSpec.at[1],'furniture remains active in the open scene without a house')
++assert(F.HomeReady({native={actors={}}}),'manual building isolation must not gate the real Journal/chair/shelf')
++local calls,messages={},{};ns.Print=function(message)messages[#messages+1]=message end
++local nativeProp={SetModelByFileID=function(_,id)calls[#calls+1]=id;return true end}
++local diagnostic=F.Coordinates.Bind({order={},metrics={moves=0},LoadProp=function(self,spec)
++ assert(N.Call(nativeProp,'SetModelByFileID',spec.fileID));local actor={id=spec.id,spec=spec,ready=false};self.order[#self.order+1]=actor;return actor
++end})
++for i,h in ipairs(F.buildingCandidates)do
++ local a=diagnostic:LoadProp({id='custom-'..i,fileID=h.fileID,custom=true})
++ assert(calls[i]==h.fileID and a.buildingAttempt.fileID==h.fileID and a.buildingAttempt.sequence==i,'diagnostics must retain every manual request and its native path')
++ assert(a.buildingAttempt.phase=='native request returned; waiting for bounds')
++end
++assert(#calls==4 and #messages==4,'no hard one-building limit, quarantine, replacement or duplicate request')
++local report=F.BuildingReport({native=diagnostic});assert(not report.visualVerified and report.automaticBuildings==false and #report.buildings==4 and report.lastAttempt.fileID==107232)
++ns.Print=nil
 +local engine=F.Coordinates.Bind({metrics={moves=0}})
 +local native={};function native:SetPosition(x,y,z)self.position={x,y,z}end
 +function native:SetYaw(yaw)self.yaw=yaw end;function native:SetPitch()end;function native:SetRoll()end
@@ -4806,6 +4829,7 @@ index 0000000..a9b62a8
 +assert(F.Catalog.Search('house')and requested==1,'lazy catalog should load only once')
 +for _,r in ipairs(Fireside3DAssetIndex)do assert(F.Catalog.Compatible(r)or F.Catalog.IsCandidate(r))end
 +assert(not F.Catalog.Compatible(rows[1])and F.Catalog.IsCandidate(rows[1]),'Elwynn WMO entries remain candidates, not compatible/verified props')
++assert(#F.Catalog.Search('','Elwynn buildings')==4,'all four buildings must remain available in the existing editor')
 +assert(#F.Catalog.Search('203656')==0 and #F.Catalog.Search('190430')==0,'remove rejected Arathi and swamp building references')
 +assert(not F.Catalog.IsCandidate({fileID=106851,format='WMO',zone='Other zone',status='ELWYNN_WMO_RENDER_UNVERIFIED'}))
 +assert(not F.Catalog.Compatible({format='M2',era='RETAIL'}),'retail housing must not appear in the Forever catalog')
@@ -4818,7 +4842,7 @@ index 0000000..a9b62a8
 +local count=#editor.ObjectCatalogue;editor.AddObjectForm();assert(#editor.ObjectCatalogue==count,'do not append duplicates on reopening')
 +assert(#editor.FilterObjects('Elwynn buildings','goldshireinn.wmo')==1,'search supports the actual Elwynn model path')
 +ns.WardenSceneEditor=nil
-+print('PASS: four Elwynn-only WMO candidates, missing-home furniture gate/placeholder rejection, unverified status retained, no old plates/air scene, layout isolation, logical doorway/rotated collision, 360 transform invariance, Live slots/codec/geometry, lazy catalog and existing-editor selection')
++print('PASS: no automatic building requests, all four editor candidates retained, unchanged manual native loading with per-model diagnostics, active housing objects, fresh layout slot, logical collision, 360 placement, Live slots/codec/geometry and lazy editor selection')
 +-- Existing Live publisher: no handshake/transport is run. Verify manual movement
 +-- uses the same M state/codec and coalescing, with a bounded six-Hz signature.
 +ns.WardenRealm={Attach=function()return{}end};ns.WardenCanonicalPlayer={Save=function()return true end};ns.SafeCall=function(fn,...)if fn then return fn(...)end end
@@ -5068,10 +5092,10 @@ index 0000000..26a897b
 +if __name__=='__main__':main()
 diff --git a/tools/fireside3d/lifecycle.lua b/tools/fireside3d/lifecycle.lua
 new file mode 100644
-index 0000000..4f065b1
+index 0000000..5a05ad2
 --- /dev/null
 +++ b/tools/fireside3d/lifecycle.lua
-@@ -0,0 +1,91 @@
+@@ -0,0 +1,92 @@
 +-- Call-recording realm boundary: validates construction/lifecycle, not native rendering.
 +local ns={WardenWorldScenes={layers={'contact-shadows','native','outside-native','book','shelf-badges'},props={},residents={},outside={},navigation={},shots={},lighting={},clouds={}},DB={livingRealmAmbience=true},UI2={}}
 +local function load(p)return assert(loadfile('OlympusChatWarden/'..p))('test',ns)end
@@ -5153,6 +5177,7 @@ index 0000000..4f065b1
 +v:Select({page='overview'},false,true)
 +assert(count==1 and not U.journalHost,'landing should not construct old scenes or the real reader')
 +assert(#v.forest.native.order==#ns.Fireside3D.props+1,'only neighborhood props and one controlled player requested')
++for _,a in ipairs(v.forest.native.order)do assert(not ns.Fireside3D.BuildingCandidate(a.spec.fileID),'real startup lifecycle must not request any Elwynn WMO')end
 +assert(#C.Rooms()==1 and #C.Connections('square')==0)
 +v:Advance(.016)
 +print('PASS: real realm constructor/selection/update at recorded API boundaries; one native viewport, no Fields/Home/Town instance or travel links, lazy real Journal')

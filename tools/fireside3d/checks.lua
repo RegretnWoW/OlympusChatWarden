@@ -6,11 +6,12 @@ for _,key in ipairs({'hall','square'})do assert(C.RegisterRoom(key,{label=key,la
 C.onRegister=function(key,d)ns.WardenWorldScenes.props[key]=d.props;ns.WardenWorldScenes.residents[key]=d.residents;ns.WardenWorldScenes.outside[key]=d.outside;ns.WardenWorldScenes.navigation[key]=d.navigation end
 load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Scene.lua')
 local F,N=ns.Fireside3D,ns.WardenNativeScene
-assert(#F.houses==4 and F.PRIMARY=='square')
-local models={};for _,h in ipairs(F.houses)do assert(not models[h.fileID],'each house must use a different model');models[h.fileID]=true end
+assert(#F.houses==0 and #F.buildingCandidates==4 and F.manualBuildingTests and F.PRIMARY=='square')
+local models={};for _,h in ipairs(F.buildingCandidates)do assert(not models[h.fileID],'each candidate must use a different model');models[h.fileID]=true;assert(N.ActorAllowed({roomKey='fireside-3d'},h),'manual Elwynn requests must remain allowed')end
 assert(models[106851]and models[106965]and models[106848]and models[107232],'only the requested Elwynn buildings may be selected')
-local d=C.Room('square');assert(d.world3D and d.reader and #d.plates==0 and #d.outside==0 and #d.flags==0 and d.layoutSlot=='fireside-3d-elwynn')
-for _,p in ipairs(d.props)do if p.house3D then assert(p.zone=='Elwynn Forest'and p.format=='WMO'and p.assetStatus=='ELWYNN_WMO_RENDER_UNVERIFIED')end end
+local d=C.Room('square');assert(d.world3D and d.reader and #d.plates==0 and #d.outside==0 and #d.flags==0 and d.layoutSlot=='fireside-3d-elwynn-manual')
+assert(d.navigation.automaticBuildings==false and #d.navigation.houseModels==0)
+for _,p in ipairs(d.props)do assert(not p.house3D and not F.BuildingCandidate(p.fileID),'no candidate may be requested by startup props')end
 assert(C.Room('hall').layoutSlot=='hall','old layout metadata must remain recoverable')
 assert(#d.props+#d.residents+3+8<=N.MAX_ACTORS,'include existing eight Live peer slots in actor budget')
 local wall=F.HomeWalls({centerX=0,centerY=14,halfX=6,halfY=4,cos=1,sin=0})
@@ -21,23 +22,33 @@ assert(not N.CheckPath(segment(3,8,3,13),nav),'home front wall must block')
 assert(not N.CheckPath(segment(0,13,0,20),nav),'home back wall must block')
 local rotated=F.HomeWalls({centerX=0,centerY=0,halfX=6,halfY=4,cos=0,sin=1})
 assert(N.CheckPath(segment(6,0,0,0),{ground=true,floor=0,radius=.3,obstacles=rotated}),'rotated doorway uses world collider basis')
-local house=C.Room('square').props[1];local failed={spec=house,ready=false,failed=true}
+local house=C.Copy(F.buildingCandidates[1]);house.house3D=true;local failed={spec=house,ready=false,failed=true}
 local sampleScene={definition={props={house}},native={actors={[house.id]=failed},order={failed}},shot=d.shot}
 ns.WardenWorldScenes.Props=function(s)return s.definition.props end
 assert(F.Navigation({},sampleScene,{spec={controlled=true}}),'a reported missing house must not freeze all player movement')
 failed.failed=nil;assert(not F.Navigation({},sampleScene,{spec={controlled=true}}),'pending house bounds must still block unsafe movement')
--- No furniture-in-an-empty-lot success when an Elwynn WMO fails to render.
+-- Removing automatic buildings must leave the existing housing objects active.
 local home={id='player-home',spec=house,ready=false,bounds={-12,-10,0,12,10,8},actor={GetModelFileID=function()return 106851 end}}
 local seatSpec;for _,p in ipairs(d.props)do if p.id=='chair'then seatSpec=p end end
 local seat={id='chair',spec=seatSpec,ready=true,actor={Hide=function(self)self.hidden=true end}}
 local interiors={actors={['player-home']=home,chair=seat},order={home,seat},Place=function(_,a,x,y,z)a.position={x,y,z}end,Error=function(_,a,why)a.failed=true;a.status=why end}
 home.engine=interiors;seat.engine=interiors
 local room={native=interiors};local realm={};realm.ActorReady=function(_,s,a)return F.ActorReady(realm,s,a)end
-F.ActorReady(realm,room,seat);assert(seat.awaitHome and seat.actor.hidden and not seat.position)
-home.ready=true;F.ActorReady(realm,room,home);assert(not seat.awaitHome and seat.position[1]==seatSpec.at[1],'furniture can be placed once the home has actual native bounds')
-local rejected={id='player-home',spec=house,ready=true,bounds={-.14,-.14,-.14,.14,.14,.14},actor={},engine=interiors}
-F.ActorReady(realm,room,rejected);assert(rejected.failed,'missing-model cubes must not masquerade as an interior')
-local report=F.BuildingReport(room);assert(not report.visualVerified and #report.buildings==4,'bounds acceptance must never certify visible WMO rendering')
+F.ActorReady(realm,room,seat);assert(not seat.awaitHome and seat.position[1]==seatSpec.at[1],'furniture remains active in the open scene without a house')
+assert(F.HomeReady({native={actors={}}}),'manual building isolation must not gate the real Journal/chair/shelf')
+local calls,messages={},{};ns.Print=function(message)messages[#messages+1]=message end
+local nativeProp={SetModelByFileID=function(_,id)calls[#calls+1]=id;return true end}
+local diagnostic=F.Coordinates.Bind({order={},metrics={moves=0},LoadProp=function(self,spec)
+ assert(N.Call(nativeProp,'SetModelByFileID',spec.fileID));local actor={id=spec.id,spec=spec,ready=false};self.order[#self.order+1]=actor;return actor
+end})
+for i,h in ipairs(F.buildingCandidates)do
+ local a=diagnostic:LoadProp({id='custom-'..i,fileID=h.fileID,custom=true})
+ assert(calls[i]==h.fileID and a.buildingAttempt.fileID==h.fileID and a.buildingAttempt.sequence==i,'diagnostics must retain every manual request and its native path')
+ assert(a.buildingAttempt.phase=='native request returned; waiting for bounds')
+end
+assert(#calls==4 and #messages==4,'no hard one-building limit, quarantine, replacement or duplicate request')
+local report=F.BuildingReport({native=diagnostic});assert(not report.visualVerified and report.automaticBuildings==false and #report.buildings==4 and report.lastAttempt.fileID==107232)
+ns.Print=nil
 local engine=F.Coordinates.Bind({metrics={moves=0}})
 local native={};function native:SetPosition(x,y,z)self.position={x,y,z}end
 function native:SetYaw(yaw)self.yaw=yaw end;function native:SetPitch()end;function native:SetRoll()end
@@ -63,6 +74,7 @@ local rows=assert(F.Catalog.Search('106851'));assert(#rows==1 and rows[1].status
 assert(F.Catalog.Search('house')and requested==1,'lazy catalog should load only once')
 for _,r in ipairs(Fireside3DAssetIndex)do assert(F.Catalog.Compatible(r)or F.Catalog.IsCandidate(r))end
 assert(not F.Catalog.Compatible(rows[1])and F.Catalog.IsCandidate(rows[1]),'Elwynn WMO entries remain candidates, not compatible/verified props')
+assert(#F.Catalog.Search('','Elwynn buildings')==4,'all four buildings must remain available in the existing editor')
 assert(#F.Catalog.Search('203656')==0 and #F.Catalog.Search('190430')==0,'remove rejected Arathi and swamp building references')
 assert(not F.Catalog.IsCandidate({fileID=106851,format='WMO',zone='Other zone',status='ELWYNN_WMO_RENDER_UNVERIFIED'}))
 assert(not F.Catalog.Compatible({format='M2',era='RETAIL'}),'retail housing must not appear in the Forever catalog')
@@ -75,7 +87,7 @@ ns.WardenSceneEditor=editor;assert(F.Catalog.BindExistingEditor());assert(editor
 local count=#editor.ObjectCatalogue;editor.AddObjectForm();assert(#editor.ObjectCatalogue==count,'do not append duplicates on reopening')
 assert(#editor.FilterObjects('Elwynn buildings','goldshireinn.wmo')==1,'search supports the actual Elwynn model path')
 ns.WardenSceneEditor=nil
-print('PASS: four Elwynn-only WMO candidates, missing-home furniture gate/placeholder rejection, unverified status retained, no old plates/air scene, layout isolation, logical doorway/rotated collision, 360 transform invariance, Live slots/codec/geometry, lazy catalog and existing-editor selection')
+print('PASS: no automatic building requests, all four editor candidates retained, unchanged manual native loading with per-model diagnostics, active housing objects, fresh layout slot, logical collision, 360 placement, Live slots/codec/geometry and lazy editor selection')
 -- Existing Live publisher: no handshake/transport is run. Verify manual movement
 -- uses the same M state/codec and coalescing, with a bounded six-Hz signature.
 ns.WardenRealm={Attach=function()return{}end};ns.WardenCanonicalPlayer={Save=function()return true end};ns.SafeCall=function(fn,...)if fn then return fn(...)end end

@@ -48,7 +48,7 @@ ns.WardenRealm.Attach=function(...)
   return shelf.Open(v)
  end
  local function approach(id)
-  local home=s.native.actors['player-home'];if not home or not home.ready or home.failed then return false,'Goldshire Inn must load before using its interior objects'end
+  if not F.HomeReady(s)then return false,'Goldshire Inn must load before using its interior objects'end
   local a=s.native.actors.attendant;local prop=s.native.actors[id]
   if not a or not a.ready or not prop or not prop.ready then return false,'Wait for the object and your character'end
   if a.seating then return v:LeavePlayerSeat(s,a)end
@@ -77,8 +77,8 @@ ns.WardenRealm.Attach=function(...)
  local bindReader=v.BindReader
  v.BindReader=function(self,...)local result=bindReader(self,...);self.ClickScene=click3D;return result end
  v.InteractPlayer=function(self,scene,id)
-  local prop=scene.native.actors[id];local home=scene.native.actors['player-home']
-  if prop and prop.spec.homeInterior and(not home or not home.ready or home.failed or prop.awaitHome)then return false,'The Elwynn home is unavailable'end
+  local prop=scene.native.actors[id]
+  if prop and prop.spec.homeInterior and(not F.HomeReady(scene)or prop.awaitHome)then return false,'The Elwynn home is unavailable'end
   if id=='room-book'or id=='shelf-right'then return approach(id)end
   return interact(self,scene,id)
  end
@@ -89,7 +89,7 @@ ns.WardenRealm.Attach=function(...)
  end
  local report=v.Report
  v.Report=function(self,...)
-  local out=report(self,...);out.fireside3D={version=F.VERSION,scene=F.PRIMARY,coordinateSpace='world XYZ',instances=#self:Scenes(),houses=#F.houses,nativeViewportCount=1,legacyTravel=false,base=F.BASE,visualQualification='Elwynn WMO buildings and interior require native render verification',colliderQualification='Bounds-based doorway; align against the actual visible Goldshire Inn',elwynn=F.BuildingReport(self:ActiveRoom()),rightDragStarts=self.world3DInput.rightDragStarts,lastDragSource=self.world3DInput.lastDragSource};return out
+  local out=report(self,...);out.fireside3D={version=F.VERSION,scene=F.PRIMARY,coordinateSpace='world XYZ',instances=#self:Scenes(),houses=#F.houses,nativeViewportCount=1,legacyTravel=false,base=F.BASE,visualQualification='Manual Elwynn building isolation; no native crash diagnosis claimed',colliderQualification='No automatic building shell; manually placed objects use the existing editor collider',elwynn=F.BuildingReport(self:ActiveRoom()),rightDragStarts=self.world3DInput.rightDragStarts,lastDragSource=self.world3DInput.lastDragSource};return out
  end
  F.Catalog.BindExistingEditor()
  F.EditorCamera.BindExistingEditor()
@@ -115,9 +115,12 @@ U.Hearth=function()
  if ns.WardenSceneEditor and ns.WardenSceneEditor.active or ns.UI2LayoutEditor and ns.UI2LayoutEditor.tx then return false,'Finish editing before walking home'end
  if InCombatLockdown()then return false,'Walk home after combat'end
  U.Ensure();local v=U.realm;local s=v:ActiveRoom();local a=s.native.actors.attendant;local home=s.native.actors['player-home']
- if not a or not a.ready or not home or not home.ready or home.failed then return false,'Wait for your home and character; check the Elwynn building load status'end
- local box=N.Footprint(s.shot,home);local nav,why=v:GroundNavigation(s,a);if not nav then return false,why end
- local path;path,why=N.WalkPath(a.position,home.position[1],box.near-1,nav);if not path then return false,why end
+ if not a or not a.ready then return false,'Wait for your character'end
+ if not F.manualBuildingTests and(not home or not home.ready or home.failed)then return false,'Wait for your home; check the Elwynn building load status'end
+ local target=F.homeSite;local y=target[2]-10
+ if home and home.ready and not home.failed then local box=N.Footprint(s.shot,home);target=home.position;y=box.near-1 end
+ local nav,why=v:GroundNavigation(s,a);if not nav then return false,why end
+ local path;path,why=N.WalkPath(a.position,target[1],y,nav);if not path then return false,why end
  a.pendingInteraction=nil;local ok;ok,why=s.native:Route(a,path,math.max(2,path.length/4),4,nav)
  if ok then U.CloseMenu()end;return ok,why
 end

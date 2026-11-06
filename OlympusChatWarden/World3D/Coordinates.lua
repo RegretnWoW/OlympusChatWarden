@@ -9,6 +9,16 @@ function W.Bind(engine)
  -- Reuse native loading/animation/routing, replacing only this scene's placement boundary.
  local refresh=engine.RefreshPlayer
  if refresh then engine.RefreshPlayer=function(self,a,...)if a then a.worldAnchor=nil end;return refresh(self,a,...)end end
+ local loadProp=engine.LoadProp
+ if loadProp then engine.LoadProp=function(self,spec,...)
+  local F=ns.Fireside3D;local trace=F.BeginBuildingTest and F.BeginBuildingTest(spec)
+  local a,why=loadProp(self,spec,...)
+  if trace then
+   trace.phase=a and(a.failed and a.status or'native request returned; waiting for bounds')or tostring(why or'no actor returned')
+   if a then a.buildingAttempt=trace end
+  end
+  return a,why
+ end end
  function engine:Place(a,x,y,z,yaw,pitch)
   if not a or not a.ready then return false end
   local scale=a.scale

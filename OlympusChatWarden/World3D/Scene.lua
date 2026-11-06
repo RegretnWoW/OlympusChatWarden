@@ -28,10 +28,7 @@ function F.ActorReady(v,s,a)
    s.native:Error(a,'Elwynn building was replaced by a missing/other model; WMO rendering is unverified');return
   end
  end
- if a.spec.homeInterior then
-  local home=s.native.actors['player-home']
-  if not home or not home.ready or home.failed then a.awaitHome=true;N.Call(a.actor,'Hide');return end
- end
+ if a.spec.homeInterior and not F.HomeReady(s)then a.awaitHome=true;N.Call(a.actor,'Hide');return end
  a.awaitHome=nil
  local p=a.spec.at or{0,0,0}
  if a.spec.controlled and s.pendingArrival then p=s.pendingArrival;s.pendingArrival=nil;a.spawnChecked=nil end
@@ -42,16 +39,31 @@ function F.ActorReady(v,s,a)
  end
  a.awaitSupport=nil;a.awaitRegistration=nil;a.groundOffset=0
  a.engine:Place(a,p[1],p[2],p[3],a.spec.worldYaw or a.spec.yaw or 0)
+ if a.buildingAttempt then
+  a.buildingAttempt.phase='native bounds ready; inspect rendering in client'
+  if ns.Print then ns.Print('Elwynn test #'..a.buildingAttempt.sequence..': '..a.buildingAttempt.label..' ['..a.spec.fileID..'] has native bounds; rendering is not yet verified.')end
+ end
  if a.spec.controlled then v:EnsurePlayerSpawn(s,a)end
  if a.id=='room-book'then a.engine:Animate(a,147,1)end
  for _,other in ipairs(s.native.order)do if other.awaitSupport and other.spec.support==a.id then v:ActorReady(s,other)end end
  if a.id=='player-home'then for _,other in ipairs(s.native.order)do if other.awaitHome then v:ActorReady(s,other)end end end
 end
+function F.BeginBuildingTest(spec)
+ local candidate=spec and F.BuildingCandidate(spec.fileID);if not candidate then return end
+ F.buildingTestSequence=(F.buildingTestSequence or 0)+1
+ local trace={sequence=F.buildingTestSequence,fileID=spec.fileID,label=candidate.label,slot=spec.id,phase='entering existing native prop loader'}
+ F.lastBuildingAttempt=trace
+ if ns.Print then ns.Print('Elwynn test #'..trace.sequence..': requesting '..trace.label..' ['..trace.fileID..'] in '..tostring(trace.slot)..'.')end
+ return trace
+end
 function F.BuildingReport(s)
- local out={zone='Elwynn Forest',interiorTarget='Goldshire Inn',visualVerified=false,buildings={}}
- for _,h in ipairs(F.houses)do
-  local a=s.native.actors[h.id]
-  out.buildings[#out.buildings+1]={id=h.id,fileID=h.fileID,label=h.label,format='WMO',status=not a and'not requested'or a.failed and a.status or a.ready and'bounds ready; visible WMO/interior not verified'or'loading'}
+ local out={zone='Elwynn Forest',automaticBuildings=false,visualVerified=false,lastAttempt=F.lastBuildingAttempt,buildings={}}
+ for _,h in ipairs(F.buildingCandidates)do
+  local instances={}
+  for _,a in ipairs(s.native.order)do if a.spec.fileID==h.fileID and not a.retired then
+   instances[#instances+1]={slot=a.id,status=a.failed and a.status or a.ready and'bounds ready; inspect visible model'or'loading'}
+  end end
+  out.buildings[#out.buildings+1]={fileID=h.fileID,label=h.label,format='WMO',instances=instances,status=#instances==0 and'not spawned'or'manually placed'}
  end
  return out
 end
@@ -61,10 +73,9 @@ function F.BuildingNotice(v,s)
   local bg=f:CreateTexture(nil,'BACKGROUND');bg:SetAllPoints();bg:SetColorTexture(.035,.025,.015,.88)
   f.text=f:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');f.text:SetPoint('TOPLEFT',8,-7);f.text:SetPoint('BOTTOMRIGHT',-8,7);f.text:SetJustifyH('LEFT');v.buildingNotice=f
  end
- local home=s.native.actors['player-home'];local text
- if not home or not home.ready then text=home and home.failed and'Goldshire Inn did not load in ModelScene. Interior placement is unavailable; export the scene report.'or'Loading Elwynn world buildings. Goldshire Inn WMO/interior needs a native render check.'
- elseif home.failed then text='Goldshire Inn did not load in ModelScene. Interior placement is unavailable; export the scene report.'
- else text='Goldshire Inn bounds loaded. Verify its visible interior and align the entrance/furniture in the editor; WMO rendering is not certified.'end
+ local attempt=F.lastBuildingAttempt
+ local text=attempt and('Elwynn test #'..attempt.sequence..': '..attempt.label..' ['..attempt.fileID..'] — '..attempt.phase)
+  or'Buildings are not loaded automatically. Add one Elwynn building at a time in the editor to isolate the crash.'
  if v.buildingNotice.lastText~=text then v.buildingNotice.text:SetText(text);v.buildingNotice.lastText=text end
  v.buildingNotice:SetFrameLevel(s.groundClick:GetFrameLevel()+3);v.buildingNotice:Show()
 end
@@ -202,10 +213,14 @@ function F.Advance(v,elapsed)
  local dt=clamp(elapsed,0,.05);v.age=v.age+dt;v.metrics.updates=v.metrics.updates+1
  local s=v:ActiveRoom();s.native:Tick(dt,ns.DB.livingRealmAmbience~=false)
  for _,a in ipairs(s.native.order)do
+  if a.buildingAttempt then
+   if a.failed then a.buildingAttempt.phase='failed: '..tostring(a.status)
+   elseif a.retired then a.buildingAttempt.phase='removed in editor'end
+  end
   if a.ready and not(a.failed or a.retired or a.editorHidden or a.sceneHidden)then
    if a.awaitSupport then F.ActorReady(v,s,a)end
    if a.spec.homeInterior then
-    local home=s.native.actors['player-home'];if not home or not home.ready or home.failed then a.awaitHome=true;N.Call(a.actor,'Hide')
+    if not F.HomeReady(s)then a.awaitHome=true;N.Call(a.actor,'Hide')
     elseif a.awaitHome then F.ActorReady(v,s,a)end
    end
    if a.spec.controlled and not a.spawnChecked then v:EnsurePlayerSpawn(s,a)end
