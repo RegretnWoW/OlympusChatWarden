@@ -22,3 +22,26 @@ for degrees=0,359 do
  assert(math.abs(u-.5)<1e-9 and math.abs(v-.5)<1e-9 and depth>0,'orbit must keep its target centered')
 end
 print('PASS: swept collision, floor boundary, approximate doorway, furniture collision, fixed basis, 360 orbit projections')
+assert(loadfile('Fireside3DExperiment/Background.lua'))('test',ns)
+local B=ns.ExperimentBackground
+local checked=0
+for degrees=0,330,30 do
+ for _,pitch in ipairs({-.05,.35,1.1}) do
+  local yaw=degrees*math.pi/180
+  local view={position={3-12*math.cos(pitch)*math.cos(yaw),4-12*math.cos(pitch)*math.sin(yaw),math.max(.4,1.3+12*math.sin(pitch))},target={3,4,1.3},fov=.85}
+  for _,v in ipairs({.1,.3,.5,.7,.9,.99}) do
+   for _,u in ipairs({0,.2,.5,.8,1}) do
+    local x,y=B.GroundPoint(view,u,v,16/9)
+    if x then
+     local pu,pv,depth=N.Project(view,x,y,0,16/9)
+     assert(depth>0 and math.abs(pu-u)<1e-7 and math.abs(pv-v)<1e-7,'ground projection disagrees with native scene math')
+     checked=checked+1
+    end
+   end
+  end
+ end
+end
+assert(checked>100)
+local level={position={0,-10,2},target={0,0,2},fov=.85}
+assert(not B.GroundPoint(level,.5,.1,16/9),'sky rays must not draw floor')
+print('PASS: '..checked..' inverse-ground projection samples; horizon rejection')

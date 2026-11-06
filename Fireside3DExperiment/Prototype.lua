@@ -8,7 +8,7 @@ local candidates = {
     {191492, 'Ogrila hut', 'world/expansion01/doodads/bladesedge/ogrila/ogrilahut/ogrila_hut.m2'},
     {106965, 'Human farmhouse (WMO probe)', 'world/wmo/azeroth/buildings/human_farm/farm.wmo'},
 }
-local window, engine, house, player, furniture, floorActor
+local window, engine, house, player, furniture, background
 local keys, dragging, active = {}, false, false
 local index, yaw, pitch, distance, houseFloor = 1, -pi / 2, .35, 18, 0
 local status, message, orbitX, orbitY, halfX, halfY
@@ -27,13 +27,14 @@ local function camera()
     local p = active and player and player.ready and player.position or {0,0,0}
     local x,y,z = N.World(shot,p[1],p[2],p[3]+1.3)
     local horizontal = distance*cos(pitch)
-    local view={position={x-horizontal*cos(yaw),y-horizontal*sin(yaw),z+distance*sin(pitch)},target={x,y,z},fov=.85}
+    local view={position={x-horizontal*cos(yaw),y-horizontal*sin(yaw),math.max(.4,z+distance*sin(pitch))},target={x,y,z},fov=.85}
+    if background then background:Update(view) end
     if not N.ViewCamera(engine,view) then active=false; clearInput(); text('Camera API rejected. Stop: this client cannot run the experiment.') end
 end
 local function probe()
     active=false; clearInput(); houseFloor=0; halfX=nil; halfY=nil
-    house=nil; player=nil; furniture=nil; floorActor=nil
-    if engine then engine:Show(false); engine.frame:Hide() end
+    house=nil; player=nil; furniture=nil
+    if engine and engine.frame then engine:Show(false) end
     if index>#candidates then
         text('STOP: all three house candidates exhausted. No usable house confirmed. /fs3d report'); return
     end
@@ -48,15 +49,12 @@ local function probe()
             distance=math.max(18,math.max(halfX,halfY)*3)
             placeHouse()
             text(candidates[index][2]..' loaded bounds; VISUAL UNVERIFIED. Right-drag to orbit. /fs3d accept if a real usable house is visible; /fs3d next if not.')
-        elseif a.id=='floor' then
-            -- This is a real native floor mesh. Align its upper bound with the walking plane.
-            engine:Place(a,0,0,-a.top-.03,0)
         end
     end
     for _,method in ipairs({'SetLightAmbientColor','SetLightDiffuseColor'}) do N.Call(engine.frame,method,.8,.8,.8) end
     N.Call(engine.frame,'SetLightDirection',-.5,-.5,-1)
     house=engine:Add({id='house',fileID=candidates[index][1],width=12,at={0,0,0},yaw=0})
-    player=nil; furniture=nil; floorActor=nil
+    player=nil; furniture=nil
     text('Requesting '..candidates[index][2]..' ('..candidates[index][1]..'). No visual result yet.')
 end
 local function accept()
@@ -65,7 +63,6 @@ local function accept()
     -- Explicit human observation, never inferred from IsLoaded/bounds.
     house.visualConfirmed=true
     furniture=engine:Add({id='table',fileID=198603,height=.9,at={0,0,0},yaw=0})
-    floorActor=engine:Add({id='floor',fileID=192533,width=50,at={0,0,-.1},yaw=0,collision=false})
     player=engine:Add({id='player',unit='player',height=1.85,at={0,-halfY-4,0},yaw=0,animations={0,4}})
     active=true; distance=12
     text('WASD while pointer is inside viewport; right-drag orbit/pitch; wheel zoom. Esc releases input. /fs3d report. Solid house collision; /fs3d interior enables approximate doorway trial.')
@@ -88,7 +85,7 @@ local function obstacles()
 end
 local function move(dt)
     if not active or not player or not player.ready then return end
-    if not (house.ready and furniture and furniture.ready and floorActor and floorActor.ready) then return end
+    if not (house.ready and furniture and furniture.ready) then return end
     local forward=(keys.W and 1 or 0)-(keys.S and 1 or 0)
     local right=(keys.D and 1 or 0)-(keys.A and 1 or 0)
     local length=math.sqrt(forward*forward+right*right)
@@ -116,6 +113,7 @@ local function create()
     status:SetPoint('TOPLEFT',12,-12); status:SetPoint('TOPRIGHT',-48,-12); status:SetHeight(52); status:SetJustifyH('LEFT')
     local close=CreateFrame('Button',nil,window,'UIPanelCloseButton'); close:SetPoint('TOPRIGHT'); close:SetScript('OnClick',function() window:Hide() end)
     window.viewport=CreateFrame('Frame',nil,window); window.viewport:SetPoint('TOPLEFT',8,-70); window.viewport:SetPoint('BOTTOMRIGHT',-8,8)
+    background=ns.ExperimentBackground.New(window.viewport)
     window.viewport:EnableMouse(true); window.viewport:EnableMouseWheel(true)
     window.viewport:SetScript('OnMouseDown',function(_,button) if button=='RightButton' then dragging=true; orbitX,orbitY=GetCursorPosition() end end)
     window.viewport:SetScript('OnMouseUp',function() dragging=false end)
@@ -150,10 +148,10 @@ SlashCmdList.FIRESIDE3DEXPERIMENT=function(input)
     local command,arg=(input or ''):match('^(%S*)%s*(.-)$')
     if not window then create() end
     if command=='report' then
-        say('Base 9bc2326f67532c548102caa831b20af2234d6bfe; candidate '..index..'; visual house confirmation='..tostring(house and house.visualConfirmed==true))
+        say('Textured scene v0.2; base 9bc2326f67532c548102caa831b20af2234d6bfe; candidate '..index..'; visual house confirmation='..tostring(house and house.visualConfirmed==true))
         if index<=#candidates then say(candidates[index][1]..' '..candidates[index][3]) end
         for _,a in ipairs(engine and engine.order or {}) do say(a.id..': '..a.status..'; bounds='..(a.bounds and table.concat(a.bounds,',') or 'none')) end
-        say('Interior trial='..tostring(interior)..'; house floor offset='..houseFloor..'; rendered appearance/depth require human inspection.')
+        say('Sky+wood ground; interior trial='..tostring(interior)..'; house floor offset='..houseFloor..'; rendered appearance/depth require human inspection.')
     elseif command=='next' then index=index+1; interior=false; probe()
     elseif command=='accept' then accept()
     elseif command=='interior' and active then interior=not interior; say('Approximate front doorway collision='..tostring(interior)..'. Not native mesh collision. Verify alignment visually.')
