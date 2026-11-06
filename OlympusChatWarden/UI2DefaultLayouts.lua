@@ -1,3 +1,0 @@
--- Author defaults are immutable release data. User overrides live in ns.DB.
-local _,ns=...
-ns.UI2DefaultLayouts={schema=2,revision='2.11.8-lanes2',templates={}}

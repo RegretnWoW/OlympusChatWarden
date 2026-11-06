@@ -1,3 +1,0 @@
-Fields and Athena home themes — note and master polish, 2026-11-02.
-Native REAPER rendering through the installed Spitfire Symphony Orchestra Discover instruments in Kontakt8. Core motifs, forms and tempo maps preserved; phrase-ending cadences and short exposed quiet answers revised. Mastered with one constant gain, no dynamic compression; actual release tails wrapped into the loop.
-Fields 493.272770833 seconds; Home 267.4193125 seconds; 48 kHz stereo. 100% OGG byte-identical to the new master; other gains use constant attenuation of lossless loops. Previous audio retained unchanged. No plugins, presets, sample libraries or Blizzard assets distributed.

@@ -1,3 +1,0 @@
--- Current scene resources only. Development exports remain archived.
-local _,ns=...
-ns.WardenSceneAssets={VERSION=77,assets={["air-flame2"]={["height"]=450,["path"]="Interface\\AddOns\\OlympusChatWarden\\Media\\LivingFlame\\FlameFallback77.tga",["uv"]={[1]=0,[2]=0.80078125,[3]=0,[4]=0.87890625},["width"]=205}},rigs={},clips={},scenes={}}

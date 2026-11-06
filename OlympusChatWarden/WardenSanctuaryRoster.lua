@@ -1,7 +1,0 @@
--- Fixed launch catalogue v1: 19 original + 9 announced Forever dungeons.
--- Native availability and completion APIs still require in-game verification.
-local _,ns=...
-ns.WardenSanctuaryRoster={version=1,source="https://worldofwarcraft.blizzard.com/en-us/news/24301455",
-dungeons={'activity-atlas-instance-alcaz-prison','activity-blackfathom-deeps','activity-atlas-instance-blackmaw-hold','activity-blackrock-depths','activity-atlas-instance-blackrock-spire','activity-atlas-instance-city-of-dalaran','activity-dire-maul','activity-atlas-instance-excavation-site','activity-gnomeregan','activity-atlas-instance-hall-of-thanes','activity-atlas-instance-kroldok-stronghold','activity-atlas-instance-maraudon','activity-atlas-instance-ragefire-chasm','activity-atlas-instance-razorfen-downs','activity-atlas-instance-razorfen-kraul','activity-atlas-instance-ruins-of-lordaeron','activity-scarlet-monastery','activity-atlas-instance-scholomance','activity-shadowfang-keep','activity-atlas-instance-shapers-terrace','activity-atlas-instance-stratholme','activity-the-deadmines','activity-atlas-instance-the-drowned-city','activity-atlas-instance-the-stockade','activity-atlas-instance-the-temple-of-atalhakkar','activity-uldaman','activity-wailing-caverns','activity-atlas-instance-zulfarrak'},
-battlegrounds={'activity-atlas-instance-alterac-valley','activity-atlas-instance-arathi-basin','activity-atlas-instance-darkspear-islands','activity-atlas-instance-warsong-gulch'},
-}

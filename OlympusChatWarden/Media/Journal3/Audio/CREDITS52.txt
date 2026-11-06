@@ -1,6 +1,0 @@
-Athena's Hearth — owner-supplied home soundtrack
-Source: Olympus_Warden_Athenas_Hearth_Demo.mp3, provided by the owner for this build.
-No third-party author or license claim is inferred.
-Full stereo composition, level-bounded OGG masters at 25/50/75/100 percent.
-120 ms leading and 500 ms trailing edge fades; no musical excerpts or rearrangement.
-Prior Meadow Thoughts audio and attribution remain in CREDITS31.txt.

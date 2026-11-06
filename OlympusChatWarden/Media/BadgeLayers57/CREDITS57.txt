@@ -1,1 +1,0 @@
-Integrated57 material separation of the approved Plaques32 artwork. Original files retained byte-for-byte. Front/back exports preserve original RGB and use measured aperture alpha. SVG geometry, source receipt and source glass included in the separate authoring package. Glass overlay generated with built-in image_gen; central reflections at runtime alpha .35. No Blizzard assets.
