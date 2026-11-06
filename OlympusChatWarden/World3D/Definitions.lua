@@ -1,13 +1,20 @@
 -- One shipped neighborhood. square keeps the existing Live scene wire identity;
 -- the existing geometry digest rejects clients with different world definitions.
 local _,ns=...
-local F={VERSION=1,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
+local F={VERSION=2,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
 local C=ns.WardenRoomCatalogue
 F.homeDoor={side='negative-y',width=2.2,wallThickness=.2}
 F.bounds={-36,-28,36,32}
-F.houses={{id='player-home',at={0,14,0}},{id='house-west',at={-17,14,0}},{id='house-east',at={17,14,0}},{id='house-southwest',at={-17,-12,0}},{id='house-southeast',at={17,-12,0}}}
+-- Original Classic M2 references, not retail housing or WMO roots. Only the
+-- original home has a user-reported render test; qualify the new models in-client.
+F.houses={
+ {id='player-home',fileID=190430,label='Your Home — Swamp water hut 1',at={0,14,0}},
+ {id='house-west',fileID=203656,label='Arathi farmhouse 1',at={-17,14,0}},
+ {id='house-east',fileID=203657,label='Arathi farmhouse 2',at={17,14,0}},
+ {id='house-southwest',fileID=190431,label='Swamp water hut 2',at={0,-16,0}},
+}
 local props={}
-for _,h in ipairs(F.houses)do props[#props+1]={id=h.id,fileID=190430,label=h.id=='player-home'and'Your Home'or'Neighborhood House',width=12,at=h.at,yaw=0,worldYaw=0,house3D=true,collision=true}end
+for _,h in ipairs(F.houses)do props[#props+1]={id=h.id,fileID=h.fileID,label=h.label,width=12,at=h.at,yaw=0,worldYaw=0,house3D=true,collision=true}end
 local function add(row)props[#props+1]=row end
 add({id='desk',fileID=198603,label='Home table',height=.9,at={0,14,0},yaw=0})
 add({id='room-book',fileID=200912,label='Athena Journal',width=.65,at={0,14,.915},support='desk',supportOffset={0,0,.015},probeObject=true,animations={0,146,147,148,149},interaction='journal',collision=false})
@@ -18,9 +25,9 @@ for i,p in ipairs({{-5,-2},{5,-2}})do add({id='public-chair-'..i,fileID=198114,l
 for i,p in ipairs({{-30,25},{30,25},{-30,-23},{30,-23}})do add({id='tree-'..i,fileID=189923,label='Evergreen',height=7,at={p[1],p[2],0},collisionRadius=.8})end
 F.npcPaths={{{-7,-2},{-7,3},{-4,5}},{{7,-2},{7,3},{4,5}},{{-2,16},{-2,13},{-3,12}}}
 F.props=props
-local d={label='Fireside — The New Home',interior=false,world3D=true,reader=true,layoutSlot='fireside-3d',shot={id='fireside-3d-world-v1',position={0,-18,8},target={0,0,1},fov=.85},
- navigation={floor=0,floorUV={0,0,1,1},worldBounds=F.bounds,coordinateSpace='WORLD_XYZ_3D_V1',npcPaths=F.npcPaths,homeDoor=F.homeDoor,houseModel=190430},
- props=props,residents={{id='attendant',unit='player',controlled=true,height=1.85,at={0,-7,0},animations={0,4,5,96,97,98,102,103,104},navigationRadius=.3}},outside={},plates={},routes={},airOccluders={},flags={},book={offset={0,0,.015},wideScale=.65},musicScene='forest',walkSpeed=4,artRevision='3d-neighborhood-v1'}
+local d={label='Fireside — The New Home',interior=false,world3D=true,reader=true,layoutSlot='fireside-3d',shot={id='fireside-3d-world-v2',position={0,-18,8},target={0,0,1},fov=.85},
+ navigation={floor=0,floorUV={0,0,1,1},worldBounds=F.bounds,coordinateSpace='WORLD_XYZ_3D_V1',npcPaths=F.npcPaths,homeDoor=F.homeDoor,houseModels={190430,203656,203657,190431}},
+ props=props,residents={{id='attendant',unit='player',controlled=true,height=1.85,at={0,-7,0},animations={0,4,5,96,97,98,102,103,104},navigationRadius=.3}},outside={},plates={},routes={},airOccluders={},flags={},book={offset={0,0,.015},wideScale=.65},musicScene='forest',walkSpeed=4,artRevision='3d-neighborhood-v2'}
 assert(C.ReviseBundledRoom(F.PRIMARY,d))
 function F.IsScene(s)return s and s.definition and s.definition.world3D==true end
 -- Old links stay recoverable as shipped metadata but are not active 3D travel.

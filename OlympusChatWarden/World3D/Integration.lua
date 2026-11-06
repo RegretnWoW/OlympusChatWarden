@@ -64,6 +64,7 @@ ns.WardenRealm.Attach=function(...)
   a.pendingInteraction={kind='home-object-3d',id=id};return s.native:Route(a,best,math.max(2,best.length/4),4,nav)
  end
  local function click3D(self,scene,u,y)
+  if ns.WardenSceneEditor and ns.WardenSceneEditor.active then return false,'Scene editor is active'end
   if U.locked or ns.MainStorageBlocked or not U.menuHidden or self.shelfFocus or self.journalReading or self.roomBookMotion then return false,'Finish the current view first'end
   local G=ns.WardenSceneObjectControls
   for _,id in ipairs({'room-book','shelf-right'})do local a=scene.native.actors[id]
@@ -88,6 +89,7 @@ ns.WardenRealm.Attach=function(...)
   local out=report(self,...);out.fireside3D={version=F.VERSION,scene=F.PRIMARY,coordinateSpace='world XYZ',instances=#self:Scenes(),houses=#F.houses,nativeViewportCount=1,legacyTravel=false,base=F.BASE,visualQualification='Prototype mechanics user-tested; expanded neighborhood requires native testing',colliderQualification='Bounds-based home shell; use existing editor to align doorway/hitbox with hut'};return out
  end
  F.Catalog.BindExistingEditor()
+ F.EditorCamera.BindExistingEditor()
  return v
 end
 -- Direct 3D landing; regular feature tabs still open the existing UI over it.
@@ -119,7 +121,7 @@ end
 -- The old fixed-scene cinematic is not part of the unified world. Consent/setup UI remains unchanged.
 if ns.WardenWelcomeGuide then ns.WardenWelcomeGuide.NeedsWelcome=function()return false end end
 ns.OpenWelcome=function()ns.Print('Welcome home. Close Menu to explore; WASD moves and right-drag rotates the 3D camera.');return true end
-local event=CreateFrame('Frame');event:RegisterEvent('ADDON_LOADED');event:SetScript('OnEvent',function()F.Catalog.BindExistingEditor()end)
+local event=CreateFrame('Frame');event:RegisterEvent('ADDON_LOADED');event:SetScript('OnEvent',function()F.Catalog.BindExistingEditor();F.EditorCamera.BindExistingEditor()end)
 
 for _,entry in ipairs(U.destinations or{})do if entry[1]=='journey'then entry[2]='My Home'end end
 local ensure=U.Ensure

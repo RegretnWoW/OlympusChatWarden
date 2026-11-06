@@ -3,6 +3,7 @@
 from pathlib import Path
 import argparse, hashlib, json, subprocess, zipfile
 BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'
+CANDIDATE='candidate2'
 
 def tracked():
     return subprocess.check_output(['git','ls-files','-z']).decode().split('\0')[:-1]
@@ -35,11 +36,11 @@ def main():
         assert hashlib.sha256(data).hexdigest()not in forbidden_hashes,'Private file rejected'
         assert not any(value in data for value in literals),'Private-only literal rejected'
         assert not name.startswith(('OlympusWardenSimLab/','attachments/','private-')),'Nonpublic path rejected'
-    manifest={'base':BASE,'kind':'public code overlay; requires existing base media','files':{}}
+    manifest={'base':BASE,'candidate':CANDIDATE,'kind':'public code overlay; requires existing base media','files':{}}
     for name,p in selected.items():
         assert not p.is_symlink() and p.resolve().is_relative_to(root),'Nonlocal/symlink payload rejected'
         data=p.read_bytes();check(data,name);manifest['files'][name]=hashlib.sha256(data).hexdigest()
-    candidate=out/'Fireside-3D-candidate1-overlay.zip'
+    candidate=out/('Fireside-3D-'+CANDIDATE+'-overlay.zip')
     with zipfile.ZipFile(candidate,'w',zipfile.ZIP_DEFLATED)as z:
         for name,p in sorted(selected.items()):z.write(p,name)
         z.writestr('FIRESIDE-3D-MANIFEST.json',json.dumps(manifest,indent=2)+'\n')

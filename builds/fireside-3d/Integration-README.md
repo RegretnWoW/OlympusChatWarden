@@ -1,41 +1,76 @@
-# Fireside 3D — New Home candidate
+# Fireside 3D — New Home candidate 2
 
-Branch: `feature/fireside-3d`. Authoritative production base: `e4cc9f8da008fd065d933e6d142dde854108d53a` (the updated hotfix with Aether Live). No merge into main or CurseForge publication is performed.
+Branch: `feature/fireside-3d`. Production base: `e4cc9f8da008fd065d933e6d142dde854108d53a` (the updated hotfix with Aether Live). Main and CurseForge are unchanged.
 
-## Install the single candidate
+## Install
 
-Close WoW and keep your normal closed-client WTF backup. Install the exact public base build identified above first, then extract **Fireside-3D-candidate1-overlay.zip** into `Interface/AddOns/`, allowing replacement of the public addon code. It contains the complete public Lua/XML/TOC code, the optional candidate catalog, the existing recovery addon code, and the new grass tile. Do not overlay a later stability build; integrate the source changes against that newer build instead. Existing production media must remain installed: this overlay deliberately does not duplicate the approximately 1.4 GB media library. Do not install the old standalone prototype alongside it for this test.
+Close WoW and keep your normal closed-client WTF backup. Install the exact public base above, then extract **Fireside-3D-candidate2-overlay.zip** into `Interface/AddOns/`, allowing replacement of the public addon code and the `Fireside3DAssets` catalog. You can also apply this overlay to candidate 1 when it uses that same base media. Do not overlay a later stability build; integrate the source changes against it instead. The overlay includes public Lua/XML/TOC code, the optional catalog, existing recovery code and the grass tile. Retain the base's approximately 1.4 GB media library. Do not install the standalone prototype alongside this build.
 
-The private development addon is **not included**. Keep any private development installation separate and local. The existing editor is optional for gameplay; the candidate extends its existing browser when that editor is installed. No private archive, credential, issuer configuration or private implementation is committed or packaged.
+The private development addon is **not included**. Keep it local. Its existing editor is optional for gameplay; public adapters extend that editor when installed. No private archive, implementation, credentials or configuration is committed or packaged.
 
-Open `/fireside`. The default view is the new neighborhood; Open Menu retains Journal, Atlas, Agora, settings and other existing services. WASD moves while the pointer is on the world, right-drag rotates/pitches, and wheel zooms. Moving/typing outside that surface, menus, modal views, editing and combat release world input. The Oasis navigation action walks toward the home entrance in the same world; it no longer changes environments.
+Open `/fireside`. WASD moves your character while the pointer is over the world, right-drag rotates/pitches, and wheel zooms. Menus, typing, editing and combat release player input. The My Home action walks to the home entrance within the same world. Open Menu retains the normal Journal, Atlas, Agora, settings and other services.
 
-## What changed
+## Four different Classic house models
 
-- Exactly one primary world instance and one native ModelScene/depth buffer. Five buildings reuse the prototype's default water-hut model, FileDataID **190430**. This is five instances of the reported working model, not five newly certified house assets. One home contains the real Journal, chair and real earned-badge/memento shelf. A small fire/gathering area, trees, grass, projected paths and the production full-sky artwork complete the compact layout.
-- The prototype's world XYZ placement, camera and input are adapted into the current realm. Fixed model pivots/native API conversion remain; painted-depth scale curves, floor-UV relocation and multi-pass actor occlusion are not applied to this scene. Ground, path decals and contact shadows are projected world-plane presentation, not native triangle terrain or physical shadow maps. No custom M2/WMO geometry or extraction pipeline is introduced.
-- Fields, Study and the old Town are not instantiated. The old definition/source files remain recoverable and shared resources are retained. The old scene travel links and cinematic are inactive in this candidate. Layout editing uses a distinct `fireside-3d` layout slot, preserving existing edited 2.5D layouts without migration.
-- Book and shelf clicks use collision-checked approach routes, then open the existing production Journal and earned showcase. History permissions, empty-history behavior, earned inventory checks, saved reader place, badge recipes and the existing cosmetic save path remain authoritative. No synthetic pages/badges or test entitlement grants are shipped in this world.
-- The supplied research CSV is resolved into a separate **load-on-demand** `Fireside3DAssets` addon: 40 metadata rows, not a mandatory startup catalog. Existing editor search can match names, categories, paths and FileDataIDs. WMO entries remain untested candidates; a resolved ID or successful bounds load does not certify visible rendering/interior access. The original index-building Python tool and CSV are retained under this directory; no private editor code is included.
+| Building | FileDataID | Original model path |
+| --- | --- | --- |
+| Player home: Swamp water hut 1 | 190430 | `world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut01.m2` |
+| West: Arathi farmhouse 1 | 203656 | `world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse01.m2` |
+| East: Arathi farmhouse 2 | 203657 | `world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse02.m2` |
+| South: Swamp water hut 2 | 190431 | `world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut02.m2` |
 
-## Aether Live integration
+These are four distinct original Classic-era M2 references. The new selections add two farmhouse models and a different hut, retaining the original tested home. Their ID/path pairs were resolved against the public wowdev listfile. This verifies the reference, **not installation or visible rendering in the running Forever client**. The three newly selected models still need a native check for availability, appearance, dimensions and openings. No WMO root or retail housing model is requested by these four buildings. There is no silent substitution of the original hut for a missing model.
 
-Uses the updated base's existing certificate/session trust, native sender binding, P2P transport, appearance reconstruction, coalesced movement channel, connection recovery and eight remote actor slots. Wire protocol remains **2** and scene `square` retains wire code `a`. The shipped geometry digest now includes the neighborhood's props, world bounds, coordinate mode, home-door settings and NPC world paths, so legacy layouts are incompatible through the existing revision check.
+Only the player home has the explicit wall/door shell and interactive interior. The other three buildings have solid bounds-based collision. House rotation, size and collider alignment remain adjustable in the existing editor. The original hut/collider mismatch is not claimed fixed by selecting the other models; inspect and align it natively. Stairs, mesh navigation, camera-wall collision and terrain elevation are outside this prototype.
 
-WASD position updates use the existing M state at a six-Hz coalesced cadence, with an immediate final idle update. Only already-validated zero-duration movement states receive scene-specific render interpolation; authentication and geometry rejection still run in the existing Live controller. Canonical NPCs use the existing deterministic clock/path routine with world points instead of painted UV anchors. As in the base, this is not newly authoritative/packet-synchronized contested NPC gameplay.
+Pending house bounds pause player movement until loading resolves. A model explicitly reported failed or hidden is omitted from collision rather than freezing the entire demo; its native error remains in the scene report. It is not replaced with an invisible building collider or another hut.
 
-Storage, recovery, collectors, authentication and transport files are unchanged from the base. Normal existing features may save their normal preferences; no new database root, SavedVariables declaration, schema, migration, backup behavior or credential flow is added.
+## Scene editor free camera
 
-## One real-client test session
+Open the existing editor with local test mode enabled. Its older Study/Fields launch buttons now target the single 3D world. The editor opens over the wide scene. Fly-camera controls appear at the top left:
 
-1. Open `/fireside`: confirm one neighborhood, five hut instances, full sky/ground/paths, the gathering area and your character. No old room/travel selection should appear.
-2. Move with WASD while rotating 360 degrees, pitching and zooming. Check native object size, floor contacts, world-aligned shadows/colliders and camera follow. Open a normal content tab and return to the world; type in chat and enter/leave combat to check focus release.
-3. Enter the home through its negative-Y entrance. The home uses an explicit bounds-based wall/door shell. **The hut/collider mismatch reported in the prototype is not a claim of mesh-perfect collision**; use the existing editor's collider/rotation controls for native alignment and report a mismatch. The four other houses have solid building bounds. No stairs, terrain elevation, camera-wall collision or native mesh navigation is implemented.
-4. Click the home chair, sit and stand. Click the book and confirm your permitted real Journal/empty-history message, page/cover controls and return to world. Click the shelf and inspect/edit only actually earned badges/mementos; empty inventory must remain empty. Reopen to verify the existing cosmetic save path.
-5. Using the existing Aether controls and explicit Live participation, connect a second client on this **same candidate**, compare shared geometry revision, move both characters, inspect appearance/NPC routines and sit/stand. Check disconnect/reconnect through the existing controls. An old-layout client must report incompatible geometry; no trust/consent requirement should be bypassed.
-6. With the private editor already installed locally, browse the optional model candidates, search an ID/category and try a preview/placement through the existing controls. Leave Live before editing, as required by the existing guard. Do not mark WMO candidates verified without actually viewing the result. Keep private exports local.
+- **W/S:** fly forward/back along the view direction.
+- **A/D:** strafe left/right.
+- **Q/E:** lower/raise the camera.
+- **Right-drag:** look around through 360 degrees and pitch up/down.
+- **Shift:** move three times faster; **wheel:** dolly forward/back.
+- **Reset camera:** return the editor view to the character's normal follow viewpoint.
 
-The prototype mechanics were reported successful by the user. This expanded integration has **not** been visually or two-client qualified in Codex Cloud. Call-recorded tests do not establish native rendering, model availability, collision fit, real-history UI behavior or multiplayer delivery. Supply one combined report from the above session; no intermediate checkpoint builds are requested.
+Keep the pointer over the scene for movement. Typing, forms, object dragging, combat and leaving the viewport release camera input. Left-dragging the existing object handle still edits the selected object. Camera flight passes through walls and does not move the character, alter colliders/scales, save a layout transform or publish player movement. Camera position is transient; closing the editor restores character follow. The existing editor's NPC pause remains active and normal NPC updates resume on close. Trust, local test-mode and Live editing guards remain in the existing editor.
+
+## Compatible prop catalog
+
+The lazy `Fireside3DAssets` addon now contains **11 explicit M2 references**: ten Classic-era models plus the existing Forever earned-badge shelf. The broader retail/expansion WMO research entries are removed from the runtime catalog. The pre-existing Forever object library remains available. New references are merged into the existing editor's category, search and selection lookup; choosing a farmhouse fills the actual model fields.
+
+The Dalaran shelf (242995) is retained because the public production showcase already identifies it as an installed Forever mesh and calibrates its badge ledges. It is an existing Forever reference, not labeled original Classic or newly native-certified. Keeping it preserves the real earned showcase. Other placed furniture uses the existing Classic table, chair, animated book, Elwynn fire and fir tree references.
+
+`classic-assets.csv` is the explicit source for the new catalog. Rebuild it with:
+
+```
+python3 tools/fireside3d/build_classic_catalog.py --listfile /path/to/community-listfile.csv
+```
+
+The supplied broader `research-candidates.csv` and original research script remain offline research inputs under `tools/fireside3d/`. They are not loaded by the client or offered as compatible props. Listfile resolution and source metadata never count as a render test.
+
+## Retained integration
+
+One native ModelScene/depth buffer holds buildings, furniture, your character, existing NPCs and Live peers in a fixed world XYZ basis. Placement has no painted-depth scale or floor-UV correction. Ground, paths and contact shadows project world planes through the actual camera; they are not native mesh terrain or physical shadow maps. Fields, Study and old Town instances/travel remain inactive. Legacy source/resources remain recoverable, and the `fireside-3d` layout slot preserves old 2.5D layouts without migration. Existing saved 3D overrides can still affect the revised buildings; inspect them with the editor before resetting an object.
+
+The home book and shelf use existing collision-checked approach routes, real Journal/history permissions and actual earned inventory. Existing save, reader-place and badge recipe behavior remains authoritative. No synthetic pages, rewards or grants are shipped.
+
+Aether Live retains the base's protocol **2**, certificate/session trust, native sender binding, P2P transport, appearance reconstruction, coalesced movement channel, recovery and eight remote actor slots. Scene `square` keeps wire code `a`. The existing geometry digest includes the revised buildings, bounds, coordinate mode, doorway and NPC world paths, so **both clients must run candidate 2**; candidate 1 geometry is incompatible. Manual player updates keep the existing six-Hz coalesced M cadence and immediate final idle update. Camera flight never enters that state. NPCs retain the existing deterministic clock/path routine with world points, not a new authority or packet system.
+
+Storage, recovery, collectors, authentication and transport source files match the recorded base. No SavedVariables declaration, schema, migration, database root or credential flow is added.
+
+## One native test session
+
+1. Open `/fireside` and inspect **four different models**: the two Arathi farmhouses and two water huts. Check the full sky, ground, paths and gathering area. Report any missing/placeholder building with its FileDataID.
+2. Move your character while rotating 360 degrees, pitching and zooming. Check stable world size, floor contacts, shadows and colliders. Open/close normal content, type in chat and enter/leave combat to verify input release.
+3. Enter the player home through the negative-Y entrance; inspect the wall/door alignment. Sit/stand in its chair. Open your real Journal, use the page/cover controls and return. Inspect/edit earned badges/mementos; empty inventories stay empty. Reopen to check the existing save path.
+4. With the private editor installed locally, open it from its existing launcher. Fly away from the character, move vertically, rotate fully around all four buildings and dolly inside the home. Verify the character remains in place, NPCs pause, object handles still place correctly, forms accept typing, and Reset/Close restores the expected camera. Browse Houses, select an Arathi farmhouse and verify its ID fills correctly. Keep private exports local.
+5. Connect a second client using the existing Aether controls and explicit Live participation. Both clients must use candidate 2. Compare geometry revision; inspect movement, appearance, NPC paths, seating and disconnect/reconnect. A candidate 1 or legacy-layout client must be incompatible. Leave Live before editing, as the existing guard requires.
+
+The earlier prototype mechanics were user-reported successful. The revised three house models, editor camera in the private editor, expanded native rendering and two-client delivery have **not** been visually qualified in Codex Cloud. Code/call-recording checks do not certify those behaviors.
 
 ## Automated checks and integration
 
@@ -44,8 +79,9 @@ Run from repository root with Lua 5.1:
 ```
 lua5.1 tools/fireside3d/checks.lua
 lua5.1 tools/fireside3d/lifecycle.lua
+lua5.1 tools/fireside3d/editor_camera.lua
 ```
 
-The checks cover room registration, one-viewport construction with retained canonical/Live/shelf wrappers, no old instances/links, lazy Journal/catalog, world transforms, rotated home collision, Live-slot budget, shipped protocol-2 codec/revision handling, WASD coalescing/stop, floor decal clipping and validated-target interpolation. Full Lua syntax, manifest dependencies, artifact integrity, private-file exclusion and protected-source hashes are also checked during packaging.
+Checks cover four distinct model selections, one native viewport, real Journal laziness, doorway/rotated collision, camera-independent actor placement, Live codec/geometry/coalescing, Classic catalog filtering/selection, editor launch mapping, fly/strafe/height/look/dolly, camera reset/follow restoration, input guards, player-state isolation and NPC pause/resume. Packaging uses explicit public Git paths and checks private-reference exclusion and ZIP integrity. Lua syntax, TOC paths and protected-source bytes are checked separately.
 
-For the Pro account: review the PR against the recorded hotfix base. Adopt the new `World3D/` modules, the new tile and the load-on-demand catalog, then reconcile the small scene-gated changes in the realm, reading camera, room catalogue, travel, layer staging, Live world presentation and TOC. Do not replace the newer authoritative authentication/storage/network files with prototype copies. The candidate is a graphical integration branch, not a new data or multiplayer architecture.
+The changed-files ZIP and patch contain the full integration against `e4cc9f8`, including candidate 2. For newer stability builds, reconcile the scene-gated realm, camera, catalogue, travel, layer, Live presentation and TOC changes; do not replace newer authentication/storage/network files with prototype copies. Review before merging or publishing a production release.

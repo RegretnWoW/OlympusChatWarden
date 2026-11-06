@@ -6,7 +6,9 @@ for _,key in ipairs({'hall','square'})do assert(C.RegisterRoom(key,{label=key,la
 C.onRegister=function(key,d)ns.WardenWorldScenes.props[key]=d.props;ns.WardenWorldScenes.residents[key]=d.residents;ns.WardenWorldScenes.outside[key]=d.outside;ns.WardenWorldScenes.navigation[key]=d.navigation end
 load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Scene.lua')
 local F,N=ns.Fireside3D,ns.WardenNativeScene
-assert(#F.houses==5 and F.PRIMARY=='square')
+assert(#F.houses==4 and F.PRIMARY=='square')
+local models={};for _,h in ipairs(F.houses)do assert(not models[h.fileID],'each house must use a different model');models[h.fileID]=true end
+assert(models[190430]and models[190431]and models[203656]and models[203657],'retain home and add both Classic farmhouse models')
 local d=C.Room('square');assert(d.world3D and d.reader and #d.plates==0 and #d.outside==0 and #d.flags==0 and d.layoutSlot=='fireside-3d')
 assert(C.Room('hall').layoutSlot=='hall','old layout metadata must remain recoverable')
 assert(#d.props+#d.residents+3+8<=N.MAX_ACTORS,'include existing eight Live peer slots in actor budget')
@@ -18,6 +20,11 @@ assert(not N.CheckPath(segment(3,8,3,13),nav),'home front wall must block')
 assert(not N.CheckPath(segment(0,13,0,20),nav),'home back wall must block')
 local rotated=F.HomeWalls({centerX=0,centerY=0,halfX=6,halfY=4,cos=0,sin=1})
 assert(N.CheckPath(segment(6,0,0,0),{ground=true,floor=0,radius=.3,obstacles=rotated}),'rotated doorway uses world collider basis')
+local house=C.Room('square').props[1];local failed={spec=house,ready=false,failed=true}
+local sampleScene={definition={props={house}},native={actors={[house.id]=failed},order={failed}},shot=d.shot}
+ns.WardenWorldScenes.Props=function(s)return s.definition.props end
+assert(F.Navigation({},sampleScene,{spec={controlled=true}}),'a reported missing house must not freeze all player movement')
+failed.failed=nil;assert(not F.Navigation({},sampleScene,{spec={controlled=true}}),'pending house bounds must still block unsafe movement')
 local engine=F.Coordinates.Bind({metrics={moves=0}})
 local native={};function native:SetPosition(x,y,z)self.position={x,y,z}end
 function native:SetYaw(yaw)self.yaw=yaw end;function native:SetPitch()end;function native:SetRoll()end
@@ -39,10 +46,21 @@ local before=G.GeometryWire(C);local changed=C.Room('square');changed.navigation
 load('World3D/Catalog.lua');assert(not F.Catalog.rows and not Fireside3DAssetIndex)
 local requested=0
 LoadAddOn=function(name)assert(name=='Fireside3DAssets');requested=requested+1;assert(loadfile('Fireside3DAssets/Index.lua'))();return true end
-local rows=assert(F.Catalog.Search('106965'));assert(#rows>=1 and rows[1].status=='CANDIDATE_NOT_RENDER_TESTED')
+local rows=assert(F.Catalog.Search('203656'));assert(#rows==1 and rows[1].status=='CLASSIC_REFERENCE_NOT_RENDER_TESTED')
 assert(F.Catalog.Search('house')and requested==1,'lazy catalog should load only once')
-for _,r in ipairs(Fireside3DAssetIndex)do if r.format=='WMO'then assert(r.status=='CANDIDATE_NOT_RENDER_TESTED')end end
-print('PASS: five-house definition, no old plates/air scene, layout isolation, doorway/rotated collision, 360 transform invariance, actor budget with Live slots, shipped protocol-2 codec, geometry compatibility, lazy candidate status/search')
+for _,r in ipairs(Fireside3DAssetIndex)do assert(F.Catalog.Compatible(r))end
+assert(not F.Catalog.Compatible({format='WMO',era='CLASSIC'}),'WMO roots must not appear as loadable editor props')
+assert(not F.Catalog.Compatible({format='M2',era='RETAIL'}),'retail housing must not appear in the Forever catalog')
+local editor={ObjectCatalogue={{198049,'Existing shelf',2.3,0,'Shelves'}},FilterObjects=function()return{}end}
+editor.AddObjectForm=function()
+ local found=false;for _,r in ipairs(editor.ObjectCatalogue)do if r[1]==203656 then assert(r[3]==7);found=true end end
+ assert(found,'dropdown choices must also exist in the editor selection lookup');return 'original form'
+end
+ns.WardenSceneEditor=editor;assert(F.Catalog.BindExistingEditor());assert(editor.AddObjectForm()=='original form')
+local count=#editor.ObjectCatalogue;editor.AddObjectForm();assert(#editor.ObjectCatalogue==count,'do not append duplicates on reopening')
+assert(#editor.FilterObjects('Houses','arathifarmhouse01')==1,'search supports the Classic model path')
+ns.WardenSceneEditor=nil
+print('PASS: four distinct Classic house references, no old plates/air scene, layout isolation, doorway/rotated collision, 360 transform invariance, actor budget with Live slots, shipped protocol-2 codec, geometry compatibility, lazy Classic catalog and existing-editor selection')
 -- Existing Live publisher: no handshake/transport is run. Verify manual movement
 -- uses the same M state/codec and coalescing, with a bounded six-Hz signature.
 ns.WardenRealm={Attach=function()return{}end};ns.WardenCanonicalPlayer={Save=function()return true end};ns.SafeCall=function(fn,...)if fn then return fn(...)end end

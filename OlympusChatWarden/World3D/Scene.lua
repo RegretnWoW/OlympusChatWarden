@@ -35,7 +35,10 @@ function F.Navigation(v,s,a)
  local nav={ground=true,continuous=true,floor=0,radius=a.spec.navigationRadius or .3,boundary=F.bounds,obstacles={}}
  for _,spec in ipairs(ns.WardenWorldScenes.Props(s))do if not spec.support and spec.collision~=false then
   local actor=s.native.actors[spec.id]
-  if spec.house3D and(not actor or not actor.ready or actor.failed)then return nil,'Waiting for neighborhood house bounds: '..spec.id end
+  -- Wait for pending bounds, but let an explicitly failed/hidden model keep
+  -- its native error report without freezing movement across the whole demo.
+  local omitted=actor and(actor.failed or actor.retired or actor.editorHidden)
+  if spec.house3D and not omitted and(not actor or not actor.ready)then return nil,'Waiting for neighborhood house bounds: '..spec.id end
   if actor and actor.ready and not(actor.failed or actor.retired or actor.editorHidden)then
    local box=N.Footprint(s.shot,actor)
    if box then
@@ -48,14 +51,15 @@ function F.Navigation(v,s,a)
 end
 function F.Camera(v)
  local s=v:ActiveRoom();local input=v.world3DInput;if not input or not s.native.frame then return end
- if v.shelfFocus then ns.WardenShelfShowcase.ApplyCamera(v,s.drawWidth/s.drawHeight)
+ if F.EditorCamera.Active(v)then
+  v.nativeReadingScene=nil;v.readingCameraKey=nil
+  N.ViewCamera(s.native,F.EditorCamera.View(v))
+ elseif v.shelfFocus then ns.WardenShelfShowcase.ApplyCamera(v,s.drawWidth/s.drawHeight)
  elseif v.journalReading or v.roomBookMotion or v.cameraMix>.001 then
   if ns.WardenReadingCamera then ns.WardenReadingCamera.Apply(v,s.drawWidth,s.drawHeight,v.cameraMix)end
  else
   v.nativeReadingScene=nil;v.readingCameraKey=nil
-  local a=s.native.actors.attendant;local p=a and a.ready and a.position or{0,-7,0}
-  local z=p[3]+1.3;local h=input.distance*cos(input.pitch)
-  local view={position={p[1]-h*cos(input.yaw),p[2]-h*sin(input.yaw),math.max(.4,z+input.distance*sin(input.pitch))},target={p[1],p[2],z},fov=.85}
+  local view=F.EditorCamera.FollowView(v)
   N.ViewCamera(s.native,view);v.world3DWideShot=view
  end
  if s.background3D then s.background3D:SetLighting(v.timeOfDay or'day');s.background3D:Update(s.native.frame,s.shot)end
@@ -181,25 +185,44 @@ function F.Advance(v,elapsed)
   a.manualMovement=moved
   if not a.route and not a.seating then s.native:Animate(a,moved and 4 or 0,1)end
  else if input then input.keys={};input.dragging=false end;if a then a.manualMovement=false end end
+ F.EditorCamera.Tick(v,dt)
  local W=ns.AetherLive and ns.AetherLive.World
- if W and not W.active then for _,def in ipairs(W.NPCs)do if def.scene==s.key then W.NPC(v,s,def,dt)end end end
+ if W and not W.active and not(editor and editor.active)then for _,def in ipairs(W.NPCs)do if def.scene==s.key then W.NPC(v,s,def,dt)end end end
  F.Camera(v);paths(v,s);F.Pose(v,ns.DB.journalReducedMotion~=true)
  for _,actor in ipairs(s.native.order)do if actor.ready and not(actor.retired or actor.editorHidden or actor.sceneHidden)then F.Shadow(v,s,actor)end end
 end
 function F.BindInput(v,U)
  local s=v.forest;local input={keys={},yaw=-pi/2,pitch=.35,distance=14};v.world3DInput=input
- function v:RefreshFieldInput()s.groundClick:SetShown(s.active);s.groundClick:EnableMouse(U.menuHidden and not self.shelfFocus and not self.journalReading and not self.roomBookMotion)end
+ local EC=F.EditorCamera
+ local function clear()input.keys={};input.dragging=false;EC.Clear(v);v.frame:SetPropagateKeyboardInput(true)end
+ function v:RefreshFieldInput()s.groundClick:SetShown(s.active);s.groundClick:EnableMouse(EC.Active(self)or U.menuHidden and not self.shelfFocus and not self.journalReading and not self.roomBookMotion)end
  v.frame:EnableKeyboard(true);v.frame:SetPropagateKeyboardInput(true)
  v.frame:SetScript('OnKeyDown',function(_,key)
+  if EC.Active(v)then
+   local capture=EC.Allowed(v)and(key=='W'or key=='A'or key=='S'or key=='D'or key=='Q'or key=='E')
+   v.frame:SetPropagateKeyboardInput(not capture)
+   if capture then EC.State(v).keys[key]=true end
+   return
+  end
   local capture=not U.locked and not ns.MainStorageBlocked and U.menuHidden and s.groundClick:IsMouseOver()and not(v.shelfFocus or v.journalReading or v.roomBookMotion)and not(ns.WardenSceneEditor and ns.WardenSceneEditor.active)and not InCombatLockdown()and not(GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus())and(key=='W'or key=='A'or key=='S'or key=='D')
   v.frame:SetPropagateKeyboardInput(not capture);if capture then input.keys[key]=true end
  end)
- v.frame:SetScript('OnKeyUp',function(_,key)local held=input.keys[key];input.keys[key]=nil;v.frame:SetPropagateKeyboardInput(not held)end)
- s.groundClick:SetScript('OnMouseDown',function(_,button)if button=='RightButton'then input.dragging=true;input.x,input.y=GetCursorPosition()end end)
- s.groundClick:SetScript('OnMouseUp',function()input.dragging=false end)
- s.groundClick:EnableMouseWheel(true);s.groundClick:SetScript('OnMouseWheel',function(_,delta)input.distance=clamp(input.distance-delta,2,55)end)
- s.groundClick:SetScript('OnLeave',function()input.keys={};input.dragging=false;v.frame:SetPropagateKeyboardInput(true)end)
- v.frame:HookScript('OnHide',function()input.keys={};input.dragging=false;v.frame:SetPropagateKeyboardInput(true)end)
+ v.frame:SetScript('OnKeyUp',function(_,key)
+  local c=v.world3DEditCamera;local held=input.keys[key]or c and c.keys[key];input.keys[key]=nil;if c then c.keys[key]=nil end
+  v.frame:SetPropagateKeyboardInput(not held)
+ end)
+ s.groundClick:SetScript('OnMouseDown',function(_,button)
+  if button~='RightButton'then return end
+  if EC.Active(v)then if EC.Allowed(v)then local c=EC.State(v);c.dragging=true;c.x,c.y=GetCursorPosition()end
+  elseif U.menuHidden and not U.locked and not ns.MainStorageBlocked and not InCombatLockdown()then input.dragging=true;input.x,input.y=GetCursorPosition()end
+ end)
+ s.groundClick:SetScript('OnMouseUp',function()input.dragging=false;local c=v.world3DEditCamera;if c then c.dragging=false end end)
+ s.groundClick:EnableMouseWheel(true);s.groundClick:SetScript('OnMouseWheel',function(_,delta)
+  if EC.Active(v)then EC.Scroll(v,delta)
+  elseif U.menuHidden and not U.locked and not ns.MainStorageBlocked and not InCombatLockdown()then input.distance=clamp(input.distance-delta,2,55)end
+ end)
+ s.groundClick:SetScript('OnLeave',clear)
+ v.frame:HookScript('OnHide',clear)
  function v:CursorSceneClick(scene,source)
   local scale=scene.frame:GetEffectiveScale();local x,y=GetCursorPosition();local left,top=scene.frame:GetLeft(),scene.frame:GetTop()
   if not left or not top or scale<=0 then return false,'Scene viewport unavailable'end

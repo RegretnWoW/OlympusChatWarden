@@ -1,6 +1,9 @@
--- Optional public research metadata; no private editor implementation is bundled.
+-- Optional Classic/Forever M2 references; no private editor implementation.
 local _,ns=...
 local C={};ns.Fireside3D.Catalog=C
+function C.Compatible(r)
+ return type(r)=='table'and r.format=='M2'and(r.era=='CLASSIC'or r.era=='FOREVER_REFERENCE')
+end
 function C.Load()
  if C.rows then return C.rows end
  local load=C_AddOns and C_AddOns.LoadAddOn or LoadAddOn
@@ -8,7 +11,20 @@ function C.Load()
  local ok,why=load('Fireside3DAssets');if not ok then return nil,why end
  local rows=rawget(_G,'Fireside3DAssetIndex')
  if type(rows)~='table'or #rows>512 then return nil,'Invalid candidate index'end
- C.rows=rows;return rows
+ local compatible={};for _,r in ipairs(rows)do if C.Compatible(r)then compatible[#compatible+1]=r end end
+ C.rows=compatible;return compatible
+end
+function C.Label(r)
+ return r.label..(r.era=='CLASSIC'and' (Classic M2)'or' (existing Forever reference)')
+end
+function C.Merge(editor)
+ local rows,why=C.Load();if not rows then return false,why end
+ editor.ObjectCatalogue=editor.ObjectCatalogue or{};local seen={}
+ for _,r in ipairs(editor.ObjectCatalogue)do seen[r[1]]=true end
+ for _,r in ipairs(rows)do if not seen[r.fileID]then
+  editor.ObjectCatalogue[#editor.ObjectCatalogue+1]={r.fileID,C.Label(r),r.height or 3,0,r.category,r.path};seen[r.fileID]=true
+ end end
+ return true
 end
 function C.Search(query,category)
  local rows,why=C.Load();if not rows then return nil,why end
@@ -24,15 +40,15 @@ function C.BindExistingEditor()
  E.fireside3DAssetBound=true
  local form,filter=E.AddObjectForm,E.FilterObjects
  E.AddObjectForm=function(...)
-  local rows,why=C.Load();if not rows then ns.Print('Candidate catalog: '..tostring(why));return false,why end
+  local ok,why=C.Merge(E);if not ok then ns.Print('Classic/Forever catalog: '..tostring(why));return false,why end
   return form(...)
  end
  E.FilterObjects=function(category,query)
-  local result=filter(category,query);local seen={}
+  local result=filter and filter(category,query)or{};local seen={}
   for _,r in ipairs(result)do seen[r[1]]=true end
   local rows=C.Search(query,category=='all'and nil or category)or{}
   for _,r in ipairs(rows)do if r.fileID and not seen[r.fileID]then
-   result[#result+1]={r.fileID,r.label..(r.status=='CANDIDATE_NOT_RENDER_TESTED'and' (candidate, not tested)'or' (prototype report)'),3,0,r.category,r.path};seen[r.fileID]=true
+   result[#result+1]={r.fileID,C.Label(r),r.height or 3,0,r.category,r.path};seen[r.fileID]=true
   end end
   return result
  end

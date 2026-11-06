@@ -44,7 +44,7 @@ ns.Checked=function(v)return v==true end
 ns.WardenWorldScale={Request=function()return true end}
 ns.AetherLive={World={active=false,NPCs={},NPC=function()end}}
 ns.WardenShelfShowcase={Render=function()end,ResetCamera=function()end}
-load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Background.lua');load('World3D/Scene.lua');load('World3D/Catalog.lua')
+load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Background.lua');load('World3D/Scene.lua');load('World3D/EditorCamera.lua');load('World3D/Catalog.lua')
 local count=0
 ns.WardenNativeScene.Create=function(parent,shot)
  count=count+1
@@ -80,3 +80,10 @@ assert(#v.forest.native.order==#ns.Fireside3D.props+1,'only neighborhood props a
 assert(#C.Rooms()==1 and #C.Connections('square')==0)
 v:Advance(.016)
 print('PASS: real realm constructor/selection/update at recorded API boundaries; one native viewport, no Fields/Home/Town instance or travel links, lazy real Journal')
+local npcTicks=0;local W=ns.AetherLive.World
+W.NPC=function()npcTicks=npcTicks+1 end
+ns.WardenSceneEditor={active=true,scene='square'}
+v:Advance(.016);assert(npcTicks==0,'free-camera editing must retain the existing editor NPC pause')
+assert(not v:ClickScene(v.forest,.5,.5),'editor camera input must not issue a player interaction')
+ns.WardenSceneEditor.active=false;v:Advance(.016);assert(npcTicks>0,'normal NPC updates resume after editing')
+print('PASS: editor input isolation and retained NPC pause/resume')

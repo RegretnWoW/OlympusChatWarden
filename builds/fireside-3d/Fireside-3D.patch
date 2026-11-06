@@ -1,23 +1,36 @@
 diff --git a/Fireside3DAssets/Fireside3DAssets.toc b/Fireside3DAssets/Fireside3DAssets.toc
 new file mode 100644
-index 0000000..8fb9cda
+index 0000000..8fac4aa
 --- /dev/null
 +++ b/Fireside3DAssets/Fireside3DAssets.toc
 @@ -0,0 +1,6 @@
 +## Interface: 16001
-+## Title: Fireside 3D Asset Candidates
-+## Notes: Optional research metadata. Loaded only when browsing the scene editor.
++## Title: Fireside 3D Classic Assets
++## Notes: Optional Classic M2 and existing Forever references. Loaded only when browsing the scene editor.
 +## LoadOnDemand: 1
 +## Dependencies: OlympusChatWarden
 +Index.lua
 diff --git a/Fireside3DAssets/Index.lua b/Fireside3DAssets/Index.lua
 new file mode 100644
-index 0000000..74298dd
+index 0000000..ca6c17b
 --- /dev/null
 +++ b/Fireside3DAssets/Index.lua
-@@ -0,0 +1,2 @@
-+-- Research metadata only. No asset extraction or render/installation certification.
-+Fireside3DAssetIndex={{["label"]="Prototype water hut (reported working; collider calibration required)",["category"]="House / prototype",["format"]="M2",["path"]="world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut01.m2",["fileID"]=190430,["status"]="USER_REPORTED_PROTOTYPE_DEFAULT",["installed"]="USER_REPORTED",["source"]="Prototype v0.4 default; user report; exact model identity should be confirmed in client"},{["label"]="Human Farm",["category"]="House / first test",["format"]="WMO",["path"]="world/wmo/azeroth/buildings/human_farm/farm.wmo",["fileID"]=106965,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.wowmodding.net/topic/1581-porting-custom-and-cut-maps-to-bfasldf/"},{["label"]="Goldshire Inn",["category"]="Inn / interior",["format"]="WMO",["path"]="world/wmo/azeroth/buildings/goldshireinn/goldshireinn.wmo",["fileID"]=106851,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Moonbrook two-story house",["category"]="House / first test",["format"]="WMO",["path"]="world/wmo/azeroth/buildings/moonbrook_humantwostory/moonbrook_humantwostory.wmo",["fileID"]=107049,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Stormwind Warrior District house",["category"]="House / first test",["format"]="WMO",["path"]="world/wmo/azeroth/buildings/stormwind/sw_warriordistrict_house2.wmo",["fileID"]=326705,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Redridge Inn",["category"]="Inn / interior",["format"]="WMO",["path"]="world/wmo/azeroth/buildings/redridge_inn/redridge_inn.wmo",["fileID"]=107182,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Dwarven Snow Tavern",["category"]="Tavern / interior",["format"]="WMO",["path"]="world/wmo/khazmodan/buildings/dwarven_tavern/snow_tavern/snow_tavern.wmo",["fileID"]=113952,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Duskwood burnt farmhouse",["category"]="Home / ruin",["format"]="WMO",["path"]="world/wmo/azeroth/buildings/duskwood_human_farm_burnt/duskwoodfarmhouseburnt.wmo",["fileID"]=106738,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Abandoned Inn",["category"]="Home / ruin",["format"]="WMO",["path"]="world/wmo/azeroth/buildings/duskwoodabandoned_inn/andorhalabandoned_inn.wmo",["fileID"]=106810,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Goldshire Blacksmith",["category"]="Shop / blacksmith",["format"]="WMO",["path"]="world/wmo/azeroth/buildings/goldshireblacksmith/goldshireblacksmith.wmo",["fileID"]=106848,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Human Stables",["category"]="Stables",["format"]="WMO",["path"]="world/wmo/azeroth/buildings/stable/stable.wmo",["fileID"]=107232,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Redridge Town Hall",["category"]="Town hall",["format"]="WMO",["path"]="world/wmo/azeroth/buildings/redridge_townhall/redridge_townhall.wmo",["fileID"]=107204,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Redridge Barracks",["category"]="Barracks",["format"]="WMO",["path"]="world/wmo/azeroth/buildings/redridge_barracks/redridge_barracks.wmo",["fileID"]=107142,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Night Elf Outpost",["category"]="Night Elf",["format"]="WMO",["path"]="world/wmo/kalimdor/buildings/nightelfoutpost/nightelfoutpost_b.wmo",["fileID"]=112882,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Night Elf Guard Tower",["category"]="Night Elf",["format"]="WMO",["path"]="world/wmo/kalimdor/buildings/nightelfguardtower/nightelfguardtower.wmo",["fileID"]=112854,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Orc Barracks",["category"]="Orc",["format"]="WMO",["path"]="world/wmo/kalimdor/buildings/orcbarracks/orcbarracks.wmo",["fileID"]=112909,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Orc Tower",["category"]="Orc",["format"]="WMO",["path"]="world/wmo/kalimdor/buildings/orctower/orctower.wmo",["fileID"]=113091,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Orc Blacksmith",["category"]="Orc",["format"]="WMO",["path"]="world/wmo/kalimdor/buildings/orcblacksmith/blackrockorcblacksmith.wmo",["fileID"]=112921,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Tauren Hunter Tent",["category"]="Tauren",["format"]="WMO",["path"]="world/wmo/kalimdor/buildings/taurenhuntertent/taurenhuntertent.wmo",["fileID"]=113146,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Goblin One-room building",["category"]="Goblin",["format"]="WMO",["path"]="world/wmo/azeroth/buildings/horde_goblin/horde_goblin_oneroom_03.wmo",["fileID"]=314508,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Dragonmaw Orc Medium",["category"]="Orc",["format"]="WMO",["path"]="world/wmo/kalimdor/buildings/orcmedium/orcmedium_dragonmaw.wmo",["fileID"]=411865,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Dragonmaw Orc Barracks",["category"]="Orc",["format"]="WMO",["path"]="world/wmo/kalimdor/buildings/orcbarracks/orcbarracks_dragonmaw.wmo",["fileID"]=411845,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Booty Bay Fortress",["category"]="City",["format"]="WMO",["path"]="world/wmo/azeroth/buildings/stranglethorn_bootybay/bootybay_fortress1.wmo",["fileID"]=107904,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Dwarven Snow Stable",["category"]="Dwarf",["format"]="WMO",["path"]="world/wmo/khazmodan/buildings/dwarven_snowstable/dwarven_snowstable.wmo",["fileID"]=113942,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Northrend Human House",["category"]="Northrend",["format"]="WMO",["path"]="world/wmo/northrend/buildings/human/nd_human_house02/nd_human_house02.wmo",["fileID"]=114992,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Pandaria House",["category"]="Pandaria",["format"]="WMO",["path"]="world/wmo/pandaria/generic/house/pa_house01.wmo",["fileID"]=514204,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Pandaria Rural House",["category"]="Pandaria",["format"]="WMO",["path"]="world/wmo/pandaria/generic/rural_house/pa_rural_house01.wmo",["fileID"]=528254,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Pandaria Rural Barn",["category"]="Pandaria",["format"]="WMO",["path"]="world/wmo/pandaria/generic/rural_house/pa_rural_barn2.wmo",["fileID"]=642713,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Hozu Hut",["category"]="Hozu",["format"]="WMO",["path"]="world/wmo/hozu/huts/hz_hut1.wmo",["fileID"]=533520,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Twilight Ogre Hut",["category"]="Ogre",["format"]="WMO",["path"]="world/wmo/cataclysm/twilightshammer/ogre/huts/twilightshammer_ogre_hut.wmo",["fileID"]=359985,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Classical Elf Ruin",["category"]="Ruins",["format"]="WMO",["path"]="world/wmo/kalimdor/buildings/classicalelfruins/azrclassicalelfruin_white10.wmo",["fileID"]=445936,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Darkshore Dock",["category"]="Environment",["format"]="WMO",["path"]="world/wmo/kalimdor/collidabledoodads/darkshore/darkshoredocks/darkshoredocksaberdeen.wmo",["fileID"]=113239,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Redridge Footbridge",["category"]="Environment",["format"]="WMO",["path"]="world/wmo/azeroth/collidable doodads/redridge/redridgefootbridge/redridgefootbridge.wmo",["fileID"]=108147,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Keep Wall Gate",["category"]="Environment",["format"]="WMO",["path"]="world/wmo/azeroth/buildings/keepwall/gate02.wmo",["fileID"]=106986,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.getmangos.eu/profile/1189-spikey/content/?change_section=1&type=forums_topic_post"},{["label"]="Elwynn Campfire",["category"]="M2 / essential prop",["format"]="M2",["path"]="world/azeroth/elwynn/passivedoodads/campfire/elwynncampfire.m2",["fileID"]=189705,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://barrens.chat/viewtopic.php?p=28942"},{["label"]="Beer Keg",["category"]="M2 / furniture",["format"]="M2",["path"]="world/generic/human/passive doodads/beerkegs/beerkeg01_nocollide.m2",["fileID"]=198005,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://barrens.chat/viewtopic.php?p=28942"},{["label"]="Dueling Flag",["category"]="M2 / decor",["format"]="M2",["path"]="world/generic/passivedoodads/duelingflag/duelingflag.m2",["fileID"]=199687,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://barrens.chat/viewtopic.php?p=28942"},{["label"]="Valentine Basket",["category"]="M2 / decor",["format"]="M2",["path"]="world/generic/passivedoodads/valentinesday/valentinebasket_01.m2",["fileID"]=200163,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://barrens.chat/viewtopic.php?p=28942"},{["label"]="Green Mist",["category"]="M2 / atmosphere",["format"]="M2",["path"]="world/generic/human/passive doodads/fog/sfx_fog_nasty_green.m2",["fileID"]=244176,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.wowmodding.net/gallery/image/119-erutia-stelis/"},{["label"]="Howling Fjord Fog",["category"]="M2 / atmosphere",["format"]="M2",["path"]="world/expansion02/doodads/howlingfjord/fog/hfjord_fog_02.m2",["fileID"]=195958,["status"]="CANDIDATE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["source"]="https://www.wowmodding.net/gallery/image/119-erutia-stelis/"}}
+@@ -0,0 +1,15 @@
++-- Explicit Classic-era M2 / existing Forever references only.
++-- ID/path resolution is not an installed-client or render certification.
++Fireside3DAssetIndex={
++ {["fileID"]=190430,["label"]="Swamp water hut 1",["category"]="Houses",["height"]=7.0,["path"]="world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut01.m2",["era"]="CLASSIC",["status"]="USER_REPORTED_PROTOTYPE_DEFAULT",["installed"]="USER_REPORTED",["format"]="M2"},
++ {["fileID"]=190431,["label"]="Swamp water hut 2",["category"]="Houses",["height"]=7.0,["path"]="world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut02.m2",["era"]="CLASSIC",["status"]="CLASSIC_REFERENCE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["format"]="M2"},
++ {["fileID"]=203656,["label"]="Arathi farmhouse 1",["category"]="Houses",["height"]=7.0,["path"]="world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse01.m2",["era"]="CLASSIC",["status"]="CLASSIC_REFERENCE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["format"]="M2"},
++ {["fileID"]=203657,["label"]="Arathi farmhouse 2",["category"]="Houses",["height"]=7.0,["path"]="world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse02.m2",["era"]="CLASSIC",["status"]="CLASSIC_REFERENCE_NOT_RENDER_TESTED",["installed"]="NOT_CHECKED",["format"]="M2"},
++ {["fileID"]=198603,["label"]="Inn table",["category"]="Tables",["height"]=0.9,["path"]="world/generic/human/passive doodads/tables/inntable.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["format"]="M2"},
++ {["fileID"]=198114,["label"]="High-end human chair",["category"]="Seats",["height"]=1.55,["path"]="world/generic/human/passive doodads/chairs/generalchairhighend01.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["format"]="M2"},
++ {["fileID"]=200912,["label"]="Animated journal book",["category"]="Decor",["height"]=0.65,["path"]="world/goober/g_bookopenmediumbrown.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["format"]="M2"},
++ {["fileID"]=189705,["label"]="Elwynn campfire",["category"]="Lighting fixtures",["height"]=0.8,["path"]="world/azeroth/elwynn/passivedoodads/campfire/elwynncampfire.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["format"]="M2"},
++ {["fileID"]=189923,["label"]="Elwynn fir tree",["category"]="Trees and plants",["height"]=7.0,["path"]="world/azeroth/elwynn/passivedoodads/trees/elwynnfirtree01.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["format"]="M2"},
++ {["fileID"]=198049,["label"]="Wide abbey bookshelf",["category"]="Shelves",["height"]=2.3,["path"]="world/generic/human/passive doodads/bookshelves/abbeyshelf02.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["format"]="M2"},
++ {["fileID"]=242995,["label"]="Existing earned-badge shelf",["category"]="Shelves",["height"]=2.3,["path"]="world/expansion02/doodads/dalaran/dalaran_bookcase_empty_01.m2",["era"]="FOREVER_REFERENCE",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["format"]="M2"}
++}
 diff --git a/OlympusChatWarden/AetherLiveWorld92.lua b/OlympusChatWarden/AetherLiveWorld92.lua
 index a942936..be7b73d 100644
 --- a/OlympusChatWarden/AetherLiveWorld92.lua
@@ -3463,7 +3476,7 @@ literal 0
 HcmV?d00001
 
 diff --git a/OlympusChatWarden/OlympusChatWarden.toc b/OlympusChatWarden/OlympusChatWarden.toc
-index 4627a66..2ca0981 100644
+index 4627a66..d6c83bc 100644
 --- a/OlympusChatWarden/OlympusChatWarden.toc
 +++ b/OlympusChatWarden/OlympusChatWarden.toc
 @@ -2,7 +2,7 @@
@@ -3471,11 +3484,11 @@ index 4627a66..2ca0981 100644
  ## Notes: Chronicle, player intelligence, chat, protection and RelayWarden support for Olympus.
  ## Author: Regretn
 -## Version: 1.1.4-unified-2.11.8-integrated110-startup1
-+## Version: 1.1.4-unified-2.11.8-integrated110-startup1-3d-home-candidate1
++## Version: 1.1.4-unified-2.11.8-integrated110-startup1-3d-home-candidate2
  ## SavedVariables: OlympusWardenPrivacyDB, OlympusChatWardenDB, OlympusWardenRelayDB, OlympusWardenStartupDB, OlympusWardenConversationDB, OlympusWardenJournalDB, OlympusWardenRecollectionsDB, OlympusWardenExchangeDB
  ## OptionalDeps: Olympus, OlympusWardenAthenaLab
  ## Dependencies: FiresideRecovery
-@@ -415,6 +415,10 @@ WardenHearth.lua
+@@ -415,6 +415,11 @@ WardenHearth.lua
  WardenRoomTravel.lua
  WardenNativeSceneAudio.lua
  WardenWorldScale82.lua
@@ -3483,10 +3496,11 @@ index 4627a66..2ca0981 100644
 +World3D\Coordinates.lua
 +World3D\Background.lua
 +World3D\Scene.lua
++World3D\EditorCamera.lua
  WardenAgoraLayout92.lua
  WardenFieldsLayout100.lua
  WardenLocations81.lua
-@@ -484,3 +488,5 @@ WardenWelcomeGuide67.lua
+@@ -484,3 +489,5 @@ WardenWelcomeGuide67.lua
  FiresideRecoveryUI.lua
  
  FiresideStartupStages109.lua
@@ -3762,13 +3776,16 @@ index 0000000..daa7b47
 +end
 diff --git a/OlympusChatWarden/World3D/Catalog.lua b/OlympusChatWarden/World3D/Catalog.lua
 new file mode 100644
-index 0000000..e9e3def
+index 0000000..d990736
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Catalog.lua
-@@ -0,0 +1,40 @@
-+-- Optional public research metadata; no private editor implementation is bundled.
+@@ -0,0 +1,56 @@
++-- Optional Classic/Forever M2 references; no private editor implementation.
 +local _,ns=...
 +local C={};ns.Fireside3D.Catalog=C
++function C.Compatible(r)
++ return type(r)=='table'and r.format=='M2'and(r.era=='CLASSIC'or r.era=='FOREVER_REFERENCE')
++end
 +function C.Load()
 + if C.rows then return C.rows end
 + local load=C_AddOns and C_AddOns.LoadAddOn or LoadAddOn
@@ -3776,7 +3793,20 @@ index 0000000..e9e3def
 + local ok,why=load('Fireside3DAssets');if not ok then return nil,why end
 + local rows=rawget(_G,'Fireside3DAssetIndex')
 + if type(rows)~='table'or #rows>512 then return nil,'Invalid candidate index'end
-+ C.rows=rows;return rows
++ local compatible={};for _,r in ipairs(rows)do if C.Compatible(r)then compatible[#compatible+1]=r end end
++ C.rows=compatible;return compatible
++end
++function C.Label(r)
++ return r.label..(r.era=='CLASSIC'and' (Classic M2)'or' (existing Forever reference)')
++end
++function C.Merge(editor)
++ local rows,why=C.Load();if not rows then return false,why end
++ editor.ObjectCatalogue=editor.ObjectCatalogue or{};local seen={}
++ for _,r in ipairs(editor.ObjectCatalogue)do seen[r[1]]=true end
++ for _,r in ipairs(rows)do if not seen[r.fileID]then
++  editor.ObjectCatalogue[#editor.ObjectCatalogue+1]={r.fileID,C.Label(r),r.height or 3,0,r.category,r.path};seen[r.fileID]=true
++ end end
++ return true
 +end
 +function C.Search(query,category)
 + local rows,why=C.Load();if not rows then return nil,why end
@@ -3792,15 +3822,15 @@ index 0000000..e9e3def
 + E.fireside3DAssetBound=true
 + local form,filter=E.AddObjectForm,E.FilterObjects
 + E.AddObjectForm=function(...)
-+  local rows,why=C.Load();if not rows then ns.Print('Candidate catalog: '..tostring(why));return false,why end
++  local ok,why=C.Merge(E);if not ok then ns.Print('Classic/Forever catalog: '..tostring(why));return false,why end
 +  return form(...)
 + end
 + E.FilterObjects=function(category,query)
-+  local result=filter(category,query);local seen={}
++  local result=filter and filter(category,query)or{};local seen={}
 +  for _,r in ipairs(result)do seen[r[1]]=true end
 +  local rows=C.Search(query,category=='all'and nil or category)or{}
 +  for _,r in ipairs(rows)do if r.fileID and not seen[r.fileID]then
-+   result[#result+1]={r.fileID,r.label..(r.status=='CANDIDATE_NOT_RENDER_TESTED'and' (candidate, not tested)'or' (prototype report)'),3,0,r.category,r.path};seen[r.fileID]=true
++   result[#result+1]={r.fileID,C.Label(r),r.height or 3,0,r.category,r.path};seen[r.fileID]=true
 +  end end
 +  return result
 + end
@@ -3881,20 +3911,27 @@ index 0000000..42f520b
 +end
 diff --git a/OlympusChatWarden/World3D/Definitions.lua b/OlympusChatWarden/World3D/Definitions.lua
 new file mode 100644
-index 0000000..9735410
+index 0000000..9267f6c
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Definitions.lua
-@@ -0,0 +1,27 @@
+@@ -0,0 +1,34 @@
 +-- One shipped neighborhood. square keeps the existing Live scene wire identity;
 +-- the existing geometry digest rejects clients with different world definitions.
 +local _,ns=...
-+local F={VERSION=1,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
++local F={VERSION=2,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
 +local C=ns.WardenRoomCatalogue
 +F.homeDoor={side='negative-y',width=2.2,wallThickness=.2}
 +F.bounds={-36,-28,36,32}
-+F.houses={{id='player-home',at={0,14,0}},{id='house-west',at={-17,14,0}},{id='house-east',at={17,14,0}},{id='house-southwest',at={-17,-12,0}},{id='house-southeast',at={17,-12,0}}}
++-- Original Classic M2 references, not retail housing or WMO roots. Only the
++-- original home has a user-reported render test; qualify the new models in-client.
++F.houses={
++ {id='player-home',fileID=190430,label='Your Home — Swamp water hut 1',at={0,14,0}},
++ {id='house-west',fileID=203656,label='Arathi farmhouse 1',at={-17,14,0}},
++ {id='house-east',fileID=203657,label='Arathi farmhouse 2',at={17,14,0}},
++ {id='house-southwest',fileID=190431,label='Swamp water hut 2',at={0,-16,0}},
++}
 +local props={}
-+for _,h in ipairs(F.houses)do props[#props+1]={id=h.id,fileID=190430,label=h.id=='player-home'and'Your Home'or'Neighborhood House',width=12,at=h.at,yaw=0,worldYaw=0,house3D=true,collision=true}end
++for _,h in ipairs(F.houses)do props[#props+1]={id=h.id,fileID=h.fileID,label=h.label,width=12,at=h.at,yaw=0,worldYaw=0,house3D=true,collision=true}end
 +local function add(row)props[#props+1]=row end
 +add({id='desk',fileID=198603,label='Home table',height=.9,at={0,14,0},yaw=0})
 +add({id='room-book',fileID=200912,label='Athena Journal',width=.65,at={0,14,.915},support='desk',supportOffset={0,0,.015},probeObject=true,animations={0,146,147,148,149},interaction='journal',collision=false})
@@ -3905,19 +3942,129 @@ index 0000000..9735410
 +for i,p in ipairs({{-30,25},{30,25},{-30,-23},{30,-23}})do add({id='tree-'..i,fileID=189923,label='Evergreen',height=7,at={p[1],p[2],0},collisionRadius=.8})end
 +F.npcPaths={{{-7,-2},{-7,3},{-4,5}},{{7,-2},{7,3},{4,5}},{{-2,16},{-2,13},{-3,12}}}
 +F.props=props
-+local d={label='Fireside — The New Home',interior=false,world3D=true,reader=true,layoutSlot='fireside-3d',shot={id='fireside-3d-world-v1',position={0,-18,8},target={0,0,1},fov=.85},
-+ navigation={floor=0,floorUV={0,0,1,1},worldBounds=F.bounds,coordinateSpace='WORLD_XYZ_3D_V1',npcPaths=F.npcPaths,homeDoor=F.homeDoor,houseModel=190430},
-+ props=props,residents={{id='attendant',unit='player',controlled=true,height=1.85,at={0,-7,0},animations={0,4,5,96,97,98,102,103,104},navigationRadius=.3}},outside={},plates={},routes={},airOccluders={},flags={},book={offset={0,0,.015},wideScale=.65},musicScene='forest',walkSpeed=4,artRevision='3d-neighborhood-v1'}
++local d={label='Fireside — The New Home',interior=false,world3D=true,reader=true,layoutSlot='fireside-3d',shot={id='fireside-3d-world-v2',position={0,-18,8},target={0,0,1},fov=.85},
++ navigation={floor=0,floorUV={0,0,1,1},worldBounds=F.bounds,coordinateSpace='WORLD_XYZ_3D_V1',npcPaths=F.npcPaths,homeDoor=F.homeDoor,houseModels={190430,203656,203657,190431}},
++ props=props,residents={{id='attendant',unit='player',controlled=true,height=1.85,at={0,-7,0},animations={0,4,5,96,97,98,102,103,104},navigationRadius=.3}},outside={},plates={},routes={},airOccluders={},flags={},book={offset={0,0,.015},wideScale=.65},musicScene='forest',walkSpeed=4,artRevision='3d-neighborhood-v2'}
 +assert(C.ReviseBundledRoom(F.PRIMARY,d))
 +function F.IsScene(s)return s and s.definition and s.definition.world3D==true end
 +-- Old links stay recoverable as shipped metadata but are not active 3D travel.
 +function F.SceneKey()return F.PRIMARY end
+diff --git a/OlympusChatWarden/World3D/EditorCamera.lua b/OlympusChatWarden/World3D/EditorCamera.lua
+new file mode 100644
+index 0000000..ef61c8c
+--- /dev/null
++++ b/OlympusChatWarden/World3D/EditorCamera.lua
+@@ -0,0 +1,104 @@
++-- Optional adapter for the existing editor. Camera state is transient and local;
++-- no actor transform, layout record, character state or Live packet is changed.
++local _,ns=...
++local F,N=ns.Fireside3D,ns.WardenNativeScene
++local E={};F.EditorCamera=E
++local sin,cos,sqrt=math.sin,math.cos,math.sqrt
++local function clamp(n,a,b)return math.max(a,math.min(b,n))end
++function E.Active(v)
++ local editor=ns.WardenSceneEditor
++ return editor and editor.active and not editor.closing and F.IsScene(v:ActiveRoom())
++  and(editor.scene==F.PRIMARY)and(not editor.Realm or editor.Realm()==v)or false
++end
++function E.Allowed(v)
++ if not E.Active(v)or ns.UI2.locked or ns.MainStorageBlocked or InCombatLockdown()then return false end
++ local editor=ns.WardenSceneEditor
++ if editor.dragging or editor.popup and editor.popup:IsShown()then return false end
++ return v.frame:IsVisible()and v:ActiveRoom().groundClick:IsMouseOver()
++  and not(GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus())
++end
++function E.FollowView(v)
++ local input=v.world3DInput;local a=v:ActiveRoom().native.actors.attendant
++ local p=a and a.ready and a.position or{0,-7,0};local z=p[3]+1.3
++ local h=input.distance*cos(input.pitch)
++ return{position={p[1]-h*cos(input.yaw),p[2]-h*sin(input.yaw),math.max(.4,z+input.distance*sin(input.pitch))},target={p[1],p[2],z},fov=.85}
++end
++local function fromView(view)
++ local p,t=view.position,view.target;local x,y,z=t[1]-p[1],t[2]-p[2],t[3]-p[3]
++ local length=sqrt(x*x+y*y+z*z)
++ return{position={p[1],p[2],p[3]},yaw=math.atan2(y,x),pitch=math.asin(clamp(z/length,-1,1)),keys={}}
++end
++function E.Reset(v)
++ v.world3DEditCamera=fromView(E.FollowView(v));return v.world3DEditCamera
++end
++function E.State(v)
++ return v.world3DEditCamera or E.Reset(v)
++end
++local function direction(c)return cos(c.pitch)*cos(c.yaw),cos(c.pitch)*sin(c.yaw),sin(c.pitch)end
++local function translate(c,x,y,z)
++ local p=c.position;p[1]=clamp(p[1]+x,-256,256);p[2]=clamp(p[2]+y,-256,256);p[3]=clamp(p[3]+z,.15,128)
++end
++function E.View(v)
++ local c=E.State(v);local x,y,z=direction(c);local p=c.position
++ return{position={p[1],p[2],p[3]},target={p[1]+x,p[2]+y,p[3]+z},fov=.85}
++end
++function E.Scroll(v,delta)
++ if not E.Allowed(v)then return end
++ local c=E.State(v);local x,y,z=direction(c);local amount=delta*(IsShiftKeyDown()and 6 or 2)
++ translate(c,x*amount,y*amount,z*amount)
++end
++function E.Toolbar(v)
++ if v.world3DCameraBar then return v.world3DCameraBar end
++ local s=v:ActiveRoom();local bar=CreateFrame('Frame',nil,v.frame)
++ bar:SetPoint('TOPLEFT',12,-12);bar:SetSize(510,58);bar:SetFrameLevel(s.groundClick:GetFrameLevel()+4)
++ local bg=bar:CreateTexture(nil,'BACKGROUND');bg:SetAllPoints();bg:SetColorTexture(.025,.035,.045,.88)
++ local help=bar:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');help:SetPoint('TOPLEFT',8,-7)
++ help:SetText('Editor camera: WASD fly | Q/E down/up | Shift faster | Right-drag look | Wheel dolly')
++ local reset=CreateFrame('Button',nil,bar,'UIPanelButtonTemplate');reset:SetPoint('TOPLEFT',8,-29);reset:SetSize(112,22);reset:SetText('Reset camera')
++ reset:SetScript('OnClick',function()E.Reset(v)end)
++ v.world3DCameraBar=bar;return bar
++end
++function E.Tick(v,dt)
++ if not E.Active(v)then
++  v.world3DEditCamera=nil
++  if v.world3DCameraBar then v.world3DCameraBar:Hide()end
++  return
++ end
++ local c=E.State(v);local bar=E.Toolbar(v)
++ bar:SetFrameLevel(v:ActiveRoom().groundClick:GetFrameLevel()+4);bar:Show()
++ if not E.Allowed(v)then c.keys={};c.dragging=false;return end
++ if c.dragging then
++  if not IsMouseButtonDown('RightButton')then c.dragging=false else
++   local x,y=GetCursorPosition();c.yaw=(c.yaw-(x-c.x)*.006)%(2*math.pi)
++   c.pitch=clamp(c.pitch+(y-c.y)*.006,-1.50,1.50);c.x,c.y=x,y
++  end
++ end
++ local keys=c.keys;local forward=(keys.W and 1 or 0)-(keys.S and 1 or 0)
++ local right=(keys.D and 1 or 0)-(keys.A and 1 or 0);local up=(keys.E and 1 or 0)-(keys.Q and 1 or 0)
++ local fx,fy,fz=direction(c)
++ local x,y,z=fx*forward+sin(c.yaw)*right,fy*forward-cos(c.yaw)*right,fz*forward+up
++ local length=sqrt(x*x+y*y+z*z)
++ if length>0 then local step=(IsShiftKeyDown()and 24 or 8)*clamp(dt,0,.05)/length;translate(c,x*step,y*step,z*step)end
++end
++function E.Clear(v)
++ local c=v.world3DEditCamera;if c then c.keys={};c.dragging=false end
++end
++function E.BindExistingEditor()
++ local editor=ns.WardenSceneEditor;if not editor or editor.fireside3DCameraBound or not editor.Open then return false end
++ editor.fireside3DCameraBound=true
++ -- Older launch buttons name the retired rooms. They now edit the single world.
++ local open=editor.Open
++ editor.Open=function(key,...)
++  if key==nil or ns.WardenRoomCatalogue.HasRoom(key)then key=F.PRIMARY end
++  -- Enter the editor over the wide world, including when launched from a menu.
++  -- Otherwise the old Study preview route can open the real reader over it.
++  local U=ns.UI2;local previous=U.menuHidden;U.menuHidden=true
++  local ok,why=open(key,...)
++  if not ok then U.menuHidden=previous;return ok,why end
++  if U.ApplyMenuState then U.ApplyMenuState()end
++  local v=editor.Realm and editor.Realm()
++  if v and E.Active(v)then E.Reset(v);F.Camera(v)end
++  return ok,why
++ end
++ return true
++end
 diff --git a/OlympusChatWarden/World3D/Integration.lua b/OlympusChatWarden/World3D/Integration.lua
 new file mode 100644
-index 0000000..1edc539
+index 0000000..5b445f2
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Integration.lua
-@@ -0,0 +1,133 @@
+@@ -0,0 +1,135 @@
 +-- Only the scene integration changes. Existing Journal, badge ownership, Live trust,
 +-- protocol, reconnection and session limits remain authoritative.
 +local _,ns=...
@@ -3984,6 +4131,7 @@ index 0000000..1edc539
 +  a.pendingInteraction={kind='home-object-3d',id=id};return s.native:Route(a,best,math.max(2,best.length/4),4,nav)
 + end
 + local function click3D(self,scene,u,y)
++  if ns.WardenSceneEditor and ns.WardenSceneEditor.active then return false,'Scene editor is active'end
 +  if U.locked or ns.MainStorageBlocked or not U.menuHidden or self.shelfFocus or self.journalReading or self.roomBookMotion then return false,'Finish the current view first'end
 +  local G=ns.WardenSceneObjectControls
 +  for _,id in ipairs({'room-book','shelf-right'})do local a=scene.native.actors[id]
@@ -4008,6 +4156,7 @@ index 0000000..1edc539
 +  local out=report(self,...);out.fireside3D={version=F.VERSION,scene=F.PRIMARY,coordinateSpace='world XYZ',instances=#self:Scenes(),houses=#F.houses,nativeViewportCount=1,legacyTravel=false,base=F.BASE,visualQualification='Prototype mechanics user-tested; expanded neighborhood requires native testing',colliderQualification='Bounds-based home shell; use existing editor to align doorway/hitbox with hut'};return out
 + end
 + F.Catalog.BindExistingEditor()
++ F.EditorCamera.BindExistingEditor()
 + return v
 +end
 +-- Direct 3D landing; regular feature tabs still open the existing UI over it.
@@ -4039,7 +4188,7 @@ index 0000000..1edc539
 +-- The old fixed-scene cinematic is not part of the unified world. Consent/setup UI remains unchanged.
 +if ns.WardenWelcomeGuide then ns.WardenWelcomeGuide.NeedsWelcome=function()return false end end
 +ns.OpenWelcome=function()ns.Print('Welcome home. Close Menu to explore; WASD moves and right-drag rotates the 3D camera.');return true end
-+local event=CreateFrame('Frame');event:RegisterEvent('ADDON_LOADED');event:SetScript('OnEvent',function()F.Catalog.BindExistingEditor()end)
++local event=CreateFrame('Frame');event:RegisterEvent('ADDON_LOADED');event:SetScript('OnEvent',function()F.Catalog.BindExistingEditor();F.EditorCamera.BindExistingEditor()end)
 +
 +for _,entry in ipairs(U.destinations or{})do if entry[1]=='journey'then entry[2]='My Home'end end
 +local ensure=U.Ensure
@@ -4053,10 +4202,10 @@ index 0000000..1edc539
 +end
 diff --git a/OlympusChatWarden/World3D/Scene.lua b/OlympusChatWarden/World3D/Scene.lua
 new file mode 100644
-index 0000000..2f54bcf
+index 0000000..275ef12
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Scene.lua
-@@ -0,0 +1,211 @@
+@@ -0,0 +1,234 @@
 +-- Unified scene adapter. Loading, animation, routes, real Journal/showcase and Live remain owned by existing systems.
 +local _,ns=...
 +local F,N=ns.Fireside3D,ns.WardenNativeScene
@@ -4094,7 +4243,10 @@ index 0000000..2f54bcf
 + local nav={ground=true,continuous=true,floor=0,radius=a.spec.navigationRadius or .3,boundary=F.bounds,obstacles={}}
 + for _,spec in ipairs(ns.WardenWorldScenes.Props(s))do if not spec.support and spec.collision~=false then
 +  local actor=s.native.actors[spec.id]
-+  if spec.house3D and(not actor or not actor.ready or actor.failed)then return nil,'Waiting for neighborhood house bounds: '..spec.id end
++  -- Wait for pending bounds, but let an explicitly failed/hidden model keep
++  -- its native error report without freezing movement across the whole demo.
++  local omitted=actor and(actor.failed or actor.retired or actor.editorHidden)
++  if spec.house3D and not omitted and(not actor or not actor.ready)then return nil,'Waiting for neighborhood house bounds: '..spec.id end
 +  if actor and actor.ready and not(actor.failed or actor.retired or actor.editorHidden)then
 +   local box=N.Footprint(s.shot,actor)
 +   if box then
@@ -4107,14 +4259,15 @@ index 0000000..2f54bcf
 +end
 +function F.Camera(v)
 + local s=v:ActiveRoom();local input=v.world3DInput;if not input or not s.native.frame then return end
-+ if v.shelfFocus then ns.WardenShelfShowcase.ApplyCamera(v,s.drawWidth/s.drawHeight)
++ if F.EditorCamera.Active(v)then
++  v.nativeReadingScene=nil;v.readingCameraKey=nil
++  N.ViewCamera(s.native,F.EditorCamera.View(v))
++ elseif v.shelfFocus then ns.WardenShelfShowcase.ApplyCamera(v,s.drawWidth/s.drawHeight)
 + elseif v.journalReading or v.roomBookMotion or v.cameraMix>.001 then
 +  if ns.WardenReadingCamera then ns.WardenReadingCamera.Apply(v,s.drawWidth,s.drawHeight,v.cameraMix)end
 + else
 +  v.nativeReadingScene=nil;v.readingCameraKey=nil
-+  local a=s.native.actors.attendant;local p=a and a.ready and a.position or{0,-7,0}
-+  local z=p[3]+1.3;local h=input.distance*cos(input.pitch)
-+  local view={position={p[1]-h*cos(input.yaw),p[2]-h*sin(input.yaw),math.max(.4,z+input.distance*sin(input.pitch))},target={p[1],p[2],z},fov=.85}
++  local view=F.EditorCamera.FollowView(v)
 +  N.ViewCamera(s.native,view);v.world3DWideShot=view
 + end
 + if s.background3D then s.background3D:SetLighting(v.timeOfDay or'day');s.background3D:Update(s.native.frame,s.shot)end
@@ -4240,25 +4393,44 @@ index 0000000..2f54bcf
 +  a.manualMovement=moved
 +  if not a.route and not a.seating then s.native:Animate(a,moved and 4 or 0,1)end
 + else if input then input.keys={};input.dragging=false end;if a then a.manualMovement=false end end
++ F.EditorCamera.Tick(v,dt)
 + local W=ns.AetherLive and ns.AetherLive.World
-+ if W and not W.active then for _,def in ipairs(W.NPCs)do if def.scene==s.key then W.NPC(v,s,def,dt)end end end
++ if W and not W.active and not(editor and editor.active)then for _,def in ipairs(W.NPCs)do if def.scene==s.key then W.NPC(v,s,def,dt)end end end
 + F.Camera(v);paths(v,s);F.Pose(v,ns.DB.journalReducedMotion~=true)
 + for _,actor in ipairs(s.native.order)do if actor.ready and not(actor.retired or actor.editorHidden or actor.sceneHidden)then F.Shadow(v,s,actor)end end
 +end
 +function F.BindInput(v,U)
 + local s=v.forest;local input={keys={},yaw=-pi/2,pitch=.35,distance=14};v.world3DInput=input
-+ function v:RefreshFieldInput()s.groundClick:SetShown(s.active);s.groundClick:EnableMouse(U.menuHidden and not self.shelfFocus and not self.journalReading and not self.roomBookMotion)end
++ local EC=F.EditorCamera
++ local function clear()input.keys={};input.dragging=false;EC.Clear(v);v.frame:SetPropagateKeyboardInput(true)end
++ function v:RefreshFieldInput()s.groundClick:SetShown(s.active);s.groundClick:EnableMouse(EC.Active(self)or U.menuHidden and not self.shelfFocus and not self.journalReading and not self.roomBookMotion)end
 + v.frame:EnableKeyboard(true);v.frame:SetPropagateKeyboardInput(true)
 + v.frame:SetScript('OnKeyDown',function(_,key)
++  if EC.Active(v)then
++   local capture=EC.Allowed(v)and(key=='W'or key=='A'or key=='S'or key=='D'or key=='Q'or key=='E')
++   v.frame:SetPropagateKeyboardInput(not capture)
++   if capture then EC.State(v).keys[key]=true end
++   return
++  end
 +  local capture=not U.locked and not ns.MainStorageBlocked and U.menuHidden and s.groundClick:IsMouseOver()and not(v.shelfFocus or v.journalReading or v.roomBookMotion)and not(ns.WardenSceneEditor and ns.WardenSceneEditor.active)and not InCombatLockdown()and not(GetCurrentKeyBoardFocus and GetCurrentKeyBoardFocus())and(key=='W'or key=='A'or key=='S'or key=='D')
 +  v.frame:SetPropagateKeyboardInput(not capture);if capture then input.keys[key]=true end
 + end)
-+ v.frame:SetScript('OnKeyUp',function(_,key)local held=input.keys[key];input.keys[key]=nil;v.frame:SetPropagateKeyboardInput(not held)end)
-+ s.groundClick:SetScript('OnMouseDown',function(_,button)if button=='RightButton'then input.dragging=true;input.x,input.y=GetCursorPosition()end end)
-+ s.groundClick:SetScript('OnMouseUp',function()input.dragging=false end)
-+ s.groundClick:EnableMouseWheel(true);s.groundClick:SetScript('OnMouseWheel',function(_,delta)input.distance=clamp(input.distance-delta,2,55)end)
-+ s.groundClick:SetScript('OnLeave',function()input.keys={};input.dragging=false;v.frame:SetPropagateKeyboardInput(true)end)
-+ v.frame:HookScript('OnHide',function()input.keys={};input.dragging=false;v.frame:SetPropagateKeyboardInput(true)end)
++ v.frame:SetScript('OnKeyUp',function(_,key)
++  local c=v.world3DEditCamera;local held=input.keys[key]or c and c.keys[key];input.keys[key]=nil;if c then c.keys[key]=nil end
++  v.frame:SetPropagateKeyboardInput(not held)
++ end)
++ s.groundClick:SetScript('OnMouseDown',function(_,button)
++  if button~='RightButton'then return end
++  if EC.Active(v)then if EC.Allowed(v)then local c=EC.State(v);c.dragging=true;c.x,c.y=GetCursorPosition()end
++  elseif U.menuHidden and not U.locked and not ns.MainStorageBlocked and not InCombatLockdown()then input.dragging=true;input.x,input.y=GetCursorPosition()end
++ end)
++ s.groundClick:SetScript('OnMouseUp',function()input.dragging=false;local c=v.world3DEditCamera;if c then c.dragging=false end end)
++ s.groundClick:EnableMouseWheel(true);s.groundClick:SetScript('OnMouseWheel',function(_,delta)
++  if EC.Active(v)then EC.Scroll(v,delta)
++  elseif U.menuHidden and not U.locked and not ns.MainStorageBlocked and not InCombatLockdown()then input.distance=clamp(input.distance-delta,2,55)end
++ end)
++ s.groundClick:SetScript('OnLeave',clear)
++ v.frame:HookScript('OnHide',clear)
 + function v:CursorSceneClick(scene,source)
 +  local scale=scene.frame:GetEffectiveScale();local x,y=GetCursorPosition();local left,top=scene.frame:GetLeft(),scene.frame:GetTop()
 +  if not left or not top or scale<=0 then return false,'Scene viewport unavailable'end
@@ -4270,48 +4442,83 @@ index 0000000..2f54bcf
 +end
 diff --git a/tools/fireside3d/README.md b/tools/fireside3d/README.md
 new file mode 100644
-index 0000000..7f611b3
+index 0000000..31ef656
 --- /dev/null
 +++ b/tools/fireside3d/README.md
-@@ -0,0 +1,51 @@
-+# Fireside 3D — New Home candidate
+@@ -0,0 +1,87 @@
++# Fireside 3D — New Home candidate 2
 +
-+Branch: `feature/fireside-3d`. Authoritative production base: `e4cc9f8da008fd065d933e6d142dde854108d53a` (the updated hotfix with Aether Live). No merge into main or CurseForge publication is performed.
++Branch: `feature/fireside-3d`. Production base: `e4cc9f8da008fd065d933e6d142dde854108d53a` (the updated hotfix with Aether Live). Main and CurseForge are unchanged.
 +
-+## Install the single candidate
++## Install
 +
-+Close WoW and keep your normal closed-client WTF backup. Install the exact public base build identified above first, then extract **Fireside-3D-candidate1-overlay.zip** into `Interface/AddOns/`, allowing replacement of the public addon code. It contains the complete public Lua/XML/TOC code, the optional candidate catalog, the existing recovery addon code, and the new grass tile. Do not overlay a later stability build; integrate the source changes against that newer build instead. Existing production media must remain installed: this overlay deliberately does not duplicate the approximately 1.4 GB media library. Do not install the old standalone prototype alongside it for this test.
++Close WoW and keep your normal closed-client WTF backup. Install the exact public base above, then extract **Fireside-3D-candidate2-overlay.zip** into `Interface/AddOns/`, allowing replacement of the public addon code and the `Fireside3DAssets` catalog. You can also apply this overlay to candidate 1 when it uses that same base media. Do not overlay a later stability build; integrate the source changes against it instead. The overlay includes public Lua/XML/TOC code, the optional catalog, existing recovery code and the grass tile. Retain the base's approximately 1.4 GB media library. Do not install the standalone prototype alongside this build.
 +
-+The private development addon is **not included**. Keep any private development installation separate and local. The existing editor is optional for gameplay; the candidate extends its existing browser when that editor is installed. No private archive, credential, issuer configuration or private implementation is committed or packaged.
++The private development addon is **not included**. Keep it local. Its existing editor is optional for gameplay; public adapters extend that editor when installed. No private archive, implementation, credentials or configuration is committed or packaged.
 +
-+Open `/fireside`. The default view is the new neighborhood; Open Menu retains Journal, Atlas, Agora, settings and other existing services. WASD moves while the pointer is on the world, right-drag rotates/pitches, and wheel zooms. Moving/typing outside that surface, menus, modal views, editing and combat release world input. The Oasis navigation action walks toward the home entrance in the same world; it no longer changes environments.
++Open `/fireside`. WASD moves your character while the pointer is over the world, right-drag rotates/pitches, and wheel zooms. Menus, typing, editing and combat release player input. The My Home action walks to the home entrance within the same world. Open Menu retains the normal Journal, Atlas, Agora, settings and other services.
 +
-+## What changed
++## Four different Classic house models
 +
-+- Exactly one primary world instance and one native ModelScene/depth buffer. Five buildings reuse the prototype's default water-hut model, FileDataID **190430**. This is five instances of the reported working model, not five newly certified house assets. One home contains the real Journal, chair and real earned-badge/memento shelf. A small fire/gathering area, trees, grass, projected paths and the production full-sky artwork complete the compact layout.
-+- The prototype's world XYZ placement, camera and input are adapted into the current realm. Fixed model pivots/native API conversion remain; painted-depth scale curves, floor-UV relocation and multi-pass actor occlusion are not applied to this scene. Ground, path decals and contact shadows are projected world-plane presentation, not native triangle terrain or physical shadow maps. No custom M2/WMO geometry or extraction pipeline is introduced.
-+- Fields, Study and the old Town are not instantiated. The old definition/source files remain recoverable and shared resources are retained. The old scene travel links and cinematic are inactive in this candidate. Layout editing uses a distinct `fireside-3d` layout slot, preserving existing edited 2.5D layouts without migration.
-+- Book and shelf clicks use collision-checked approach routes, then open the existing production Journal and earned showcase. History permissions, empty-history behavior, earned inventory checks, saved reader place, badge recipes and the existing cosmetic save path remain authoritative. No synthetic pages/badges or test entitlement grants are shipped in this world.
-+- The supplied research CSV is resolved into a separate **load-on-demand** `Fireside3DAssets` addon: 40 metadata rows, not a mandatory startup catalog. Existing editor search can match names, categories, paths and FileDataIDs. WMO entries remain untested candidates; a resolved ID or successful bounds load does not certify visible rendering/interior access. The original index-building Python tool and CSV are retained under this directory; no private editor code is included.
++| Building | FileDataID | Original model path |
++| --- | --- | --- |
++| Player home: Swamp water hut 1 | 190430 | `world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut01.m2` |
++| West: Arathi farmhouse 1 | 203656 | `world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse01.m2` |
++| East: Arathi farmhouse 2 | 203657 | `world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse02.m2` |
++| South: Swamp water hut 2 | 190431 | `world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut02.m2` |
 +
-+## Aether Live integration
++These are four distinct original Classic-era M2 references. The new selections add two farmhouse models and a different hut, retaining the original tested home. Their ID/path pairs were resolved against the public wowdev listfile. This verifies the reference, **not installation or visible rendering in the running Forever client**. The three newly selected models still need a native check for availability, appearance, dimensions and openings. No WMO root or retail housing model is requested by these four buildings. There is no silent substitution of the original hut for a missing model.
 +
-+Uses the updated base's existing certificate/session trust, native sender binding, P2P transport, appearance reconstruction, coalesced movement channel, connection recovery and eight remote actor slots. Wire protocol remains **2** and scene `square` retains wire code `a`. The shipped geometry digest now includes the neighborhood's props, world bounds, coordinate mode, home-door settings and NPC world paths, so legacy layouts are incompatible through the existing revision check.
++Only the player home has the explicit wall/door shell and interactive interior. The other three buildings have solid bounds-based collision. House rotation, size and collider alignment remain adjustable in the existing editor. The original hut/collider mismatch is not claimed fixed by selecting the other models; inspect and align it natively. Stairs, mesh navigation, camera-wall collision and terrain elevation are outside this prototype.
 +
-+WASD position updates use the existing M state at a six-Hz coalesced cadence, with an immediate final idle update. Only already-validated zero-duration movement states receive scene-specific render interpolation; authentication and geometry rejection still run in the existing Live controller. Canonical NPCs use the existing deterministic clock/path routine with world points instead of painted UV anchors. As in the base, this is not newly authoritative/packet-synchronized contested NPC gameplay.
++Pending house bounds pause player movement until loading resolves. A model explicitly reported failed or hidden is omitted from collision rather than freezing the entire demo; its native error remains in the scene report. It is not replaced with an invisible building collider or another hut.
 +
-+Storage, recovery, collectors, authentication and transport files are unchanged from the base. Normal existing features may save their normal preferences; no new database root, SavedVariables declaration, schema, migration, backup behavior or credential flow is added.
++## Scene editor free camera
 +
-+## One real-client test session
++Open the existing editor with local test mode enabled. Its older Study/Fields launch buttons now target the single 3D world. The editor opens over the wide scene. Fly-camera controls appear at the top left:
 +
-+1. Open `/fireside`: confirm one neighborhood, five hut instances, full sky/ground/paths, the gathering area and your character. No old room/travel selection should appear.
-+2. Move with WASD while rotating 360 degrees, pitching and zooming. Check native object size, floor contacts, world-aligned shadows/colliders and camera follow. Open a normal content tab and return to the world; type in chat and enter/leave combat to check focus release.
-+3. Enter the home through its negative-Y entrance. The home uses an explicit bounds-based wall/door shell. **The hut/collider mismatch reported in the prototype is not a claim of mesh-perfect collision**; use the existing editor's collider/rotation controls for native alignment and report a mismatch. The four other houses have solid building bounds. No stairs, terrain elevation, camera-wall collision or native mesh navigation is implemented.
-+4. Click the home chair, sit and stand. Click the book and confirm your permitted real Journal/empty-history message, page/cover controls and return to world. Click the shelf and inspect/edit only actually earned badges/mementos; empty inventory must remain empty. Reopen to verify the existing cosmetic save path.
-+5. Using the existing Aether controls and explicit Live participation, connect a second client on this **same candidate**, compare shared geometry revision, move both characters, inspect appearance/NPC routines and sit/stand. Check disconnect/reconnect through the existing controls. An old-layout client must report incompatible geometry; no trust/consent requirement should be bypassed.
-+6. With the private editor already installed locally, browse the optional model candidates, search an ID/category and try a preview/placement through the existing controls. Leave Live before editing, as required by the existing guard. Do not mark WMO candidates verified without actually viewing the result. Keep private exports local.
++- **W/S:** fly forward/back along the view direction.
++- **A/D:** strafe left/right.
++- **Q/E:** lower/raise the camera.
++- **Right-drag:** look around through 360 degrees and pitch up/down.
++- **Shift:** move three times faster; **wheel:** dolly forward/back.
++- **Reset camera:** return the editor view to the character's normal follow viewpoint.
 +
-+The prototype mechanics were reported successful by the user. This expanded integration has **not** been visually or two-client qualified in Codex Cloud. Call-recorded tests do not establish native rendering, model availability, collision fit, real-history UI behavior or multiplayer delivery. Supply one combined report from the above session; no intermediate checkpoint builds are requested.
++Keep the pointer over the scene for movement. Typing, forms, object dragging, combat and leaving the viewport release camera input. Left-dragging the existing object handle still edits the selected object. Camera flight passes through walls and does not move the character, alter colliders/scales, save a layout transform or publish player movement. Camera position is transient; closing the editor restores character follow. The existing editor's NPC pause remains active and normal NPC updates resume on close. Trust, local test-mode and Live editing guards remain in the existing editor.
++
++## Compatible prop catalog
++
++The lazy `Fireside3DAssets` addon now contains **11 explicit M2 references**: ten Classic-era models plus the existing Forever earned-badge shelf. The broader retail/expansion WMO research entries are removed from the runtime catalog. The pre-existing Forever object library remains available. New references are merged into the existing editor's category, search and selection lookup; choosing a farmhouse fills the actual model fields.
++
++The Dalaran shelf (242995) is retained because the public production showcase already identifies it as an installed Forever mesh and calibrates its badge ledges. It is an existing Forever reference, not labeled original Classic or newly native-certified. Keeping it preserves the real earned showcase. Other placed furniture uses the existing Classic table, chair, animated book, Elwynn fire and fir tree references.
++
++`classic-assets.csv` is the explicit source for the new catalog. Rebuild it with:
++
++```
++python3 tools/fireside3d/build_classic_catalog.py --listfile /path/to/community-listfile.csv
++```
++
++The supplied broader `research-candidates.csv` and original research script remain offline research inputs under `tools/fireside3d/`. They are not loaded by the client or offered as compatible props. Listfile resolution and source metadata never count as a render test.
++
++## Retained integration
++
++One native ModelScene/depth buffer holds buildings, furniture, your character, existing NPCs and Live peers in a fixed world XYZ basis. Placement has no painted-depth scale or floor-UV correction. Ground, paths and contact shadows project world planes through the actual camera; they are not native mesh terrain or physical shadow maps. Fields, Study and old Town instances/travel remain inactive. Legacy source/resources remain recoverable, and the `fireside-3d` layout slot preserves old 2.5D layouts without migration. Existing saved 3D overrides can still affect the revised buildings; inspect them with the editor before resetting an object.
++
++The home book and shelf use existing collision-checked approach routes, real Journal/history permissions and actual earned inventory. Existing save, reader-place and badge recipe behavior remains authoritative. No synthetic pages, rewards or grants are shipped.
++
++Aether Live retains the base's protocol **2**, certificate/session trust, native sender binding, P2P transport, appearance reconstruction, coalesced movement channel, recovery and eight remote actor slots. Scene `square` keeps wire code `a`. The existing geometry digest includes the revised buildings, bounds, coordinate mode, doorway and NPC world paths, so **both clients must run candidate 2**; candidate 1 geometry is incompatible. Manual player updates keep the existing six-Hz coalesced M cadence and immediate final idle update. Camera flight never enters that state. NPCs retain the existing deterministic clock/path routine with world points, not a new authority or packet system.
++
++Storage, recovery, collectors, authentication and transport source files match the recorded base. No SavedVariables declaration, schema, migration, database root or credential flow is added.
++
++## One native test session
++
++1. Open `/fireside` and inspect **four different models**: the two Arathi farmhouses and two water huts. Check the full sky, ground, paths and gathering area. Report any missing/placeholder building with its FileDataID.
++2. Move your character while rotating 360 degrees, pitching and zooming. Check stable world size, floor contacts, shadows and colliders. Open/close normal content, type in chat and enter/leave combat to verify input release.
++3. Enter the player home through the negative-Y entrance; inspect the wall/door alignment. Sit/stand in its chair. Open your real Journal, use the page/cover controls and return. Inspect/edit earned badges/mementos; empty inventories stay empty. Reopen to check the existing save path.
++4. With the private editor installed locally, open it from its existing launcher. Fly away from the character, move vertically, rotate fully around all four buildings and dolly inside the home. Verify the character remains in place, NPCs pause, object handles still place correctly, forms accept typing, and Reset/Close restores the expected camera. Browse Houses, select an Arathi farmhouse and verify its ID fills correctly. Keep private exports local.
++5. Connect a second client using the existing Aether controls and explicit Live participation. Both clients must use candidate 2. Compare geometry revision; inspect movement, appearance, NPC paths, seating and disconnect/reconnect. A candidate 1 or legacy-layout client must be incompatible. Leave Live before editing, as the existing guard requires.
++
++The earlier prototype mechanics were user-reported successful. The revised three house models, editor camera in the private editor, expanded native rendering and two-client delivery have **not** been visually qualified in Codex Cloud. Code/call-recording checks do not certify those behaviors.
 +
 +## Automated checks and integration
 +
@@ -4320,22 +4527,24 @@ index 0000000..7f611b3
 +```
 +lua5.1 tools/fireside3d/checks.lua
 +lua5.1 tools/fireside3d/lifecycle.lua
++lua5.1 tools/fireside3d/editor_camera.lua
 +```
 +
-+The checks cover room registration, one-viewport construction with retained canonical/Live/shelf wrappers, no old instances/links, lazy Journal/catalog, world transforms, rotated home collision, Live-slot budget, shipped protocol-2 codec/revision handling, WASD coalescing/stop, floor decal clipping and validated-target interpolation. Full Lua syntax, manifest dependencies, artifact integrity, private-file exclusion and protected-source hashes are also checked during packaging.
++Checks cover four distinct model selections, one native viewport, real Journal laziness, doorway/rotated collision, camera-independent actor placement, Live codec/geometry/coalescing, Classic catalog filtering/selection, editor launch mapping, fly/strafe/height/look/dolly, camera reset/follow restoration, input guards, player-state isolation and NPC pause/resume. Packaging uses explicit public Git paths and checks private-reference exclusion and ZIP integrity. Lua syntax, TOC paths and protected-source bytes are checked separately.
 +
-+For the Pro account: review the PR against the recorded hotfix base. Adopt the new `World3D/` modules, the new tile and the load-on-demand catalog, then reconcile the small scene-gated changes in the realm, reading camera, room catalogue, travel, layer staging, Live world presentation and TOC. Do not replace the newer authoritative authentication/storage/network files with prototype copies. The candidate is a graphical integration branch, not a new data or multiplayer architecture.
++The changed-files ZIP and patch contain the full integration against `e4cc9f8`, including candidate 2. For newer stability builds, reconcile the scene-gated realm, camera, catalogue, travel, layer, Live presentation and TOC changes; do not replace newer authentication/storage/network files with prototype copies. Review before merging or publishing a production release.
 diff --git a/tools/fireside3d/build_candidate.py b/tools/fireside3d/build_candidate.py
 new file mode 100755
-index 0000000..6bf7636
+index 0000000..9305178
 --- /dev/null
 +++ b/tools/fireside3d/build_candidate.py
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,58 @@
 +#!/usr/bin/env python3
 +"""Build a public code/media overlay from explicit Git paths; never package a workspace recursively."""
 +from pathlib import Path
 +import argparse, hashlib, json, subprocess, zipfile
 +BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'
++CANDIDATE='candidate2'
 +
 +def tracked():
 +    return subprocess.check_output(['git','ls-files','-z']).decode().split('\0')[:-1]
@@ -4368,11 +4577,11 @@ index 0000000..6bf7636
 +        assert hashlib.sha256(data).hexdigest()not in forbidden_hashes,'Private file rejected'
 +        assert not any(value in data for value in literals),'Private-only literal rejected'
 +        assert not name.startswith(('OlympusWardenSimLab/','attachments/','private-')),'Nonpublic path rejected'
-+    manifest={'base':BASE,'kind':'public code overlay; requires existing base media','files':{}}
++    manifest={'base':BASE,'candidate':CANDIDATE,'kind':'public code overlay; requires existing base media','files':{}}
 +    for name,p in selected.items():
 +        assert not p.is_symlink() and p.resolve().is_relative_to(root),'Nonlocal/symlink payload rejected'
 +        data=p.read_bytes();check(data,name);manifest['files'][name]=hashlib.sha256(data).hexdigest()
-+    candidate=out/'Fireside-3D-candidate1-overlay.zip'
++    candidate=out/('Fireside-3D-'+CANDIDATE+'-overlay.zip')
 +    with zipfile.ZipFile(candidate,'w',zipfile.ZIP_DEFLATED)as z:
 +        for name,p in sorted(selected.items()):z.write(p,name)
 +        z.writestr('FIRESIDE-3D-MANIFEST.json',json.dumps(manifest,indent=2)+'\n')
@@ -4388,12 +4597,61 @@ index 0000000..6bf7636
 +    print('Public overlay:',len(selected),'files;',candidate.stat().st_size,'bytes. Changed-files ZIP and patch verified.')
 +    print('Private reference checked:',bool(args.private_reference),'; no private file/literal contents emitted.')
 +if __name__=='__main__':main()
+diff --git a/tools/fireside3d/build_classic_catalog.py b/tools/fireside3d/build_classic_catalog.py
+new file mode 100644
+index 0000000..e35c005
+--- /dev/null
++++ b/tools/fireside3d/build_classic_catalog.py
+@@ -0,0 +1,43 @@
++#!/usr/bin/env python3
++"""Resolve an explicit Classic/Forever M2 allowlist, never a retail-wide scan.
++
++The listfile proves an ID/path mapping, not installation or native rendering.
++"""
++import argparse
++import csv
++import json
++from pathlib import Path
++
++
++def main():
++    ap = argparse.ArgumentParser(description=__doc__)
++    ap.add_argument('--listfile', type=Path, required=True)
++    ap.add_argument('--source', type=Path, default=Path('tools/fireside3d/classic-assets.csv'))
++    ap.add_argument('--out', type=Path, default=Path('Fireside3DAssets/Index.lua'))
++    args = ap.parse_args()
++    with args.source.open(newline='') as f:
++        selected = list(csv.DictReader(f))
++    expected = {int(r['fileID']): r['path'] for r in selected}
++    assert len(expected) == len(selected) <= 512, 'Duplicate/excessive asset references'
++    found = {}
++    with args.listfile.open(encoding='utf-8-sig') as f:
++        for line in f:
++            number, sep, path = line.strip().partition(';')
++            if sep and number.isdigit() and int(number) in expected:
++                found[int(number)] = path.replace('\\', '/').lower()
++    assert found == expected, 'An explicit model ID/path mapping is absent or has changed'
++    rows = []
++    for r in selected:
++        assert r['era'] in {'CLASSIC', 'FOREVER_REFERENCE'} and r['path'].endswith('.m2')
++        row = dict(r, fileID=int(r['fileID']), height=float(r['height']), format='M2')
++        rows.append(row)
++    def lua(row):
++        return '{' + ','.join('[' + json.dumps(k) + ']=' + json.dumps(v) for k, v in row.items()) + '}'
++    args.out.write_text('-- Explicit Classic-era M2 / existing Forever references only.\n'
++                        '-- ID/path resolution is not an installed-client or render certification.\n'
++                        'Fireside3DAssetIndex={\n ' + ',\n '.join(map(lua, rows)) + '\n}\n')
++    print(f'{len(rows)} explicit M2 references resolved; no WMO or retail housing candidates.')
++
++
++if __name__ == '__main__':
++    main()
 diff --git a/tools/fireside3d/checks.lua b/tools/fireside3d/checks.lua
 new file mode 100644
-index 0000000..778005b
+index 0000000..1c494f2
 --- /dev/null
 +++ b/tools/fireside3d/checks.lua
-@@ -0,0 +1,71 @@
+@@ -0,0 +1,89 @@
 +-- Pure world/codec checks. No saved data, credentials, auth, networking or private addon is executed.
 +local ns={WardenWorldScenes={layers={'native','contact-shadows'},props={},residents={},outside={},navigation={}}}
 +local function load(path)return assert(loadfile('OlympusChatWarden/'..path))('test',ns)end
@@ -4402,7 +4660,9 @@ index 0000000..778005b
 +C.onRegister=function(key,d)ns.WardenWorldScenes.props[key]=d.props;ns.WardenWorldScenes.residents[key]=d.residents;ns.WardenWorldScenes.outside[key]=d.outside;ns.WardenWorldScenes.navigation[key]=d.navigation end
 +load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Scene.lua')
 +local F,N=ns.Fireside3D,ns.WardenNativeScene
-+assert(#F.houses==5 and F.PRIMARY=='square')
++assert(#F.houses==4 and F.PRIMARY=='square')
++local models={};for _,h in ipairs(F.houses)do assert(not models[h.fileID],'each house must use a different model');models[h.fileID]=true end
++assert(models[190430]and models[190431]and models[203656]and models[203657],'retain home and add both Classic farmhouse models')
 +local d=C.Room('square');assert(d.world3D and d.reader and #d.plates==0 and #d.outside==0 and #d.flags==0 and d.layoutSlot=='fireside-3d')
 +assert(C.Room('hall').layoutSlot=='hall','old layout metadata must remain recoverable')
 +assert(#d.props+#d.residents+3+8<=N.MAX_ACTORS,'include existing eight Live peer slots in actor budget')
@@ -4414,6 +4674,11 @@ index 0000000..778005b
 +assert(not N.CheckPath(segment(0,13,0,20),nav),'home back wall must block')
 +local rotated=F.HomeWalls({centerX=0,centerY=0,halfX=6,halfY=4,cos=0,sin=1})
 +assert(N.CheckPath(segment(6,0,0,0),{ground=true,floor=0,radius=.3,obstacles=rotated}),'rotated doorway uses world collider basis')
++local house=C.Room('square').props[1];local failed={spec=house,ready=false,failed=true}
++local sampleScene={definition={props={house}},native={actors={[house.id]=failed},order={failed}},shot=d.shot}
++ns.WardenWorldScenes.Props=function(s)return s.definition.props end
++assert(F.Navigation({},sampleScene,{spec={controlled=true}}),'a reported missing house must not freeze all player movement')
++failed.failed=nil;assert(not F.Navigation({},sampleScene,{spec={controlled=true}}),'pending house bounds must still block unsafe movement')
 +local engine=F.Coordinates.Bind({metrics={moves=0}})
 +local native={};function native:SetPosition(x,y,z)self.position={x,y,z}end
 +function native:SetYaw(yaw)self.yaw=yaw end;function native:SetPitch()end;function native:SetRoll()end
@@ -4435,10 +4700,21 @@ index 0000000..778005b
 +load('World3D/Catalog.lua');assert(not F.Catalog.rows and not Fireside3DAssetIndex)
 +local requested=0
 +LoadAddOn=function(name)assert(name=='Fireside3DAssets');requested=requested+1;assert(loadfile('Fireside3DAssets/Index.lua'))();return true end
-+local rows=assert(F.Catalog.Search('106965'));assert(#rows>=1 and rows[1].status=='CANDIDATE_NOT_RENDER_TESTED')
++local rows=assert(F.Catalog.Search('203656'));assert(#rows==1 and rows[1].status=='CLASSIC_REFERENCE_NOT_RENDER_TESTED')
 +assert(F.Catalog.Search('house')and requested==1,'lazy catalog should load only once')
-+for _,r in ipairs(Fireside3DAssetIndex)do if r.format=='WMO'then assert(r.status=='CANDIDATE_NOT_RENDER_TESTED')end end
-+print('PASS: five-house definition, no old plates/air scene, layout isolation, doorway/rotated collision, 360 transform invariance, actor budget with Live slots, shipped protocol-2 codec, geometry compatibility, lazy candidate status/search')
++for _,r in ipairs(Fireside3DAssetIndex)do assert(F.Catalog.Compatible(r))end
++assert(not F.Catalog.Compatible({format='WMO',era='CLASSIC'}),'WMO roots must not appear as loadable editor props')
++assert(not F.Catalog.Compatible({format='M2',era='RETAIL'}),'retail housing must not appear in the Forever catalog')
++local editor={ObjectCatalogue={{198049,'Existing shelf',2.3,0,'Shelves'}},FilterObjects=function()return{}end}
++editor.AddObjectForm=function()
++ local found=false;for _,r in ipairs(editor.ObjectCatalogue)do if r[1]==203656 then assert(r[3]==7);found=true end end
++ assert(found,'dropdown choices must also exist in the editor selection lookup');return 'original form'
++end
++ns.WardenSceneEditor=editor;assert(F.Catalog.BindExistingEditor());assert(editor.AddObjectForm()=='original form')
++local count=#editor.ObjectCatalogue;editor.AddObjectForm();assert(#editor.ObjectCatalogue==count,'do not append duplicates on reopening')
++assert(#editor.FilterObjects('Houses','arathifarmhouse01')==1,'search supports the Classic model path')
++ns.WardenSceneEditor=nil
++print('PASS: four distinct Classic house references, no old plates/air scene, layout isolation, doorway/rotated collision, 360 transform invariance, actor budget with Live slots, shipped protocol-2 codec, geometry compatibility, lazy Classic catalog and existing-editor selection')
 +-- Existing Live publisher: no handshake/transport is run. Verify manual movement
 +-- uses the same M state/codec and coalescing, with a bounded six-Hz signature.
 +ns.WardenRealm={Attach=function()return{}end};ns.WardenCanonicalPlayer={Save=function()return true end};ns.SafeCall=function(fn,...)if fn then return fn(...)end end
@@ -4465,6 +4741,115 @@ index 0000000..778005b
 +remote.world3DTarget.animation=0;F.StepRemote({}, {native=rendered},remote,.05);assert(remote.animation==0)
 +F.Navigation=oldNavigation
 +print('PASS: floor-decal clipping and world-space rendering convergence of already-validated Live movement states')
+diff --git a/tools/fireside3d/classic-assets.csv b/tools/fireside3d/classic-assets.csv
+new file mode 100644
+index 0000000..f11bcb9
+--- /dev/null
++++ b/tools/fireside3d/classic-assets.csv
+@@ -0,0 +1,12 @@
++fileID,label,category,height,path,era,status,installed
++190430,Swamp water hut 1,Houses,7,world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut01.m2,CLASSIC,USER_REPORTED_PROTOTYPE_DEFAULT,USER_REPORTED
++190431,Swamp water hut 2,Houses,7,world/azeroth/swamposorrow/passivedoodads/waterhuts/waterhut02.m2,CLASSIC,CLASSIC_REFERENCE_NOT_RENDER_TESTED,NOT_CHECKED
++203656,Arathi farmhouse 1,Houses,7,world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse01.m2,CLASSIC,CLASSIC_REFERENCE_NOT_RENDER_TESTED,NOT_CHECKED
++203657,Arathi farmhouse 2,Houses,7,world/lordaeron/arathi/passivedoodads/farmhouses/arathifarmhouse02.m2,CLASSIC,CLASSIC_REFERENCE_NOT_RENDER_TESTED,NOT_CHECKED
++198603,Inn table,Tables,0.9,world/generic/human/passive doodads/tables/inntable.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA
++198114,High-end human chair,Seats,1.55,world/generic/human/passive doodads/chairs/generalchairhighend01.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA
++200912,Animated journal book,Decor,0.65,world/goober/g_bookopenmediumbrown.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA
++189705,Elwynn campfire,Lighting fixtures,0.8,world/azeroth/elwynn/passivedoodads/campfire/elwynncampfire.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA
++189923,Elwynn fir tree,Trees and plants,7,world/azeroth/elwynn/passivedoodads/trees/elwynnfirtree01.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA
++198049,Wide abbey bookshelf,Shelves,2.3,world/generic/human/passive doodads/bookshelves/abbeyshelf02.m2,CLASSIC,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA
++242995,Existing earned-badge shelf,Shelves,2.3,world/expansion02/doodads/dalaran/dalaran_bookcase_empty_01.m2,FOREVER_REFERENCE,SHIPPED_FOREVER_REFERENCE,SOURCE_METADATA
+diff --git a/tools/fireside3d/editor_camera.lua b/tools/fireside3d/editor_camera.lua
+new file mode 100644
+index 0000000..b2f3282
+--- /dev/null
++++ b/tools/fireside3d/editor_camera.lua
+@@ -0,0 +1,85 @@
++-- Exercise the actual scene input adapter and native camera calls at recorded
++-- API boundaries. No private addon, network or saved state is executed.
++local ns={UI2={menuHidden=true},Fireside3D={PRIMARY='square'},WardenRoomCatalogue={HasRoom=function(k)return k=='hall'or k=='study'or k=='square'end}}
++local function load(p)return assert(loadfile('OlympusChatWarden/'..p))('test',ns)end
++local methods={};local mt={__index=methods}
++local function frame()return setmetatable({scripts={},visible=true,hover=true},mt)end
++function methods:SetScript(k,v)self.scripts[k]=v end
++function methods:HookScript(k,v)local before=self.scripts[k];self.scripts[k]=function(...)if before then before(...)end;return v(...)end end
++function methods:IsVisible()return self.visible end
++function methods:IsShown()return self.visible end
++function methods:Show()self.visible=true end
++function methods:Hide()self.visible=false end
++function methods:IsMouseOver()return self.hover end
++function methods:CreateTexture()return frame()end
++function methods:CreateFontString()return frame()end
++function methods:GetFrameLevel()return 10 end
++function methods:SetPropagateKeyboardInput(value)self.propagate=value end
++function methods:EnableMouse(value)self.mouse=value end
++function methods:SetCameraPosition(x,y,z)self.eye={x,y,z}end
++function methods:SetCameraOrientationByYawPitchRoll(yaw,pitch,roll)self.angles={yaw,pitch,roll}end
++for _,k in ipairs({'SetPoint','SetSize','SetAllPoints','SetColorTexture','SetText','SetFrameLevel','SetShown','EnableKeyboard','EnableMouseWheel','SetCameraFieldOfView','SetCameraNearClip','SetCameraFarClip'})do methods[k]=function()end end
++CreateFrame=function()return frame()end
++local focus,combat,shift,mouse=false,false,false,false
++local cursorX,cursorY=0,0
++GetCurrentKeyBoardFocus=function()return focus end
++InCombatLockdown=function()return combat end
++IsShiftKeyDown=function()return shift end
++IsMouseButtonDown=function()return mouse end
++GetCursorPosition=function()return cursorX,cursorY end
++load('WardenNativeScene.lua');load('World3D/Scene.lua');load('World3D/EditorCamera.lua')
++local F,N=ns.Fireside3D,ns.WardenNativeScene;local EC=F.EditorCamera
++F.IsScene=function(s)return s.definition.world3D==true end
++local player={ready=true,position={0,-7,0},scale=1.85}
++local engine={actors={attendant=player},frame=frame(),shot={position={0,-18,8},target={0,0,1},fov=.85}}
++engine.Place=function()error('camera controls cannot move an actor')end
++local s={definition={world3D=true},native=engine,groundClick=frame(),active=true};s.shot=engine.shot
++local v={frame=frame(),forest=s,cameraMix=0};function v:ActiveRoom()return s end
++F.BindInput(v,ns.UI2)
++local opened,failOpen
++local editor={active=false,Realm=function()return v end,Open=function(key)opened=key;return not failOpen,'existing result'end}
++ns.WardenSceneEditor=editor
++assert(EC.BindExistingEditor());assert(not EC.BindExistingEditor(),'adapter binds only once')
++assert(editor.Open('study')and opened=='square','legacy launch buttons must open the actual 3D world')
++editor.Open('unknown');assert(opened=='unknown','unknown keys retain the existing editor validation')
++ns.UI2.menuHidden=false;failOpen=true;local ok,why=editor.Open('square');assert(not ok and why=='existing result'and ns.UI2.menuHidden==false,'failed editor authorization must retain menu state')
++failOpen=false;editor.Open('square');assert(ns.UI2.menuHidden,'editor launched from a menu must reveal the wide world')
++editor.active=true;editor.scene='square';assert(EC.Active(v))
++local function key(name,down)v.frame.scripts[down and'OnKeyDown'or'OnKeyUp'](v.frame,name)end
++local function distance(a,b)return math.sqrt((a[1]-b[1])^2+(a[2]-b[2])^2+(a[3]-b[3])^2)end
++local function copy(p)return{p[1],p[2],p[3]}end
++local c=EC.State(v);local start=copy(c.position)
++key('W',true);assert(v.frame.propagate==false);EC.Tick(v,.05);assert(math.abs(distance(start,c.position)-.4)<1e-8)
++key('W',false);assert(not v.frame.propagate and not c.keys.W,'release the held camera key without forwarding its key-up to WoW')
++shift=true;start=copy(c.position);key('D',true);EC.Tick(v,.05);key('D',false)
++assert(math.abs(distance(start,c.position)-1.2)<1e-8,'Shift camera movement is three times normal speed');shift=false
++start=copy(c.position);key('E',true);EC.Tick(v,.05);key('E',false)
++assert(c.position[1]==start[1]and c.position[2]==start[2]and c.position[3]>start[3],'E changes camera height only')
++key('Q',true);EC.Tick(v,.05);key('Q',false);assert(distance(start,c.position)<1e-8)
++-- Look through 360 degrees using the real native camera API wrapper.
++for turn=0,359 do c.yaw=turn*math.pi/180;F.Camera(v);assert(distance(engine.frame.eye,c.position)<1e-8)end
++local yaw=c.yaw;mouse=true;s.groundClick.scripts.OnMouseDown(s.groundClick,'RightButton')
++cursorX,cursorY=80,30;EC.Tick(v,0);assert(c.yaw~=yaw and c.pitch>-.35)
++mouse=false;s.groundClick.scripts.OnMouseUp();assert(not c.dragging)
++local followDistance=v.world3DInput.distance;start=copy(c.position)
++s.groundClick.scripts.OnMouseWheel(s.groundClick,1);assert(math.abs(distance(start,c.position)-2)<1e-8)
++assert(v.world3DInput.distance==followDistance,'editor dolly cannot change the player follow camera')
++-- Editing forms, object dragging, combat and leaving the viewport release keys.
++for _,block in ipairs({'focus','popup','drag','combat','lock','storage','hover'})do
++ key('W',true);start=copy(c.position)
++ if block=='focus'then focus=true elseif block=='popup'then editor.popup=frame()elseif block=='drag'then editor.dragging=true
++ elseif block=='combat'then combat=true elseif block=='lock'then ns.UI2.locked=true elseif block=='storage'then ns.MainStorageBlocked=true else s.groundClick.hover=false end
++ EC.Tick(v,.05);assert(distance(start,c.position)==0 and not next(c.keys),'camera input guard: '..block)
++ key('W',true);assert(v.frame.propagate,'blocked keys must propagate to the focused UI')
++ focus=false;editor.popup=nil;editor.dragging=false;combat=false;ns.UI2.locked=false;ns.MainStorageBlocked=false;s.groundClick.hover=true
++end
++key('W',true);s.groundClick.scripts.OnLeave();assert(not next(c.keys)and v.frame.propagate)
++key('D',true);v.frame.scripts.OnHide();assert(not next(c.keys)and v.frame.propagate)
++EC.Reset(v);c=EC.State(v);local follow=EC.FollowView(v);assert(distance(c.position,follow.position)==0)
++assert(player.position[1]==0 and player.position[2]==-7 and player.position[3]==0 and player.scale==1.85,'free camera must not move or resize the Live player')
++assert(not next(v.world3DInput.keys),'fly keys must never enter player movement')
++editor.active=false;EC.Tick(v,.05);assert(not v.world3DEditCamera and not v.world3DCameraBar:IsShown())
++F.Camera(v);assert(distance(engine.frame.eye,follow.position)==0,'closing editor restores the character follow camera')
++key('W',true);assert(v.world3DInput.keys.W,'normal player input resumes');key('W',false)
++s.definition.world3D=false;editor.active=true;assert(not EC.Active(v),'legacy scenes never use the fly-camera adapter')
++print('PASS: independent editor fly/strafe/height/look/dolly, 360 native camera calls, reset/follow restoration, actor/Live state isolation, focus/popup/drag/combat/input release, scene gating and existing-editor launch mapping')
 diff --git a/tools/fireside3d/fireside_build_asset_index.py b/tools/fireside3d/fireside_build_asset_index.py
 new file mode 100644
 index 0000000..26a897b
@@ -4551,10 +4936,10 @@ index 0000000..26a897b
 +if __name__=='__main__':main()
 diff --git a/tools/fireside3d/lifecycle.lua b/tools/fireside3d/lifecycle.lua
 new file mode 100644
-index 0000000..39c131d
+index 0000000..36b96a2
 --- /dev/null
 +++ b/tools/fireside3d/lifecycle.lua
-@@ -0,0 +1,82 @@
+@@ -0,0 +1,89 @@
 +-- Call-recording realm boundary: validates construction/lifecycle, not native rendering.
 +local ns={WardenWorldScenes={layers={'contact-shadows','native','outside-native','book','shelf-badges'},props={},residents={},outside={},navigation={},shots={},lighting={},clouds={}},DB={livingRealmAmbience=true},UI2={}}
 +local function load(p)return assert(loadfile('OlympusChatWarden/'..p))('test',ns)end
@@ -4601,7 +4986,7 @@ index 0000000..39c131d
 +ns.WardenWorldScale={Request=function()return true end}
 +ns.AetherLive={World={active=false,NPCs={},NPC=function()end}}
 +ns.WardenShelfShowcase={Render=function()end,ResetCamera=function()end}
-+load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Background.lua');load('World3D/Scene.lua');load('World3D/Catalog.lua')
++load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Background.lua');load('World3D/Scene.lua');load('World3D/EditorCamera.lua');load('World3D/Catalog.lua')
 +local count=0
 +ns.WardenNativeScene.Create=function(parent,shot)
 + count=count+1
@@ -4637,6 +5022,13 @@ index 0000000..39c131d
 +assert(#C.Rooms()==1 and #C.Connections('square')==0)
 +v:Advance(.016)
 +print('PASS: real realm constructor/selection/update at recorded API boundaries; one native viewport, no Fields/Home/Town instance or travel links, lazy real Journal')
++local npcTicks=0;local W=ns.AetherLive.World
++W.NPC=function()npcTicks=npcTicks+1 end
++ns.WardenSceneEditor={active=true,scene='square'}
++v:Advance(.016);assert(npcTicks==0,'free-camera editing must retain the existing editor NPC pause')
++assert(not v:ClickScene(v.forest,.5,.5),'editor camera input must not issue a player interaction')
++ns.WardenSceneEditor.active=false;v:Advance(.016);assert(npcTicks>0,'normal NPC updates resume after editing')
++print('PASS: editor input isolation and retained NPC pause/resume')
 diff --git a/tools/fireside3d/research-candidates.csv b/tools/fireside3d/research-candidates.csv
 new file mode 100644
 index 0000000..65733d2
