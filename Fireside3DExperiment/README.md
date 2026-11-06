@@ -1,11 +1,11 @@
-# Fireside — Third Dimension: chair and NPC scene v0.3
+# Fireside — Third Dimension: world-space chair and NPC scene v0.3.1
 
 Native visual feasibility is **unverified**. This is a test candidate, not a proven playable build or production conversion. No WoW client/assets are installed in Codex Cloud. An accepted model request and loaded bounds do not establish that a usable house renders.
 
 Base: `9bc2326f67532c548102caa831b20af2234d6bfe`.
 Branch: `experiment/minimal-3d-interactions`.
 
-The original build remains on `experiment/minimal-3d-house`. The textured build remains on `experiment/minimal-3d-textured-scene`. This third candidate keeps the house/table/player, wood ground, sky/cloud backdrop and camera controls, and adds a clickable chair and exactly two generic stationary NPCs. Transparent source pixels reveal blue, never black. Camera height stays above the ground. No in-game success is assumed.
+The original build remains on `experiment/minimal-3d-house`. The textured build remains on `experiment/minimal-3d-textured-scene`. This candidate keeps the house/table/player, wood ground, sky/cloud backdrop and camera controls, and adds a clickable chair and exactly two generic stationary NPCs. Transparent source pixels reveal blue, never black. Camera height stays above the ground. No in-game success is assumed.
 
 ## Install and run one manual test
 
@@ -41,7 +41,8 @@ All changes are new under `Fireside3DExperiment/`; no production file is modifie
 - `Fireside3DExperiment.toc`: isolated addon; no dependencies or SavedVariables.
 - `Prototype.lua`: staged house probe, input, scene and camera controller.
 - `Interactions.lua`: adapted `SeatPlayer`, `UpdatePlayerSeat`, `LeavePlayerSeat` and `InteractPlayer` from production `WardenWorldRealm.lua` at the base commit. Production UI/preferences hooks are removed, `attendant` is bound to the experimental `player`, and navigation is supplied by the demo. Approach routing, bounds-based picking, seat offset, pose probes and animation playback reuse the existing engine.
-- `Background.lua`: sky/ground presentation using the same camera shot and inverse projection of the existing engine. The flat ground uses 128 textured strips, with approximate UV interpolation within each strip. This is not a general terrain renderer.
+- `WorldSpace.lua`: scene-specific world XYZ placement, collision basis, stable model anchors and native ground-plane mapping. Loaded after the unchanged vendor copies, it overrides only this addon's private namespace and engine instance.
+- `Background.lua`: sky/ground presentation using the native world-plane mapping from WorldSpace.lua. The flat ground uses 128 textured strips, with approximate UV interpolation within each strip. This is not a general terrain renderer.
 - `Media/Ground.tga`: byte-identical copy of `OlympusChatWarden/Media/WorldUI38/Wood.tga`.
 - `Media/Sky.tga`: byte-identical copy of `OlympusChatWarden/Media/World52/a2-sky-day-0-0.tga`.
 - `Media/Clouds.tga`: byte-identical copy of `OlympusChatWarden/Media/World50/a2-cloud-far-left-0-0.tga`.
@@ -51,7 +52,7 @@ Only these three existing images are bundled. Sky/cloud UVs omit unused transpar
 - `Checks.lua`: pure engine checks, not loaded by the TOC and not a renderer/simulator.
 - `README.md`: integration and test instructions.
 
-All native actors use one ModelScene/depth buffer. The projected texture ground is a backdrop plane, not a native depth-writing floor mesh; native below-floor clipping, terrain height and camera-wall collision are not provided. Its projection shares the existing mathematical FOV convention; actual Forever viewport registration needs the pending in-game check. No per-actor compositing or z-order tricks. The movement plane is flat; the mesh's visual floor, native depth buffer and interior topology need in-client inspection. Missing animation probe support is reported by the reused engine; movement may render without walk animation if a native sequence is unavailable. No WoW models or WoW textures are bundled; the three existing Fireside background images above are included for standalone installation.
+All native actors use one ModelScene/depth buffer. The textured ground is a world Z=0 presentation plane derived from native projection, not a native depth-writing floor mesh; native below-floor clipping, terrain height and camera-wall collision are not provided. Actual Forever registration still needs the pending in-game check. No per-actor compositing or z-order tricks. The movement plane is flat; the mesh's visual floor, native depth buffer and interior topology need in-client inspection. Missing animation probe support is reported by the reused engine; movement may render without walk animation if a native sequence is unavailable. No WoW models or WoW textures are bundled; the three existing Fireside background images above are included for standalone installation.
 
 ## Cloud validation and integration
 
@@ -65,3 +66,17 @@ lua5.1 Fireside3DExperiment/Checks.lua
 Syntax, pure collision/projection, chair state-machine, animation capability, NPC clearance and packaging checks are cloud checks only. No existing test suite or package scripts are checked in. No visual success criteria have been marked passed. The seat-controller checks use actor records and record native calls; they do not emulate or validate WoW rendering/animation playback.
 
 For the Pro account: apply the supplied patch on a new branch based on the stabilized production version, or copy the changed-files ZIP's relative paths. Keep this standalone addon for the first test; it does not depend on a particular production database version. Compare the two vendor files with the newer engine before deliberately adopting later engine changes; do not overwrite the production renderer with these copies. Integrate only after the native house test succeeds. Do not merge scenes or migrate data as part of this experiment. Existing source licensing remains applicable.
+
+## Critical perspective separation (v0.3.1)
+
+Audited `WardenNativeScene` world/placement/scale/projection/footprint code, `WardenSceneObjectControls` collision/picking, and `WardenWorldRealm` floor registration, ground offsets, layered occlusion and contact shadows. The latter production module is not loaded by this addon.
+
+- **World coordinates:** actor positions, navigation, seat locations and the ground all use explicit X/Y/Z, ground Z=0. WorldSpace replaces the authored-shot basis only in the experimental namespace. Camera changes never reauthor positions or colliders.
+- **Scale and pivots:** model dimensions are set once at load. Stable model-space pivot alignment and the pre-existing model-scaled native API translation conversion remain at the placement boundary; neither uses distance, FOV, screen position or viewport scale. No per-frame perspective sizing or animation-bounds recentering is applied. `floorUV`, legacy `groundOffset` and authored-shot facing compensation are ignored. `/fs3d floor` remains an intentional world-space house translation for physical floor calibration, never a camera correction.
+- **Projection and occlusion:** one native ModelScene handles actor perspective and depth. No rear/foreground actor passes, screen-size matching, floor-UV snapping or screen-space position corrections are used. Chair picking uses native projection of its world bounds. Seat facing uses world yaw.
+- **Ground:** removed the independent mathematical inverse-camera projection and horizon/seam nudges. A plane homography, adapted from the existing native FloorPoint calculation, is fitted from four actual native projected points each frame *after* the view camera update. The wood presentation samples that world Z=0 mapping. If native projection is unavailable/degenerate, the ground hides and `/fs3d report` records why; no independent perspective fallback is substituted. Strip interpolation remains approximate within each strip, and the texture is not a native depth-writing mesh. Near the projection horizon or beyond the bounded 512-unit presentation extent it yields to sky.
+- **Shadows:** legacy layered contact-shadow/cinematic UV freezing code is not loaded or called. There are no experimental screen-space shadow overlays to detach from world positions. This build does not add shadow rendering or certify native cast shadows.
+
+**Single-session acceptance:** confirm a usable house, then rotate the camera all the way around it while moving with WASD. Pitch, zoom and follow the moving player; inspect the table, chair and both NPCs. Watch fixed-size native actors and their world-ground contacts for floating, sliding or a second perspective transform. Sit and stand, then rotate again. `/fs3d report` includes world positions, model scales, coordinate mode and ground registration status. Model API translation conventions, texture registration, occlusion and seat/body alignment still need this real Forever check; numerical tests do not prove visual success.
+
+The existing v0.3 download ZIPs and patch have been refreshed to addon version v0.3.1 and include the complete standalone addon relative to original base `9bc2326f67532c548102caa831b20af2234d6bfe`, including this fix. For an already-applied v0.3 prototype, the integration delta is WorldSpace.lua, Background.lua, Prototype.lua, Interactions.lua, the TOC, Checks.lua and this README. Preserve production rendering unchanged when adopting this adapter.

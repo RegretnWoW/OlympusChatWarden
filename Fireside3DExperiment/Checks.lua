@@ -22,29 +22,6 @@ for degrees=0,359 do
  assert(math.abs(u-.5)<1e-9 and math.abs(v-.5)<1e-9 and depth>0,'orbit must keep its target centered')
 end
 print('PASS: swept collision, floor boundary, approximate doorway, furniture collision, fixed basis, 360 orbit projections')
-assert(loadfile('Fireside3DExperiment/Background.lua'))('test',ns)
-local B=ns.ExperimentBackground
-local checked=0
-for degrees=0,330,30 do
- for _,pitch in ipairs({-.05,.35,1.1}) do
-  local yaw=degrees*math.pi/180
-  local view={position={3-12*math.cos(pitch)*math.cos(yaw),4-12*math.cos(pitch)*math.sin(yaw),math.max(.4,1.3+12*math.sin(pitch))},target={3,4,1.3},fov=.85}
-  for _,v in ipairs({.1,.3,.5,.7,.9,.99}) do
-   for _,u in ipairs({0,.2,.5,.8,1}) do
-    local x,y=B.GroundPoint(view,u,v,16/9)
-    if x then
-     local pu,pv,depth=N.Project(view,x,y,0,16/9)
-     assert(depth>0 and math.abs(pu-u)<1e-7 and math.abs(pv-v)<1e-7,'ground projection disagrees with native scene math')
-     checked=checked+1
-    end
-   end
-  end
- end
-end
-assert(checked>100)
-local level={position={0,-10,2},target={0,0,2},fov=.85}
-assert(not B.GroundPoint(level,.5,.1,16/9),'sky rays must not draw floor')
-print('PASS: '..checked..' inverse-ground projection samples; horizon rejection')
 -- Exercise the adapted production seat controller using pure actor records.
 -- Place/Animate/Route record native boundary calls; this is not a visual simulator.
 assert(loadfile('Fireside3DExperiment/Interactions.lua'))('test',ns)
@@ -83,3 +60,71 @@ e:Place(a,0,-3,0,0)
 assert(not N.CanStep(e,a,a.position,{4,-3,0}),'swept person clearance must block walking through NPC')
 assert(N.CanStep(e,a,a.position,{0,-4,0}))
 print('PASS: chair approach, settle/hold/stand, unsupported animation, combat guard, generic NPC selection and NPC clearance')
+-- Scene-specific transform separation: camera changes never change actor transforms.
+assert(loadfile('Fireside3DExperiment/WorldSpace.lua'))('test',ns)
+local W=ns.ExperimentWorldSpace
+local calls=0
+local native={}
+function native:SetPosition(x,y,z)self.position={x,y,z};calls=calls+1 end
+function native:SetYaw(y)self.yaw=y end
+function native:SetPitch(p)self.pitch=p end
+function native:SetRoll(r)self.roll=r end
+function native:SetScale()error('camera/placement must not change model scale')end
+local en=W.Bind({shot=shot,metrics={moves=0}})
+local actor={actor=native,ready=true,spec={floorUV={.9,.1},worldYaw=9},bounds={-2,-1,-.5,4,3,5},scale=.6,groundOffset=99}
+local function near(x,y)assert(math.abs(x-y)<1e-7,tostring(x)..' != '..tostring(y))end
+for degrees=0,359 do
+ local angle=degrees*math.pi/180
+ -- Intentionally mutate the authored shot too: placement and collision no longer depend on it.
+ en.shot={position={10*math.cos(angle),10*math.sin(angle),8},target={-3,9,2},fov=.3+angle*.1}
+ assert(en:Place(actor,3,4,0,.7))
+ near(actor.position[1],3);near(actor.position[2],4);near(actor.position[3],0)
+ near(native.position[1]*actor.scale+math.cos(.7)*actor.worldAnchor[1]*actor.scale-math.sin(.7)*actor.worldAnchor[2]*actor.scale,3)
+ near(native.position[2]*actor.scale+math.sin(.7)*actor.worldAnchor[1]*actor.scale+math.cos(.7)*actor.worldAnchor[2]*actor.scale,4)
+ near(native.position[3]*actor.scale+actor.worldAnchor[3]*actor.scale,0)
+ local box=N.Footprint(en.shot,actor);near(box.centerX,3);near(box.centerY,4)
+ local x,y,z=N.World(en.shot,3,4,0);assert(x==3 and y==4 and z==0)
+end
+assert(calls==360 and actor.scale==.6 and en.legacyShadows==false)
+-- Feed recorded-style native pixel projections to the existing normalization/plane fit.
+-- This validates mapping/invariants, not the client's actual projection or native API behavior.
+local frame={}
+function frame:GetWidth()return 1600 end
+function frame:GetHeight()return 900 end
+function frame:GetEffectiveScale()return 1 end
+function frame:Project3DPointTo2D(x,y,z)
+ local u,v,d=N.Project(self.firesideViewShot,x,y,z,1600/900)
+ if not u then return end
+ return u*1600,(1-v)*900,d
+end
+local samples=0
+for degrees=0,330,30 do
+ for _,pitch in ipairs({.12,.5,1.1})do
+  local yaw=degrees*math.pi/180
+  frame.firesideViewShot={position={3-12*math.cos(pitch)*math.cos(yaw),4-12*math.cos(pitch)*math.sin(yaw),1.3+12*math.sin(pitch)},target={3,4,1.3},fov=.85}
+  local map=assert(W.FloorMap(frame,frame.firesideViewShot))
+  for _,point in ipairs({{0,0},{3,4},{-4,-2},{7,8}})do
+   local u,v=N.Project(frame.firesideViewShot,point[1],point[2],0,1600/900)
+   if u then local x,y=map(u,v);near(x,point[1]);near(y,point[2]);samples=samples+1 end
+  end
+ end
+end
+local projection=frame.Project3DPointTo2D;frame.Project3DPointTo2D=nil
+assert(not W.FloorMap(frame,shot),'missing native projection must hide ground, not use a second perspective')
+frame.Project3DPointTo2D=projection
+print('PASS: 360 camera-independent world placements, scale/anchor/collision invariance, '..samples..' native-plane mapping samples, missing-projection rejection; legacy shadows disabled')
+-- Moving world anchor while a follow camera rotates/pitches; several model sizes.
+for _,scale in ipairs({.25,1,3})do
+ actor.scale=scale
+ for degrees=0,350,10 do
+  local q=degrees*math.pi/180;local x,y=3+math.sin(q)*2,4+math.cos(q)*2
+  en.shot={position={x-9*math.cos(q),y-9*math.sin(q),2+degrees*.02},target={x,y,1.3},fov=.85}
+  assert(en:Place(actor,x,y,0,q))
+  near(actor.worldPosition[1],x);near(actor.worldPosition[2],y)
+  local box=N.Footprint(en.shot,actor);near(box.centerX,x);near(box.centerY,y)
+  near(native.position[1]*scale+math.cos(q)*actor.worldAnchor[1]*scale-math.sin(q)*actor.worldAnchor[2]*scale,x)
+  near(native.position[2]*scale+math.sin(q)*actor.worldAnchor[1]*scale+math.cos(q)*actor.worldAnchor[2]*scale,y)
+  near(native.position[3]*scale+actor.worldAnchor[3]*scale,0)
+ end
+end
+print('PASS: moving world contacts/colliders during follow-camera changes at three fixed model scales')

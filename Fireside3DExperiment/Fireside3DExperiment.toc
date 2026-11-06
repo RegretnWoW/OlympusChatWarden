@@ -2,9 +2,10 @@
 ## Title: Fireside — Third Dimension Experiment
 ## Notes: Isolated native house feasibility test. No saved data or production dependency.
 ## Author: Regretn
-## Version: 0.3-chair-npcs
+## Version: 0.3.1-world-space
 Vendor\WardenSceneObjectControls.lua
 Vendor\WardenNativeScene.lua
+WorldSpace.lua
 Background.lua
 Interactions.lua
 Prototype.lua

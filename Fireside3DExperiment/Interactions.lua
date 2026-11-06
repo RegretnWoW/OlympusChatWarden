@@ -15,7 +15,7 @@ function I.Bind(engine,shot,navigation)
   local p={unpack(a.position)};local target={unpack(p)};local yaw=a.yaw or 0
   if intent.kind=='chair'then
    target={prop.position[1],prop.position[2],prop.position[3]+prop.top*(prop.spec.seatFraction or .29)-a.top*.32+(prop.seatHeightOffset or 0)}
-   yaw=(prop.worldYaw or 0)-(math.atan2(s.shot.target[2]-s.shot.position[2],s.shot.target[1]-s.shot.position[1])-math.pi*.5)
+   yaw=prop.worldYaw or 0 -- experimental world yaw, independent of authored-shot/camera basis
   else target[3]=target[3]+(prop.seatHeightOffset or 0);yaw=math.atan2(prop.position[2]-p[2],prop.position[1]-p[1])end
   a.seating={kind=intent.kind,id=intent.id,phase='settle',elapsed=0,duration=intent.kind=='chair'and 1.1 or 1,approach=p,from=p,to=target,fromYaw=a.yaw or yaw,delta=(yaw-(a.yaw or yaw)+math.pi)%(2*math.pi)-math.pi,animation=intent.animation}
   a.spec.worldYaw=nil;a.engine:Animate(a,intent.kind=='chair'and 4 or a.capabilities[96]and 96 or intent.animation,1)

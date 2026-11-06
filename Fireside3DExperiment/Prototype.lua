@@ -29,8 +29,8 @@ local function camera()
     local x,y,z = N.World(shot,p[1],p[2],p[3]+1.3)
     local horizontal = distance*cos(pitch)
     local view={position={x-horizontal*cos(yaw),y-horizontal*sin(yaw),math.max(.4,z+distance*sin(pitch))},target={x,y,z},fov=.85}
-    if background then background:Update(view) end
-    if not N.ViewCamera(engine,view) then active=false; clearInput(); text('Camera API rejected. Stop: this client cannot run the experiment.') end
+    if not N.ViewCamera(engine,view) then active=false; clearInput(); text('Camera API rejected. Stop: this client cannot run the experiment.');return end
+    if background then background:Update(engine.frame,shot) end
 end
 local function probe()
     active=false; clearInput(); houseFloor=0; halfX=nil; halfY=nil
@@ -42,6 +42,7 @@ local function probe()
     -- Retire the previous scene, keeping only one visible house; at most three scenes per session.
     engine=N.Create(window.viewport,shot)
     if engine.unsupported then text('STOP: '..engine.unsupported); return end
+    ns.ExperimentWorldSpace.Bind(engine)
     engine.onReady=function(a)
         visibleActor(a)
         if a.id=='house' then
@@ -187,9 +188,10 @@ SlashCmdList.FIRESIDE3DEXPERIMENT=function(input)
     local command,arg=(input or ''):match('^(%S*)%s*(.-)$')
     if not window then create() end
     if command=='report' then
-        say('Chair/NPC scene v0.3; base 9bc2326f67532c548102caa831b20af2234d6bfe; candidate '..index..'; visual house confirmation='..tostring(house and house.visualConfirmed==true))
+        say('World-space scene v0.3.1; base 9bc2326f67532c548102caa831b20af2234d6bfe; candidate '..index..'; visual house confirmation='..tostring(house and house.visualConfirmed==true))
         if index<=#candidates then say(candidates[index][1]..' '..candidates[index][3]) end
-        for _,a in ipairs(engine and engine.order or {}) do say(a.id..': '..a.status..'; bounds='..(a.bounds and table.concat(a.bounds,',') or 'none')) end
+        for _,a in ipairs(engine and engine.order or {}) do say(a.id..': '..a.status..'; world='..(a.position and table.concat(a.position,',') or 'none')..'; scale='..tostring(a.scale)..'; bounds='..(a.bounds and table.concat(a.bounds,',') or 'none')) end
+        say('Coordinates=world XYZ; camera-only perspective; legacy corrections/shadows disabled; ground='..(background and background.registration or 'unavailable'))
         if player then say('Chair state='..(player.seating and player.seating.phase or player.pendingInteraction and 'approaching' or 'free')..'; sit supported='..tostring(player.capabilities[102] or player.capabilities[103] or player.capabilities[104] or false)) end
         say('Sky+wood ground; interior trial='..tostring(interior)..'; house floor offset='..houseFloor..'; rendered appearance/depth require human inspection.')
     elseif command=='next' then index=index+1; interior=false; probe()
