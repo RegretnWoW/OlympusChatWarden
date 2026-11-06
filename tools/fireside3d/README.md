@@ -1,4 +1,4 @@
-# Fireside 3D — Manual Elwynn diagnostic candidate 4
+# Fireside 3D — Simple farmhouse test candidate 5
 
 Branch: `feature/fireside-3d`. Public production base: `e4cc9f8da008fd065d933e6d142dde854108d53a`. Main and production releases are unchanged.
 
@@ -6,13 +6,23 @@ Candidate 3 crashed the real client during startup with an access violation. Its
 
 ## Install
 
-With WoW closed, extract **Fireside-3D-candidate4-overlay.zip** into `Interface/AddOns/`, replacing public code and the optional `Fireside3DAssets` catalog. Retain the exact base's existing media. It can overlay candidates 1–3 using that same base; do not apply it over a later stability build. It contains public code, existing recovery code, the lazy catalog and the grass tile rather than duplicating the approximately 1.4 GB base media library.
+With WoW closed, extract **Fireside-3D-candidate5-overlay.zip** into `Interface/AddOns/`, replacing public code and the optional `Fireside3DAssets` catalog. Retain the exact base's existing media. It can overlay candidates 1–4 using that same base; do not apply it over a later stability build. It contains public code, existing recovery code, the lazy catalog and the grass tile rather than duplicating the approximately 1.4 GB base media library.
 
 Open `/fireside`. The default scene has **zero building model requests**. Ground, sky, existing M2 props, your character, NPCs, real Journal, chair, earned shelf, player input and the editor fly camera remain available. Housing objects stay visible in the open scene. My Home walks toward the home site without requiring a building. The interior itself remains unresolved.
 
 The private development/editor addon is not included; keep the existing local installation. No private implementation, archive, credentials or configuration is committed or packaged. No crash log is published.
 
-A fresh `fireside-3d-elwynn-manual` layout slot prevents earlier candidate placements from being replayed into this initial test. Earlier layouts and SavedVariables remain intact; no migration or deletion occurs. If you explicitly save a manual building placement in the new slot, the existing editor may reload it normally. Leave these isolation tests unsaved to retain an empty-building startup.
+The `fireside-3d-elwynn-manual` layout slot is retained from candidate 4 and keeps pre-diagnostic placements separate. Earlier layouts and SavedVariables remain intact; no migration or deletion occurs. If you explicitly save a manual building placement in the new slot, the existing editor may reload it normally. Leave these isolation tests unsaved to retain an empty-building startup.
+
+## Preferred small-home candidate
+
+The next selected test is **Elwynn farmhouse, FileDataID 106965**, root `world/wmo/azeroth/buildings/human_farm/farm.wmo`. It is now first in the lazy catalog and available through **Add farmhouse test** on the existing editor camera toolbar. Open the editor, click that button once, then inspect the result. The shortcut reuses the existing AddObject method and starts the preview as decoration, so a full-bounds collider does not block interior inspection. Normal placement/collision controls remain in the existing object form.
+
+The requested layout is one storey, one room and one entrance. **Those properties, and the absence of a basement, still need visual verification.** The public listfile has two numbered group references for this farmhouse versus twelve for Goldshire Inn. This is a simpler structural candidate, not a floor-plan proof or native-render certification. It remains a WMO; simplifying the building does not establish or fix the cause of the earlier access violation.
+
+The package includes **FIRESIDE-3D-BUILDING-SELECTION.md** with exact paths, group-reference evidence, snapshot hash, limitations and the layout acceptance checklist. The source is `tools/fireside3d/building-selection.md`.
+
+A successful model request is only the first step. Walk/fly around it, inspect inside, count the actual entrances and rooms, and check for stairs/cellar access before accepting it as the housing shell. If it has a loft, extra room or another doorway, report that as a layout mismatch even if it renders successfully. Keep the test unsaved.
 
 ## Spawn one building at a time
 
@@ -44,9 +54,9 @@ Player: WASD moves over the scene, right-drag orbits/pitches, wheel zooms. Edito
 
 The real Journal, chair and earned shelf work in the open test scene without a house. Their normal permissions, inventory and saved reader/showcase state remain authoritative. No synthetic history or grants are added. Adding a custom building uses the existing editor's normal collision settings; a visually loaded inn does not establish stair/internal-wall navigation or an enterable house collider. This is first a model-isolation test.
 
-Aether Live retains protocol 2, scene `square` / wire code `a`, trust, transport, appearance, existing movement/coalescing/recovery and session limits. Both clients must use candidate 4 for matching geometry. Use the established workflow of leaving Live before editing. Storage, recovery, collectors, authentication, transport and native renderer source match the recorded public base.
+Aether Live retains protocol 2, scene `square` / wire code `a`, trust, transport, appearance, existing movement/coalescing/recovery and session limits. Candidate 5 keeps candidate 4's world geometry; use matching current builds when reproducing tests. Use the established workflow of leaving Live before editing. Storage, recovery, collectors, authentication, transport and native renderer source match the recorded public base.
 
-The lazy catalog remains sourced from `tools/fireside3d/elwynn-assets.csv`. Its four WMO entries retain unverified-candidate status; seven existing M2 prop references and the pre-existing Forever object library remain available. No broader retail research is added to runtime browsing.
+The preferred-test metadata records the requested layout and `layoutVerified=false`; the catalog builder also verifies the two farmhouse group references. The lazy catalog remains sourced from `tools/fireside3d/elwynn-assets.csv`. Its four WMO entries retain unverified-candidate status; seven existing M2 prop references and the pre-existing Forever object library remain available. No broader retail research is added to runtime browsing.
 
 ## Checks and integration
 
@@ -56,6 +66,6 @@ lua5.1 tools/fireside3d/lifecycle.lua
 lua5.1 tools/fireside3d/editor_camera.lua
 ```
 
-Checks verify zero default building requests in the real realm construction path, all four editor selections retained, manual native requests still allowed, per-model diagnostics, active housing objects, fresh layout isolation, unchanged Live codec/coalescing, collision/placement, registered camera input and editor pause/focus guards. Syntax, TOC paths, protected-source hashes and package integrity/private-reference exclusion are also checked. These do not identify the crashing native instruction or certify a crash-free Forever session.
+Checks also cover the preferred farmhouse shortcut, reuse of existing editor AddObject, no spawn on opening the editor, and active-editor/combat guards. Checks verify zero default building requests in the real realm construction path, all four editor selections retained, manual native requests still allowed, per-model diagnostics, active housing objects, fresh layout isolation, unchanged Live codec/coalescing, collision/placement, registered camera input and editor pause/focus guards. Syntax, TOC paths, protected-source hashes and package integrity/private-reference exclusion are also checked. These do not identify the crashing native instruction or certify a crash-free Forever session.
 
 The changed-files ZIP and patch contain the complete public integration against `e4cc9f8`, including this diagnostic change. Review against newer stability work before integrating; no merge or production publication is performed.

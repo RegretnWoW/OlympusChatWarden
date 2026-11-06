@@ -12,15 +12,15 @@ index 0000000..143f6ba
 +Index.lua
 diff --git a/Fireside3DAssets/Index.lua b/Fireside3DAssets/Index.lua
 new file mode 100644
-index 0000000..76a2af4
+index 0000000..2413b46
 --- /dev/null
 +++ b/Fireside3DAssets/Index.lua
 @@ -0,0 +1,15 @@
 +-- Elwynn world-building candidates and existing Classic/Forever props.
 +-- ID/path resolution is not an installed-client or render certification.
 +Fireside3DAssetIndex={
++ {["fileID"]=106965,["label"]="Elwynn farmhouse",["category"]="Elwynn buildings",["height"]=7.0,["path"]="world/wmo/azeroth/buildings/human_farm/farm.wmo",["era"]="CLASSIC",["status"]="ELWYNN_WMO_RENDER_UNVERIFIED",["installed"]="NOT_CHECKED",["zone"]="Elwynn Forest",["format"]="WMO",["preferredTest"]=true,["requestedLayout"]="one storey one room one entrance",["layoutVerified"]=false,["listfileGroupCount"]=2,["groupFileIDs"]="106966,106967"},
 + {["fileID"]=106851,["label"]="Goldshire Inn",["category"]="Elwynn buildings",["height"]=10.0,["path"]="world/wmo/azeroth/buildings/goldshireinn/goldshireinn.wmo",["era"]="CLASSIC",["status"]="ELWYNN_WMO_RENDER_UNVERIFIED",["installed"]="NOT_CHECKED",["zone"]="Elwynn Forest",["format"]="WMO"},
-+ {["fileID"]=106965,["label"]="Elwynn farmhouse",["category"]="Elwynn buildings",["height"]=7.0,["path"]="world/wmo/azeroth/buildings/human_farm/farm.wmo",["era"]="CLASSIC",["status"]="ELWYNN_WMO_RENDER_UNVERIFIED",["installed"]="NOT_CHECKED",["zone"]="Elwynn Forest",["format"]="WMO"},
 + {["fileID"]=106848,["label"]="Goldshire blacksmith",["category"]="Elwynn buildings",["height"]=7.0,["path"]="world/wmo/azeroth/buildings/goldshireblacksmith/goldshireblacksmith.wmo",["era"]="CLASSIC",["status"]="ELWYNN_WMO_RENDER_UNVERIFIED",["installed"]="NOT_CHECKED",["zone"]="Elwynn Forest",["format"]="WMO"},
 + {["fileID"]=107232,["label"]="Elwynn stables",["category"]="Elwynn buildings",["height"]=7.0,["path"]="world/wmo/azeroth/buildings/stable/stable.wmo",["era"]="CLASSIC",["status"]="ELWYNN_WMO_RENDER_UNVERIFIED",["installed"]="NOT_CHECKED",["zone"]="Elwynn Forest",["format"]="WMO"},
 + {["fileID"]=198603,["label"]="Inn table",["category"]="Tables",["height"]=0.9,["path"]="world/generic/human/passive doodads/tables/inntable.m2",["era"]="CLASSIC",["status"]="SHIPPED_FOREVER_REFERENCE",["installed"]="SOURCE_METADATA",["zone"]="",["format"]="M2"},
@@ -3476,7 +3476,7 @@ literal 0
 HcmV?d00001
 
 diff --git a/OlympusChatWarden/OlympusChatWarden.toc b/OlympusChatWarden/OlympusChatWarden.toc
-index 4627a66..6b36c9f 100644
+index 4627a66..36a654a 100644
 --- a/OlympusChatWarden/OlympusChatWarden.toc
 +++ b/OlympusChatWarden/OlympusChatWarden.toc
 @@ -2,7 +2,7 @@
@@ -3484,7 +3484,7 @@ index 4627a66..6b36c9f 100644
  ## Notes: Chronicle, player intelligence, chat, protection and RelayWarden support for Olympus.
  ## Author: Regretn
 -## Version: 1.1.4-unified-2.11.8-integrated110-startup1
-+## Version: 1.1.4-unified-2.11.8-integrated110-startup1-3d-home-candidate4
++## Version: 1.1.4-unified-2.11.8-integrated110-startup1-3d-home-candidate5
  ## SavedVariables: OlympusWardenPrivacyDB, OlympusChatWardenDB, OlympusWardenRelayDB, OlympusWardenStartupDB, OlympusWardenConversationDB, OlympusWardenJournalDB, OlympusWardenRecollectionsDB, OlympusWardenExchangeDB
  ## OptionalDeps: Olympus, OlympusWardenAthenaLab
  ## Dependencies: FiresideRecovery
@@ -3776,10 +3776,10 @@ index 0000000..daa7b47
 +end
 diff --git a/OlympusChatWarden/World3D/Catalog.lua b/OlympusChatWarden/World3D/Catalog.lua
 new file mode 100644
-index 0000000..5f34120
+index 0000000..8efde8b
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Catalog.lua
-@@ -0,0 +1,62 @@
+@@ -0,0 +1,72 @@
 +-- Elwynn-only building candidates plus existing Classic/Forever furniture.
 +local _,ns=...
 +local C={};ns.Fireside3D.Catalog=C
@@ -3802,6 +3802,7 @@ index 0000000..5f34120
 + C.rows=compatible;return compatible
 +end
 +function C.Label(r)
++ if r.preferredTest then return r.label..' (small home test; unverified)'end
 + if C.IsCandidate(r)then return r.label..' (Elwynn WMO; unverified)'end
 + return r.label..(r.era=='CLASSIC'and' (Classic M2)'or' (existing Forever reference)')
 +end
@@ -3818,10 +3819,19 @@ index 0000000..5f34120
 + local rows,why=C.Load();if not rows then return nil,why end
 + local out={};query=tostring(query or''):lower():sub(1,100)
 + for _,r in ipairs(rows)do
-+  local text=(r.label..' '..r.category..' '..tostring(r.fileID or'')..' '..r.path..' '..(r.zone or'')):lower()
++  local text=(r.label..' '..r.category..' '..tostring(r.fileID or'')..' '..r.path..' '..(r.zone or'')..' '..(r.requestedLayout or'')):lower()
 +  if(not category or category=='all'or r.category==category)and(query==''or text:find(query,1,true))then out[#out+1]=r;if #out==100 then break end end
 + end
 + return out
++end
++function C.SpawnPreferred(v)
++ local F=ns.Fireside3D;local editor=ns.WardenSceneEditor
++ if not v or not F.EditorCamera or not F.EditorCamera.Active(v)or not editor.AddObject then return false,'Open the existing scene editor first'end
++ if ns.MainStorageBlocked or(ns.UI2 and ns.UI2.locked)or(type(InCombatLockdown)=='function'and InCombatLockdown())then return false,'Scene editing is unavailable'end
++ local target=F.preferredBuilding
++ -- Existing editor guards, placement and native loader remain authoritative.
++ -- Decoration collision permits interior inspection without a solid bounds box.
++ return editor.AddObject(target.fileID,target.label,target.height,false,0)
 +end
 +function C.BindExistingEditor()
 + local E=ns.WardenSceneEditor;if not E or E.fireside3DAssetBound or not E.AddObjectForm then return false end
@@ -3927,23 +3937,24 @@ index 0000000..6e7c248
 +end
 diff --git a/OlympusChatWarden/World3D/Definitions.lua b/OlympusChatWarden/World3D/Definitions.lua
 new file mode 100644
-index 0000000..a69108e
+index 0000000..c8ab910
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Definitions.lua
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,40 @@
 +-- One shipped neighborhood. square keeps the existing Live scene wire identity;
 +-- the existing geometry digest rejects clients with different world definitions.
 +local _,ns=...
-+local F={VERSION=4,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
++local F={VERSION=5,enabled=true,PRIMARY='square',BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'};ns.Fireside3D=F
 +local C=ns.WardenRoomCatalogue
 +F.homeDoor={side='negative-y',width=2.2,wallThickness=.2}
 +F.bounds={-40,-34,40,42}
 +-- Keep every Elwynn choice available for owner-driven isolation. No building
 +-- is requested automatically and no new quarantine or native API block is added.
 +F.manualBuildingTests=true;F.homeSite={0,23,0};F.houses={}
++F.preferredBuilding={fileID=106965,label='Elwynn farmhouse',height=7,desiredLayout='One storey, one room, one entrance',layoutVerified=false}
 +F.buildingCandidates={
-+ {id='player-home',fileID=106851,label='Your Home — Goldshire Inn',width=24,at={0,23,0}},
 + {id='house-west',fileID=106965,label='Elwynn farmhouse',width=14,at={-26,12,0}},
++ {id='player-home',fileID=106851,label='Goldshire Inn',width=24,at={0,23,0}},
 + {id='house-east',fileID=106848,label='Goldshire blacksmith',width=14,at={26,12,0}},
 + {id='house-southwest',fileID=107232,label='Elwynn stables',width=18,at={0,-22,0}},
 +}
@@ -3972,10 +3983,10 @@ index 0000000..a69108e
 +function F.SceneKey()return F.PRIMARY end
 diff --git a/OlympusChatWarden/World3D/EditorCamera.lua b/OlympusChatWarden/World3D/EditorCamera.lua
 new file mode 100644
-index 0000000..de66ecd
+index 0000000..18e4e6f
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/EditorCamera.lua
-@@ -0,0 +1,100 @@
+@@ -0,0 +1,110 @@
 +-- Optional adapter for the existing editor. Camera state is transient and local;
 +-- no actor transform, layout record, character state or Live packet is changed.
 +local _,ns=...
@@ -4028,12 +4039,22 @@ index 0000000..de66ecd
 +function E.Toolbar(v)
 + if v.world3DCameraBar then return v.world3DCameraBar end
 + local s=v:ActiveRoom();local bar=CreateFrame('Frame',nil,v.frame)
-+ bar:SetPoint('TOPLEFT',12,-12);bar:SetSize(510,58);bar:SetFrameLevel(s.groundClick:GetFrameLevel()+4)
++ bar:SetPoint('TOPLEFT',12,-12);bar:SetSize(510,F.preferredBuilding and 78 or 58);bar:SetFrameLevel(s.groundClick:GetFrameLevel()+4)
 + local bg=bar:CreateTexture(nil,'BACKGROUND');bg:SetAllPoints();bg:SetColorTexture(.025,.035,.045,.88)
 + local help=bar:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');help:SetPoint('TOPLEFT',8,-7)
 + help:SetText('Editor camera: WASD fly | Q/E down/up | Shift faster | Right-drag look | Wheel dolly')
 + local reset=CreateFrame('Button',nil,bar,'UIPanelButtonTemplate');reset:SetPoint('TOPLEFT',8,-29);reset:SetSize(112,22);reset:SetText('Reset camera')
 + reset:SetScript('OnClick',function()E.Reset(v)end)
++ if F.preferredBuilding then
++  local add=CreateFrame('Button',nil,bar,'UIPanelButtonTemplate');add:SetPoint('TOPLEFT',128,-29);add:SetSize(170,22);add:SetText('Add farmhouse test')
++  add:SetScript('OnClick',function()
++   local ok,why=F.Catalog.SpawnPreferred(v)
++   local editor=ns.WardenSceneEditor;if editor and editor.Message then editor.Message(ok and'Farmhouse requested. Check one floor, one room and one entrance; rendering/layout remain unverified.'or why)end
++  end)
++  local note=bar:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');note:SetPoint('TOPLEFT',8,-58)
++  note:SetText('Preferred home test: Elwynn farmhouse [106965] | Layout unverified')
++  bar.addFarmhouse=add
++ end
 + v.world3DCameraBar=bar;return bar
 +end
 +function E.Tick(v,dt)
@@ -4225,7 +4246,7 @@ index 0000000..947426c
 +end
 diff --git a/OlympusChatWarden/World3D/Scene.lua b/OlympusChatWarden/World3D/Scene.lua
 new file mode 100644
-index 0000000..5b65406
+index 0000000..8a83ea4
 --- /dev/null
 +++ b/OlympusChatWarden/World3D/Scene.lua
 @@ -0,0 +1,334 @@
@@ -4288,7 +4309,7 @@ index 0000000..5b65406
 + return trace
 +end
 +function F.BuildingReport(s)
-+ local out={zone='Elwynn Forest',automaticBuildings=false,visualVerified=false,lastAttempt=F.lastBuildingAttempt,buildings={}}
++ local out={zone='Elwynn Forest',automaticBuildings=false,visualVerified=false,preferredTest=F.preferredBuilding,lastAttempt=F.lastBuildingAttempt,buildings={}}
 + for _,h in ipairs(F.buildingCandidates)do
 +  local instances={}
 +  for _,a in ipairs(s.native.order)do if a.spec.fileID==h.fileID and not a.retired then
@@ -4306,7 +4327,7 @@ index 0000000..5b65406
 + end
 + local attempt=F.lastBuildingAttempt
 + local text=attempt and('Elwynn test #'..attempt.sequence..': '..attempt.label..' ['..attempt.fileID..'] — '..attempt.phase)
-+  or'Buildings are not loaded automatically. Add one Elwynn building at a time in the editor to isolate the crash.'
++  or'Buildings are not loaded automatically. Next home test: Elwynn farmhouse [106965], using Add farmhouse test in the editor.'
 + if v.buildingNotice.lastText~=text then v.buildingNotice.text:SetText(text);v.buildingNotice.lastText=text end
 + v.buildingNotice:SetFrameLevel(s.groundClick:GetFrameLevel()+3);v.buildingNotice:Show()
 +end
@@ -4565,11 +4586,11 @@ index 0000000..5b65406
 +end
 diff --git a/tools/fireside3d/README.md b/tools/fireside3d/README.md
 new file mode 100644
-index 0000000..bac6fe3
+index 0000000..67e94cb
 --- /dev/null
 +++ b/tools/fireside3d/README.md
-@@ -0,0 +1,61 @@
-+# Fireside 3D — Manual Elwynn diagnostic candidate 4
+@@ -0,0 +1,71 @@
++# Fireside 3D — Simple farmhouse test candidate 5
 +
 +Branch: `feature/fireside-3d`. Public production base: `e4cc9f8da008fd065d933e6d142dde854108d53a`. Main and production releases are unchanged.
 +
@@ -4577,13 +4598,23 @@ index 0000000..bac6fe3
 +
 +## Install
 +
-+With WoW closed, extract **Fireside-3D-candidate4-overlay.zip** into `Interface/AddOns/`, replacing public code and the optional `Fireside3DAssets` catalog. Retain the exact base's existing media. It can overlay candidates 1–3 using that same base; do not apply it over a later stability build. It contains public code, existing recovery code, the lazy catalog and the grass tile rather than duplicating the approximately 1.4 GB base media library.
++With WoW closed, extract **Fireside-3D-candidate5-overlay.zip** into `Interface/AddOns/`, replacing public code and the optional `Fireside3DAssets` catalog. Retain the exact base's existing media. It can overlay candidates 1–4 using that same base; do not apply it over a later stability build. It contains public code, existing recovery code, the lazy catalog and the grass tile rather than duplicating the approximately 1.4 GB base media library.
 +
 +Open `/fireside`. The default scene has **zero building model requests**. Ground, sky, existing M2 props, your character, NPCs, real Journal, chair, earned shelf, player input and the editor fly camera remain available. Housing objects stay visible in the open scene. My Home walks toward the home site without requiring a building. The interior itself remains unresolved.
 +
 +The private development/editor addon is not included; keep the existing local installation. No private implementation, archive, credentials or configuration is committed or packaged. No crash log is published.
 +
-+A fresh `fireside-3d-elwynn-manual` layout slot prevents earlier candidate placements from being replayed into this initial test. Earlier layouts and SavedVariables remain intact; no migration or deletion occurs. If you explicitly save a manual building placement in the new slot, the existing editor may reload it normally. Leave these isolation tests unsaved to retain an empty-building startup.
++The `fireside-3d-elwynn-manual` layout slot is retained from candidate 4 and keeps pre-diagnostic placements separate. Earlier layouts and SavedVariables remain intact; no migration or deletion occurs. If you explicitly save a manual building placement in the new slot, the existing editor may reload it normally. Leave these isolation tests unsaved to retain an empty-building startup.
++
++## Preferred small-home candidate
++
++The next selected test is **Elwynn farmhouse, FileDataID 106965**, root `world/wmo/azeroth/buildings/human_farm/farm.wmo`. It is now first in the lazy catalog and available through **Add farmhouse test** on the existing editor camera toolbar. Open the editor, click that button once, then inspect the result. The shortcut reuses the existing AddObject method and starts the preview as decoration, so a full-bounds collider does not block interior inspection. Normal placement/collision controls remain in the existing object form.
++
++The requested layout is one storey, one room and one entrance. **Those properties, and the absence of a basement, still need visual verification.** The public listfile has two numbered group references for this farmhouse versus twelve for Goldshire Inn. This is a simpler structural candidate, not a floor-plan proof or native-render certification. It remains a WMO; simplifying the building does not establish or fix the cause of the earlier access violation.
++
++The package includes **FIRESIDE-3D-BUILDING-SELECTION.md** with exact paths, group-reference evidence, snapshot hash, limitations and the layout acceptance checklist. The source is `tools/fireside3d/building-selection.md`.
++
++A successful model request is only the first step. Walk/fly around it, inspect inside, count the actual entrances and rooms, and check for stairs/cellar access before accepting it as the housing shell. If it has a loft, extra room or another doorway, report that as a layout mismatch even if it renders successfully. Keep the test unsaved.
 +
 +## Spawn one building at a time
 +
@@ -4615,9 +4646,9 @@ index 0000000..bac6fe3
 +
 +The real Journal, chair and earned shelf work in the open test scene without a house. Their normal permissions, inventory and saved reader/showcase state remain authoritative. No synthetic history or grants are added. Adding a custom building uses the existing editor's normal collision settings; a visually loaded inn does not establish stair/internal-wall navigation or an enterable house collider. This is first a model-isolation test.
 +
-+Aether Live retains protocol 2, scene `square` / wire code `a`, trust, transport, appearance, existing movement/coalescing/recovery and session limits. Both clients must use candidate 4 for matching geometry. Use the established workflow of leaving Live before editing. Storage, recovery, collectors, authentication, transport and native renderer source match the recorded public base.
++Aether Live retains protocol 2, scene `square` / wire code `a`, trust, transport, appearance, existing movement/coalescing/recovery and session limits. Candidate 5 keeps candidate 4's world geometry; use matching current builds when reproducing tests. Use the established workflow of leaving Live before editing. Storage, recovery, collectors, authentication, transport and native renderer source match the recorded public base.
 +
-+The lazy catalog remains sourced from `tools/fireside3d/elwynn-assets.csv`. Its four WMO entries retain unverified-candidate status; seven existing M2 prop references and the pre-existing Forever object library remain available. No broader retail research is added to runtime browsing.
++The preferred-test metadata records the requested layout and `layoutVerified=false`; the catalog builder also verifies the two farmhouse group references. The lazy catalog remains sourced from `tools/fireside3d/elwynn-assets.csv`. Its four WMO entries retain unverified-candidate status; seven existing M2 prop references and the pre-existing Forever object library remain available. No broader retail research is added to runtime browsing.
 +
 +## Checks and integration
 +
@@ -4627,21 +4658,21 @@ index 0000000..bac6fe3
 +lua5.1 tools/fireside3d/editor_camera.lua
 +```
 +
-+Checks verify zero default building requests in the real realm construction path, all four editor selections retained, manual native requests still allowed, per-model diagnostics, active housing objects, fresh layout isolation, unchanged Live codec/coalescing, collision/placement, registered camera input and editor pause/focus guards. Syntax, TOC paths, protected-source hashes and package integrity/private-reference exclusion are also checked. These do not identify the crashing native instruction or certify a crash-free Forever session.
++Checks also cover the preferred farmhouse shortcut, reuse of existing editor AddObject, no spawn on opening the editor, and active-editor/combat guards. Checks verify zero default building requests in the real realm construction path, all four editor selections retained, manual native requests still allowed, per-model diagnostics, active housing objects, fresh layout isolation, unchanged Live codec/coalescing, collision/placement, registered camera input and editor pause/focus guards. Syntax, TOC paths, protected-source hashes and package integrity/private-reference exclusion are also checked. These do not identify the crashing native instruction or certify a crash-free Forever session.
 +
 +The changed-files ZIP and patch contain the complete public integration against `e4cc9f8`, including this diagnostic change. Review against newer stability work before integrating; no merge or production publication is performed.
 diff --git a/tools/fireside3d/build_candidate.py b/tools/fireside3d/build_candidate.py
 new file mode 100755
-index 0000000..9c75c58
+index 0000000..ece81f9
 --- /dev/null
 +++ b/tools/fireside3d/build_candidate.py
-@@ -0,0 +1,58 @@
+@@ -0,0 +1,59 @@
 +#!/usr/bin/env python3
 +"""Build a public code/media overlay from explicit Git paths; never package a workspace recursively."""
 +from pathlib import Path
 +import argparse, hashlib, json, subprocess, zipfile
 +BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'
-+CANDIDATE='candidate4'
++CANDIDATE='candidate5'
 +
 +def tracked():
 +    return subprocess.check_output(['git','ls-files','-z']).decode().split('\0')[:-1]
@@ -4658,6 +4689,7 @@ index 0000000..9c75c58
 +    selected['OlympusChatWarden/Media/World3D/Grass.tga']=Path('OlympusChatWarden/Media/World3D/Grass.tga')
 +    for name in ['FiresideRecovery.toc','Recovery.lua','README.txt']:selected['FiresideRecovery/'+name]=Path(name)
 +    selected['FIRESIDE-3D-README.md']=Path('tools/fireside3d/README.md')
++    selected['FIRESIDE-3D-BUILDING-SELECTION.md']=Path('tools/fireside3d/building-selection.md')
 +    # Reject exact private files and private-only long literals without emitting their contents.
 +    forbidden_hashes=set();literals=set()
 +    if args.private_reference:
@@ -4696,10 +4728,10 @@ index 0000000..9c75c58
 +if __name__=='__main__':main()
 diff --git a/tools/fireside3d/build_classic_catalog.py b/tools/fireside3d/build_classic_catalog.py
 new file mode 100644
-index 0000000..d4ed832
+index 0000000..81e3279
 --- /dev/null
 +++ b/tools/fireside3d/build_classic_catalog.py
-@@ -0,0 +1,47 @@
+@@ -0,0 +1,56 @@
 +#!/usr/bin/env python3
 +"""Resolve explicit Elwynn WMO candidates and Classic/Forever M2 references.
 +
@@ -4722,12 +4754,18 @@ index 0000000..d4ed832
 +    expected = {int(r['fileID']): r['path'] for r in selected}
 +    assert len(expected) == len(selected) <= 512, 'Duplicate/excessive asset references'
 +    found = {}
++    farm_groups = {}
++    farm_stem = 'world/wmo/azeroth/buildings/human_farm/farm_'
 +    with args.listfile.open(encoding='utf-8-sig') as f:
 +        for line in f:
 +            number, sep, path = line.strip().partition(';')
 +            if sep and number.isdigit() and int(number) in expected:
 +                found[int(number)] = path.replace('\\', '/').lower()
++            if sep and number.isdigit() and path.startswith(farm_stem) and path.endswith('.wmo') and path[len(farm_stem):-4].isdigit():
++                farm_groups[int(number)] = path
 +    assert found == expected, 'An explicit model ID/path mapping is absent or has changed'
++    assert farm_groups == {106966:farm_stem+'000.wmo',106967:farm_stem+'001.wmo'}, 'Farm group-file research needs review'
++    selected.sort(key=lambda r: int(r['fileID']) != 106965)
 +    rows = []
 +    for r in selected:
 +        fmt = r['path'].rsplit('.', 1)[1].upper()
@@ -4736,6 +4774,9 @@ index 0000000..d4ed832
 +                               and r['status'] == 'ELWYNN_WMO_RENDER_UNVERIFIED'
 +                               and int(r['fileID']) in {106851,106965,106848,107232})
 +        row = dict(r, fileID=int(r['fileID']), height=float(r['height']), format=fmt)
++        if row['fileID'] == 106965:
++            row.update(preferredTest=True, requestedLayout='one storey one room one entrance', layoutVerified=False,
++                       listfileGroupCount=len(farm_groups), groupFileIDs='106966,106967')
 +        rows.append(row)
 +    def lua(row):
 +        return '{' + ','.join('[' + json.dumps(k) + ']=' + json.dumps(v) for k, v in row.items()) + '}'
@@ -4747,12 +4788,52 @@ index 0000000..d4ed832
 +
 +if __name__ == '__main__':
 +    main()
+diff --git a/tools/fireside3d/building-selection.md b/tools/fireside3d/building-selection.md
+new file mode 100644
+index 0000000..c160da5
+--- /dev/null
++++ b/tools/fireside3d/building-selection.md
+@@ -0,0 +1,34 @@
++# Simple Elwynn home selection — candidate 5
++
++Preferred next test: **Elwynn farmhouse — FileDataID 106965**.
++
++Root: `world/wmo/azeroth/buildings/human_farm/farm.wmo`.
++
++The requested acceptance criteria are one storey, one enclosed room, one entrance and no basement. They are **requirements to check**, not verified properties of this file. The farmhouse is a smaller residential candidate than Goldshire Inn and a better next isolation target. It remains a WMO and may share the same UI-rendering problem.
++
++## What the public listfile establishes
++
++| Asset family | Root FileDataID | Listed numbered group files | Interpretation |
++| --- | --- | --- | --- |
++| Human farm | 106965 | 2: 106966, 106967 | Preferred small-house candidate; layout must be inspected |
++| Goldshire blacksmith | 106848 | 2: 106849, 106850 | Small workshop alternative, retained in the editor |
++| Elwynn stable | 107232 | 1: 107233 | Barn/stall layout, not established as one enclosed residential room |
++| Goldshire Inn | 106851 | 12 | Larger structure; retained for manual isolation, not the preferred home |
++| Human two-story family | 106973 | 6 | Distinct model family, not selected for this test |
++
++Farm group references are `world/wmo/azeroth/buildings/human_farm/farm_000.wmo` and `farm_001.wmo`. They are parts of the root WMO, not standalone buildings to spawn. The catalog builder checks those two mappings before generating the preferred-test metadata.
++
++Source: public wowdev/wow-listfile repository, https://github.com/wowdev/wow-listfile . The resolved local listfile snapshot has SHA-256 `3f12a5c52e81d01fd1a1c97baf0387d8109e27633e953c6af93630cb9825d0f2`.
++
++A listfile has paths/IDs, not geometry, floor plans or installation proof. Numbered group-file count is a structural comparison only: **two groups do not prove one room, one entrance or one floor**. These are current public-listfile references rather than a manifest of the user's Forever installation. No native model mesh or floor-plan inspection was available in this environment, so those criteria and the lack of a basement remain unverified.
++
++## How candidate 5 makes this test concrete
++
++- No buildings load by default; all four previous choices remain manually available.
++- Farmhouse is first in the lazy catalog and searchable by the desired layout.
++- The existing editor camera toolbar has **Add farmhouse test**, which calls the existing editor's AddObject for 106965 at height 7. It starts as decoration so a full-bounds collider cannot prevent visual interior inspection. The original editor form still offers the normal collision settings.
++- Existing model-ID/load diagnostics identify the requested root; no alternate renderer, conversion, model quarantine or automatic retest is introduced.
++
++After a successful visible render, inspect the building from all sides and from inside. Confirm the ground floor, count the actual entrances/rooms, and check for stairs or a cellar before accepting it as the housing shell. If it renders but fails the requested layout, report that separately from a loader crash. Keep the test unsaved and share any crash log privately.
++
++A basement is ordinary 3D geometry. The reported access violation does not establish the basement as the cause, nor does a simpler model guarantee a fix. The native crash log and individual tests are still needed to distinguish an asset-specific failure from WMO support in the UI renderer.
 diff --git a/tools/fireside3d/checks.lua b/tools/fireside3d/checks.lua
 new file mode 100644
-index 0000000..428eb85
+index 0000000..03b51be
 --- /dev/null
 +++ b/tools/fireside3d/checks.lua
-@@ -0,0 +1,116 @@
+@@ -0,0 +1,129 @@
 +-- Pure world/codec checks. No saved data, credentials, auth, networking or private addon is executed.
 +local ns={WardenWorldScenes={layers={'native','contact-shadows'},props={},residents={},outside={},navigation={}}}
 +local function load(path)return assert(loadfile('OlympusChatWarden/'..path))('test',ns)end
@@ -4762,6 +4843,7 @@ index 0000000..428eb85
 +load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Scene.lua')
 +local F,N=ns.Fireside3D,ns.WardenNativeScene
 +assert(#F.houses==0 and #F.buildingCandidates==4 and F.manualBuildingTests and F.PRIMARY=='square')
++assert(F.preferredBuilding.fileID==106965 and not F.preferredBuilding.layoutVerified,'the focused farmhouse test must not claim a verified floor plan')
 +local models={};for _,h in ipairs(F.buildingCandidates)do assert(not models[h.fileID],'each candidate must use a different model');models[h.fileID]=true;assert(N.ActorAllowed({roomKey='fireside-3d'},h),'manual Elwynn requests must remain allowed')end
 +assert(models[106851]and models[106965]and models[106848]and models[107232],'only the requested Elwynn buildings may be selected')
 +local d=C.Room('square');assert(d.world3D and d.reader and #d.plates==0 and #d.outside==0 and #d.flags==0 and d.layoutSlot=='fireside-3d-elwynn-manual')
@@ -4830,6 +4912,8 @@ index 0000000..428eb85
 +for _,r in ipairs(Fireside3DAssetIndex)do assert(F.Catalog.Compatible(r)or F.Catalog.IsCandidate(r))end
 +assert(not F.Catalog.Compatible(rows[1])and F.Catalog.IsCandidate(rows[1]),'Elwynn WMO entries remain candidates, not compatible/verified props')
 +assert(#F.Catalog.Search('','Elwynn buildings')==4,'all four buildings must remain available in the existing editor')
++local preferred=F.Catalog.Search('one room')[1]
++assert(preferred and preferred.fileID==106965 and preferred.preferredTest and preferred.listfileGroupCount==2 and preferred.layoutVerified==false,'searchable research metadata must distinguish the desired layout from proof')
 +assert(#F.Catalog.Search('203656')==0 and #F.Catalog.Search('190430')==0,'remove rejected Arathi and swamp building references')
 +assert(not F.Catalog.IsCandidate({fileID=106851,format='WMO',zone='Other zone',status='ELWYNN_WMO_RENDER_UNVERIFIED'}))
 +assert(not F.Catalog.Compatible({format='M2',era='RETAIL'}),'retail housing must not appear in the Forever catalog')
@@ -4841,7 +4925,17 @@ index 0000000..428eb85
 +ns.WardenSceneEditor=editor;assert(F.Catalog.BindExistingEditor());assert(editor.AddObjectForm()=='original form')
 +local count=#editor.ObjectCatalogue;editor.AddObjectForm();assert(#editor.ObjectCatalogue==count,'do not append duplicates on reopening')
 +assert(#editor.FilterObjects('Elwynn buildings','goldshireinn.wmo')==1,'search supports the actual Elwynn model path')
++load('World3D/EditorCamera.lua')
++local view={ActiveRoom=function()return{definition=d}end};local added
++editor.scene=F.PRIMARY;editor.Realm=function()return view end;editor.active=true
++editor.AddObject=function(...)added={...};return true,'existing editor slot'end
++local ok,slot=F.Catalog.SpawnPreferred(view)
++assert(ok and slot=='existing editor slot'and added[1]==106965 and added[2]=='Elwynn farmhouse'and added[3]==7 and added[4]==false and added[5]==0,'farmhouse shortcut must use the existing AddObject with preview collision')
++added=nil;editor.active=false;assert(not F.Catalog.SpawnPreferred(view)and added==nil,'the shortcut cannot spawn outside the existing editor')
++editor.active=true;InCombatLockdown=function()return true end;assert(not F.Catalog.SpawnPreferred(view)and added==nil,'combat must retain input isolation')
++InCombatLockdown=function()return false end;editor.active=false
 +ns.WardenSceneEditor=nil
++print('PASS: preferred farmhouse research remains unverified; manual shortcut reuses existing editor AddObject and guards')
 +print('PASS: no automatic building requests, all four editor candidates retained, unchanged manual native loading with per-model diagnostics, active housing objects, fresh layout slot, logical collision, 360 placement, Live slots/codec/geometry and lazy editor selection')
 +-- Existing Live publisher: no handshake/transport is run. Verify manual movement
 +-- uses the same M state/codec and coalescing, with a bounded six-Hz signature.
@@ -4871,13 +4965,13 @@ index 0000000..428eb85
 +print('PASS: floor-decal clipping and world-space rendering convergence of already-validated Live movement states')
 diff --git a/tools/fireside3d/editor_camera.lua b/tools/fireside3d/editor_camera.lua
 new file mode 100644
-index 0000000..86e1ae3
+index 0000000..78aa295
 --- /dev/null
 +++ b/tools/fireside3d/editor_camera.lua
-@@ -0,0 +1,113 @@
+@@ -0,0 +1,116 @@
 +-- Exercise the actual scene input adapter and native camera calls at recorded
 +-- API boundaries. No private addon, network or saved state is executed.
-+local ns={UI2={menuHidden=true},Fireside3D={PRIMARY='square'},WardenRoomCatalogue={HasRoom=function(k)return k=='hall'or k=='study'or k=='square'end}}
++local ns={UI2={menuHidden=true},Fireside3D={PRIMARY='square',preferredBuilding={fileID=106965}},WardenRoomCatalogue={HasRoom=function(k)return k=='hall'or k=='study'or k=='square'end}}
 +local function load(p)return assert(loadfile('OlympusChatWarden/'..p))('test',ns)end
 +local methods={};local mt={__index=methods}
 +local function frame()return setmetatable({scripts={},visible=true,hover=true},mt)end
@@ -4913,6 +5007,7 @@ index 0000000..86e1ae3
 +GetCursorPosition=function()return cursorX,cursorY end
 +load('WardenNativeScene.lua');load('World3D/Scene.lua');load('World3D/EditorCamera.lua')
 +local F,N=ns.Fireside3D,ns.WardenNativeScene;local EC=F.EditorCamera
++local farmhouseClicks=0;F.Catalog={SpawnPreferred=function()farmhouseClicks=farmhouseClicks+1;return true end}
 +F.IsScene=function(s)return s.definition.world3D==true end
 +local player={ready=true,position={0,-7,0},scale=1.85}
 +local engine={actors={attendant=player},frame=frame(),shot={position={0,-18,8},target={0,0,1},fov=.85}}
@@ -4944,6 +5039,8 @@ index 0000000..86e1ae3
 +local function copy(p)return{p[1],p[2],p[3]}end
 +local c=EC.State(v);local start=copy(c.position)
 +key('W',true);assert(v.frame.propagate==false);EC.Tick(v,.05);assert(math.abs(distance(start,c.position)-.4)<1e-8)
++assert(v.world3DCameraBar.addFarmhouse and farmhouseClicks==0,'opening/moving the editor cannot automatically spawn the preferred building')
++v.world3DCameraBar.addFarmhouse.scripts.OnClick();assert(farmhouseClicks==1,'only the explicit farmhouse button invokes the preferred existing-editor action')
 +key('W',false);assert(not v.frame.propagate and not c.keys.W,'release the held camera key without forwarding its key-up to WoW')
 +shift=true;start=copy(c.position);key('D',true);EC.Tick(v,.05);key('D',false)
 +assert(math.abs(distance(start,c.position)-1.2)<1e-8,'Shift camera movement is three times normal speed');shift=false

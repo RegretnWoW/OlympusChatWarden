@@ -57,7 +57,7 @@ function F.BeginBuildingTest(spec)
  return trace
 end
 function F.BuildingReport(s)
- local out={zone='Elwynn Forest',automaticBuildings=false,visualVerified=false,lastAttempt=F.lastBuildingAttempt,buildings={}}
+ local out={zone='Elwynn Forest',automaticBuildings=false,visualVerified=false,preferredTest=F.preferredBuilding,lastAttempt=F.lastBuildingAttempt,buildings={}}
  for _,h in ipairs(F.buildingCandidates)do
   local instances={}
   for _,a in ipairs(s.native.order)do if a.spec.fileID==h.fileID and not a.retired then
@@ -75,7 +75,7 @@ function F.BuildingNotice(v,s)
  end
  local attempt=F.lastBuildingAttempt
  local text=attempt and('Elwynn test #'..attempt.sequence..': '..attempt.label..' ['..attempt.fileID..'] — '..attempt.phase)
-  or'Buildings are not loaded automatically. Add one Elwynn building at a time in the editor to isolate the crash.'
+  or'Buildings are not loaded automatically. Next home test: Elwynn farmhouse [106965], using Add farmhouse test in the editor.'
  if v.buildingNotice.lastText~=text then v.buildingNotice.text:SetText(text);v.buildingNotice.lastText=text end
  v.buildingNotice:SetFrameLevel(s.groundClick:GetFrameLevel()+3);v.buildingNotice:Show()
 end

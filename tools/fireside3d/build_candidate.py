@@ -3,7 +3,7 @@
 from pathlib import Path
 import argparse, hashlib, json, subprocess, zipfile
 BASE='e4cc9f8da008fd065d933e6d142dde854108d53a'
-CANDIDATE='candidate4'
+CANDIDATE='candidate5'
 
 def tracked():
     return subprocess.check_output(['git','ls-files','-z']).decode().split('\0')[:-1]
@@ -20,6 +20,7 @@ def main():
     selected['OlympusChatWarden/Media/World3D/Grass.tga']=Path('OlympusChatWarden/Media/World3D/Grass.tga')
     for name in ['FiresideRecovery.toc','Recovery.lua','README.txt']:selected['FiresideRecovery/'+name]=Path(name)
     selected['FIRESIDE-3D-README.md']=Path('tools/fireside3d/README.md')
+    selected['FIRESIDE-3D-BUILDING-SELECTION.md']=Path('tools/fireside3d/building-selection.md')
     # Reject exact private files and private-only long literals without emitting their contents.
     forbidden_hashes=set();literals=set()
     if args.private_reference:

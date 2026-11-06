@@ -50,12 +50,22 @@ end
 function E.Toolbar(v)
  if v.world3DCameraBar then return v.world3DCameraBar end
  local s=v:ActiveRoom();local bar=CreateFrame('Frame',nil,v.frame)
- bar:SetPoint('TOPLEFT',12,-12);bar:SetSize(510,58);bar:SetFrameLevel(s.groundClick:GetFrameLevel()+4)
+ bar:SetPoint('TOPLEFT',12,-12);bar:SetSize(510,F.preferredBuilding and 78 or 58);bar:SetFrameLevel(s.groundClick:GetFrameLevel()+4)
  local bg=bar:CreateTexture(nil,'BACKGROUND');bg:SetAllPoints();bg:SetColorTexture(.025,.035,.045,.88)
  local help=bar:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');help:SetPoint('TOPLEFT',8,-7)
  help:SetText('Editor camera: WASD fly | Q/E down/up | Shift faster | Right-drag look | Wheel dolly')
  local reset=CreateFrame('Button',nil,bar,'UIPanelButtonTemplate');reset:SetPoint('TOPLEFT',8,-29);reset:SetSize(112,22);reset:SetText('Reset camera')
  reset:SetScript('OnClick',function()E.Reset(v)end)
+ if F.preferredBuilding then
+  local add=CreateFrame('Button',nil,bar,'UIPanelButtonTemplate');add:SetPoint('TOPLEFT',128,-29);add:SetSize(170,22);add:SetText('Add farmhouse test')
+  add:SetScript('OnClick',function()
+   local ok,why=F.Catalog.SpawnPreferred(v)
+   local editor=ns.WardenSceneEditor;if editor and editor.Message then editor.Message(ok and'Farmhouse requested. Check one floor, one room and one entrance; rendering/layout remain unverified.'or why)end
+  end)
+  local note=bar:CreateFontString(nil,'OVERLAY','GameFontNormalSmall');note:SetPoint('TOPLEFT',8,-58)
+  note:SetText('Preferred home test: Elwynn farmhouse [106965] | Layout unverified')
+  bar.addFarmhouse=add
+ end
  v.world3DCameraBar=bar;return bar
 end
 function E.Tick(v,dt)

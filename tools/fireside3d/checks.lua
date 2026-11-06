@@ -7,6 +7,7 @@ C.onRegister=function(key,d)ns.WardenWorldScenes.props[key]=d.props;ns.WardenWor
 load('WardenSceneObjectControls.lua');load('WardenNativeScene.lua');load('World3D/Definitions.lua');load('World3D/Coordinates.lua');load('World3D/Scene.lua')
 local F,N=ns.Fireside3D,ns.WardenNativeScene
 assert(#F.houses==0 and #F.buildingCandidates==4 and F.manualBuildingTests and F.PRIMARY=='square')
+assert(F.preferredBuilding.fileID==106965 and not F.preferredBuilding.layoutVerified,'the focused farmhouse test must not claim a verified floor plan')
 local models={};for _,h in ipairs(F.buildingCandidates)do assert(not models[h.fileID],'each candidate must use a different model');models[h.fileID]=true;assert(N.ActorAllowed({roomKey='fireside-3d'},h),'manual Elwynn requests must remain allowed')end
 assert(models[106851]and models[106965]and models[106848]and models[107232],'only the requested Elwynn buildings may be selected')
 local d=C.Room('square');assert(d.world3D and d.reader and #d.plates==0 and #d.outside==0 and #d.flags==0 and d.layoutSlot=='fireside-3d-elwynn-manual')
@@ -75,6 +76,8 @@ assert(F.Catalog.Search('house')and requested==1,'lazy catalog should load only 
 for _,r in ipairs(Fireside3DAssetIndex)do assert(F.Catalog.Compatible(r)or F.Catalog.IsCandidate(r))end
 assert(not F.Catalog.Compatible(rows[1])and F.Catalog.IsCandidate(rows[1]),'Elwynn WMO entries remain candidates, not compatible/verified props')
 assert(#F.Catalog.Search('','Elwynn buildings')==4,'all four buildings must remain available in the existing editor')
+local preferred=F.Catalog.Search('one room')[1]
+assert(preferred and preferred.fileID==106965 and preferred.preferredTest and preferred.listfileGroupCount==2 and preferred.layoutVerified==false,'searchable research metadata must distinguish the desired layout from proof')
 assert(#F.Catalog.Search('203656')==0 and #F.Catalog.Search('190430')==0,'remove rejected Arathi and swamp building references')
 assert(not F.Catalog.IsCandidate({fileID=106851,format='WMO',zone='Other zone',status='ELWYNN_WMO_RENDER_UNVERIFIED'}))
 assert(not F.Catalog.Compatible({format='M2',era='RETAIL'}),'retail housing must not appear in the Forever catalog')
@@ -86,7 +89,17 @@ end
 ns.WardenSceneEditor=editor;assert(F.Catalog.BindExistingEditor());assert(editor.AddObjectForm()=='original form')
 local count=#editor.ObjectCatalogue;editor.AddObjectForm();assert(#editor.ObjectCatalogue==count,'do not append duplicates on reopening')
 assert(#editor.FilterObjects('Elwynn buildings','goldshireinn.wmo')==1,'search supports the actual Elwynn model path')
+load('World3D/EditorCamera.lua')
+local view={ActiveRoom=function()return{definition=d}end};local added
+editor.scene=F.PRIMARY;editor.Realm=function()return view end;editor.active=true
+editor.AddObject=function(...)added={...};return true,'existing editor slot'end
+local ok,slot=F.Catalog.SpawnPreferred(view)
+assert(ok and slot=='existing editor slot'and added[1]==106965 and added[2]=='Elwynn farmhouse'and added[3]==7 and added[4]==false and added[5]==0,'farmhouse shortcut must use the existing AddObject with preview collision')
+added=nil;editor.active=false;assert(not F.Catalog.SpawnPreferred(view)and added==nil,'the shortcut cannot spawn outside the existing editor')
+editor.active=true;InCombatLockdown=function()return true end;assert(not F.Catalog.SpawnPreferred(view)and added==nil,'combat must retain input isolation')
+InCombatLockdown=function()return false end;editor.active=false
 ns.WardenSceneEditor=nil
+print('PASS: preferred farmhouse research remains unverified; manual shortcut reuses existing editor AddObject and guards')
 print('PASS: no automatic building requests, all four editor candidates retained, unchanged manual native loading with per-model diagnostics, active housing objects, fresh layout slot, logical collision, 360 placement, Live slots/codec/geometry and lazy editor selection')
 -- Existing Live publisher: no handshake/transport is run. Verify manual movement
 -- uses the same M state/codec and coalescing, with a bounded six-Hz signature.

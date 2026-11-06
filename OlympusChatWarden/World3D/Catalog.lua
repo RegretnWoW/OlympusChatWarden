@@ -20,6 +20,7 @@ function C.Load()
  C.rows=compatible;return compatible
 end
 function C.Label(r)
+ if r.preferredTest then return r.label..' (small home test; unverified)'end
  if C.IsCandidate(r)then return r.label..' (Elwynn WMO; unverified)'end
  return r.label..(r.era=='CLASSIC'and' (Classic M2)'or' (existing Forever reference)')
 end
@@ -36,10 +37,19 @@ function C.Search(query,category)
  local rows,why=C.Load();if not rows then return nil,why end
  local out={};query=tostring(query or''):lower():sub(1,100)
  for _,r in ipairs(rows)do
-  local text=(r.label..' '..r.category..' '..tostring(r.fileID or'')..' '..r.path..' '..(r.zone or'')):lower()
+  local text=(r.label..' '..r.category..' '..tostring(r.fileID or'')..' '..r.path..' '..(r.zone or'')..' '..(r.requestedLayout or'')):lower()
   if(not category or category=='all'or r.category==category)and(query==''or text:find(query,1,true))then out[#out+1]=r;if #out==100 then break end end
  end
  return out
+end
+function C.SpawnPreferred(v)
+ local F=ns.Fireside3D;local editor=ns.WardenSceneEditor
+ if not v or not F.EditorCamera or not F.EditorCamera.Active(v)or not editor.AddObject then return false,'Open the existing scene editor first'end
+ if ns.MainStorageBlocked or(ns.UI2 and ns.UI2.locked)or(type(InCombatLockdown)=='function'and InCombatLockdown())then return false,'Scene editing is unavailable'end
+ local target=F.preferredBuilding
+ -- Existing editor guards, placement and native loader remain authoritative.
+ -- Decoration collision permits interior inspection without a solid bounds box.
+ return editor.AddObject(target.fileID,target.label,target.height,false,0)
 end
 function C.BindExistingEditor()
  local E=ns.WardenSceneEditor;if not E or E.fireside3DAssetBound or not E.AddObjectForm then return false end

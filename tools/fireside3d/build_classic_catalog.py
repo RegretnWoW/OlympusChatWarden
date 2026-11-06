@@ -20,12 +20,18 @@ def main():
     expected = {int(r['fileID']): r['path'] for r in selected}
     assert len(expected) == len(selected) <= 512, 'Duplicate/excessive asset references'
     found = {}
+    farm_groups = {}
+    farm_stem = 'world/wmo/azeroth/buildings/human_farm/farm_'
     with args.listfile.open(encoding='utf-8-sig') as f:
         for line in f:
             number, sep, path = line.strip().partition(';')
             if sep and number.isdigit() and int(number) in expected:
                 found[int(number)] = path.replace('\\', '/').lower()
+            if sep and number.isdigit() and path.startswith(farm_stem) and path.endswith('.wmo') and path[len(farm_stem):-4].isdigit():
+                farm_groups[int(number)] = path
     assert found == expected, 'An explicit model ID/path mapping is absent or has changed'
+    assert farm_groups == {106966:farm_stem+'000.wmo',106967:farm_stem+'001.wmo'}, 'Farm group-file research needs review'
+    selected.sort(key=lambda r: int(r['fileID']) != 106965)
     rows = []
     for r in selected:
         fmt = r['path'].rsplit('.', 1)[1].upper()
@@ -34,6 +40,9 @@ def main():
                                and r['status'] == 'ELWYNN_WMO_RENDER_UNVERIFIED'
                                and int(r['fileID']) in {106851,106965,106848,107232})
         row = dict(r, fileID=int(r['fileID']), height=float(r['height']), format=fmt)
+        if row['fileID'] == 106965:
+            row.update(preferredTest=True, requestedLayout='one storey one room one entrance', layoutVerified=False,
+                       listfileGroupCount=len(farm_groups), groupFileIDs='106966,106967')
         rows.append(row)
     def lua(row):
         return '{' + ','.join('[' + json.dumps(k) + ']=' + json.dumps(v) for k, v in row.items()) + '}'
