@@ -1,0 +1,57 @@
+-- Current release-candidate help. Historical notes remain archived, not instructions.
+local _,ns=...
+local H={DATE='2026-11-05',revision='release-readiness-audit1',pages={}};ns.WardenReleaseHelp=H
+local function page(id,title,text)H.pages[#H.pages+1]={id=id,title=title,text=text}end
+page('basics','Make yourself at home',[[Open /fireside whenever you want a place by the fire. Close Menu to explore, then click clear ground to walk. Open Menu brings your tools back; X closes Fireside. These actions move your character inside Fireside, not in Azeroth.
+Olympus Hall is your overview. Olympian Oasis is home. Aether connects people; Athenaeum is your library; Atlas holds adventures and routes. Logos keeps chat tools, Aegis helps with unwanted contact, and Vigil gathers your notices.
+All tools are available. Recording and sharing are your choices, and opening a tab never turns them on. Find those choices in Settings or replay the welcome tour.]])
+page('history','The stories you keep',[[Turn on Record my adventures to keep supported quests, encounters, routes and character history. Pausing keeps what you have already saved. Events missed while recording is off cannot be added later. Conversations, inspections and sharing have their own choices.
+Atlas lets you revisit recorded events and activities. Athena’s Journal turns retained details into reading pages, alongside clearly separated world lore. A dated observation may no longer be current; missing participants, rewards and outcomes stay unknown.]])
+page('journal','Your Journal and keepsakes',[[At home in Olympian Oasis, click the book on your desk to open Athena’s Journal. Turn pages with the nearby arrows, follow a source when you want more detail, and close the book to return to your room.
+Personal notes and drawings stay private unless you deliberately publish something. Your own memories are welcome; they are kept separate from recorded accomplishments.
+Click the badge shelf to arrange your earned keepsakes. Edit showcase lets you add, move, swap or remove badges and save the arrangement.]])
+page('realm','Find your way through Aetheria',[[Click clear ground to walk. Use a chair or campfire to approach and sit where your character supports the animation; click elsewhere to stand. Scenery and other people can block a path.
+Pyragore Fields leads to The Agora, the heart of Pyragore. The Agora connects the Fields to Olympian Oasis. Your home’s lower-left exit leads back to The Agora. Hover over an entrance to see its destination; the Oasis tab is your shortcut home.
+Recorded characters in your private scenes are memories, not proof that those players are online. Enter Aether Live when you want to look for other participants. Private scene editing is available through the optional Hephaestus Lab companion.]])
+page('visitors','People you remember',[[Profiles bring together observations of the same character. Check the dates and sources: an inspection or first meeting may have incomplete details.
+Your private scenes can show up to ten remembered characters. Important players, friends and watched people are preferred when suitable appearances are available. These are scenic memories, not online visitors or proof of a meeting.
+When an exact current model is unavailable, Fireside uses an approximate race, body and available equipment. Missing face, hair and clothing details are not invented as an exact likeness.]])
+page('replay','Walk your memories again',[[Open Atlas, choose Journey Replay and select a zone with saved travel. Play, pause or restart the journey on WoW’s map. Gaps, teleports and missing coordinates remain breaks in the trail. Movement between recorded points is only a visual approximation; replay never rewrites your route.
+Athena’s Moments can request screenshots for supported moments. Check WoW’s Screenshots folder to see whether a file was created. Screenshots are never uploaded automatically; attach one yourself if you choose to share it.]])
+page('aether','Aether · a world to share',[[Aether Live lets participating Olympus members meet in Aetheria. Choose Enter Aether Live and review the consent screen. Enrollment continues automatically when an Olympus host who can welcome you is available. Discovering Players means nobody has answered yet; Connected counts players who have answered.
+Live sends temporary character appearance, scene and movement information. Your recorded visitors are hidden while Live is active and return when you leave. Your personal adventure history stays private.
+Aether Relay is separate: it carries approved community information such as posts, replies and profiles. Review what you publish or share. Your Journal, conversations and precise routes are not automatically made public. A saved or queued item does not guarantee delivery to another player.]])
+page('codex','A library beside the fire',[[Search Athenaeum for a quest, creature, place, item, dungeon, raid or battleground. Follow article links to explore related stories and sources. Reading an article does not mean your character visited or completed it.
+Spoiler settings can hide details you have not reached. Incomplete or uncertain information is marked. External sources open as copyable links; Fireside does not browse the web in the background.]])
+page('chat','Logos · make chat comfortable',[[Choose Mild, Balanced or Strict in Settings, then review matches in Logos. Warnings, redactions, replacements and hiding affect what you see in different ways. Check why a message matched before changing a rule.
+Olympus Protection and King Protection are the stock categories. Optional categories and vocabulary come from signed rule packs. Imports are checked before they are used.
+Giving feedback does not automatically teach a new rule or publish one. Keeping original messages and preserving conversations are separate choices. A filter match alone is not proof of misconduct.]])
+page('shield','Aegis · a little peace of mind',[[Aegis helps you manage unwanted invitations and repeated unwanted contact. Review its protections in Settings and keep people you trust on your allowed list.
+Some actions cannot run during combat or on every WoW client. If a protection is unavailable, try again after combat. Your preferences stay saved.]])
+page('signal','Vigil · keep the moments that matter close',[[Vigil gathers supported mentions and useful alerts. The bell opens your notifications, including earned keepsake notices. Mark read keeps an entry; Clear removes it from that feed.
+Choose the sounds and notices you want in Settings. WoW’s volume and mute still apply. Sharing observations do not prove who muted you, and counters do not become official achievements.]])
+page('sound','Settle into the sound of Fireside',[[Choose music, ambience and everyday scene sounds in Settings. Each place has its own soundtrack. The menu has its theme; closing it returns to the Fields or Home music. Where your client supports it, tracks resume near the point you left. The welcome cinematic starts its music fresh.
+Closing Fireside returns music control to WoW. Fireside respects the game’s volume and mute settings.
+Reduced motion simplifies page turns and transitions and pauses decorative movement. For a still campfire welcome, approach the fire first. Change window scale to find a comfortable reading size.]])
+page('backup','Athena’s Safeguard · keep your story safe',[[Athena’s Safeguard always protects a save that could not be read safely. Optional automatic snapshots add recovery copies. Change their frequency and retention in Settings → Data & backups.
+For a complete backup, close WoW normally and copy all Fireside SavedVariables files and their .bak files from the correct client’s WTF/Account folder to a separate safe place. Include matching account and character files. A selected-history export does not include every setting or saved feature.
+Before restoring, preserve the current files too. Never test recovery on your only copy. Replacing addon program folders under Interface/AddOns should leave WTF and your saved adventures alone. Keep damaged or newer-format originals for recovery; do not clear history to make an error disappear.]])
+page('report','Tell us what happened',[[Open Settings → Help → Report a Bug. Tell us what happened, what you expected and the steps that led there. Your version and report time are included to help us find the problem.
+Troubleshooting details are optional and can be previewed. Chat, whispers, private profiles, routes, credentials and complete save files are never attached automatically. Review and remove anything you do not want to share.
+Save & preview keeps a report on this computer. Copy it to your own text file or chosen support destination. Add screenshots yourself if you want to. Sending through Relay is a separate action; a queued report has not necessarily reached its recipient.]])
+page('troubleshooting','When something does not feel right',[[Close the Journal, showcase or editor, return to the wide scene and try again. Let a transition finish before starting another. If a model does not appear, include that in a bug report.
+For sound, check both WoW’s mute/volume and Fireside’s preferences. For screenshots, check WoW’s Screenshots folder. For Aether, read the connection status: being ready or waiting is different from another player answering.
+Your saved story comes first. Back up before recovery, keep original files and never erase history just to hide an error. Some features and connections are still being tested on real clients.]])
+page('credits','Keep the Fire Alive',[[Fireside brings approved Warcraft and Olympus artwork together with original music and models already installed with your client. Source and license notices are included with the addon.
+The campfire welcome follows your own character and the fire. Skip is available immediately, and replaying it does not erase your history or change your recording choices. The misplaced cinematic book has been removed; Athena’s Journal remains at home.
+The welcome leads into setup, then this patch’s notes. Make Fireside your own—and come back to the fire whenever you need a moment.]])
+local aliases={chronicle='history',intel='visitors',privacy='backup',relay='report',journey='journal',reading='journal',data='backup',audio='sound',signalwarden='signal',shieldwarden='shield'}
+function ns.TutorialTopics()local out={};for _,p in ipairs(H.pages)do out[#out+1]={id=p.id,title=p.title}end;return out end
+function ns.TutorialPage(id)id=aliases[id]or id;for _,p in ipairs(H.pages)do if p.id==id then return p end end;return H.pages[1]end
+local rows=ns.UI2Settings.Rows
+-- The registry uses Rows in current builds; bind defensively for older layouts.
+if rows then ns.UI2Settings.Rows=function(category,...)local out=rows(category,...);if category=='advanced'then
+ table.insert(out,1,{id='HELP.RELEASE.GUIDE',title='Current build guide',detail=H.DATE..' · all tabs, privacy and recovery',height=43,activate=function()return ns.Workspace.Guide('basics')end})
+ table.insert(out,2,{id='HELP.RELEASE.BUG',title='Report a Bug',detail='Local save, preview and copy; optional safe diagnostics',height=43,activate=function()return ns.WardenBugReport.Open()end})
+ end;return out end end
+if ns.CollectionGuide then for _,p in pairs(ns.CollectionGuide.topics)do if type(p.where)=='string'then p.where=p.where:gsub('Recorded Events:', 'Atlas > Recorded history:'):gsub('Recording > Backup & Restore','Settings > Data & backups')end end end

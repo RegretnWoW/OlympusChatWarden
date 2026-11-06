@@ -1,0 +1,13 @@
+FIRESIDE - APPROVED SOUNDTRACKS, NOVEMBER 3, 2026
+
+Main menu: Beyond the Horizon, owner-approved Concept B, full eight-minute loop.
+Campfire welcome: 22.5-second phrase from 0:30-0:52.5, with a gentle entry
+and a 4.5-second release following the cinematic camera's return at 18 seconds.
+Fields and Home: existing approved layered masters, unchanged.
+Rendered with the owner's installed Spitfire Symphony Orchestra Discover in
+Kontakt 8. No sample libraries, plugin/license states or private keys ship.
+
+Music uses the existing Music-channel owner, per-track bookmarks, 650ms entry
+fades and 300ms cue overlaps. Full-track files preserve the native fallback.
+No global game sound settings are changed. Forever and Retail device timing,
+audible continuity and cinematic synchronization require native-game testing.

@@ -1,0 +1,7 @@
+All Rights Reserved.
+
+Copyright (c) 2026 Regretn.
+
+This addon may be installed and used for personal gameplay. Redistribution,
+modification for redistribution, and inclusion in other packages require the
+author's permission. No warranty is provided.

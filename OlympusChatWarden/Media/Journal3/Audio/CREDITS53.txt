@@ -1,0 +1,6 @@
+Athena's Hearth — owner-supplied master mix
+Source: MasterMix.wav, provided by the owner for the player home.
+Full master balance and timing retained; stereo OGG versions for existing 25/50/75/100 percent Warden gain choices.
+No extra fades, edits, dynamic compression or loudness normalization.
+Earlier demo and attribution remain in CREDITS52.txt / CREDITS31.txt.
+No third-party author or license claim is inferred.
