@@ -45,3 +45,41 @@ assert(checked>100)
 local level={position={0,-10,2},target={0,0,2},fov=.85}
 assert(not B.GroundPoint(level,.5,.1,16/9),'sky rays must not draw floor')
 print('PASS: '..checked..' inverse-ground projection samples; horizon rejection')
+-- Exercise the adapted production seat controller using pure actor records.
+-- Place/Animate/Route record native boundary calls; this is not a visual simulator.
+assert(loadfile('Fireside3DExperiment/Interactions.lua'))('test',ns)
+local combat=false
+InCombatLockdown=function()return combat end
+local e={actors={},order={}}
+local a={id='player',spec={unit='player',controlled=true},ready=true,position={0,-3,0},top=1.85,scale=1,bounds={-.3,-.3,0,.3,.3,1.85},capabilities={[0]=true,[4]=true,[102]=true},engine=e,yaw=0}
+local seat={id='chair',spec={fileID=198114,interaction='chair',seatFraction=.29},ready=true,position={0,0,0},top=1.55,scale=1,bounds={-.5,-.5,0,.5,.5,1.55},worldYaw=0}
+e.actors={player=a,chair=seat};e.order={a,seat}
+function e:Place(who,x,y,z,yaw)who.position={x,y,z};who.yaw=yaw;return true end
+function e:Animate(who,id)assert(who.capabilities[id]);who.lastAnimation=id;return true end
+function e:Route(who,path,duration,animation,nav)assert(N.CheckPath(path,nav));who.route={path=path};return true end
+local v,s=ns.ExperimentInteractions.Bind(e,shot,function()
+ return N.PeopleNavigation({ground=true,floor=0,radius=.3,boundary={-10,-10,10,10},obstacles={N.Footprint(shot,seat)}},e,a)
+end)
+assert(v:InteractPlayer(s,'chair') and a.pendingInteraction and a.route,'click must plan a clear approach')
+local intent=a.pendingInteraction;local endpoint=a.route.path.samples[#a.route.path.samples]
+e:Place(a,endpoint.x,endpoint.y,0,0);a.route=nil;a.pendingInteraction=nil
+local approach={unpack(a.position)}
+assert(v:SeatPlayer(s,a,intent) and a.seating.phase=='settle')
+for i=1,12 do v:UpdatePlayerSeat(s,a,.1)end
+assert(a.seating.phase=='hold' and a.lastAnimation==102,'settle must select probed chair animation')
+assert(a.position[1]==seat.position[1] and a.position[2]==seat.position[2])
+v:LeavePlayerSeat(s,a)
+for i=1,10 do v:UpdatePlayerSeat(s,a,.1)end
+assert(not a.seating and a.lastAnimation==0 and a.position[1]==approach[1] and a.position[2]==approach[2],'stand must return to approach before free movement')
+a.capabilities[102]=false
+local yes,why=v:InteractPlayer(s,'chair');assert(not yes and why:find('animation'),'unsupported poses must fail explicitly')
+a.capabilities[102]=true;combat=true
+assert(not v:InteractPlayer(s,'chair'),'combat must block interactions');combat=false
+-- Same native body selector as the production visitor path, without private history.
+assert(N.BodyDisplay({raceID=1,sex=2})==1276 and N.BodyDisplay({raceID=1,sex=3})==176)
+local npc={id='npc-outside',spec={appearance={raceID=1,sex=3}},ready=true,position={2,-3,0},top=1.8,scale=1,authoredBaseScale=1}
+e.order[#e.order+1]=npc
+e:Place(a,0,-3,0,0)
+assert(not N.CanStep(e,a,a.position,{4,-3,0}),'swept person clearance must block walking through NPC')
+assert(N.CanStep(e,a,a.position,{0,-4,0}))
+print('PASS: chair approach, settle/hold/stand, unsupported animation, combat guard, generic NPC selection and NPC clearance')
